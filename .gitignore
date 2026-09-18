@@ -58,3 +58,7 @@ out/
 *~
 
 dataset/
+
+# Data — el dataset del reto no se versiona.
+# Se reparte aparte (ZIP de los organizadores); copiarlo a mano en data/.
+data/

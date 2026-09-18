@@ -1,0 +1,5 @@
+duckdb==1.5.5
+numpy==2.5.3
+scipy==1.18.1
+scikit-learn==1.9.1
+threadpoolctl==3.7.0

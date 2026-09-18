@@ -1,0 +1,3694 @@
+{
+  "duckdb_version": "1.5.5",
+  "tables": {
+    "balances": {
+      "rows": 7996,
+      "unique_pk": 7996,
+      "columns": [
+        "product_id",
+        "company_id",
+        "date",
+        "balance",
+        "available",
+        "granted",
+        "liquidity",
+        "countable"
+      ],
+      "bytes": 480768,
+      "sha256": "86664c229cf52554d75d7efb864fc07a94a1bebcd61a3ac85abc344f3ba2a30c",
+      "nulls": {
+        "product_id": 0,
+        "company_id": 0,
+        "date": 0,
+        "balance": 0,
+        "available": 7996,
+        "granted": 5348,
+        "liquidity": 6100,
+        "countable": 7332
+      },
+      "dates": {
+        "date": {
+          "min": "2026-08-25 00:00:00",
+          "max": "2026-09-01 00:00:00",
+          "invalid": 0
+        }
+      },
+      "domains": {}
+    },
+    "banking_products": {
+      "rows": 5987,
+      "unique_pk": 5987,
+      "columns": [
+        "product_id",
+        "company_id",
+        "label",
+        "type",
+        "bank_name",
+        "service",
+        "currency",
+        "created_at"
+      ],
+      "bytes": 596360,
+      "sha256": "0fc5aa20fea32981a962cc08251720ece3f2afad8495910111d2fd8b16514d3c",
+      "nulls": {
+        "product_id": 0,
+        "company_id": 0,
+        "label": 0,
+        "type": 0,
+        "bank_name": 0,
+        "service": 0,
+        "currency": 0,
+        "created_at": 0
+      },
+      "dates": {
+        "created_at": {
+          "min": "2021-11-18 15:54:13",
+          "max": "2026-09-15 13:36:10",
+          "invalid": 0
+        }
+      },
+      "domains": {
+        "type": [
+          {
+            "value": "checking",
+            "n": 4854
+          },
+          {
+            "value": "card",
+            "n": 796
+          },
+          {
+            "value": "investment",
+            "n": 201
+          },
+          {
+            "value": "wallet",
+            "n": 34
+          },
+          {
+            "value": "tpv",
+            "n": 25
+          },
+          {
+            "value": "risk",
+            "n": 25
+          },
+          {
+            "value": "expensesPlatform",
+            "n": 23
+          },
+          {
+            "value": "lineofcomex",
+            "n": 19
+          },
+          {
+            "value": "saving",
+            "n": 10
+          }
+        ],
+        "currency": [
+          {
+            "value": "EUR",
+            "n": 4919
+          },
+          {
+            "value": "USD",
+            "n": 582
+          },
+          {
+            "value": "GBP",
+            "n": 197
+          },
+          {
+            "value": "MXN",
+            "n": 25
+          },
+          {
+            "value": "CAD",
+            "n": 21
+          },
+          {
+            "value": "NOK",
+            "n": 21
+          },
+          {
+            "value": "PLN",
+            "n": 18
+          },
+          {
+            "value": "CHF",
+            "n": 17
+          },
+          {
+            "value": "AUD",
+            "n": 17
+          },
+          {
+            "value": "BRL",
+            "n": 15
+          },
+          {
+            "value": "DKK",
+            "n": 15
+          },
+          {
+            "value": "SEK",
+            "n": 15
+          },
+          {
+            "value": "GHS",
+            "n": 15
+          },
+          {
+            "value": "AOA",
+            "n": 13
+          },
+          {
+            "value": "COP",
+            "n": 10
+          },
+          {
+            "value": "CZK",
+            "n": 9
+          },
+          {
+            "value": "SGD",
+            "n": 8
+          },
+          {
+            "value": "NZD",
+            "n": 7
+          },
+          {
+            "value": "PEN",
+            "n": 7
+          },
+          {
+            "value": "JPY",
+            "n": 7
+          },
+          {
+            "value": "AED",
+            "n": 6
+          },
+          {
+            "value": "CLP",
+            "n": 6
+          },
+          {
+            "value": "ARS",
+            "n": 6
+          },
+          {
+            "value": "HUF",
+            "n": 5
+          },
+          {
+            "value": "XOF",
+            "n": 4
+          },
+          {
+            "value": "BAM",
+            "n": 4
+          },
+          {
+            "value": "HKD",
+            "n": 3
+          },
+          {
+            "value": "RON",
+            "n": 3
+          },
+          {
+            "value": "PHP",
+            "n": 2
+          },
+          {
+            "value": "INR",
+            "n": 1
+          },
+          {
+            "value": "VND",
+            "n": 1
+          },
+          {
+            "value": "ILS",
+            "n": 1
+          },
+          {
+            "value": "TRY",
+            "n": 1
+          },
+          {
+            "value": "MZN",
+            "n": 1
+          },
+          {
+            "value": "ZAR",
+            "n": 1
+          },
+          {
+            "value": "RUB",
+            "n": 1
+          },
+          {
+            "value": "NAD",
+            "n": 1
+          },
+          {
+            "value": "MYR",
+            "n": 1
+          },
+          {
+            "value": "THB",
+            "n": 1
+          }
+        ]
+      }
+    },
+    "companies": {
+      "rows": 1286,
+      "unique_pk": 1286,
+      "columns": [
+        "company_id",
+        "group_id",
+        "country",
+        "currency",
+        "erp",
+        "created_at"
+      ],
+      "bytes": 70591,
+      "sha256": "5496ad00a1e9228f7e756a55c71c512fd06a73ad45a09ce3f103a620a5ad72ae",
+      "nulls": {
+        "company_id": 0,
+        "group_id": 0,
+        "country": 1056,
+        "currency": 0,
+        "erp": 541,
+        "created_at": 0
+      },
+      "dates": {
+        "created_at": {
+          "min": "2021-11-17 10:55:30",
+          "max": "2026-07-16 06:51:09",
+          "invalid": 0
+        }
+      },
+      "domains": {
+        "country": [
+          {
+            "value": null,
+            "n": 1056
+          },
+          {
+            "value": "ES",
+            "n": 142
+          },
+          {
+            "value": "NL",
+            "n": 14
+          },
+          {
+            "value": "ESPAÑA",
+            "n": 14
+          },
+          {
+            "value": "DE",
+            "n": 11
+          },
+          {
+            "value": "España",
+            "n": 9
+          },
+          {
+            "value": "FR",
+            "n": 6
+          },
+          {
+            "value": "Portugal",
+            "n": 5
+          },
+          {
+            "value": "US",
+            "n": 5
+          },
+          {
+            "value": "GB",
+            "n": 4
+          },
+          {
+            "value": "IT",
+            "n": 3
+          },
+          {
+            "value": "BE",
+            "n": 3
+          },
+          {
+            "value": "PT",
+            "n": 3
+          },
+          {
+            "value": "ESPANYA",
+            "n": 2
+          },
+          {
+            "value": "Espanya",
+            "n": 1
+          },
+          {
+            "value": "Italia",
+            "n": 1
+          },
+          {
+            "value": "PL",
+            "n": 1
+          },
+          {
+            "value": "Spain",
+            "n": 1
+          },
+          {
+            "value": "SE",
+            "n": 1
+          },
+          {
+            "value": "Malaysia",
+            "n": 1
+          },
+          {
+            "value": "Alemania",
+            "n": 1
+          },
+          {
+            "value": "España ",
+            "n": 1
+          },
+          {
+            "value": "AT",
+            "n": 1
+          }
+        ],
+        "currency": [
+          {
+            "value": "EUR",
+            "n": 1149
+          },
+          {
+            "value": "GBP",
+            "n": 42
+          },
+          {
+            "value": "USD",
+            "n": 36
+          },
+          {
+            "value": "MXN",
+            "n": 7
+          },
+          {
+            "value": "DKK",
+            "n": 6
+          },
+          {
+            "value": "COP",
+            "n": 5
+          },
+          {
+            "value": "AUD",
+            "n": 5
+          },
+          {
+            "value": "PLN",
+            "n": 4
+          },
+          {
+            "value": "CLP",
+            "n": 3
+          },
+          {
+            "value": "CHF",
+            "n": 3
+          },
+          {
+            "value": "CAD",
+            "n": 3
+          },
+          {
+            "value": "BRL",
+            "n": 3
+          },
+          {
+            "value": "AED",
+            "n": 2
+          },
+          {
+            "value": "NZD",
+            "n": 2
+          },
+          {
+            "value": "AOA",
+            "n": 2
+          },
+          {
+            "value": "PEN",
+            "n": 2
+          },
+          {
+            "value": "JPY",
+            "n": 1
+          },
+          {
+            "value": "INR",
+            "n": 1
+          },
+          {
+            "value": "VND",
+            "n": 1
+          },
+          {
+            "value": "SEK",
+            "n": 1
+          },
+          {
+            "value": "GHS",
+            "n": 1
+          },
+          {
+            "value": "NOK",
+            "n": 1
+          },
+          {
+            "value": "MYR",
+            "n": 1
+          },
+          {
+            "value": "XOF",
+            "n": 1
+          },
+          {
+            "value": "NAD",
+            "n": 1
+          },
+          {
+            "value": "BAM",
+            "n": 1
+          },
+          {
+            "value": "CZK",
+            "n": 1
+          },
+          {
+            "value": "ARS",
+            "n": 1
+          }
+        ],
+        "erp": [
+          {
+            "value": null,
+            "n": 541
+          },
+          {
+            "value": "businessCentral",
+            "n": 322
+          },
+          {
+            "value": "netsuite",
+            "n": 143
+          },
+          {
+            "value": "businessOne",
+            "n": 47
+          },
+          {
+            "value": "sage200",
+            "n": 47
+          },
+          {
+            "value": "dynamicsAx",
+            "n": 42
+          },
+          {
+            "value": "sageX3",
+            "n": 30
+          },
+          {
+            "value": "m3Rosetta",
+            "n": 21
+          },
+          {
+            "value": "distritoK",
+            "n": 20
+          },
+          {
+            "value": "navision",
+            "n": 18
+          },
+          {
+            "value": "a3",
+            "n": 14
+          },
+          {
+            "value": "etendo",
+            "n": 11
+          },
+          {
+            "value": "r3",
+            "n": 10
+          },
+          {
+            "value": "libra",
+            "n": 7
+          },
+          {
+            "value": "sageIntacct",
+            "n": 4
+          },
+          {
+            "value": "ekon",
+            "n": 3
+          },
+          {
+            "value": "fo",
+            "n": 2
+          },
+          {
+            "value": "holded",
+            "n": 1
+          },
+          {
+            "value": "sage50",
+            "n": 1
+          },
+          {
+            "value": "sapByd",
+            "n": 1
+          },
+          {
+            "value": "datev",
+            "n": 1
+          }
+        ]
+      }
+    },
+    "debt_products": {
+      "rows": 2239,
+      "unique_pk": 2239,
+      "columns": [
+        "product_id",
+        "company_id",
+        "label",
+        "type",
+        "bank_name",
+        "service",
+        "currency",
+        "created_at",
+        "granted",
+        "outstanding",
+        "liquidity"
+      ],
+      "bytes": 268287,
+      "sha256": "bf38430ccd15f6a9ca8769113c5f47d4aeee8fe55c425687731481cd002f05d8",
+      "nulls": {
+        "product_id": 0,
+        "company_id": 0,
+        "label": 0,
+        "type": 0,
+        "bank_name": 0,
+        "service": 0,
+        "currency": 0,
+        "created_at": 0,
+        "granted": 169,
+        "outstanding": 0,
+        "liquidity": 1435
+      },
+      "dates": {
+        "created_at": {
+          "min": "2022-04-06 07:26:09",
+          "max": "2026-09-15 20:50:53",
+          "invalid": 0
+        }
+      },
+      "domains": {
+        "type": [
+          {
+            "value": "loan",
+            "n": 1022
+          },
+          {
+            "value": "lineofcredit",
+            "n": 536
+          },
+          {
+            "value": "confirming",
+            "n": 229
+          },
+          {
+            "value": "leasing",
+            "n": 179
+          },
+          {
+            "value": "guarantee",
+            "n": 155
+          },
+          {
+            "value": "mortgage",
+            "n": 60
+          },
+          {
+            "value": "renting",
+            "n": 34
+          },
+          {
+            "value": "factoring",
+            "n": 24
+          }
+        ],
+        "currency": [
+          {
+            "value": "EUR",
+            "n": 2221
+          },
+          {
+            "value": "USD",
+            "n": 15
+          },
+          {
+            "value": "GBP",
+            "n": 2
+          },
+          {
+            "value": "MXN",
+            "n": 1
+          }
+        ]
+      }
+    },
+    "debt_schedule_config": {
+      "rows": 87,
+      "unique_pk": 87,
+      "columns": [
+        "product_id",
+        "company_id",
+        "settlement_product_id",
+        "currency",
+        "amortization_type",
+        "interest_calc_method",
+        "amortising_frequency",
+        "granted_balance",
+        "outstanding_balance",
+        "total_periods",
+        "next_payment_date",
+        "last_payment_date",
+        "annual_interest_rate_or_spread",
+        "interest_type"
+      ],
+      "bytes": 12922,
+      "sha256": "b0d6cc3e6810e31d526eb7f4be3c2abe31496f74f5ddd58163876d60de168ea2",
+      "nulls": {
+        "product_id": 0,
+        "company_id": 0,
+        "settlement_product_id": 0,
+        "currency": 0,
+        "amortization_type": 0,
+        "interest_calc_method": 0,
+        "amortising_frequency": 0,
+        "granted_balance": 0,
+        "outstanding_balance": 0,
+        "total_periods": 0,
+        "next_payment_date": 0,
+        "last_payment_date": 0,
+        "annual_interest_rate_or_spread": 0,
+        "interest_type": 0
+      },
+      "dates": {
+        "next_payment_date": {
+          "min": "2024-03-19 00:00:00",
+          "max": "2027-01-22 00:00:00",
+          "invalid": 0
+        },
+        "last_payment_date": {
+          "min": "2024-02-27 15:09:49",
+          "max": "2026-09-15 17:34:50",
+          "invalid": 0
+        }
+      },
+      "domains": {
+        "currency": [
+          {
+            "value": "EUR",
+            "n": 87
+          }
+        ],
+        "interest_type": [
+          {
+            "value": "fixed",
+            "n": 58
+          },
+          {
+            "value": "variable",
+            "n": 29
+          }
+        ],
+        "amortising_frequency": [
+          {
+            "value": "monthly",
+            "n": 79
+          },
+          {
+            "value": "quarterly",
+            "n": 5
+          },
+          {
+            "value": "semiannually",
+            "n": 3
+          }
+        ]
+      }
+    },
+    "groups": {
+      "rows": 250,
+      "unique_pk": 250,
+      "columns": [
+        "group_id",
+        "erp",
+        "n_companies_in_sample"
+      ],
+      "bytes": 5243,
+      "sha256": "fa18d3f42cd24d7640bff22d7a9504293574c2338ce85d425e3134f18f169a8c",
+      "nulls": {
+        "group_id": 0,
+        "erp": 161,
+        "n_companies_in_sample": 0
+      },
+      "dates": {},
+      "domains": {
+        "erp": [
+          {
+            "value": null,
+            "n": 161
+          },
+          {
+            "value": "Microsoft Business Central",
+            "n": 28
+          },
+          {
+            "value": "Netsuite",
+            "n": 19
+          },
+          {
+            "value": "SAP Business One",
+            "n": 6
+          },
+          {
+            "value": "Microsoft Navision",
+            "n": 6
+          },
+          {
+            "value": "Sage 200",
+            "n": 5
+          },
+          {
+            "value": "Sage X3",
+            "n": 4
+          },
+          {
+            "value": "Sage 50",
+            "n": 3
+          },
+          {
+            "value": "SAP R3 / S4",
+            "n": 2
+          },
+          {
+            "value": "Microsoft Dynamics - AX 2012",
+            "n": 2
+          },
+          {
+            "value": "A3 ERP",
+            "n": 2
+          },
+          {
+            "value": "Microsoft Dynamics - F&O",
+            "n": 2
+          },
+          {
+            "value": "Oracle Cloud",
+            "n": 1
+          },
+          {
+            "value": "LIBRA",
+            "n": 1
+          },
+          {
+            "value": "Desarrollo propio",
+            "n": 1
+          },
+          {
+            "value": "MOVEX",
+            "n": 1
+          },
+          {
+            "value": "Infor M3 ",
+            "n": 1
+          },
+          {
+            "value": "Odoo",
+            "n": 1
+          },
+          {
+            "value": "Holded",
+            "n": 1
+          },
+          {
+            "value": "Microsoft Dynamics - AX 2009",
+            "n": 1
+          },
+          {
+            "value": "Etendo",
+            "n": 1
+          },
+          {
+            "value": "Distrito K",
+            "n": 1
+          }
+        ]
+      }
+    },
+    "invoices": {
+      "rows": 897894,
+      "unique_pk": 897894,
+      "columns": [
+        "operation_id",
+        "company_id",
+        "document_type",
+        "issuance_date",
+        "due_date",
+        "payment_date",
+        "amount",
+        "pending_amount",
+        "currency",
+        "accounting_currency",
+        "exchange_rate",
+        "status",
+        "concept",
+        "counterparty_id"
+      ],
+      "bytes": 172547599,
+      "sha256": "6686bd878244881bac78348a108852f3f30713ef244267f1fa3754b9be619c53",
+      "nulls": {
+        "operation_id": 0,
+        "company_id": 0,
+        "document_type": 0,
+        "issuance_date": 0,
+        "due_date": 8,
+        "payment_date": 6,
+        "amount": 0,
+        "pending_amount": 0,
+        "currency": 0,
+        "accounting_currency": 0,
+        "exchange_rate": 261,
+        "status": 0,
+        "concept": 3967,
+        "counterparty_id": 11457
+      },
+      "dates": {
+        "issuance_date": {
+          "min": "2024-09-01 00:00:00",
+          "max": "2026-09-01 22:00:00",
+          "invalid": 0
+        },
+        "due_date": {
+          "min": "2000-03-01 00:00:00",
+          "max": "7025-07-31 00:00:00",
+          "invalid": 0
+        },
+        "payment_date": {
+          "min": "2000-10-31 00:00:00",
+          "max": "6913-11-20 00:00:00",
+          "invalid": 0
+        }
+      },
+      "domains": {
+        "currency": [
+          {
+            "value": "EUR",
+            "n": 767795
+          },
+          {
+            "value": "USD",
+            "n": 55608
+          },
+          {
+            "value": "GBP",
+            "n": 21048
+          },
+          {
+            "value": "CLP",
+            "n": 8247
+          },
+          {
+            "value": "CAD",
+            "n": 6593
+          },
+          {
+            "value": "MXN",
+            "n": 6527
+          },
+          {
+            "value": "COP",
+            "n": 6102
+          },
+          {
+            "value": "BRL",
+            "n": 5265
+          },
+          {
+            "value": "DKK",
+            "n": 4351
+          },
+          {
+            "value": "NAD",
+            "n": 3375
+          },
+          {
+            "value": "AUD",
+            "n": 2551
+          },
+          {
+            "value": "MZN",
+            "n": 2078
+          },
+          {
+            "value": "ARS",
+            "n": 1987
+          },
+          {
+            "value": "PEN",
+            "n": 1855
+          },
+          {
+            "value": "NZD",
+            "n": 728
+          },
+          {
+            "value": "SEK",
+            "n": 656
+          },
+          {
+            "value": "SGD",
+            "n": 560
+          },
+          {
+            "value": "NOK",
+            "n": 499
+          },
+          {
+            "value": "PLN",
+            "n": 451
+          },
+          {
+            "value": "CHF",
+            "n": 400
+          },
+          {
+            "value": "HKD",
+            "n": 266
+          },
+          {
+            "value": "TRY",
+            "n": 209
+          },
+          {
+            "value": "INR",
+            "n": 185
+          },
+          {
+            "value": "AED",
+            "n": 131
+          },
+          {
+            "value": "MYR",
+            "n": 100
+          },
+          {
+            "value": "JPY",
+            "n": 67
+          },
+          {
+            "value": "ILS",
+            "n": 66
+          },
+          {
+            "value": "MAD",
+            "n": 60
+          },
+          {
+            "value": "ZAR",
+            "n": 39
+          },
+          {
+            "value": "CZK",
+            "n": 29
+          },
+          {
+            "value": "CNY",
+            "n": 29
+          },
+          {
+            "value": "ISK",
+            "n": 10
+          },
+          {
+            "value": "VND",
+            "n": 9
+          },
+          {
+            "value": "HUF",
+            "n": 4
+          },
+          {
+            "value": "THB",
+            "n": 4
+          },
+          {
+            "value": "AOA",
+            "n": 4
+          },
+          {
+            "value": "IDR",
+            "n": 3
+          },
+          {
+            "value": "SAR",
+            "n": 2
+          },
+          {
+            "value": "PHP",
+            "n": 1
+          }
+        ],
+        "accounting_currency": [
+          {
+            "value": "EUR",
+            "n": 779839
+          },
+          {
+            "value": "USD",
+            "n": 35020
+          },
+          {
+            "value": "GBP",
+            "n": 24770
+          },
+          {
+            "value": "CLP",
+            "n": 8368
+          },
+          {
+            "value": "MXN",
+            "n": 6912
+          },
+          {
+            "value": "COP",
+            "n": 6266
+          },
+          {
+            "value": "CAD",
+            "n": 5933
+          },
+          {
+            "value": "DKK",
+            "n": 5280
+          },
+          {
+            "value": "BRL",
+            "n": 5241
+          },
+          {
+            "value": "NAD",
+            "n": 3804
+          },
+          {
+            "value": "AUD",
+            "n": 3323
+          },
+          {
+            "value": "MZN",
+            "n": 2700
+          },
+          {
+            "value": "PEN",
+            "n": 2658
+          },
+          {
+            "value": "ARS",
+            "n": 2230
+          },
+          {
+            "value": "MYR",
+            "n": 2162
+          },
+          {
+            "value": "AED",
+            "n": 1731
+          },
+          {
+            "value": "SGD",
+            "n": 739
+          },
+          {
+            "value": "NZD",
+            "n": 615
+          },
+          {
+            "value": "INR",
+            "n": 228
+          },
+          {
+            "value": "MAD",
+            "n": 55
+          },
+          {
+            "value": "PLN",
+            "n": 10
+          },
+          {
+            "value": "VND",
+            "n": 9
+          },
+          {
+            "value": "CHF",
+            "n": 1
+          }
+        ],
+        "status": [
+          {
+            "value": "paid",
+            "n": 660299
+          },
+          {
+            "value": "overdue",
+            "n": 192556
+          },
+          {
+            "value": "pending",
+            "n": 29717
+          },
+          {
+            "value": "cancel",
+            "n": 13699
+          },
+          {
+            "value": "payment_in_progress",
+            "n": 1216
+          },
+          {
+            "value": "paymentOrder",
+            "n": 406
+          },
+          {
+            "value": "shipped",
+            "n": 1
+          }
+        ],
+        "document_type": [
+          {
+            "value": "invoice",
+            "n": 760406
+          },
+          {
+            "value": "paymentDocument",
+            "n": 53761
+          },
+          {
+            "value": "note",
+            "n": 38154
+          },
+          {
+            "value": "deposit",
+            "n": 21390
+          },
+          {
+            "value": "invoiceGroup",
+            "n": 13775
+          },
+          {
+            "value": "deliveryNote",
+            "n": 6380
+          },
+          {
+            "value": "refund",
+            "n": 2018
+          },
+          {
+            "value": "purchaseOrder",
+            "n": 1259
+          },
+          {
+            "value": "other",
+            "n": 739
+          },
+          {
+            "value": "cheque",
+            "n": 12
+          }
+        ]
+      }
+    },
+    "transactions": {
+      "rows": 2556437,
+      "unique_pk": 2556437,
+      "columns": [
+        "transaction_id",
+        "company_id",
+        "product_id",
+        "date",
+        "value_date",
+        "amount",
+        "exchange_rate",
+        "status",
+        "accounting_status",
+        "category",
+        "description",
+        "counterparty_id"
+      ],
+      "bytes": 472353364,
+      "sha256": "000a6820a7500c66aa70a17b3e813d0c57a8270b3c58f6f2f006708a20228f2b",
+      "nulls": {
+        "transaction_id": 0,
+        "company_id": 0,
+        "product_id": 0,
+        "date": 0,
+        "value_date": 0,
+        "amount": 0,
+        "exchange_rate": 0,
+        "status": 29839,
+        "accounting_status": 1573869,
+        "category": 330,
+        "description": 456,
+        "counterparty_id": 2305659
+      },
+      "dates": {
+        "date": {
+          "min": "2024-09-01 00:00:00",
+          "max": "2026-09-01 23:37:04",
+          "invalid": 0
+        },
+        "value_date": {
+          "min": "2022-07-01 00:00:00",
+          "max": "2099-12-31 01:00:00",
+          "invalid": 0
+        }
+      },
+      "domains": {
+        "status": [
+          {
+            "value": "booked",
+            "n": 2520019
+          },
+          {
+            "value": null,
+            "n": 29839
+          },
+          {
+            "value": "pending",
+            "n": 6579
+          }
+        ],
+        "accounting_status": [
+          {
+            "value": null,
+            "n": 1573869
+          },
+          {
+            "value": "RECONCILIATION_COMPLETED",
+            "n": 528034
+          },
+          {
+            "value": "DISCARDED",
+            "n": 308568
+          },
+          {
+            "value": "PENDING",
+            "n": 95281
+          },
+          {
+            "value": "ACCOUNTING_COMPLETED",
+            "n": 30995
+          },
+          {
+            "value": "ACCOUNTING_RECOMMENDATION",
+            "n": 18064
+          },
+          {
+            "value": "RECONCILIATION_RECOMMENDATION",
+            "n": 1626
+          }
+        ],
+        "category": [
+          {
+            "value": "-",
+            "n": 635530
+          },
+          {
+            "value": "collection",
+            "n": 567417
+          },
+          {
+            "value": "payment",
+            "n": 362276
+          },
+          {
+            "value": "utility",
+            "n": 259430
+          },
+          {
+            "value": "fee",
+            "n": 179500
+          },
+          {
+            "value": "transfer",
+            "n": 152102
+          },
+          {
+            "value": "bulk_collection",
+            "n": 65492
+          },
+          {
+            "value": "tax",
+            "n": 55904
+          },
+          {
+            "value": "cash_settlement",
+            "n": 48280
+          },
+          {
+            "value": "pos_settlement",
+            "n": 47315
+          },
+          {
+            "value": "salary",
+            "n": 42223
+          },
+          {
+            "value": "bulk_payment",
+            "n": 41469
+          },
+          {
+            "value": "social_security",
+            "n": 24158
+          },
+          {
+            "value": "debt_repayment",
+            "n": 23044
+          },
+          {
+            "value": "cash_withdrawal",
+            "n": 14096
+          },
+          {
+            "value": "collection_refund",
+            "n": 11848
+          },
+          {
+            "value": "interest_charge",
+            "n": 7822
+          },
+          {
+            "value": "pos_withdrawal",
+            "n": 7506
+          },
+          {
+            "value": "investment_deployment",
+            "n": 3923
+          },
+          {
+            "value": "investment_return",
+            "n": 3458
+          },
+          {
+            "value": "payment_refund",
+            "n": 3222
+          },
+          {
+            "value": null,
+            "n": 330
+          },
+          {
+            "value": "cash_settlements",
+            "n": 90
+          },
+          {
+            "value": "tax_refund",
+            "n": 2
+          }
+        ]
+      }
+    }
+  },
+  "checks": {
+    "banking_products_company_orphans": 0,
+    "debt_products_company_orphans": 0,
+    "debt_schedule_config_company_orphans": 0,
+    "transactions_company_orphans": 0,
+    "invoices_company_orphans": 0,
+    "balances_company_orphans": 0,
+    "transactions_product_orphans": 1314,
+    "transactions_owner_mismatch": 0,
+    "balances_product_orphans": 29,
+    "balances_owner_mismatch": 0,
+    "debt_schedule_config_product_orphans": 0,
+    "debt_schedule_config_owner_mismatch": 0,
+    "company_group_orphans": 0,
+    "product_id_overlap": 0,
+    "group_size": {
+      "min": 1,
+      "median": 3.0,
+      "max": 22
+    },
+    "group_declared_mismatch": 0,
+    "transactions_counterparties": {
+      "distinct_ids": 47796,
+      "resolved_rows": 250778,
+      "direct_company_matches": 0
+    },
+    "invoices_counterparties": {
+      "distinct_ids": 124030,
+      "resolved_rows": 886437,
+      "direct_company_matches": 0
+    },
+    "shared_counterparties": 42125,
+    "transaction_product_types": [
+      {
+        "type": "checking",
+        "n": 2267795
+      },
+      {
+        "type": "lineofcredit",
+        "n": 182127
+      },
+      {
+        "type": "card",
+        "n": 78829
+      },
+      {
+        "type": "tpv",
+        "n": 17964
+      },
+      {
+        "type": "expensesPlatform",
+        "n": 5077
+      },
+      {
+        "type": "wallet",
+        "n": 1766
+      },
+      {
+        "type": "confirming",
+        "n": 1444
+      },
+      {
+        "type": "factoring",
+        "n": 44
+      },
+      {
+        "type": "saving",
+        "n": 39
+      },
+      {
+        "type": "lineofcomex",
+        "n": 26
+      },
+      {
+        "type": "loan",
+        "n": 12
+      }
+    ],
+    "tx_months": [
+      {
+        "month": "2024-09",
+        "n": 41975,
+        "companies": 439
+      },
+      {
+        "month": "2024-10",
+        "n": 49521,
+        "companies": 470
+      },
+      {
+        "month": "2024-11",
+        "n": 44730,
+        "companies": 476
+      },
+      {
+        "month": "2024-12",
+        "n": 48178,
+        "companies": 520
+      },
+      {
+        "month": "2025-01",
+        "n": 61961,
+        "companies": 648
+      },
+      {
+        "month": "2025-02",
+        "n": 61678,
+        "companies": 684
+      },
+      {
+        "month": "2025-03",
+        "n": 71859,
+        "companies": 717
+      },
+      {
+        "month": "2025-04",
+        "n": 77155,
+        "companies": 742
+      },
+      {
+        "month": "2025-05",
+        "n": 79439,
+        "companies": 762
+      },
+      {
+        "month": "2025-06",
+        "n": 83975,
+        "companies": 777
+      },
+      {
+        "month": "2025-07",
+        "n": 97619,
+        "companies": 829
+      },
+      {
+        "month": "2025-08",
+        "n": 85031,
+        "companies": 842
+      },
+      {
+        "month": "2025-09",
+        "n": 101442,
+        "companies": 890
+      },
+      {
+        "month": "2025-10",
+        "n": 110678,
+        "companies": 933
+      },
+      {
+        "month": "2025-11",
+        "n": 99263,
+        "companies": 960
+      },
+      {
+        "month": "2025-12",
+        "n": 114764,
+        "companies": 1019
+      },
+      {
+        "month": "2026-01",
+        "n": 130699,
+        "companies": 1153
+      },
+      {
+        "month": "2026-02",
+        "n": 147951,
+        "companies": 1217
+      },
+      {
+        "month": "2026-03",
+        "n": 182783,
+        "companies": 1223
+      },
+      {
+        "month": "2026-04",
+        "n": 176180,
+        "companies": 1229
+      },
+      {
+        "month": "2026-05",
+        "n": 166696,
+        "companies": 1216
+      },
+      {
+        "month": "2026-06",
+        "n": 177661,
+        "companies": 1205
+      },
+      {
+        "month": "2026-07",
+        "n": 185290,
+        "companies": 1199
+      },
+      {
+        "month": "2026-08",
+        "n": 150667,
+        "companies": 1163
+      },
+      {
+        "month": "2026-09",
+        "n": 9242,
+        "companies": 866
+      }
+    ],
+    "tx_history": {
+      "companies": 1286,
+      "min_months": 1,
+      "median_months": 18.0,
+      "under_12": 412,
+      "p10_per_calendar_week": 0.7958904109589041,
+      "median_per_calendar_week": 8.102739726027396
+    },
+    "companies_no_transactions": 0,
+    "companies_no_invoices": 501,
+    "debt_coverage": [
+      {
+        "type": "loan",
+        "products": 1022,
+        "companies": 239,
+        "with_granted": 1000,
+        "with_outstanding": 1022
+      },
+      {
+        "type": "lineofcredit",
+        "products": 536,
+        "companies": 206,
+        "with_granted": 477,
+        "with_outstanding": 536
+      },
+      {
+        "type": "confirming",
+        "products": 229,
+        "companies": 70,
+        "with_granted": 177,
+        "with_outstanding": 229
+      },
+      {
+        "type": "leasing",
+        "products": 179,
+        "companies": 45,
+        "with_granted": 176,
+        "with_outstanding": 179
+      },
+      {
+        "type": "guarantee",
+        "products": 155,
+        "companies": 51,
+        "with_granted": 124,
+        "with_outstanding": 155
+      },
+      {
+        "type": "mortgage",
+        "products": 60,
+        "companies": 11,
+        "with_granted": 60,
+        "with_outstanding": 60
+      },
+      {
+        "type": "renting",
+        "products": 34,
+        "companies": 14,
+        "with_granted": 34,
+        "with_outstanding": 34
+      },
+      {
+        "type": "factoring",
+        "products": 24,
+        "companies": 19,
+        "with_granted": 22,
+        "with_outstanding": 24
+      }
+    ],
+    "schedule_coverage": {
+      "schedules": 87,
+      "companies": 40,
+      "rates": 87,
+      "next_payment_in_past": 81,
+      "min_rate": 0.0,
+      "max_rate": 0.11
+    },
+    "schedule_settlement_missing": 2,
+    "invoice_signs": [
+      {
+        "document_type": "cheque",
+        "status": "overdue",
+        "n": 9,
+        "positives": 9,
+        "negatives": 0,
+        "zeros": 0
+      },
+      {
+        "document_type": "cheque",
+        "status": "paid",
+        "n": 3,
+        "positives": 3,
+        "negatives": 0,
+        "zeros": 0
+      },
+      {
+        "document_type": "deliveryNote",
+        "status": "cancel",
+        "n": 795,
+        "positives": 711,
+        "negatives": 33,
+        "zeros": 51
+      },
+      {
+        "document_type": "deliveryNote",
+        "status": "overdue",
+        "n": 3458,
+        "positives": 3244,
+        "negatives": 210,
+        "zeros": 4
+      },
+      {
+        "document_type": "deliveryNote",
+        "status": "paid",
+        "n": 1830,
+        "positives": 6,
+        "negatives": 1824,
+        "zeros": 0
+      },
+      {
+        "document_type": "deliveryNote",
+        "status": "pending",
+        "n": 297,
+        "positives": 248,
+        "negatives": 49,
+        "zeros": 0
+      },
+      {
+        "document_type": "deposit",
+        "status": "overdue",
+        "n": 2111,
+        "positives": 491,
+        "negatives": 1620,
+        "zeros": 0
+      },
+      {
+        "document_type": "deposit",
+        "status": "paid",
+        "n": 19276,
+        "positives": 11339,
+        "negatives": 7937,
+        "zeros": 0
+      },
+      {
+        "document_type": "deposit",
+        "status": "pending",
+        "n": 3,
+        "positives": 3,
+        "negatives": 0,
+        "zeros": 0
+      },
+      {
+        "document_type": "invoice",
+        "status": "cancel",
+        "n": 12090,
+        "positives": 3379,
+        "negatives": 8679,
+        "zeros": 32
+      },
+      {
+        "document_type": "invoice",
+        "status": "overdue",
+        "n": 165973,
+        "positives": 86644,
+        "negatives": 79329,
+        "zeros": 0
+      },
+      {
+        "document_type": "invoice",
+        "status": "paid",
+        "n": 554565,
+        "positives": 207956,
+        "negatives": 345642,
+        "zeros": 967
+      },
+      {
+        "document_type": "invoice",
+        "status": "paymentOrder",
+        "n": 406,
+        "positives": 163,
+        "negatives": 243,
+        "zeros": 0
+      },
+      {
+        "document_type": "invoice",
+        "status": "payment_in_progress",
+        "n": 954,
+        "positives": 10,
+        "negatives": 944,
+        "zeros": 0
+      },
+      {
+        "document_type": "invoice",
+        "status": "pending",
+        "n": 26417,
+        "positives": 11696,
+        "negatives": 14721,
+        "zeros": 0
+      },
+      {
+        "document_type": "invoice",
+        "status": "shipped",
+        "n": 1,
+        "positives": 1,
+        "negatives": 0,
+        "zeros": 0
+      },
+      {
+        "document_type": "invoiceGroup",
+        "status": "cancel",
+        "n": 9,
+        "positives": 2,
+        "negatives": 7,
+        "zeros": 0
+      },
+      {
+        "document_type": "invoiceGroup",
+        "status": "overdue",
+        "n": 4537,
+        "positives": 861,
+        "negatives": 3676,
+        "zeros": 0
+      },
+      {
+        "document_type": "invoiceGroup",
+        "status": "paid",
+        "n": 9145,
+        "positives": 3676,
+        "negatives": 5468,
+        "zeros": 1
+      },
+      {
+        "document_type": "invoiceGroup",
+        "status": "pending",
+        "n": 84,
+        "positives": 12,
+        "negatives": 72,
+        "zeros": 0
+      },
+      {
+        "document_type": "note",
+        "status": "cancel",
+        "n": 353,
+        "positives": 200,
+        "negatives": 153,
+        "zeros": 0
+      },
+      {
+        "document_type": "note",
+        "status": "overdue",
+        "n": 6498,
+        "positives": 3218,
+        "negatives": 3280,
+        "zeros": 0
+      },
+      {
+        "document_type": "note",
+        "status": "paid",
+        "n": 31018,
+        "positives": 14345,
+        "negatives": 16608,
+        "zeros": 65
+      },
+      {
+        "document_type": "note",
+        "status": "payment_in_progress",
+        "n": 1,
+        "positives": 0,
+        "negatives": 1,
+        "zeros": 0
+      },
+      {
+        "document_type": "note",
+        "status": "pending",
+        "n": 284,
+        "positives": 94,
+        "negatives": 190,
+        "zeros": 0
+      },
+      {
+        "document_type": "other",
+        "status": "overdue",
+        "n": 693,
+        "positives": 360,
+        "negatives": 333,
+        "zeros": 0
+      },
+      {
+        "document_type": "other",
+        "status": "paid",
+        "n": 46,
+        "positives": 9,
+        "negatives": 37,
+        "zeros": 0
+      },
+      {
+        "document_type": "paymentDocument",
+        "status": "cancel",
+        "n": 2,
+        "positives": 2,
+        "negatives": 0,
+        "zeros": 0
+      },
+      {
+        "document_type": "paymentDocument",
+        "status": "overdue",
+        "n": 8381,
+        "positives": 5581,
+        "negatives": 2800,
+        "zeros": 0
+      },
+      {
+        "document_type": "paymentDocument",
+        "status": "paid",
+        "n": 42557,
+        "positives": 10755,
+        "negatives": 31802,
+        "zeros": 0
+      },
+      {
+        "document_type": "paymentDocument",
+        "status": "payment_in_progress",
+        "n": 261,
+        "positives": 0,
+        "negatives": 261,
+        "zeros": 0
+      },
+      {
+        "document_type": "paymentDocument",
+        "status": "pending",
+        "n": 2560,
+        "positives": 649,
+        "negatives": 1911,
+        "zeros": 0
+      },
+      {
+        "document_type": "purchaseOrder",
+        "status": "cancel",
+        "n": 441,
+        "positives": 3,
+        "negatives": 413,
+        "zeros": 25
+      },
+      {
+        "document_type": "purchaseOrder",
+        "status": "overdue",
+        "n": 701,
+        "positives": 34,
+        "negatives": 665,
+        "zeros": 2
+      },
+      {
+        "document_type": "purchaseOrder",
+        "status": "paid",
+        "n": 46,
+        "positives": 34,
+        "negatives": 0,
+        "zeros": 12
+      },
+      {
+        "document_type": "purchaseOrder",
+        "status": "pending",
+        "n": 71,
+        "positives": 0,
+        "negatives": 58,
+        "zeros": 13
+      },
+      {
+        "document_type": "refund",
+        "status": "cancel",
+        "n": 9,
+        "positives": 0,
+        "negatives": 1,
+        "zeros": 8
+      },
+      {
+        "document_type": "refund",
+        "status": "overdue",
+        "n": 195,
+        "positives": 31,
+        "negatives": 164,
+        "zeros": 0
+      },
+      {
+        "document_type": "refund",
+        "status": "paid",
+        "n": 1813,
+        "positives": 896,
+        "negatives": 914,
+        "zeros": 3
+      },
+      {
+        "document_type": "refund",
+        "status": "pending",
+        "n": 1,
+        "positives": 1,
+        "negatives": 0,
+        "zeros": 0
+      }
+    ],
+    "invoice_anomalies": {
+      "paid_before_issue": 29089,
+      "due_before_issue": 20869,
+      "future_payments": 51991,
+      "paid_without_date": 4,
+      "paid_with_pending": 300,
+      "pending_over_amount": 114,
+      "partial_pending": 6994
+    },
+    "fx_invoices": [
+      {
+        "currency": "EUR",
+        "accounting_currency": "EUR",
+        "n": 757946,
+        "min_rate": 0.0,
+        "max_rate": 1.17
+      },
+      {
+        "currency": "USD",
+        "accounting_currency": "USD",
+        "n": 28782,
+        "min_rate": 1.0,
+        "max_rate": 1.1836
+      },
+      {
+        "currency": "GBP",
+        "accounting_currency": "GBP",
+        "n": 17228,
+        "min_rate": 1.0,
+        "max_rate": 1.0
+      },
+      {
+        "currency": "USD",
+        "accounting_currency": "EUR",
+        "n": 16338,
+        "min_rate": 0.0,
+        "max_rate": 11931.77
+      },
+      {
+        "currency": "CLP",
+        "accounting_currency": "CLP",
+        "n": 8213,
+        "min_rate": 1.0,
+        "max_rate": 1.0
+      },
+      {
+        "currency": "MXN",
+        "accounting_currency": "MXN",
+        "n": 6414,
+        "min_rate": 1.0,
+        "max_rate": 1.0
+      },
+      {
+        "currency": "COP",
+        "accounting_currency": "COP",
+        "n": 6056,
+        "min_rate": 1.0,
+        "max_rate": 1.0
+      },
+      {
+        "currency": "CAD",
+        "accounting_currency": "CAD",
+        "n": 5737,
+        "min_rate": 1.0,
+        "max_rate": 1.0
+      },
+      {
+        "currency": "BRL",
+        "accounting_currency": "BRL",
+        "n": 5228,
+        "min_rate": 1.0,
+        "max_rate": 1.0
+      },
+      {
+        "currency": "EUR",
+        "accounting_currency": "USD",
+        "n": 4831,
+        "min_rate": 0.73,
+        "max_rate": 1.1905
+      },
+      {
+        "currency": "DKK",
+        "accounting_currency": "DKK",
+        "n": 4266,
+        "min_rate": 1.0,
+        "max_rate": 1.0
+      },
+      {
+        "currency": "EUR",
+        "accounting_currency": "GBP",
+        "n": 3895,
+        "min_rate": 0.0,
+        "max_rate": 50.0
+      },
+      {
+        "currency": "NAD",
+        "accounting_currency": "NAD",
+        "n": 3374,
+        "min_rate": 1.0,
+        "max_rate": 1.0
+      },
+      {
+        "currency": "GBP",
+        "accounting_currency": "EUR",
+        "n": 3271,
+        "min_rate": 0.0,
+        "max_rate": 1.1905
+      },
+      {
+        "currency": "USD",
+        "accounting_currency": "GBP",
+        "n": 2834,
+        "min_rate": 0.7353,
+        "max_rate": 1.6393
+      },
+      {
+        "currency": "AUD",
+        "accounting_currency": "AUD",
+        "n": 2299,
+        "min_rate": 1.0,
+        "max_rate": 1.0
+      },
+      {
+        "currency": "MZN",
+        "accounting_currency": "MZN",
+        "n": 2078,
+        "min_rate": 1.0,
+        "max_rate": 1.0
+      },
+      {
+        "currency": "USD",
+        "accounting_currency": "MYR",
+        "n": 2062,
+        "min_rate": 0.24,
+        "max_rate": 0.2571
+      },
+      {
+        "currency": "ARS",
+        "accounting_currency": "ARS",
+        "n": 1987,
+        "min_rate": 1.0,
+        "max_rate": 1.0
+      },
+      {
+        "currency": "PEN",
+        "accounting_currency": "PEN",
+        "n": 1852,
+        "min_rate": 1.0,
+        "max_rate": 1.0
+      },
+      {
+        "currency": "USD",
+        "accounting_currency": "AED",
+        "n": 1582,
+        "min_rate": 0.27,
+        "max_rate": 0.2727
+      },
+      {
+        "currency": "USD",
+        "accounting_currency": "PEN",
+        "n": 764,
+        "min_rate": 0.26,
+        "max_rate": 0.3
+      },
+      {
+        "currency": "USD",
+        "accounting_currency": "AUD",
+        "n": 741,
+        "min_rate": 0.61,
+        "max_rate": 1.0
+      },
+      {
+        "currency": "NZD",
+        "accounting_currency": "NZD",
+        "n": 605,
+        "min_rate": 1.0,
+        "max_rate": 1.0
+      },
+      {
+        "currency": "USD",
+        "accounting_currency": "DKK",
+        "n": 563,
+        "min_rate": 0.1373,
+        "max_rate": 0.1603
+      },
+      {
+        "currency": "USD",
+        "accounting_currency": "MZN",
+        "n": 534,
+        "min_rate": 0.0011,
+        "max_rate": 63.9059
+      },
+      {
+        "currency": "SGD",
+        "accounting_currency": "SGD",
+        "n": 502,
+        "min_rate": 1.0,
+        "max_rate": 1.0
+      },
+      {
+        "currency": "NOK",
+        "accounting_currency": "EUR",
+        "n": 497,
+        "min_rate": 1.0,
+        "max_rate": 11.94
+      },
+      {
+        "currency": "SEK",
+        "accounting_currency": "EUR",
+        "n": 444,
+        "min_rate": 1.0,
+        "max_rate": 11.53
+      },
+      {
+        "currency": "GBP",
+        "accounting_currency": "USD",
+        "n": 408,
+        "min_rate": 0.73,
+        "max_rate": 0.8
+      },
+      {
+        "currency": "USD",
+        "accounting_currency": "NAD",
+        "n": 372,
+        "min_rate": 0.0523,
+        "max_rate": 18.5718
+      },
+      {
+        "currency": "PLN",
+        "accounting_currency": "EUR",
+        "n": 369,
+        "min_rate": 1.0,
+        "max_rate": 4.35
+      },
+      {
+        "currency": "CHF",
+        "accounting_currency": "USD",
+        "n": 335,
+        "min_rate": 0.77,
+        "max_rate": 1.25
+      },
+      {
+        "currency": "EUR",
+        "accounting_currency": "DKK",
+        "n": 325,
+        "min_rate": 0.125,
+        "max_rate": 0.1429
+      },
+      {
+        "currency": "USD",
+        "accounting_currency": "MXN",
+        "n": 296,
+        "min_rate": 0.0479,
+        "max_rate": 0.059
+      },
+      {
+        "currency": "CAD",
+        "accounting_currency": "EUR",
+        "n": 295,
+        "min_rate": 1.0,
+        "max_rate": 1.64
+      },
+      {
+        "currency": "CAD",
+        "accounting_currency": "GBP",
+        "n": 280,
+        "min_rate": 1.75,
+        "max_rate": 1.9
+      },
+      {
+        "currency": "CAD",
+        "accounting_currency": "USD",
+        "n": 273,
+        "min_rate": 0.62,
+        "max_rate": 1.45
+      },
+      {
+        "currency": "HKD",
+        "accounting_currency": "USD",
+        "n": 245,
+        "min_rate": 0.74,
+        "max_rate": 7.85
+      },
+      {
+        "currency": "AUD",
+        "accounting_currency": "GBP",
+        "n": 223,
+        "min_rate": 1.87,
+        "max_rate": 2.11
+      },
+      {
+        "currency": "EUR",
+        "accounting_currency": "MXN",
+        "n": 202,
+        "min_rate": 0.0448,
+        "max_rate": 0.0501
+      },
+      {
+        "currency": "USD",
+        "accounting_currency": "ARS",
+        "n": 196,
+        "min_rate": 0.0,
+        "max_rate": 0.0055
+      },
+      {
+        "currency": "USD",
+        "accounting_currency": "COP",
+        "n": 180,
+        "min_rate": 0.0002,
+        "max_rate": 0.0003
+      },
+      {
+        "currency": "TRY",
+        "accounting_currency": "EUR",
+        "n": 178,
+        "min_rate": 31.0909,
+        "max_rate": 56.0
+      },
+      {
+        "currency": "INR",
+        "accounting_currency": "INR",
+        "n": 177,
+        "min_rate": 1.0,
+        "max_rate": 1.0
+      },
+      {
+        "currency": "SEK",
+        "accounting_currency": "GBP",
+        "n": 149,
+        "min_rate": 0.0764,
+        "max_rate": 14.29
+      },
+      {
+        "currency": "USD",
+        "accounting_currency": "SGD",
+        "n": 147,
+        "min_rate": 0.7299,
+        "max_rate": 0.7937
+      },
+      {
+        "currency": "USD",
+        "accounting_currency": "CLP",
+        "n": 138,
+        "min_rate": 0.001,
+        "max_rate": 0.0012
+      },
+      {
+        "currency": "EUR",
+        "accounting_currency": "CAD",
+        "n": 129,
+        "min_rate": 0.6,
+        "max_rate": 0.68
+      },
+      {
+        "currency": "NZD",
+        "accounting_currency": "AUD",
+        "n": 118,
+        "min_rate": 1.0,
+        "max_rate": 1.25
+      },
+      {
+        "currency": "AED",
+        "accounting_currency": "AED",
+        "n": 101,
+        "min_rate": 1.0,
+        "max_rate": 1.0
+      },
+      {
+        "currency": "EUR",
+        "accounting_currency": "MZN",
+        "n": 88,
+        "min_rate": 0.0132,
+        "max_rate": 0.0151
+      },
+      {
+        "currency": "GBP",
+        "accounting_currency": "AUD",
+        "n": 81,
+        "min_rate": 0.48,
+        "max_rate": 0.53
+      },
+      {
+        "currency": "DKK",
+        "accounting_currency": "EUR",
+        "n": 80,
+        "min_rate": 7.46,
+        "max_rate": 7.48
+      },
+      {
+        "currency": "MYR",
+        "accounting_currency": "MYR",
+        "n": 75,
+        "min_rate": 1.0,
+        "max_rate": 1.0
+      },
+      {
+        "currency": "PLN",
+        "accounting_currency": "GBP",
+        "n": 72,
+        "min_rate": 4.76,
+        "max_rate": 5.26
+      },
+      {
+        "currency": "USD",
+        "accounting_currency": "CAD",
+        "n": 67,
+        "min_rate": 0.7,
+        "max_rate": 0.74
+      },
+      {
+        "currency": "ILS",
+        "accounting_currency": "EUR",
+        "n": 66,
+        "min_rate": 3.68,
+        "max_rate": 3.99
+      },
+      {
+        "currency": "MXN",
+        "accounting_currency": "USD",
+        "n": 65,
+        "min_rate": 17.14,
+        "max_rate": 20.73
+      },
+      {
+        "currency": "SEK",
+        "accounting_currency": "DKK",
+        "n": 63,
+        "min_rate": 1.41,
+        "max_rate": 1.49
+      },
+      {
+        "currency": "EUR",
+        "accounting_currency": "SGD",
+        "n": 59,
+        "min_rate": 0.6623,
+        "max_rate": 1.0
+      },
+      {
+        "currency": "EUR",
+        "accounting_currency": "NAD",
+        "n": 58,
+        "min_rate": 0.0473,
+        "max_rate": 1.0
+      },
+      {
+        "currency": "MAD",
+        "accounting_currency": "MAD",
+        "n": 55,
+        "min_rate": 1.0,
+        "max_rate": 10.6725
+      },
+      {
+        "currency": "GBP",
+        "accounting_currency": "DKK",
+        "n": 55,
+        "min_rate": 0.11,
+        "max_rate": 0.1183
+      },
+      {
+        "currency": "JPY",
+        "accounting_currency": "EUR",
+        "n": 51,
+        "min_rate": 0.01,
+        "max_rate": 186.29
+      },
+      {
+        "currency": "CHF",
+        "accounting_currency": "EUR",
+        "n": 51,
+        "min_rate": 0.91,
+        "max_rate": 0.94
+      },
+      {
+        "currency": "EUR",
+        "accounting_currency": "ARS",
+        "n": 46,
+        "min_rate": 0.0006,
+        "max_rate": 1.0
+      },
+      {
+        "currency": "EUR",
+        "accounting_currency": "AED",
+        "n": 45,
+        "min_rate": 0.23,
+        "max_rate": 0.26
+      },
+      {
+        "currency": "MXN",
+        "accounting_currency": "EUR",
+        "n": 44,
+        "min_rate": 19.97,
+        "max_rate": 23.16
+      },
+      {
+        "currency": "EUR",
+        "accounting_currency": "AUD",
+        "n": 42,
+        "min_rate": 0.56,
+        "max_rate": 0.62
+      },
+      {
+        "currency": "EUR",
+        "accounting_currency": "INR",
+        "n": 38,
+        "min_rate": 0.01,
+        "max_rate": 0.0113
+      },
+      {
+        "currency": "COP",
+        "accounting_currency": "USD",
+        "n": 34,
+        "min_rate": 3228.83,
+        "max_rate": 4297.93
+      },
+      {
+        "currency": "BRL",
+        "accounting_currency": "EUR",
+        "n": 31,
+        "min_rate": 0.1621,
+        "max_rate": 6.502
+      },
+      {
+        "currency": "TRY",
+        "accounting_currency": "GBP",
+        "n": 31,
+        "min_rate": 44.18,
+        "max_rate": 57.99
+      },
+      {
+        "currency": "ZAR",
+        "accounting_currency": "EUR",
+        "n": 29,
+        "min_rate": 18.81,
+        "max_rate": 21.97
+      },
+      {
+        "currency": "EUR",
+        "accounting_currency": "PEN",
+        "n": 26,
+        "min_rate": 0.23,
+        "max_rate": 0.26
+      },
+      {
+        "currency": "CZK",
+        "accounting_currency": "EUR",
+        "n": 26,
+        "min_rate": 12.0,
+        "max_rate": 25.07
+      },
+      {
+        "currency": "CNY",
+        "accounting_currency": "EUR",
+        "n": 25,
+        "min_rate": 7.8,
+        "max_rate": 8.27
+      },
+      {
+        "currency": "MYR",
+        "accounting_currency": "SGD",
+        "n": 24,
+        "min_rate": 3.1886,
+        "max_rate": 3.3333
+      },
+      {
+        "currency": "AED",
+        "accounting_currency": "EUR",
+        "n": 24,
+        "min_rate": 4.07,
+        "max_rate": 10.0
+      },
+      {
+        "currency": "SGD",
+        "accounting_currency": "EUR",
+        "n": 20,
+        "min_rate": 1.4085,
+        "max_rate": 1.52
+      },
+      {
+        "currency": "EUR",
+        "accounting_currency": "COP",
+        "n": 18,
+        "min_rate": 0.0002,
+        "max_rate": 0.0003
+      },
+      {
+        "currency": "SGD",
+        "accounting_currency": "AUD",
+        "n": 17,
+        "min_rate": 0.83,
+        "max_rate": 0.92
+      },
+      {
+        "currency": "EUR",
+        "accounting_currency": "CLP",
+        "n": 16,
+        "min_rate": 0.0009,
+        "max_rate": 0.0014
+      },
+      {
+        "currency": "CLP",
+        "accounting_currency": "PEN",
+        "n": 16,
+        "min_rate": 255.102,
+        "max_rate": 278.5515
+      },
+      {
+        "currency": "AUD",
+        "accounting_currency": "USD",
+        "n": 15,
+        "min_rate": 0.86,
+        "max_rate": 1.51
+      },
+      {
+        "currency": "HKD",
+        "accounting_currency": "AUD",
+        "n": 15,
+        "min_rate": 5.13,
+        "max_rate": 5.59
+      },
+      {
+        "currency": "SGD",
+        "accounting_currency": "USD",
+        "n": 13,
+        "min_rate": 1.27,
+        "max_rate": 1.37
+      },
+      {
+        "currency": "EUR",
+        "accounting_currency": "BRL",
+        "n": 12,
+        "min_rate": 0.15,
+        "max_rate": 0.1726
+      },
+      {
+        "currency": "USD",
+        "accounting_currency": "INR",
+        "n": 12,
+        "min_rate": 0.0114,
+        "max_rate": 1.0
+      },
+      {
+        "currency": "COP",
+        "accounting_currency": "EUR",
+        "n": 11,
+        "min_rate": 50.0,
+        "max_rate": 4677.92
+      },
+      {
+        "currency": "ISK",
+        "accounting_currency": "GBP",
+        "n": 10,
+        "min_rate": 167.9874,
+        "max_rate": 168.5976
+      },
+      {
+        "currency": "EUR",
+        "accounting_currency": "MYR",
+        "n": 10,
+        "min_rate": 0.21,
+        "max_rate": 0.2169
+      },
+      {
+        "currency": "JPY",
+        "accounting_currency": "GBP",
+        "n": 10,
+        "min_rate": 100.0,
+        "max_rate": 217.3344
+      },
+      {
+        "currency": "PLN",
+        "accounting_currency": "PLN",
+        "n": 10,
+        "min_rate": 1.0,
+        "max_rate": 1.0
+      },
+      {
+        "currency": "CLP",
+        "accounting_currency": "EUR",
+        "n": 9,
+        "min_rate": 1024.4,
+        "max_rate": 1110.24
+      },
+      {
+        "currency": "VND",
+        "accounting_currency": "VND",
+        "n": 9,
+        "min_rate": 1.0,
+        "max_rate": 1.0
+      },
+      {
+        "currency": "CHF",
+        "accounting_currency": "GBP",
+        "n": 9,
+        "min_rate": 1.06,
+        "max_rate": 1.087
+      },
+      {
+        "currency": "EUR",
+        "accounting_currency": "NZD",
+        "n": 9,
+        "min_rate": 0.5,
+        "max_rate": 0.51
+      },
+      {
+        "currency": "ZAR",
+        "accounting_currency": "GBP",
+        "n": 8,
+        "min_rate": 21.6827,
+        "max_rate": 22.1626
+      },
+      {
+        "currency": "AUD",
+        "accounting_currency": "MYR",
+        "n": 7,
+        "min_rate": 0.3452,
+        "max_rate": 0.37
+      },
+      {
+        "currency": "SGD",
+        "accounting_currency": "GBP",
+        "n": 7,
+        "min_rate": 1.7,
+        "max_rate": 2.0
+      },
+      {
+        "currency": "CAD",
+        "accounting_currency": "AUD",
+        "n": 6,
+        "min_rate": 0.89,
+        "max_rate": 1.0
+      },
+      {
+        "currency": "AED",
+        "accounting_currency": "GBP",
+        "n": 6,
+        "min_rate": 0.2037,
+        "max_rate": 7.0
+      },
+      {
+        "currency": "AUD",
+        "accounting_currency": "EUR",
+        "n": 6,
+        "min_rate": 1.0,
+        "max_rate": 1.64
+      },
+      {
+        "currency": "INR",
+        "accounting_currency": "USD",
+        "n": 5,
+        "min_rate": 88.5607,
+        "max_rate": 95.567
+      },
+      {
+        "currency": "DKK",
+        "accounting_currency": "GBP",
+        "n": 5,
+        "min_rate": 0.55,
+        "max_rate": 9.02
+      },
+      {
+        "currency": "CLP",
+        "accounting_currency": "USD",
+        "n": 5,
+        "min_rate": 900.37,
+        "max_rate": 963.73
+      },
+      {
+        "currency": "MAD",
+        "accounting_currency": "EUR",
+        "n": 5,
+        "min_rate": 1.0,
+        "max_rate": 10.6
+      },
+      {
+        "currency": "MXN",
+        "accounting_currency": "COP",
+        "n": 4,
+        "min_rate": 0.0046,
+        "max_rate": 0.0047
+      },
+      {
+        "currency": "CLP",
+        "accounting_currency": "COP",
+        "n": 4,
+        "min_rate": 0.2332,
+        "max_rate": 0.2372
+      },
+      {
+        "currency": "THB",
+        "accounting_currency": "EUR",
+        "n": 4,
+        "min_rate": 1.0,
+        "max_rate": 36.59
+      },
+      {
+        "currency": "AOA",
+        "accounting_currency": "EUR",
+        "n": 4,
+        "min_rate": 1047.03,
+        "max_rate": 1077.59
+      },
+      {
+        "currency": "HUF",
+        "accounting_currency": "EUR",
+        "n": 4,
+        "min_rate": 2.69,
+        "max_rate": 4.12
+      },
+      {
+        "currency": "CHF",
+        "accounting_currency": "DKK",
+        "n": 4,
+        "min_rate": 0.1235,
+        "max_rate": 0.125
+      },
+      {
+        "currency": "NZD",
+        "accounting_currency": "USD",
+        "n": 4,
+        "min_rate": 1.0,
+        "max_rate": 1.73
+      },
+      {
+        "currency": "CNY",
+        "accounting_currency": "SGD",
+        "n": 4,
+        "min_rate": 5.2632,
+        "max_rate": 5.2632
+      },
+      {
+        "currency": "BRL",
+        "accounting_currency": "COP",
+        "n": 4,
+        "min_rate": 0.0014,
+        "max_rate": 0.0016
+      },
+      {
+        "currency": "INR",
+        "accounting_currency": "GBP",
+        "n": 3,
+        "min_rate": 120.9484,
+        "max_rate": 127.152
+      },
+      {
+        "currency": "HKD",
+        "accounting_currency": "SGD",
+        "n": 3,
+        "min_rate": 6.0241,
+        "max_rate": 6.0354
+      },
+      {
+        "currency": "GBP",
+        "accounting_currency": "AED",
+        "n": 3,
+        "min_rate": 0.2,
+        "max_rate": 0.2029
+      },
+      {
+        "currency": "IDR",
+        "accounting_currency": "EUR",
+        "n": 3,
+        "min_rate": 19620.78,
+        "max_rate": 20303.01
+      },
+      {
+        "currency": "CZK",
+        "accounting_currency": "DKK",
+        "n": 3,
+        "min_rate": 3.23,
+        "max_rate": 3.24
+      },
+      {
+        "currency": "PEN",
+        "accounting_currency": "EUR",
+        "n": 3,
+        "min_rate": 3.9,
+        "max_rate": 3.96
+      },
+      {
+        "currency": "HKD",
+        "accounting_currency": "MYR",
+        "n": 2,
+        "min_rate": 1.88,
+        "max_rate": 1.92
+      },
+      {
+        "currency": "SAR",
+        "accounting_currency": "EUR",
+        "n": 2,
+        "min_rate": 4.27,
+        "max_rate": 4.27
+      },
+      {
+        "currency": "BRL",
+        "accounting_currency": "USD",
+        "n": 2,
+        "min_rate": 5.31,
+        "max_rate": 5.32
+      },
+      {
+        "currency": "JPY",
+        "accounting_currency": "USD",
+        "n": 2,
+        "min_rate": 156.84,
+        "max_rate": 162.4542
+      },
+      {
+        "currency": "JPY",
+        "accounting_currency": "MYR",
+        "n": 2,
+        "min_rate": 39.16,
+        "max_rate": 39.82
+      },
+      {
+        "currency": "JPY",
+        "accounting_currency": "AUD",
+        "n": 2,
+        "min_rate": 98.69,
+        "max_rate": 106.09
+      },
+      {
+        "currency": "SGD",
+        "accounting_currency": "MYR",
+        "n": 1,
+        "min_rate": 0.31,
+        "max_rate": 0.31
+      },
+      {
+        "currency": "NOK",
+        "accounting_currency": "AUD",
+        "n": 1,
+        "min_rate": 6.71,
+        "max_rate": 6.71
+      },
+      {
+        "currency": "COP",
+        "accounting_currency": "ARS",
+        "n": 1,
+        "min_rate": 2.56,
+        "max_rate": 2.56
+      },
+      {
+        "currency": "CAD",
+        "accounting_currency": "CLP",
+        "n": 1,
+        "min_rate": 0.0014,
+        "max_rate": 0.0014
+      },
+      {
+        "currency": "GBP",
+        "accounting_currency": "MYR",
+        "n": 1,
+        "min_rate": 0.1877,
+        "max_rate": 0.1877
+      },
+      {
+        "currency": "AUD",
+        "accounting_currency": "NZD",
+        "n": 1,
+        "min_rate": 0.91,
+        "max_rate": 0.91
+      },
+      {
+        "currency": "ZAR",
+        "accounting_currency": "USD",
+        "n": 1,
+        "min_rate": 16.3791,
+        "max_rate": 16.3791
+      },
+      {
+        "currency": "CAD",
+        "accounting_currency": "BRL",
+        "n": 1,
+        "min_rate": 0.2755,
+        "max_rate": 0.2755
+      },
+      {
+        "currency": "GBP",
+        "accounting_currency": "INR",
+        "n": 1,
+        "min_rate": 0.0086,
+        "max_rate": 0.0086
+      },
+      {
+        "currency": "ZAR",
+        "accounting_currency": "AUD",
+        "n": 1,
+        "min_rate": 11.35,
+        "max_rate": 11.35
+      },
+      {
+        "currency": "NAD",
+        "accounting_currency": "EUR",
+        "n": 1,
+        "min_rate": 19.4,
+        "max_rate": 19.4
+      },
+      {
+        "currency": "HKD",
+        "accounting_currency": "EUR",
+        "n": 1,
+        "min_rate": 9.07,
+        "max_rate": 9.07
+      },
+      {
+        "currency": "NOK",
+        "accounting_currency": "DKK",
+        "n": 1,
+        "min_rate": 1.5625,
+        "max_rate": 1.5625
+      },
+      {
+        "currency": "MYR",
+        "accounting_currency": "EUR",
+        "n": 1,
+        "min_rate": 4.62,
+        "max_rate": 4.62
+      },
+      {
+        "currency": "NZD",
+        "accounting_currency": "MYR",
+        "n": 1,
+        "min_rate": 0.42,
+        "max_rate": 0.42
+      },
+      {
+        "currency": "CHF",
+        "accounting_currency": "CHF",
+        "n": 1,
+        "min_rate": 1.0,
+        "max_rate": 1.0
+      },
+      {
+        "currency": "PHP",
+        "accounting_currency": "MYR",
+        "n": 1,
+        "min_rate": 14.22,
+        "max_rate": 14.22
+      }
+    ],
+    "fx_transactions": [
+      {
+        "currency": "EUR",
+        "n": 2306077,
+        "min_rate": 0.0,
+        "max_rate": 1.3333
+      },
+      {
+        "currency": "USD",
+        "n": 97574,
+        "min_rate": 0.0,
+        "max_rate": 1.5
+      },
+      {
+        "currency": "GBP",
+        "n": 42183,
+        "min_rate": 0.48,
+        "max_rate": 1.0
+      },
+      {
+        "currency": "AUD",
+        "n": 18377,
+        "min_rate": 1.0,
+        "max_rate": 2.13
+      },
+      {
+        "currency": "BRL",
+        "n": 16950,
+        "min_rate": 1.0,
+        "max_rate": 9.0
+      },
+      {
+        "currency": "MXN",
+        "n": 13227,
+        "min_rate": 1.0,
+        "max_rate": 29.0
+      },
+      {
+        "currency": "COP",
+        "n": 9196,
+        "min_rate": 1.0,
+        "max_rate": 6500.0
+      },
+      {
+        "currency": "CLP",
+        "n": 7766,
+        "min_rate": 1.0,
+        "max_rate": 1655.0
+      },
+      {
+        "currency": "DKK",
+        "n": 6715,
+        "min_rate": 1.0,
+        "max_rate": 7.47
+      },
+      {
+        "currency": "CAD",
+        "n": 4569,
+        "min_rate": 0.88,
+        "max_rate": 2.0
+      },
+      {
+        "currency": "BAM",
+        "n": 3987,
+        "min_rate": 1.0,
+        "max_rate": 1.0
+      },
+      {
+        "currency": "CHF",
+        "n": 3893,
+        "min_rate": 0.75,
+        "max_rate": 1.1
+      },
+      {
+        "currency": "NZD",
+        "n": 3873,
+        "min_rate": 1.0,
+        "max_rate": 1.5
+      },
+      {
+        "currency": "ARS",
+        "n": 3440,
+        "min_rate": 1.0,
+        "max_rate": 2520.0
+      },
+      {
+        "currency": "AOA",
+        "n": 2671,
+        "min_rate": 1.0,
+        "max_rate": 1.0
+      },
+      {
+        "currency": "PEN",
+        "n": 2468,
+        "min_rate": 1.0,
+        "max_rate": 5.0
+      },
+      {
+        "currency": "AED",
+        "n": 1746,
+        "min_rate": 1.0,
+        "max_rate": 4.36
+      },
+      {
+        "currency": "CZK",
+        "n": 1675,
+        "min_rate": 1.0,
+        "max_rate": 1.0
+      },
+      {
+        "currency": "NAD",
+        "n": 1425,
+        "min_rate": 1.0,
+        "max_rate": 1.0
+      },
+      {
+        "currency": "GHS",
+        "n": 1145,
+        "min_rate": 1.0,
+        "max_rate": 1.0
+      },
+      {
+        "currency": "MZN",
+        "n": 1087,
+        "min_rate": 1.0,
+        "max_rate": 63.55
+      },
+      {
+        "currency": "PLN",
+        "n": 947,
+        "min_rate": 1.0,
+        "max_rate": 5.1
+      },
+      {
+        "currency": "SEK",
+        "n": 934,
+        "min_rate": 1.0,
+        "max_rate": 14.0
+      },
+      {
+        "currency": "NOK",
+        "n": 896,
+        "min_rate": 1.0,
+        "max_rate": 11.83
+      },
+      {
+        "currency": "SGD",
+        "n": 510,
+        "min_rate": 0.83,
+        "max_rate": 1.52
+      },
+      {
+        "currency": "ILS",
+        "n": 388,
+        "min_rate": 3.27,
+        "max_rate": 4.27
+      },
+      {
+        "currency": "INR",
+        "n": 301,
+        "min_rate": 1.0,
+        "max_rate": 1.0
+      },
+      {
+        "currency": "XOF",
+        "n": 255,
+        "min_rate": 1.0,
+        "max_rate": 1.0
+      },
+      {
+        "currency": "VND",
+        "n": 254,
+        "min_rate": 1.0,
+        "max_rate": 1.0
+      },
+      {
+        "currency": "JPY",
+        "n": 204,
+        "min_rate": 1.0,
+        "max_rate": 187.14
+      },
+      {
+        "currency": "HKD",
+        "n": 171,
+        "min_rate": 5.04,
+        "max_rate": 7.85
+      },
+      {
+        "currency": "MYR",
+        "n": 143,
+        "min_rate": 1.0,
+        "max_rate": 1.0
+      },
+      {
+        "currency": "HUF",
+        "n": 76,
+        "min_rate": 407.84,
+        "max_rate": 453.79
+      }
+    ],
+    "currency_mismatches": {
+      "products_vs_company": 887
+    },
+    "transaction_categories_signs": [
+      {
+        "category": "-",
+        "n": 635530,
+        "positives": 224671,
+        "negatives": 410614
+      },
+      {
+        "category": "collection",
+        "n": 567417,
+        "positives": 567376,
+        "negatives": 29
+      },
+      {
+        "category": "payment",
+        "n": 362276,
+        "positives": 0,
+        "negatives": 362276
+      },
+      {
+        "category": "utility",
+        "n": 259430,
+        "positives": 0,
+        "negatives": 259430
+      },
+      {
+        "category": "fee",
+        "n": 179500,
+        "positives": 71,
+        "negatives": 179429
+      },
+      {
+        "category": "transfer",
+        "n": 152102,
+        "positives": 90723,
+        "negatives": 61379
+      },
+      {
+        "category": "bulk_collection",
+        "n": 65492,
+        "positives": 65492,
+        "negatives": 0
+      },
+      {
+        "category": "tax",
+        "n": 55904,
+        "positives": 899,
+        "negatives": 55005
+      },
+      {
+        "category": "cash_settlement",
+        "n": 48280,
+        "positives": 48279,
+        "negatives": 0
+      },
+      {
+        "category": "pos_settlement",
+        "n": 47315,
+        "positives": 47204,
+        "negatives": 0
+      },
+      {
+        "category": "salary",
+        "n": 42223,
+        "positives": 0,
+        "negatives": 42223
+      },
+      {
+        "category": "bulk_payment",
+        "n": 41469,
+        "positives": 0,
+        "negatives": 41469
+      },
+      {
+        "category": "social_security",
+        "n": 24158,
+        "positives": 0,
+        "negatives": 24158
+      },
+      {
+        "category": "debt_repayment",
+        "n": 23044,
+        "positives": 0,
+        "negatives": 23044
+      },
+      {
+        "category": "cash_withdrawal",
+        "n": 14096,
+        "positives": 0,
+        "negatives": 14096
+      },
+      {
+        "category": "collection_refund",
+        "n": 11848,
+        "positives": 277,
+        "negatives": 11571
+      },
+      {
+        "category": "interest_charge",
+        "n": 7822,
+        "positives": 0,
+        "negatives": 7822
+      },
+      {
+        "category": "pos_withdrawal",
+        "n": 7506,
+        "positives": 0,
+        "negatives": 7506
+      },
+      {
+        "category": "investment_deployment",
+        "n": 3923,
+        "positives": 0,
+        "negatives": 3923
+      },
+      {
+        "category": "investment_return",
+        "n": 3458,
+        "positives": 3458,
+        "negatives": 0
+      },
+      {
+        "category": "payment_refund",
+        "n": 3222,
+        "positives": 2232,
+        "negatives": 990
+      },
+      {
+        "category": null,
+        "n": 330,
+        "positives": 6,
+        "negatives": 324
+      },
+      {
+        "category": "cash_settlements",
+        "n": 90,
+        "positives": 90,
+        "negatives": 0
+      },
+      {
+        "category": "tax_refund",
+        "n": 2,
+        "positives": 2,
+        "negatives": 0
+      }
+    ],
+    "transaction_temporal_anomalies": {
+      "before_company_onboarding": 342919,
+      "before_product_onboarding": 442660,
+      "different_value_date": 326524
+    },
+    "balances_coverage": [
+      {
+        "type": "checking",
+        "products": 4854,
+        "with_balance": 4647,
+        "negative_balances": 91
+      },
+      {
+        "type": "loan",
+        "products": 1022,
+        "with_balance": 1006,
+        "negative_balances": 604
+      },
+      {
+        "type": "card",
+        "products": 796,
+        "with_balance": 794,
+        "negative_balances": 267
+      },
+      {
+        "type": "lineofcredit",
+        "products": 536,
+        "with_balance": 532,
+        "negative_balances": 284
+      },
+      {
+        "type": "confirming",
+        "products": 229,
+        "with_balance": 227,
+        "negative_balances": 73
+      },
+      {
+        "type": "investment",
+        "products": 201,
+        "with_balance": 185,
+        "negative_balances": 2
+      },
+      {
+        "type": "leasing",
+        "products": 179,
+        "with_balance": 176,
+        "negative_balances": 158
+      },
+      {
+        "type": "guarantee",
+        "products": 155,
+        "with_balance": 149,
+        "negative_balances": 132
+      },
+      {
+        "type": "mortgage",
+        "products": 60,
+        "with_balance": 60,
+        "negative_balances": 57
+      },
+      {
+        "type": "wallet",
+        "products": 34,
+        "with_balance": 32,
+        "negative_balances": 0
+      },
+      {
+        "type": "renting",
+        "products": 34,
+        "with_balance": 34,
+        "negative_balances": 21
+      },
+      {
+        "type": "tpv",
+        "products": 25,
+        "with_balance": 25,
+        "negative_balances": 0
+      },
+      {
+        "type": "risk",
+        "products": 25,
+        "with_balance": 25,
+        "negative_balances": 5
+      },
+      {
+        "type": "factoring",
+        "products": 24,
+        "with_balance": 23,
+        "negative_balances": 6
+      },
+      {
+        "type": "expensesPlatform",
+        "products": 23,
+        "with_balance": 23,
+        "negative_balances": 0
+      },
+      {
+        "type": "lineofcomex",
+        "products": 19,
+        "with_balance": 19,
+        "negative_balances": 7
+      },
+      {
+        "type": "saving",
+        "products": 10,
+        "with_balance": 10,
+        "negative_balances": 0
+      }
+    ],
+    "debt_signs": [
+      {
+        "type": "lineofcredit",
+        "negative": 291,
+        "positive": 110,
+        "nonpositive_granted": 475
+      },
+      {
+        "type": "loan",
+        "negative": 610,
+        "positive": 23,
+        "nonpositive_granted": 999
+      },
+      {
+        "type": "leasing",
+        "negative": 157,
+        "positive": 0,
+        "nonpositive_granted": 176
+      },
+      {
+        "type": "renting",
+        "negative": 20,
+        "positive": 0,
+        "nonpositive_granted": 33
+      },
+      {
+        "type": "factoring",
+        "negative": 7,
+        "positive": 3,
+        "nonpositive_granted": 22
+      },
+      {
+        "type": "mortgage",
+        "negative": 57,
+        "positive": 0,
+        "nonpositive_granted": 60
+      },
+      {
+        "type": "guarantee",
+        "negative": 135,
+        "positive": 1,
+        "nonpositive_granted": 123
+      },
+      {
+        "type": "confirming",
+        "negative": 74,
+        "positive": 8,
+        "nonpositive_granted": 177
+      }
+    ],
+    "balance_dates": [
+      {
+        "date": "2026-08-25 00:00:00",
+        "n": 2
+      },
+      {
+        "date": "2026-08-27 00:00:00",
+        "n": 5
+      },
+      {
+        "date": "2026-08-28 00:00:00",
+        "n": 8
+      },
+      {
+        "date": "2026-08-29 00:00:00",
+        "n": 1
+      },
+      {
+        "date": "2026-09-01 00:00:00",
+        "n": 7980
+      }
+    ],
+    "invoice_bank_pair_coverage": {
+      "invoices": 897894,
+      "same_company_counterparty": 442396
+    },
+    "invoice_payment_semantics": [
+      {
+        "status": "paid",
+        "n": 660299,
+        "with_payment_date": 660295,
+        "payment_equals_due": 342575,
+        "zero_pending": 659999
+      },
+      {
+        "status": "overdue",
+        "n": 192556,
+        "with_payment_date": 192554,
+        "payment_equals_due": 185449,
+        "zero_pending": 43
+      },
+      {
+        "status": "pending",
+        "n": 29717,
+        "with_payment_date": 29717,
+        "payment_equals_due": 29215,
+        "zero_pending": 22
+      },
+      {
+        "status": "cancel",
+        "n": 13699,
+        "with_payment_date": 13699,
+        "payment_equals_due": 11111,
+        "zero_pending": 12636
+      },
+      {
+        "status": "payment_in_progress",
+        "n": 1216,
+        "with_payment_date": 1216,
+        "payment_equals_due": 1199,
+        "zero_pending": 5
+      },
+      {
+        "status": "paymentOrder",
+        "n": 406,
+        "with_payment_date": 406,
+        "payment_equals_due": 406,
+        "zero_pending": 396
+      },
+      {
+        "status": "shipped",
+        "n": 1,
+        "with_payment_date": 1,
+        "payment_equals_due": 1,
+        "zero_pending": 0
+      }
+    ],
+    "bad_fx": {
+      "invoices": 3389,
+      "transactions": 77
+    },
+    "extreme_invoice_dates": {
+      "due_after_2099": 6,
+      "payment_after_2099": 4
+    },
+    "invoice_sign_matching_probe": {
+      "unique_invoice_candidates": 91596,
+      "same_sign": 91258,
+      "opposite_sign": 338
+    }
+  },
+  "elapsed_seconds": 6.6
+}
