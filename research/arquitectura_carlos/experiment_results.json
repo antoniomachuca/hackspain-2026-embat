@@ -1,0 +1,180 @@
+{
+  "versions": {
+    "numpy": "2.5.3",
+    "scipy": "1.18.1",
+    "sklearn": "1.9.1"
+  },
+  "cohort_companies": 919,
+  "cohort_transactions": 1076642,
+  "samples": 7361,
+  "test_samples": 2290,
+  "test_companies": 624,
+  "test_groups": 148,
+  "target": "Sum(inflow-outflow)/sum(inflow+outflow) over next 3 months, restricted operational proxy",
+  "limitations": [
+    "Not financial health ground truth",
+    "Cohort uses final product metadata and complete future activity",
+    "Current booked/category values lack historical versioning",
+    "Overlapping evaluation horizons",
+    "Only euro inventory companies, checking/saving, allowlisted categories",
+    "Synthetic detector test is not empirical anticipation on Embat"
+  ],
+  "forecast_metrics": {
+    "last_month": {
+      "mae": 0.3507086078753951,
+      "spearman": 0.4212547304631175,
+      "direction_accuracy": 0.6423580786026201,
+      "macro_group_mae": 0.34446622708387264
+    },
+    "trailing_3m": {
+      "mae": 0.2837491655626487,
+      "spearman": 0.4781060647290034,
+      "direction_accuracy": 0.6589519650655021,
+      "macro_group_mae": 0.28420587880110737
+    },
+    "trailing_6m": {
+      "mae": 0.2630920965631833,
+      "spearman": 0.5109130187718744,
+      "direction_accuracy": 0.6733624454148471,
+      "macro_group_mae": 0.26847997760614434
+    },
+    "seasonal_previous_year": {
+      "mae": 0.37834162836507695,
+      "spearman": 0.2927389652870803,
+      "direction_accuracy": 0.5899563318777292,
+      "macro_group_mae": 0.375702212186226
+    },
+    "ridge": {
+      "mae": 0.27641755058427003,
+      "spearman": 0.5306695721133856,
+      "direction_accuracy": 0.6694323144104803,
+      "macro_group_mae": 0.2776237219625695
+    },
+    "hist_gradient_boosting": {
+      "mae": 0.26728440810855325,
+      "spearman": 0.5145519270266904,
+      "direction_accuracy": 0.6703056768558951,
+      "macro_group_mae": 0.26945404482448604
+    }
+  },
+  "folds": [
+    {
+      "fold": 0,
+      "train": 3156,
+      "test": 394,
+      "ridge_mae": 0.3175698374257155,
+      "hist_gradient_boosting_mae": 0.3223097529809607
+    },
+    {
+      "fold": 1,
+      "train": 3308,
+      "test": 402,
+      "ridge_mae": 0.22103590381667904,
+      "hist_gradient_boosting_mae": 0.20921297169295697
+    },
+    {
+      "fold": 2,
+      "train": 2939,
+      "test": 654,
+      "ridge_mae": 0.2529819247918842,
+      "hist_gradient_boosting_mae": 0.2489642005106478
+    },
+    {
+      "fold": 3,
+      "train": 3474,
+      "test": 463,
+      "ridge_mae": 0.32510188867065404,
+      "hist_gradient_boosting_mae": 0.2845926891547136
+    },
+    {
+      "fold": 4,
+      "train": 3195,
+      "test": 377,
+      "ridge_mae": 0.2733286161526165,
+      "hist_gradient_boosting_mae": 0.2822244961828215
+    }
+  ],
+  "controlled_detectors": {
+    "stable": {
+      "ols6_median3_persist3": {
+        "any_alert_fraction": 0.005,
+        "pre_event_fraction": 0.002,
+        "post_event_detection_fraction": 0.003,
+        "median_delay_months": 6.0
+      },
+      "ewma_fast_slow_persist2": {
+        "any_alert_fraction": 0.0,
+        "pre_event_fraction": 0.0,
+        "post_event_detection_fraction": 0.0,
+        "median_delay_months": null
+      },
+      "cusum": {
+        "any_alert_fraction": 0.225,
+        "pre_event_fraction": 0.034,
+        "post_event_detection_fraction": 0.191,
+        "median_delay_months": 5.0
+      }
+    },
+    "pulse": {
+      "ols6_median3_persist3": {
+        "any_alert_fraction": 0.173,
+        "pre_event_fraction": 0.001,
+        "post_event_detection_fraction": 0.172,
+        "median_delay_months": 3.0
+      },
+      "ewma_fast_slow_persist2": {
+        "any_alert_fraction": 0.031,
+        "pre_event_fraction": 0.0,
+        "post_event_detection_fraction": 0.031,
+        "median_delay_months": 1.0
+      },
+      "cusum": {
+        "any_alert_fraction": 0.787,
+        "pre_event_fraction": 0.029,
+        "post_event_detection_fraction": 0.758,
+        "median_delay_months": 0.0
+      }
+    },
+    "deterioration": {
+      "ols6_median3_persist3": {
+        "any_alert_fraction": 1.0,
+        "pre_event_fraction": 0.002,
+        "post_event_detection_fraction": 0.998,
+        "median_delay_months": 5.0
+      },
+      "ewma_fast_slow_persist2": {
+        "any_alert_fraction": 1.0,
+        "pre_event_fraction": 0.0,
+        "post_event_detection_fraction": 1.0,
+        "median_delay_months": 4.0
+      },
+      "cusum": {
+        "any_alert_fraction": 1.0,
+        "pre_event_fraction": 0.032,
+        "post_event_detection_fraction": 0.968,
+        "median_delay_months": 2.0
+      }
+    },
+    "improvement": {
+      "ols6_median3_persist3": {
+        "any_alert_fraction": 1.0,
+        "pre_event_fraction": 0.002,
+        "post_event_detection_fraction": 0.998,
+        "median_delay_months": 5.0
+      },
+      "ewma_fast_slow_persist2": {
+        "any_alert_fraction": 1.0,
+        "pre_event_fraction": 0.0,
+        "post_event_detection_fraction": 1.0,
+        "median_delay_months": 4.0
+      },
+      "cusum": {
+        "any_alert_fraction": 1.0,
+        "pre_event_fraction": 0.032,
+        "post_event_detection_fraction": 0.968,
+        "median_delay_months": 2.0
+      }
+    }
+  },
+  "elapsed_seconds": 1.777
+}
