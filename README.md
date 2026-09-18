@@ -27,6 +27,23 @@ A partir del rastro financiero de **250 empresas durante 24 meses**, construir:
 ```text
 .
 ├── .agents/                    # Enunciado y requerimientos del track
+├── research/
+│   └── algo_research_pedro.md  # Brief del algoritmo: features, nivel, tendencia, estados
+├── PRODUCTO.md                 # Producto, comprador, arquitectura, reparto y pitch
+├── REQUISITOS.md               # Requisitos por bloques de arquitectura (B0–B13) y trazabilidad
 ├── README.md
 └── .gitignore
 ```
+
+---
+
+## 📖 Por dónde empezar
+- **[`PRODUCTO.md`](PRODUCTO.md)** — qué construimos encima del score, a quién se lo
+  vendemos, el reparto en 3 ejes y el contrato entre ellos. Empieza por aquí.
+- **[`REQUISITOS.md`](REQUISITOS.md)** — la especificación ejecutable: qué construye cada
+  bloque (B0–B13), con dueño, contrato, requisitos numerados y criterios de aceptación.
+- **[`research/algo_research_pedro.md`](research/algo_research_pedro.md)** — el motor:
+  features, percentiles por peer group, nivel, tendencia, estados y explicación.
+
+`PRODUCTO.md` §0 resuelve las discrepancias entre ambos documentos. Ante una duda sobre
+el algoritmo manda el brief; sobre producto, comprador o narrativa, manda `PRODUCTO.md`.
