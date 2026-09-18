@@ -1,0 +1,542 @@
+{
+  "gates": {
+    "finite_outputs": true,
+    "strict_range": true,
+    "factor_domains": true,
+    "opposite_trajectories_control": true,
+    "exact_additive_waterfall": true,
+    "spearman_below_065": true,
+    "endpoint_saturation_below_2pct": true,
+    "synthetic_monotone_and_three_month_lead": true,
+    "mature_month_correlations_below_065": true,
+    "mature_month_saturation_below_2pct": true
+  },
+  "all_gates_pass": true,
+  "coverage": {
+    "companies": 1286,
+    "months": 24,
+    "endpoint_observed": 1175,
+    "endpoint_prior": 111,
+    "high_quality": 428,
+    "cash_known": 0,
+    "erp_used": 466,
+    "hhi_used": 513
+  },
+  "correlations_all_observed": {
+    "companies": 1175,
+    "matrix": {
+      "L": {
+        "L": 1.0,
+        "C": 0.1736730075971173,
+        "D": 0.06789032155947976,
+        "fragility": 0.16523583627866154
+      },
+      "C": {
+        "L": 0.1736730075971173,
+        "C": 0.9999999999999998,
+        "D": -0.1509096064250257,
+        "fragility": 0.3316104217031519
+      },
+      "D": {
+        "L": 0.06789032155947976,
+        "C": -0.1509096064250257,
+        "D": 0.9999999999999998,
+        "fragility": -0.07908460193544804
+      },
+      "fragility": {
+        "L": 0.16523583627866154,
+        "C": 0.33161042170315186,
+        "D": -0.07908460193544803,
+        "fragility": 1.0
+      }
+    },
+    "maximum_absolute_off_diagonal": 0.3316104217031519,
+    "undefined_pairs": [],
+    "pairs": [
+      {
+        "left": "L",
+        "right": "C",
+        "spearman": 0.1736730075971173
+      },
+      {
+        "left": "L",
+        "right": "D",
+        "spearman": 0.06789032155947976
+      },
+      {
+        "left": "L",
+        "right": "fragility",
+        "spearman": 0.16523583627866154
+      },
+      {
+        "left": "C",
+        "right": "D",
+        "spearman": -0.1509096064250257
+      },
+      {
+        "left": "C",
+        "right": "fragility",
+        "spearman": 0.3316104217031519
+      },
+      {
+        "left": "D",
+        "right": "fragility",
+        "spearman": -0.07908460193544804
+      }
+    ],
+    "passes_065": true
+  },
+  "correlations_high_quality": {
+    "companies": 428,
+    "matrix": {
+      "L": {
+        "L": 0.9999999999999999,
+        "C": 0.25845287756415386,
+        "D": -0.0241254518174382,
+        "fragility": 0.04924480766554437
+      },
+      "C": {
+        "L": 0.25845287756415386,
+        "C": 0.9999999999999999,
+        "D": 0.057378886886081934,
+        "fragility": 0.018336167012292563
+      },
+      "D": {
+        "L": -0.0241254518174382,
+        "C": 0.057378886886081934,
+        "D": 1.0,
+        "fragility": 0.050961491969493566
+      },
+      "fragility": {
+        "L": 0.049244807665544364,
+        "C": 0.018336167012292563,
+        "D": 0.05096149196949357,
+        "fragility": 1.0
+      }
+    },
+    "maximum_absolute_off_diagonal": 0.25845287756415386,
+    "undefined_pairs": [],
+    "pairs": [
+      {
+        "left": "L",
+        "right": "C",
+        "spearman": 0.25845287756415386
+      },
+      {
+        "left": "L",
+        "right": "D",
+        "spearman": -0.0241254518174382
+      },
+      {
+        "left": "L",
+        "right": "fragility",
+        "spearman": 0.04924480766554437
+      },
+      {
+        "left": "C",
+        "right": "D",
+        "spearman": 0.057378886886081934
+      },
+      {
+        "left": "C",
+        "right": "fragility",
+        "spearman": 0.018336167012292563
+      },
+      {
+        "left": "D",
+        "right": "fragility",
+        "spearman": 0.050961491969493566
+      }
+    ],
+    "passes_065": true
+  },
+  "endpoint_saturation_all": 0.0,
+  "endpoint_saturation_observed": 0.0,
+  "endpoint_score": {
+    "min": 5.1673570588460045,
+    "p05": 32.94934150047601,
+    "median": 50.91944216999525,
+    "p95": 69.839511870144,
+    "max": 88.92057096501918,
+    "mean": 51.93104935776065
+  },
+  "endpoint_pillars": {
+    "L": {
+      "min": 0.01798620996209155,
+      "p05": 0.17865747330806103,
+      "median": 0.5,
+      "p95": 0.7538140960537274,
+      "max": 0.9820137900379085,
+      "mean": 0.47580559721699034
+    },
+    "C": {
+      "min": 0.18527760522009534,
+      "p05": 0.4577447713205397,
+      "median": 0.6411963448924722,
+      "p95": 0.8535228941678684,
+      "max": 1.0,
+      "mean": 0.6405174042254903
+    },
+    "D": {
+      "min": 0.000335350130466483,
+      "p05": 0.22712496377714037,
+      "median": 0.5,
+      "p95": 0.5,
+      "max": 0.5,
+      "mean": 0.46023489265352985
+    },
+    "fragility": {
+      "min": 0.0,
+      "p05": 0.0,
+      "median": 0.05188454975654945,
+      "p95": 0.40378182455197403,
+      "max": 0.665988648148796,
+      "mean": 0.11639846439753603
+    }
+  },
+  "stress_control": {
+    "opening_cash": 300,
+    "shock_starts_at_month_index": 12,
+    "cash_nonpositive_month_index": 22,
+    "cash_is_evaluation_only_in_bank_core_test": true,
+    "observed_on_real_companies": false,
+    "variants": {
+      "bank_core": {
+        "baseline_score": 67.90953542015271,
+        "score_at_cash_loss": 24.666490469734796,
+        "first_alert_month_index": 14,
+        "lead_months": 8,
+        "monotone_from_shock_to_cash_loss": true,
+        "maximum_monthly_increase": -3.0683114598765115,
+        "scores": [
+          50.0,
+          50.0,
+          60.40953542015271,
+          60.40953542015271,
+          60.40953542015271,
+          67.90953542015271,
+          67.90953542015271,
+          67.90953542015271,
+          67.90953542015271,
+          67.90953542015271,
+          67.90953542015271,
+          67.90953542015271,
+          66.7289216332029,
+          63.66061017332639,
+          57.7426254008879,
+          53.411018901515,
+          49.258326484699225,
+          45.32133555252843,
+          41.28700480577489,
+          37.204400673841114,
+          33.11255611910893,
+          28.99478354570779,
+          24.666490469734796,
+          20.917710007899096,
+          18.989111901592715,
+          19.15921462552369,
+          21.807392065685242,
+          28.033612347132603,
+          31.66513820252983,
+          31.66513820252983,
+          31.66513820252983,
+          31.66513820252983,
+          31.66513820252983,
+          31.66513820252983,
+          31.66513820252983,
+          31.66513820252983
+        ],
+        "momentum": [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          -0.0,
+          -0.13214916772685498,
+          -0.49378924709370076,
+          -0.6251571802103477,
+          -0.70995850917229,
+          -0.7611680105628595,
+          -0.7993215792864679,
+          -0.8276004524092382,
+          -0.848819286499615,
+          -0.8641414075724496,
+          -0.8778229926165997,
+          -0.8816337467118698,
+          -0.855871053236938,
+          -0.7552863382584196,
+          -0.48447845213543944,
+          -0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      "known_cash": {
+        "baseline_score": 83.80825179913028,
+        "score_at_cash_loss": 15.01803201330159,
+        "first_alert_month_index": 14,
+        "lead_months": 8,
+        "monotone_from_shock_to_cash_loss": true,
+        "maximum_monthly_increase": -1.6640241656129007,
+        "scores": [
+          56.25,
+          56.46551724137931,
+          75.08018162369167,
+          75.26835366670242,
+          75.44476495702501,
+          83.1104846539947,
+          83.2664561334956,
+          83.41351495702501,
+          83.5524038459139,
+          83.68378522729529,
+          83.80825179913028,
+          83.92633546984553,
+          83.4636750954574,
+          81.7996509298445,
+          77.35611224299316,
+          73.89681975489168,
+          70.67089475334784,
+          67.5055466104877,
+          63.767040167430345,
+          58.980093470179774,
+          52.21823398808849,
+          41.16435334849943,
+          15.01803201330159,
+          12.490899851884157,
+          11.1235003640249,
+          11.453800622235695,
+          14.101978062397245,
+          20.328198343844605,
+          23.959724199241833,
+          23.959724199241833,
+          23.959724199241833,
+          23.959724199241833,
+          23.959724199241833,
+          23.959724199241833,
+          23.959724199241833,
+          23.959724199241833
+        ],
+        "momentum": [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          -0.0,
+          -0.13214916772685498,
+          -0.49378924709370076,
+          -0.6251571802103477,
+          -0.70995850917229,
+          -0.7611680105628595,
+          -0.7993215792864679,
+          -0.8276004524092382,
+          -0.848819286499615,
+          -0.8641414075724496,
+          -0.8778229926165997,
+          -0.8816337467118698,
+          -0.855871053236938,
+          -0.7552863382584196,
+          -0.48447845213543944,
+          -0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    }
+  },
+  "trajectory_control": {
+    "input_type": "idealized_base_paths_not_identified_CSV_companies",
+    "recovery_final_base": 65,
+    "deterioration_final_base": 68,
+    "recovery_final_score": 67.65696834527132,
+    "deterioration_final_score": 66.0969446487766,
+    "recovery_momentum": 0.3321210431589152,
+    "deterioration_momentum": -0.23788191890292537,
+    "passes": true
+  },
+  "monthly_diagnostics": [
+    {
+      "month_index": 5,
+      "observed_companies": 658,
+      "max_correlation_observed": 0.5600889014196799,
+      "max_correlation_high_quality": 0.3834431122568244,
+      "correlation_pass": true,
+      "saturation_observed": 0.0
+    },
+    {
+      "month_index": 6,
+      "observed_companies": 693,
+      "max_correlation_observed": 0.4986890362190465,
+      "max_correlation_high_quality": 0.3202751489598533,
+      "correlation_pass": true,
+      "saturation_observed": 0.0
+    },
+    {
+      "month_index": 7,
+      "observed_companies": 713,
+      "max_correlation_observed": 0.5326249059045717,
+      "max_correlation_high_quality": 0.3550891582311931,
+      "correlation_pass": true,
+      "saturation_observed": 0.0
+    },
+    {
+      "month_index": 8,
+      "observed_companies": 736,
+      "max_correlation_observed": 0.5154899538798713,
+      "max_correlation_high_quality": 0.3322629044111648,
+      "correlation_pass": true,
+      "saturation_observed": 0.0
+    },
+    {
+      "month_index": 9,
+      "observed_companies": 761,
+      "max_correlation_observed": 0.5080064285157826,
+      "max_correlation_high_quality": 0.3649796434047213,
+      "correlation_pass": true,
+      "saturation_observed": 0.0
+    },
+    {
+      "month_index": 10,
+      "observed_companies": 793,
+      "max_correlation_observed": 0.4850509640009186,
+      "max_correlation_high_quality": 0.32632695235222825,
+      "correlation_pass": true,
+      "saturation_observed": 0.0
+    },
+    {
+      "month_index": 11,
+      "observed_companies": 820,
+      "max_correlation_observed": 0.4977349911444433,
+      "max_correlation_high_quality": 0.29930931740893246,
+      "correlation_pass": true,
+      "saturation_observed": 0.0
+    },
+    {
+      "month_index": 12,
+      "observed_companies": 856,
+      "max_correlation_observed": 0.5444439263389584,
+      "max_correlation_high_quality": 0.39876064683963697,
+      "correlation_pass": true,
+      "saturation_observed": 0.0
+    },
+    {
+      "month_index": 13,
+      "observed_companies": 903,
+      "max_correlation_observed": 0.5536736718001833,
+      "max_correlation_high_quality": 0.31935461433240653,
+      "correlation_pass": true,
+      "saturation_observed": 0.0
+    },
+    {
+      "month_index": 14,
+      "observed_companies": 938,
+      "max_correlation_observed": 0.549296451321106,
+      "max_correlation_high_quality": 0.23623320113293483,
+      "correlation_pass": true,
+      "saturation_observed": 0.0
+    },
+    {
+      "month_index": 15,
+      "observed_companies": 986,
+      "max_correlation_observed": 0.5251225760340696,
+      "max_correlation_high_quality": 0.3132872658437181,
+      "correlation_pass": true,
+      "saturation_observed": 0.0
+    },
+    {
+      "month_index": 16,
+      "observed_companies": 1108,
+      "max_correlation_observed": 0.5305562122485942,
+      "max_correlation_high_quality": 0.3353557846288366,
+      "correlation_pass": true,
+      "saturation_observed": 0.0
+    },
+    {
+      "month_index": 17,
+      "observed_companies": 1181,
+      "max_correlation_observed": 0.52428858683141,
+      "max_correlation_high_quality": 0.3187670888800098,
+      "correlation_pass": true,
+      "saturation_observed": 0.0
+    },
+    {
+      "month_index": 18,
+      "observed_companies": 1192,
+      "max_correlation_observed": 0.4979579025888586,
+      "max_correlation_high_quality": 0.24099172532586124,
+      "correlation_pass": true,
+      "saturation_observed": 0.0
+    },
+    {
+      "month_index": 19,
+      "observed_companies": 1197,
+      "max_correlation_observed": 0.4871815327517885,
+      "max_correlation_high_quality": 0.3169314467693399,
+      "correlation_pass": true,
+      "saturation_observed": 0.0
+    },
+    {
+      "month_index": 20,
+      "observed_companies": 1201,
+      "max_correlation_observed": 0.4498454103826561,
+      "max_correlation_high_quality": 0.2495924063968517,
+      "correlation_pass": true,
+      "saturation_observed": 0.0
+    },
+    {
+      "month_index": 21,
+      "observed_companies": 1196,
+      "max_correlation_observed": 0.44201853067625885,
+      "max_correlation_high_quality": 0.30378456369027235,
+      "correlation_pass": true,
+      "saturation_observed": 0.0
+    },
+    {
+      "month_index": 22,
+      "observed_companies": 1181,
+      "max_correlation_observed": 0.4404436579518435,
+      "max_correlation_high_quality": 0.13683697609396447,
+      "correlation_pass": true,
+      "saturation_observed": 0.0
+    },
+    {
+      "month_index": 23,
+      "observed_companies": 1175,
+      "max_correlation_observed": 0.3316104217031519,
+      "max_correlation_high_quality": 0.25845287756415386,
+      "correlation_pass": true,
+      "saturation_observed": 0.0
+    }
+  ],
+  "spearman_is_not_independence_proof": true,
+  "real_world_anticipation_validated": false,
+  "credit_probability_calibrated": false,
+  "historical_cash_identifiable_without_anchor": false
+}

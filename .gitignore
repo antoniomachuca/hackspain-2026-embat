@@ -62,3 +62,10 @@ dataset/
 # Data — el dataset del reto no se versiona.
 # Se reparte aparte (ZIP de los organizadores); copiarlo a mano en data/.
 data/
+
+/algorythm/texput.log
+/algorythm/formula/*.aux
+/algorythm/formula/*.log
+/algorythm/formula/*.fls
+/algorythm/formula/*.fdb_latexmk
+/algorythm/formula/*.synctex.gz
