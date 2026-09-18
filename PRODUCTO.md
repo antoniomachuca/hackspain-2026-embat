@@ -2,7 +2,8 @@
 
 **Alcance:** el producto, el comprador y la narrativa.
 El algoritmo vive en [`research/algo_research_pedro.md`](research/algo_research_pedro.md).
-**Última actualización:** 2026-09-18
+**Última actualización:** 2026-09-18 (rev. 2, con el dataset explorado — ver
+[`research/informe_exploracion.md`](research/informe_exploracion.md))
 
 ---
 
@@ -15,8 +16,10 @@ había entre los dos textos:
 | Discrepancia | Resolución |
 | --- | --- |
 | ¿ML supervisado (EBM/LightGBM) o score aditivo por reglas? | **Manda el brief: reglas.** Sin etiqueta no hay entrenamiento posible, solo ajuste de 5-6 pesos contra el leaderboard. Ver §6 |
+| El research de Carlos (Claude, Gemini, ChatGPT) y de Quirce recomienda **GBDT + SHAP** | **Resuelto por el dato (18-sep): el dataset no trae ningún target.** GBDT solo si el script de scoring revela una etiqueta. Donde sí coinciden todos: nada de SHAP crudo en pantalla |
 | ¿Módulo de grupo, núcleo u opcional? | **Opcional para el leaderboard, núcleo para el producto.** Ver §4 |
 | ¿Cómo se mide la anticipación? | La del brief, **añadiendo control de falsas alarmas**. Ver §4 |
+| Quirce propone **"vigilancia de clientes"** como producto | **Imposible tal como se planteó**: las contrapartes no cruzan con ninguna empresa (0,0 %). Queda la versión pequeña: quién *te* paga cada vez más tarde. Ver §4 |
 
 ---
 
@@ -39,8 +42,8 @@ llegar a pantalla.
 | --- | --- |
 | ICP = mid-market **50–500 M€**, multi-entidad, multi-divisa | No es una pyme anónima: **no necesita un sello de confianza**. Necesita negociar mejor con sus 8 bancos |
 | ~400 clientes, Serie B 30 M€ (may-2026, Cathay), ~150 personas | Tienen dinero y presión de producto |
-| Módulo de deuda y de riesgo de contrapartida — **estático** | El puente entre ambos es justo lo que pide el reto |
-| **Cero menciones públicas** a crédito, scoring o financiación embebida | Hueco declarado, no línea existente |
+| Ya calcula DSO/DPO, aging y exposición a contrapartes, y TellMe ajusta previsiones por comportamiento de pago (research ChatGPT-Carlos §3) | **Las señales las tienen.** Lo que no tienen es la nota que las resume, su trayectoria y el what-if. Ese es el hueco, y **no se afirma nada más sin comprobarlo en embat.io** |
+| **Cero menciones públicas** a un score de salud financiera unificado, crédito o financiación embebida | Hueco declarado, no línea existente |
 | Ningún TMS europeo publica un score (Agicap, Kyriba, Nomentia, Tesoralia) | Terreno libre dentro de su categoría |
 | Defacto ya hace lending embebido B2B por API (>1.200 M€, <27 s) | No proponemos que monten un banco: que originen y el riesgo lo ponga un tercero |
 
@@ -93,7 +96,8 @@ conversación que Embat tiene con sus clientes cada día, y por eso el módulo d
 (brief §12) es **opcional para el leaderboard pero obligatorio para el producto**: multi-
 entidad es la razón de ser de Embat. Mecanismo con precedente (IEEE-CIS Fraud): agregados
 group-by por entidad y, en post-proceso, la predicción de la entidad como media ponderada
-de sus miembros. Antes de agregar, eliminar flujos y facturas intragrupo.
+de sus miembros. Antes de agregar, eliminar flujos intragrupo — de forma **aproximada**
+(por categoría `transfer`), porque las contrapartes no cruzan entre empresas.
 
 **Acto 2 — El simulador.** Cada recomendación con su delta de score **y** su delta de
 euros: _"cobra 12 días antes a estos 5 **clientes** → +6 pts → −35 bps → 14.000 €/año."_
@@ -115,8 +119,10 @@ cuatro meses antes de que se notara. Esto es lo que se movió."_
    trivialmente**. Reportar _"mediana de N meses a 1 alerta por empresa-año en las sanas"_.
    El especialista de datos de Embat lo va a preguntar.
 2. **Nivel grupo**, no solo empresa.
-3. **Grafo de contrapartes** (si el cruce supera el umbral del brief §6.1): ves que tu
-   cliente paga tarde *a terceros* antes de que te falle a ti.
+3. ~~Grafo de contrapartes~~ **Descartado por el dato**: cruce contraparte↔empresa 0,0 %.
+   Sustituto realista y aun así inédito en TMS: **cobros por cliente** — la tendencia del
+   retraso de cada cliente *hacia ti*, sobre tus propias facturas (98,7 % con contraparte).
+   No puntúa al cliente; enseña quién te está pagando cada vez más tarde.
 4. **Bache vs. deterioro** con reglas defendibles en un slide (brief §6.5).
 5. **Explicación como descomposición exacta del score aditivo**, no un beeswarm de SHAP.
 
@@ -205,10 +211,12 @@ determinista, que el domingo por la mañana vale oro.
 ### El puente a euros, en dos patas separadas
 
 1. **Caja liberada** = Δ DSO × facturación diaria. Aritmética pura, indiscutible. Va primero.
-2. **Coste de financiación**: ajustar la curva _score → tipo medio observado_ con los tipos
-   reales de `debt_products.csv` y `debt_schedule_config.csv`. _"No es una suposición
-   nuestra: es lo que pagan las empresas de este dataset a este nivel de score."_ Es la
-   parte más atacable del producto convertida en la más sólida.
+2. **Coste de financiación**: ajustar la curva _score → tipo medio observado_. Ojo:
+   `debt_schedule_config.csv` solo trae **87 tipos de 40 empresas**, insuficiente. La fuente
+   es el **tipo implícito** = intereses pagados en banco (`interest_charge`) / saldo vivo,
+   disponible en cientos de empresas. _"No es una suposición nuestra: es lo que pagan las
+   empresas de este dataset a este nivel de score"_. Si tampoco da señal, esta pata se
+   retira de la demo y queda solo la caja liberada.
 
 ---
 
@@ -224,6 +232,14 @@ tiene razón: la entrega es el score de reglas. Decisión en la primera hora del
 | Hay columna objetivo en train | Sonda de Spearman feature a feature. Si 2-3 features explican >0,9, el target es una fórmula: recuperarla. Entonces sí aplica GBDT sobre agregados con ventanas 30/60/90/180/365 d |
 | Solo hay feedback del leaderboard | **Reglas puras.** Ajuste de 5-6 variantes de pesos (brief §6.7). No hay más presupuesto: más iteraciones es sobreajustar a 60-80 empresas |
 | No está claro | Reglas, y preguntar a los ingenieros del aula |
+
+**Estado 18-sep, dataset en mano:** ninguno de los nueve ficheros trae columna objetivo.
+Salvo que el script de scoring diga otra cosa, **estamos en la fila 2: reglas puras.** Y el
+propio dato manda otras cuatro cosas que el brief no preveía: features **as-of** (en facturas
+no pagadas `payment_date` es un placeholder igual al vencimiento), dirección de factura por
+**signo** de `amount`, saldos históricos **reconstruidos** hacia atrás desde `balances.csv`, y
+DSCR con servicio de deuda leído del **banco** (el cuadro de amortización cubre el 7 % de los
+préstamos). Detalle en el informe de exploración.
 
 En los dos casos: **validar por empresa** (`GroupKFold` por `group_id`) + corte temporal.
 Y mejoras de CV por debajo de **0,005 no correlacionan** con el leaderboard — regla de
@@ -246,6 +262,11 @@ parada para Carlos.
   un truco de métrica. Si aparece uno: usarlo para el leaderboard, **jamás para la
   narrativa**, y decirlo en voz alta.
 - **No enseñar un beeswarm de SHAP** delante del jurado.
+- **No decir "Embat no tiene X" sin haberlo mirado.** El jurado es Embat. Su producto ya
+  calcula DSO/DPO, aging y deterioro de contrapartes; lo que no tiene es la nota unificada.
+- **No contar los 24 meses como si fueran de todos.** Solo el 29 % de las empresas tiene
+  historia completa; el 32 % tiene menos de 12 meses. La anticipación se mide donde se puede
+  y se dice.
 - **Dato sintético**: no afirmar leyes de impago del mundo real. El score mide coherencia
   interna. Decirlo antes de que lo pregunten.
 
@@ -258,6 +279,15 @@ parada para Carlos.
 - La frase: _"Vosotros ya tenéis el dato. Lo que no tenéis es la nota — y sin nota, el
   workflow no se convierte en transacción."_
 - Cerrar con el pack bancario: es donde se ve el dinero.
+- Elegir Northbrook y Velasco **entre las 373 empresas con 24 meses completos**; son las
+  únicas en las que la trayectoria se ve entera.
+- Frase de apertura alternativa (research de Quirce, con fuente): _"El 71 % de los
+  responsables financieros rechazaría una IA que no se explica, por precisa que sea. Por eso
+  no hemos construido un score: hemos construido el porqué."_
+- **Confirmar la duración del pitch**: el enunciado dice 2:30; el research de Quirce
+  planifica 5 min.
+- Diseño de la demo con el sistema visual de Embat (marino `#050b2c` + aguamarina, dos
+  pesos tipográficos): el jurado la verá como suya. Tokens en el research de Quirce.
 
 **Viento de cola regulatorio (derecho vigente español, no promesas):**
 
@@ -277,6 +307,9 @@ parada para Carlos.
 1. **Traspaso del brief: Pedro → Carlos y Antonio, media hora.** A partir de ahí el
    brief es la especificación.
 2. **El contrato de §5 en una pizarra**, aunque devuelva datos falsos.
-3. **Las tres preguntas del brief §5** a los ingenieros del aula, y la exploración de §6.1
-   — sobre todo si las contrapartes cruzan con `company_id`, que decide el grafo.
+3. **Las preguntas al aula**: unidad del test (empresa o grupo), qué compara el
+   leaderboard, formato de salida, si el script de scoring trae etiqueta, y cuánto dura el
+   pitch. La del grafo ya no hace falta: no hay.
 4. **Leer el script de scoring** y resolver la tabla de §6.
+5. **La exploración de §6.1 ya está hecha** (`research/informe_exploracion.md`). Se lee en
+   el traspaso, no se repite.

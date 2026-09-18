@@ -9,7 +9,8 @@ producto (vive en [`PRODUCTO.md`](PRODUCTO.md)). Este documento los traduce a re
 
 **Jerarquía ante conflicto:** `ENUNCIADOTRACK.md` → `PRODUCTO.md` (producto, comprador,
 narrativa) → `algo_research_pedro.md` (algoritmo) → este documento (cómo se comprueba).
-**Última actualización:** 2026-09-18
+**Última actualización:** 2026-09-18 (rev. 2, tras la exploración del dataset — ver
+[`research/informe_exploracion.md`](research/informe_exploracion.md))
 
 ---
 
@@ -62,26 +63,35 @@ B10 · Quirce B10–B11 · Hugo B11–B12. B4 y B6 son compartidos (Antonio fór
 **Entrada:** los nueve CSV/JSON del dataset (`groups`, `companies`, `banking_products`,
 `debt_products`, `debt_schedule_config`, `transactions`, `invoices`, `balances`,
 `data_dictionary.md`).
-**Salida:** tablas cargadas y validadas + un `informe_exploracion.md` de una página con
-las cinco respuestas de `algo_research_pedro.md` §6.1 y las decisiones que disparan.
+**Salida:** tablas cargadas y validadas + `research/informe_exploracion.md` con las
+respuestas de `algo_research_pedro.md` §6.1 y las decisiones que disparan.
+
+> **Estado: exploración hecha (18-sep).** Las decisiones de §6.1 ya están tomadas y
+> escritas en el informe. Resumen: **sin target en train → reglas** · **peer por país
+> descartado** (82 % nulo) → cuartil de tamaño · **sin grafo** (cruce contraparte↔empresa
+> 0,0 %) · serie **mensual** (12,6 mov./semana) · **16 % con línea** → utilización pesa menos
+> · **32 % de empresas con < 12 meses** · cuadro de amortización cubre el **7 %** de préstamos.
 
 | ID | Requisito | Prio |
 | :--- | :--- | :--- |
 | **RF-B0.1** | Cargar los nueve ficheros con tipos explícitos (fechas como fecha, importes como decimal) y dejar constancia de filas leídas por fichero | P0 |
 | **RF-B0.2** | Validar integridad referencial: todo `company_id` de `transactions`, `invoices`, `balances` y `debt_*` existe en `companies`; todo `group_id` existe en `groups` | P0 |
 | **RF-B0.3** | Responder las cinco preguntas de exploración: % de contrapartes que cruzan con `company_id`, nº de países/monedas/ERPs, % de empresas con línea/factoring/aval, movimientos por empresa y semana (mediana y P10), empresas con < 12 meses de historia | P0 |
-| **RF-B0.4** | Disparar y **registrar por escrito** las cinco reglas de decisión de §6.1 (grafo sí/no, definición de peer, granularidad mensual, peso del bloque de deuda) | P0 |
+| **RF-B0.4** | Disparar y **registrar por escrito** las cinco reglas de decisión de §6.1 (grafo sí/no, definición de peer, granularidad mensual, peso del bloque de deuda). **Hecho**: ver informe §1 | P0 |
 | **RF-B0.5** | Resolver la unidad de trabajo: `company_id` (1.286) frente a `group_id` (250), y confirmar contra los ingenieros del aula qué unidad evalúa el test oculto | P0 |
 | **RF-B0.6** | Calendario canónico de 24 meses (sep-2024 → sep-2026) compartido por todos los bloques; los meses sin movimiento existen con valor cero, no desaparecen | P0 |
 | **RF-B0.7** | Normalizar signo de importes (entrada positiva / salida negativa) y documentar la convención una sola vez | P0 |
-| **RF-B0.8** | Conversión a EUR de flujos y saldos en divisa distinta, con tipo documentado | P2 |
+| **RF-B0.8** | Conversión a EUR de flujos y saldos en divisa distinta, con tipo documentado (EUR es el 89 %) | P2 |
+| **RF-B0.9** | **Limpieza de fechas anómalas** en `invoices`: años imposibles (6913, 5026), pago anterior a emisión (29.089 filas), `paid` con pago posterior al 1-sep-2026 (3 %). Se marcan y se excluyen del cálculo de retrasos, nunca se corrigen a mano | P0 |
+| **RF-B0.10** | **Reconstrucción del saldo histórico** de cuentas corrientes: `saldo_t = saldo_final − Σ movimientos posteriores a t`. Validar por cuenta (el 20 % toca negativo en algún mes) y agregar por empresa con marcador de calidad | P0 |
 
 **CA-B0:** un comando reproduce la carga de cero y emite el informe. Dos personas distintas
 obtienen los mismos conteos. Las decisiones de §6.1 están escritas y fechadas, no en la
 cabeza de nadie.
 
-**Riesgo:** si el cruce contraparte↔`company_id` sale < 20 %, **no hay grafo** (B5 pierde
-su diferenciador 3 y la concentración se queda en HHI). Se decide aquí y no se revisita.
+**Resuelto:** el cruce contraparte↔`company_id` es **0,0 %**. No hay grafo; la
+concentración se calcula con HHI sobre `invoices` (98,7 % con contraparte; los movimientos
+bancarios solo tienen contraparte en el 9,8 %). No se revisita.
 
 ---
 
@@ -95,24 +105,27 @@ cuatro bloques, más `meses_historia` y los insumos de confianza.
 
 | ID | Requisito | Prio |
 | :--- | :--- | :--- |
-| **RF-B1.1** | Ventana móvil de 12 meses por empresa y mes; meses 1–11 con ventana creciente y mínimo de 6, marcados con menor confianza | P0 |
-| **RF-B1.2** | **Liquidez:** runway, flujo neto medio / ingresos medios, nº de meses con flujo negativo, volatilidad del flujo normalizada por ingresos | P0 |
+| **RF-B1.0** | **Point-in-time (as-of).** Toda feature del mes *t* usa solo lo que se sabía en *t*. En facturas: viva si `issuance ≤ t` y (`status ≠ paid` **o** `payment_date > t`); vencida si además `due < t`. `payment_date` solo cuenta si `status == paid` y `issuance ≤ payment ≤ 2026-09-01` — en `overdue`/`pending` es un **placeholder igual al vencimiento** (96–98 %), no una fecha de pago. Mismo criterio para saldo de deuda y estado de conciliación | P0 |
+| **RF-B1.1** | Ventana móvil de 12 meses por empresa y mes; con ventana creciente y mínimo de 6 meses cuando no hay historia suficiente, marcada con menor confianza. **No es un caso raro: el 32 % de las empresas tiene < 12 meses** y solo el 29 % tiene los 24 | P0 |
+| **RF-B1.2** | **Liquidez:** runway (sobre el saldo reconstruido de RF-B0.10, agregado por empresa), flujo neto medio / ingresos medios, nº de meses con flujo negativo, volatilidad del flujo normalizada por ingresos | P0 |
 | **RF-B1.3** | **Conducta de pago:** DBT como pagador ponderado por importe, % de emitidas vencidas sin cobrar, retraso medio de cobro sobre vencimiento, gap DSO−DPO, % de facturas pagadas tarde | P0 |
 | **RF-B1.4** | **Deuda:** DSCR proxy, utilización de líneas, deuda total / ingresos anualizados, factoring y confirming sobre ingresos | P0 |
-| **RF-B1.5** | **Concentración:** HHI de clientes, HHI de proveedores, % de ingresos de contrapartes recurrentes | P0 |
-| **RF-B1.6** | Facturas **emitidas** y **recibidas** se calculan por separado y nunca se agregan en un solo número | P0 |
+| **RF-B1.5** | **Concentración:** HHI de clientes, HHI de proveedores, % de ingresos de contrapartes recurrentes — **calculados sobre `invoices`**, no sobre movimientos bancarios | P0 |
+| **RF-B1.6** | Facturas **emitidas** y **recibidas** se calculan por separado y nunca se agregan en un solo número. **La dirección la da el signo de `amount`** (negativa = recibida/pago, positiva = emitida/cobro; verificado al 99,6 % contra el movimiento bancario). 67 empresas no tienen emitidas en el ERP: su cobro se mide solo por banco | P0 |
 | **RF-B1.7** | Un DPO alto no penaliza por sí mismo: solo penaliza el **retraso real sobre el vencimiento** | P0 |
-| **RF-B1.8** | DSCR proxy según §6.3: numerador = cobros − pagos operativos de 12 m excluyendo financiación, intragrupo e inyecciones de capital, sin restar cuotas; denominador = cuota anual del cuadro de amortización + intereses sobre dispuesto en líneas + fee de factoring + 0 por avales | P0 |
+| **RF-B1.8** | DSCR proxy: numerador = cobros − pagos operativos de 12 m excluyendo financiación, intragrupo e inyecciones de capital, sin restar cuotas; **denominador = servicio de deuda observado en banco** (movimientos `debt_repayment` + `interest_charge`, presentes en el 56 % de empresas), **no** el cuadro de amortización (`debt_schedule_config` cubre el 7 % de los préstamos). Sin movimientos de deuda ni producto de deuda → DSCR neutro, no penalizado (71 % de empresas sin deuda registrada) | P0 |
 | **RF-B1.9** | Empresa sin línea de crédito: utilización **neutra**, nunca penalizada | P0 |
 | **RF-B1.10** | Nulos imputados con la mediana del peer, con marcador de dato faltante que alimenta B3-confianza y **no** el riesgo | P0 |
 | **RF-B1.11** | Cada feature declara su dirección (mayor = mejor / mayor = peor) en un único sitio, y la inversión se aplica una sola vez en todo el pipeline | P0 |
 | **RF-B1.12** | El pipeline es **recomputable sobre un input modificado** (requisito duro de B8: el contrafactual reejecuta features, no deriva) | P0 |
-| **RF-B1.13** | Eliminación de flujos y facturas intragrupo antes de cualquier agregación de grupo | P1 |
+| **RF-B1.13** | Eliminación **aproximada** de flujos intragrupo antes de agregar por grupo: por categoría `transfer` (5,9 % de movimientos) y préstamos `Other (customer-defined)`. Sin cruce de contrapartes no puede ser exacta, y se declara así | P1 |
+| **RF-B1.15** | Toda feature de actividad se normaliza por la propia empresa (sus ingresos, su historia). El volumen total del dataset crece ×4 por **onboarding** (439 empresas activas en sep-2024 → 1.223 en mar-2026), no por negocio; ninguna feature absoluta es comparable entre meses | P0 |
 | **RF-B1.14** | Insumos de confianza: % conciliado, meses de historia, cobertura de productos, match factura↔banco | P1 |
 
 **CA-B1:** ninguna feature devuelve NaN o infinito para una empresa con ≥ 6 meses. Tres
 empresas revisadas a mano cuadran con el cálculo. Recalcular sobre un input modificado en
-un campo cambia solo las features afectadas.
+un campo cambia solo las features afectadas. **Prueba as-of:** el DSO de un mes calculado
+con el fichero completo coincide con el calculado truncando el fichero a ese mes.
 
 ---
 
@@ -126,11 +139,11 @@ un campo cambia solo las features afectadas.
 
 | ID | Requisito | Prio |
 | :--- | :--- | :--- |
-| **RF-B2.1** | Peer = país × cuartil de ingresos anualizados (o región × tamaño si B0 encuentra > 8 países) | P0 |
+| **RF-B2.1** | Peer = **cuartil de tamaño** por cobros anualizados (~321 empresas por cuartil; rango 54 k€ – 614 M€). País **descartado**: 82 % nulo y sucio. Opcional: × moneda (EUR / otra) si mejora la estabilidad | P0 |
 | **RF-B2.2** | Las tablas se calculan **solo con empresas de entrenamiento**, se serializan y se versionan. Una empresa nueva se coloca contra ellas; **jamás** se recalculan incluyéndola | P0 |
 | **RF-B2.3** | *Shrinkage* por tamaño del peer: ≥30 local · 15–29 mezcla `w=n/(n+K)` · 5–14 casi global con etiqueta "peer limitado" · <5 solo global | P0 |
 | **RF-B2.4** | Valor fuera del rango de la tabla: se satura en 0 o 100, nunca extrapola ni falla | P0 |
-| **RF-B2.5** | Empresa de peer desconocido (país nuevo en test): cae a global con etiqueta y baja de confianza | P0 |
+| **RF-B2.5** | Empresa sin cobros categorizados (31 en train) o de tamaño fuera de rango: cae a global con etiqueta "peer limitado" y baja de confianza | P0 |
 | **RF-B2.6** | La salida expone `p_peer` por feature para que B4 la pinte y B7 la sirva | P0 |
 | **RF-B2.7** | El benchmark sectorial anónimo del acto 3 (`PRODUCTO.md` §4) se construye sobre estas mismas tablas, sin exponer empresas individuales | P1 |
 
@@ -159,7 +172,8 @@ y la serie `trayectoria[24]`.
 | **RF-B3.7** | Señal simétrica: la fórmula no contiene ningún término que trate la subida distinto de la bajada; se comprueba en B13-CA | P0 |
 | **RF-B3.8** | `confianza = 0,30·%conciliado + 0,25·meses/24 + 0,20·cobertura + 0,15·match + 0,10·(1−sensibilidad)`, con semáforo alta/media/baja, y **fuera del score** | P1 |
 | **RF-B3.9** | Bache y deterioro se separan por **persistencia** (≥3 meses), no por magnitud del mes suelto | P0 |
-| **RF-B3.10** | **Un solo algoritmo**: el score de reglas es el que se envía al leaderboard y el que consume el producto. Si aparece una variante mejor, se sustituye entera; no conviven dos motores | P0 |
+| **RF-B3.10** | **Un solo algoritmo**: el score de reglas es el que se envía al leaderboard y el que consume el producto. Si aparece una variante mejor, se sustituye entera; no conviven dos motores. **Resuelto 18-sep: el dataset no trae target**, así que la rama de reglas es la activa; GBDT solo si el script de scoring revela una etiqueta (RF-B13.2) | P0 |
+| **RF-B3.11** | Si la estabilidad mes a mes sale por debajo de 0,85 o hay pocos puntos de serie, la ventana baja a 9 meses (brief §11). Con 12 meses hay 13 puntos de score por empresa y el primer estado confirmable cae en el mes ~15 | P1 |
 
 **CA-B3:** Northbrook (45→65) y Velasco (82→68) —o sus equivalentes reales del dataset—
 salen con estados `Mejorando` y `Torciéndose` respectivamente, y el sistema los distingue
@@ -182,7 +196,7 @@ de delta en lenguaje natural.
 | **RF-B4.2** | **Por qué ha cambiado:** descomposición exacta `ΔS = Σ_b w_b·(P_b(t) − P_b(t−1))`, que por construcción suma el delta total | P0 |
 | **RF-B4.3** | Segundo nivel: dentro del bloque que más movió, las 2 features de mayor contribución, con su valor crudo en unidades de negocio (días, %, €) | P0 |
 | **RF-B4.4** | Frase generada legible por un tesorero: *"Score −6: conducta de pago −5 (DBT de 4 a 19 días; 3 facturas recibidas pagadas con +30 días de retraso), liquidez −1"* | P0 |
-| **RF-B4.5** | **Prohibido SHAP, LIME y beeswarm.** Sobre un score aditivo la explicación *es* el modelo, y el enunciado premia que se pueda contar | P0 |
+| **RF-B4.5** | **Nada de SHAP, LIME ni beeswarm en pantalla.** Sobre el score aditivo de reglas la explicación *es* el modelo y no hace falta nada por debajo; si RF-B13.2 activara la rama GBDT, SHAP agrupado por bloque sería el único uso admitido, y siempre traducido a la lista de factores + frase de RF-B4.3/B4.4. Todo el research coincide: no SHAP crudo | P0 |
 | **RF-B4.6** | Toda cifra que aparezca en pantalla es trazable a una feature y a una fila del dataset | P1 |
 
 **CA-B4:** para cualquier empresa y mes, las contribuciones de los bloques suman el delta
@@ -206,7 +220,8 @@ explica el caso al jurado sin ayuda.
 | **RF-B5.4** | ELMS del brief §9 (2 de 3 pilares: caja, cobros, líneas) **solo para validar, nunca para entrenar ni para puntuar** | P1 |
 | **RF-B5.5** | Monitor: lista autoactualizada de empresas que cambian a Torciéndose, Deterioro o Mejorando en el último mes, ordenada por magnitud del cambio, con severidad y drivers movidos | P2 |
 | **RF-B5.6** | El monitor es **proactivo**: la demo enseña la alerta sin que nadie la pida, y con la frase de B4 ya adjunta | P2 |
-| **RF-B5.7** | Grafo de contrapartes (ves que tu cliente paga tarde a terceros antes de fallarte a ti) **solo si** B0 confirmó cruce suficiente | P2 |
+| **RF-B5.7** | ~~Grafo de contrapartes~~ **Eliminado**: cruce contraparte↔empresa 0,0 %. Sustituto realista: **cobros por cliente** — tendencia del retraso de cada cliente *hacia ti* sobre tus propias facturas emitidas (98,7 % con contraparte). No puntúa al cliente; enseña quién te está pagando cada vez más tarde | P2 |
+| **RF-B5.8** | La anticipación se mide **solo sobre las 373 empresas con 24 meses de historia** (29 %); las demás no tienen serie suficiente para un cambio de régimen defendible. Se dice así en el pitch | P1 |
 
 **CA-B5:** existe un número concreto y defendible —"mediana de N meses de anticipación a 1
 falsa alarma por empresa-año"— y quien lo dice sabe explicar cómo se midió. Sin la tasa de
@@ -223,7 +238,7 @@ de ser de Embat (`PRODUCTO.md` §4).
 
 | ID | Requisito | Prio |
 | :--- | :--- | :--- |
-| **RF-B6.1** | Eliminar flujos y facturas intragrupo **antes** de agregar (RF-B1.13) | P1 |
+| **RF-B6.1** | Eliminar flujos intragrupo **antes** de agregar, de forma aproximada (RF-B1.13) y declarándolo | P1 |
 | **RF-B6.2** | Score de grupo = 65 % media ponderada de filiales + 35 % peor filial, con penalización por contagio si una filial material está en mala situación | P1 |
 | **RF-B6.3** | La vista de grupo muestra siempre el desglose por filial: *"el grupo saca 71, pero la filial portuguesa saca 38 y arrastra al consolidado"* | P1 |
 | **RF-B6.4** | Si B0 determina que el test evalúa grupos y no empresas, este bloque asciende a **P0** | — |
@@ -298,8 +313,8 @@ segunda es la parte más atacable del producto convertida en la más sólida.
 | ID | Requisito | Prio |
 | :--- | :--- | :--- |
 | **RF-B9.1** | **Caja liberada** = Δ DSO × facturación diaria. Aritmética pura. Va primero y siempre | P1 |
-| **RF-B9.2** | **Coste de financiación:** curva `score → tipo medio observado`, ajustada con los tipos **reales** de `debt_products.csv` y `debt_schedule_config.csv`. *"No es una suposición nuestra: es lo que pagan las empresas de este dataset a este nivel de score"* | P1 |
-| **RF-B9.3** | La curva se enseña con su dispersión, no como una línea limpia: si el ajuste es débil, se dice | P1 |
+| **RF-B9.2** | **Coste de financiación:** curva `score → tipo medio observado`. `debt_schedule_config` solo tiene **87 tipos (40 empresas)**, insuficiente para ajustar nada. Fuente principal: **tipo implícito** = `interest_charge` anual / `outstanding` medio, disponible en cientos de empresas. *"No es una suposición nuestra: es lo que pagan las empresas de este dataset a este nivel de score"* | P1 |
+| **RF-B9.3** | La curva se enseña con su dispersión, no como una línea limpia: si el ajuste es débil, se dice. Si ni el tipo implícito da señal, la pata 2 se retira de la demo y queda solo la caja liberada | P1 |
 | **RF-B9.4** | Salida completa de la cadena: *"cobra 12 días antes a estos 5 clientes → +6 pts → −35 bps → 14.000 €/año"* | P1 |
 | **RF-B9.5** | Las dos patas se muestran etiquetadas y separables: nadie puede confundir aritmética con ajuste estadístico | P1 |
 
@@ -352,7 +367,9 @@ del jurado.
 | **RF-B11.2** | Navegable end-to-end: de la alerta de cartera a la ficha, de la ficha al simulador, sin callejones sin salida | P0 |
 | **RF-B11.3** | Camino de demo de 5 minutos ensayado y marcado, con los dos casos del enunciado como protagonistas | P0 |
 | **RF-B11.4** | El gráfico de trayectoria distingue **visualmente** nivel y tendencia: es la tesis del reto ("trayectoria, no foto") | P0 |
-| **RF-B11.5** | Datos precargados para los casos de demo: cero esperas y cero dependencia de red durante el pitch | P0 |
+| **RF-B11.5** | Datos precargados para los casos de demo: cero esperas y cero dependencia de red durante el pitch. Los casos Northbrook/Velasco se eligen **entre las 373 empresas con 24 meses completos** | P0 |
+| **RF-B11.8** | **Sistema visual de Embat** (research de Quirce, extraído de su CSS): marino `#050b2c` + aguamarina `#5ed3e5`/`#007b93` + blancos, dos pesos tipográficos (General Sans o Switzer como sustitutos de Haffer). Score como número grande + banda + línea temporal, nunca un gauge solo; estados como texto, no solo color | P1 |
+| **RF-B11.9** | Un estado de "datos insuficientes → scoring pendiente" con contenido real: el 32 % de las empresas tiene < 12 meses y el jurado puede hacer clic en una | P1 |
 | **RF-B11.6** | Funciona en la resolución de proyector del aula, probado en ese proyector antes del pitch | P1 |
 | **RF-B11.7** | Quirce puede sostener el front en solitario desde el sábado por la noche: el domingo Hugo ensaya, no programa | P0 |
 
@@ -378,9 +395,12 @@ del jurado.
 | **RF-B12.8** | **Vídeo de respaldo grabado** del recorrido completo, por si la demo en vivo falla | P1 |
 | **RF-B12.9** | Viento de cola regulatorio de **derecho vigente**: Ley 5/2015 + Circular BdE 6/2016 (preaviso de 3 meses y derecho a tu calificación) y RD 238/2026 (estados de pago en 4 días). **No apoyar el pitch en FIDA**, que no está adoptada | P1 |
 | **RF-B12.10** | Nombrar el riesgo estratégico nosotros: Tillful absorbida por Nav, Fluidly apagada en OakNorth. La decisión que lo evita: **el dueño del score es la empresa**, y por eso el acto 2 va antes que el acto 3 | P2 |
+| **RF-B12.11** | **No afirmar ante Embat que Embat no tiene algo sin haberlo comprobado en embat.io.** Su producto ya calcula DSO/DPO, aging y exposición a contrapartes (research ChatGPT-Carlos §3). Lo que no tiene es el score unificado, la trayectoria y el what-if en euros: ese es el hueco que se nombra | P0 |
+| **RF-B12.12** | Confirmar con la organización la **duración del pitch**: el enunciado §10 dice 2:30, el research de Quirce planifica 5 min. El guion se escribe para la duración confirmada | P0 |
 
-**CA-B12:** ensayado cronometrado al menos dos veces el domingo por la mañana, con la demo
-abierta y en el proyector.
+**CA-B12:** código congelado 4 h antes de la entrega; camino feliz ensayado **cinco veces**
+buscando dónde se rompe; pitch cronometrado al menos dos veces el domingo por la mañana con
+la demo abierta y en el proyector.
 
 ---
 
@@ -391,7 +411,7 @@ abierta y en el proyector.
 | ID | Requisito | Prio |
 | :--- | :--- | :--- |
 | **RF-B13.1** | Leer el script de scoring en la primera hora y resolver la tabla de `PRODUCTO.md` §6: ¿hay columna objetivo en train, o solo feedback del leaderboard? | P0 |
-| **RF-B13.2** | Si **solo hay feedback**: reglas puras, ajuste de 5–6 variantes de pesos y nada más. Si **hay etiqueta**: sonda de Spearman feature a feature; si 2–3 features explican > 0,9, el target es una fórmula y se recupera. Si **no está claro**: reglas, y preguntar en el aula | P0 |
+| **RF-B13.2** | **Rama activa: reglas.** El dataset no trae ninguna columna objetivo (comprobado 18-sep en los nueve ficheros). Solo si el script de scoring revela una etiqueta: sonda de Spearman feature a feature; si 2–3 features explican > 0,9, el target es una fórmula y se recupera, y entonces —y solo entonces— entra GBDT con restricciones monotónicas y validación por `group_id` | P0 |
 | **RF-B13.3** | **Primer envío con k = 0** (solo nivel): línea base limpia. La tendencia entra como variante 2, para medir cuánto aporta en vez de asumirlo | P0 |
 | **RF-B13.4** | **Máximo 5–6 variantes** contra el test oculto, cada una con justificación escrita. Más iteraciones es sobreajustar a 60–80 empresas | P0 |
 | **RF-B13.5** | Validación propia con `GroupKFold` por `group_id` + corte temporal. Mejoras de CV por debajo de **0,005 no correlacionan** con el leaderboard: es la regla de parada | P0 |
@@ -443,7 +463,10 @@ queda registrado qué variante produjo qué puntuación.
 | **Pedro es cuello de botella**: depende del núcleo y bloquea a Quirce | Si el viernes de noche no hay `/score` real, `/simulate` se monta sobre un stub con reglas tontas y se sigue con el catálogo. El agente no descubre su integración el sábado por la tarde | Pedro |
 | **Hugo está en front y narrativa a la vez** | Quirce sostiene el front en solitario desde el sábado noche. El domingo Hugo ensaya | Hugo |
 | **El contrato cambia a mitad** | Congelado en 2 h (B7). Cualquier cambio posterior se anuncia a los cuatro consumidores a la vez | Antonio |
-| Ventana de 12 meses sobre 24 deja pocos puntos de serie | Si la estabilidad (RF-B13.6) sale baja, bajar la ventana a 9 meses | Carlos |
+| Ventana de 12 meses sobre 24 deja pocos puntos de serie, y solo el 29 % de las empresas tiene los 24 | Ventana creciente desde el mes 6 (RF-B1.1); si la estabilidad (RF-B13.6) sale baja, bajar a 9 (RF-B3.11) | Carlos |
+| **El feature engineering es más largo de lo previsto**: as-of de facturas, reconstrucción de saldos, dirección por signo y DSCR desde banco no estaban en el brief. Las 5–6 h de la fase 2 son 8–10 | Antonio entra en B1 el viernes por la noche; la curva score→tipo (RF-B9.2) se retrasa, con 87 tipos tampoco merecía prioridad | Carlos + Antonio |
+| **Leakage por `payment_date`**: en facturas no pagadas es un placeholder igual al vencimiento | RF-B1.0 como P0 y la prueba as-of de CA-B1 | Carlos |
+| Todo el research de Carlos y Quirce recomienda GBDT+SHAP, el brief y el dataset dicen reglas | Resuelto por el dato: sin target no hay GBDT. Se cierra en el traspaso del viernes con el informe delante, no por chat | Pedro |
 | Las tablas de percentiles se recalculan por accidente con el test dentro | CA-B2 es el test que lo detecta: puntuar una empresa sola y acompañada debe dar lo mismo | Carlos |
 | Optimizar el leaderboard a costa del producto | RF-B13.7. Dos tercios de la nota no son la métrica | Todos |
 | Dato sintético tomado por realidad | RF-B12.6: lo decimos nosotros antes de que lo pregunten | Hugo |
@@ -455,6 +478,10 @@ queda registrado qué variante produjo qué puntuación.
 1. **Traspaso del brief: Pedro → Carlos y Antonio, media hora.** A partir de ahí el brief
    es la especificación.
 2. **El contrato de B7 en una pizarra** y mockeado, aunque devuelva datos falsos.
-3. **Las tres preguntas del brief §5 a los ingenieros del aula** y la exploración B0 —
-   sobre todo si las contrapartes cruzan con `company_id`, que decide el grafo (RF-B5.7).
+3. **Las preguntas al aula**, ya sin la del grafo (resuelta: no hay): qué compara el
+   leaderboard, unidad del test (empresa o grupo), formato de salida, **si el script de
+   scoring trae etiqueta** y **cuánto dura el pitch** (2:30 o 5 min).
 4. **Leer el script de scoring** y resolver la tabla de RF-B13.1.
+5. **El informe de exploración** (`research/informe_exploracion.md`) se lee en el traspaso:
+   as-of, signo de factura, saldos reconstruidos y DSCR desde banco son las cuatro piezas
+   que el brief no tenía y que B1 debe incorporar desde la primera línea.
