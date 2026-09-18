@@ -19,6 +19,7 @@ A partir del rastro financiero de **250 empresas durante 24 meses**, construir:
 - **[@carleondel](https://github.com/carleondel)**
 - **[@HugoOlivaR](https://github.com/HugoOlivaR)**
 - **[@agustmun-web](https://github.com/agustmun-web)**
+- **[@Pedrojonfg](https://github.com/Pedrojonfg)**
 
 ---
 
