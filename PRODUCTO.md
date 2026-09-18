@@ -170,7 +170,7 @@ congela el contrato y se mockea (ver abajo).
 > El despliegue tiene dos dueños y ambos desde el viernes: Antonio la API, Quirce el
 > front. _"Un notebook que solo corre en vuestro portátil no cuenta"_ está en el enunciado.
 
-### Contrato, congelado en las 2 primeras horas
+#### Contrato, congelado en las 2 primeras horas
 
 Todos mockean contra esto; nadie espera al núcleo.
 
@@ -179,24 +179,27 @@ GET  /score/{entity_id}?month=   → { score, nivel, tendencia, estado, confianz
                                      drivers[{feature, contribución, valor, p_peer}],
                                      trayectoria[24], códigos_razón[] }
 GET  /group/{group_id}           → { consolidado, filiales[] }
-POST /simulate {entity_id, palancas:[{id, magnitud}]}
-                                 → { score_nuevo, delta_score, caja_liberada_eur,
+GET  /palancas?entity_id=        → [{ id, nombre, es_aplicable, motivo_rechazo, parametros_defecto }]
+POST /simulate                   → { score_nuevo, delta_score, caja_liberada_eur,
                                      delta_bps, eur_año }
+POST /action/generate            → { document_type, recipient, subject, body_text, financial_terms }
+GET  /passport/{token}           → { valid, company_name, score, trajectory[], verification_hash }
 GET  /alerts?desde=              → [{ entity_id, severidad, mes_detección,
-                                      meses_anticipación, drivers_movidos[] }]
+                                     meses_anticipación, drivers_movidos[] }]
 ```
 
 `nivel`, `tendencia` y `estado` van separados porque el brief (§6.6) los exporta por
 separado y el reto no prioriza ninguno sobre otro.
 
-### Catálogo cerrado de palancas (~8, parametrizadas — nada de texto libre)
+### Catálogo de palancas (Patrón Strategy · OCP)
 
-`reducir_dso(días, clientes[])` · `ampliar_dpo(días)` · `refinanciar(producto_id)` ·
-`bajar_utilización_línea(%)` · `reducir_concentración(cliente_id)` ·
-`sustituir_factoring_por_línea` · `recortar_opex(%)` · `descuento_pronto_pago(%)`
+Implementado bajo interfaz polimórfica `IPalanca` (`es_aplicable`, `aplicar(Tablas, Params)`):
+`PalancaReducirDSO` · `PalancaAmpliarDPO` · `PalancaRefinanciar` · `PalancaBajarUtilizacionLinea` ·
+`PalancaReducirConcentracion` · `PalancaSustituirFactoring` · `PalancaRecortarOpex` · `PalancaDescuentoProntoPago`
 
-El agente **elige y parametriza**; el número lo pone siempre `/simulate`. Hace la demo
-determinista, que el domingo por la mañana vale oro.
+El agente **elige y parametriza**; el número lo pone siempre `/simulate`. Tras la simulación,
+habilita **ejecución en 1 clic** (`POST /action/generate`) generando el documento contractual
+o memorando bancario formal para cerrar la transacción. Hace la demo determinista y operativa.
 
 ### Dos reglas de implementación que no se negocian
 

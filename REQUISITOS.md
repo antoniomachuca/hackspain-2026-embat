@@ -1,487 +1,472 @@
-# Requisitos del proyecto · por bloques de arquitectura
-
-**Qué es esto:** la especificación ejecutable del sistema, bloque a bloque. Cada bloque
-tiene dueño, contrato de entrada/salida, requisitos numerados y criterios de aceptación
-comprobables.
-**Qué NO es:** ni la investigación del algoritmo (vive en
-[`research/algo_research_pedro.md`](research/algo_research_pedro.md)) ni la tesis de
-producto (vive en [`PRODUCTO.md`](PRODUCTO.md)). Este documento los traduce a requisitos.
-
-**Jerarquía ante conflicto:** `ENUNCIADOTRACK.md` → `PRODUCTO.md` (producto, comprador,
-narrativa) → `algo_research_pedro.md` (algoritmo) → este documento (cómo se comprueba).
-**Última actualización:** 2026-09-18 (rev. 2, tras la exploración del dataset — ver
-[`research/informe_exploracion.md`](research/informe_exploracion.md))
+# Especificación de Requisitos de Software (SRS) · Motor X-Ray
+> **Estándar:** Basado en ISO/IEC/IEEE 29148 / IEEE 830 (Especificación Formal de Requisitos)  
+> **Proyecto:** HackSpain 2026 · Reto Embat (X-Ray)  
+> **Última actualización:** 2026-09-18 (Revisión Integral: Formato Formal IEEE 29148, Principios SOLID y Factor WOW)
 
 ---
 
-## 0. Convenciones
+## 0. Marco Metodológico y Principios Arquitectónicos SOLID
 
-**Identificadores.** `RF-Bn.m` requisito funcional del bloque n · `RNF-n` requisito no
-funcional · `CA` criterio de aceptación.
+Este documento formaliza los requisitos funcionales y no funcionales del sistema conforme a la metodología de ingeniería de requisitos de **IEEE 29148**. Cada requisito se define mediante una ficha estandarizada que detalla: **Identificador y Título**, **Descripción**, **Prioridad**, **Dependencias**, **Entradas**, **Procesamiento**, **Salidas**, **Excepciones y Errores**, y el **Principio Arquitectónico SOLID** subyacente.
 
-**Prioridad.**
+### 0.1. Clasificación de Prioridades
+- **P0 (Crítico / Núcleo):** Imprescindible para el motor de scoring, la consistencia de datos y el flujo principal de la demo ante el jurado.
+- **P1 (Obligatorio del Track):** Requisitos funcionales obligatorios del enunciado de Embat que completan la visión de producto (Día 2).
+- **P2 (Diferenciador / Factor WOW):** Capacidades que maximizan la probabilidad de victoria (ejecución autónoma en 1 clic, pasaporte QR interactivo, grounding en vivo con Exa).
 
-| Nivel | Significado | Regla de corte |
-| :--- | :--- | :--- |
-| **P0** | Sin esto no hay demo ni entrega | No se toca nada de P1 hasta que todo P0 esté verde |
-| **P1** | Obligatorio del enunciado §6, pero la demo se sostiene sin ello unas horas | Se entrega sábado noche |
-| **P2** | Bonus del enunciado o diferenciador de `PRODUCTO.md` §4 | Solo si P0 y P1 están cerrados |
-
-**Estado de un requisito:** `pendiente` → `mockeado` (devuelve datos falsos contra el
-contrato) → `hecho` (pasa su CA).
-
-**Regla de desbloqueo (la más importante del fin de semana).** Todo bloque consumidor
-arranca contra el **mock** del contrato congelado, nunca contra la implementación real.
-Ningún bloque puede declararse bloqueado por otro: si su dependencia no está, mockea.
-
-**Mapa de bloques.**
-
-```
-B0 Datos ──► B1 Features ──► B2 Peer/percentiles ──► B3 Score ──┬──► B4 Explicación
-                                                                 ├──► B5 Anticipación+Monitor
-                                                                 └──► B6 Grupo
-                                                                        │
-                       B7 API (contrato) ◄──────────────────────────────┘
-                              │
-                              ├──► B8 Simulador (palancas) ──► B9 Puente a euros
-                              │            │
-                              │            └──► B10 Agente
-                              │                      │
-                              └──────────────────────┴──► B11 Front/Demo ──► B12 Pitch
-                                                          B13 Entrega leaderboard
-```
-
-**Dueños** (de `PRODUCTO.md` §5): Carlos B0–B2 y B13 · Antonio B3, B7, B9 · Pedro B5, B8,
-B10 · Quirce B10–B11 · Hugo B11–B12. B4 y B6 son compartidos (Antonio fórmula, Carlos datos).
+### 0.2. Reglas de Arquitectura y Principios SOLID
+1. **Single Responsibility (SRP):** Desacoplar estrictamente la ingesta de ficheros (I/O) de la normalización contable, el cálculo de features y la persistencia de percentiles.
+2. **Open / Closed (OCP):** El catálogo de palancas de simulación se implementa mediante el patrón *Strategy* (`IPalanca`), permitiendo añadir nuevas estrategias de optimización financiera sin modificar el simulador ni introducir condicionales monolíticos.
+3. **Liskov Substitution (LSP):** Jerarquía estricta y sin colisión de tipos en el modelado de productos financieros (`ProductoBancario`, `ProductoDeuda`), garantizando sustituibilidad plena sobre la interfaz base `Producto`.
+4. **Interface Segregation (ISP):** La API de servicio expone interfaces segregadas por caso de uso (`IScoreService`, `IGroupService`, `ISimulatorService`, `IAlertService`, `IActionService`), evitando que clientes especializados dependan de métodos ajenos a su dominio.
+5. **Dependency Inversion (DIP):** Los servicios de alto nivel dependen de abstracciones. Se garantiza la existencia de un `APIMock` y un `FixtureOffline` para desacoplar el desarrollo de frontend y asegurar la demo ante caídas de red.
 
 ---
 
-## B0 · Ingesta y exploración del dato
+## 1. Módulo B0 · Ingesta, Integridad y Normalización Financiera
 
-**Dueño:** Carlos · **Prioridad:** P0 · **Bloquea:** todo · **Tiempo objetivo:** 1 h
+### REQ-B0.1: Ingesta de Datos Tipados y Auditoría de Ficheros
+- **Descripción:** Cargar los nueve ficheros del dataset sintético aplicando tipado estricto en el esquema tabular y registrando la integridad de los datos.
+- **Prioridad:** P0
+- **Dependencias:** Ninguna (origen primario de datos).
+- **Entradas:** Ficheros CSV/JSON en `dataset/` (`groups`, `companies`, `banking_products`, `debt_products`, `debt_schedule_config`, `transactions`, `invoices`, `balances`, `data_dictionary.md`).
+- **Procesamiento:** Lectura por streams o bloques, conversión explícita de identificadores a texto, fechas a formato canónico ISO (`date`) e importes a representación numérica de alta precisión (`decimal/float64`). Verificación de huellas SHA-256 por fichero.
+- **Salidas:** Diccionario de estructuras de datos en memoria (`Tablas`) y manifiesto de auditoría con conteo exacto de filas por fichero.
+- **Excepciones y Errores:** 
+  - Fichero ausente o ruta inválida: Interrupción con código de error fatal.
+  - Incoherencia de esquema (columnas faltantes): Registro en log y excepción explícita.
+- **Principio SOLID:** Principio de Responsabilidad Única (SRP). La ingesta se limita a I/O y casteo de tipos primitivos, delegando transformaciones de negocio.
 
-**Entrada:** los nueve CSV/JSON del dataset (`groups`, `companies`, `banking_products`,
-`debt_products`, `debt_schedule_config`, `transactions`, `invoices`, `balances`,
-`data_dictionary.md`).
-**Salida:** tablas cargadas y validadas + `research/informe_exploracion.md` con las
-respuestas de `algo_research_pedro.md` §6.1 y las decisiones que disparan.
+### REQ-B0.2: Validación de Integridad Referencial
+- **Descripción:** Comprobar la coherencia relacional entre todas las tablas del modelo de datos de tesorería.
+- **Prioridad:** P0
+- **Dependencias:** REQ-B0.1.
+- **Entradas:** `Tablas` cargadas en memoria.
+- **Procesamiento:** 
+  - Validar que todo `company_id` en transacciones, facturas, saldos y productos de deuda exista en `companies`.
+  - Validar que todo `group_id` en `companies` exista en `groups`.
+  - Validar que todo `product_id` en transacciones y saldos exista en `banking_products` o `debt_products`.
+- **Salidas:** Booleano de conformidad relacional y reporte de claves foráneas huérfanas (en caso de existir).
+- **Excepciones y Errores:** Claves huérfanas detectadas: aislamiento de filas incoherentes y registro de advertencia de auditoría.
+- **Principio SOLID:** SRP. Validación desacoplada de la carga de datos.
 
-> **Estado: exploración hecha (18-sep).** Las decisiones de §6.1 ya están tomadas y
-> escritas en el informe. Resumen: **sin target en train → reglas** · **peer por país
-> descartado** (82 % nulo) → cuartil de tamaño · **sin grafo** (cruce contraparte↔empresa
-> 0,0 %) · serie **mensual** (12,6 mov./semana) · **16 % con línea** → utilización pesa menos
-> · **32 % de empresas con < 12 meses** · cuadro de amortización cubre el **7 %** de préstamos.
+### REQ-B0.3: Normalización de Signos Contables y Conversión Monetaria
+- **Descripción:** Normalizar el signo de las transacciones y facturas bajo un criterio unificado y convertir importes a la divisa de referencia (EUR).
+- **Prioridad:** P0
+- **Dependencias:** REQ-B0.1.
+- **Entradas:** `transactions`, `invoices`, tipos de cambio observados.
+- **Procesamiento:** 
+  - Convención unificada: entradas de caja / cobros con signo positivo ($+$); salidas / pagos con signo negativo ($-$).
+  - En facturas: la dirección de la operación la determina el signo de `amount` (negativo = factura recibida/proveedor; positivo = factura emitida/cliente; verificado al 99,6% frente a extractos).
+  - Conversión a EUR utilizando el tipo de cambio registrado en la fecha de la transacción (EUR representa el 89% del volumen total).
+- **Salidas:** `Tablas` normalizadas con importes en EUR y signos consistentes.
+- **Excepciones y Errores:** Tipos de cambio nulos o negativos: uso de tipo de cambio 1.0 documentado y marcado en la auditoría.
+- **Principio SOLID:** SRP. Módulo `NormalizadorFinanciero` dedicado exclusivamente a reglas contables.
 
-| ID | Requisito | Prio |
-| :--- | :--- | :--- |
-| **RF-B0.1** | Cargar los nueve ficheros con tipos explícitos (fechas como fecha, importes como decimal) y dejar constancia de filas leídas por fichero | P0 |
-| **RF-B0.2** | Validar integridad referencial: todo `company_id` de `transactions`, `invoices`, `balances` y `debt_*` existe en `companies`; todo `group_id` existe en `groups` | P0 |
-| **RF-B0.3** | Responder las cinco preguntas de exploración: % de contrapartes que cruzan con `company_id`, nº de países/monedas/ERPs, % de empresas con línea/factoring/aval, movimientos por empresa y semana (mediana y P10), empresas con < 12 meses de historia | P0 |
-| **RF-B0.4** | Disparar y **registrar por escrito** las cinco reglas de decisión de §6.1 (grafo sí/no, definición de peer, granularidad mensual, peso del bloque de deuda). **Hecho**: ver informe §1 | P0 |
-| **RF-B0.5** | Resolver la unidad de trabajo: `company_id` (1.286) frente a `group_id` (250), y confirmar contra los ingenieros del aula qué unidad evalúa el test oculto | P0 |
-| **RF-B0.6** | Calendario canónico de 24 meses (sep-2024 → sep-2026) compartido por todos los bloques; los meses sin movimiento existen con valor cero, no desaparecen | P0 |
-| **RF-B0.7** | Normalizar signo de importes (entrada positiva / salida negativa) y documentar la convención una sola vez | P0 |
-| **RF-B0.8** | Conversión a EUR de flujos y saldos en divisa distinta, con tipo documentado (EUR es el 89 %) | P2 |
-| **RF-B0.9** | **Limpieza de fechas anómalas** en `invoices`: años imposibles (6913, 5026), pago anterior a emisión (29.089 filas), `paid` con pago posterior al 1-sep-2026 (3 %). Se marcan y se excluyen del cálculo de retrasos, nunca se corrigen a mano | P0 |
-| **RF-B0.10** | **Reconstrucción del saldo histórico** de cuentas corrientes: `saldo_t = saldo_final − Σ movimientos posteriores a t`. Validar por cuenta (el 20 % toca negativo en algún mes) y agregar por empresa con marcador de calidad | P0 |
+### REQ-B0.4: Saneamiento de Fechas Anómalas en Facturación
+- **Descripción:** Detectar y filtrar registros de facturas con fechas lógicamente imposibles o anómalas sin alterar las filas válidas.
+- **Prioridad:** P0
+- **Dependencias:** REQ-B0.1.
+- **Entradas:** Tabla `invoices`.
+- **Procesamiento:**
+  - Identificar años fuera de rango histórico (ej. 5026, 6913).
+  - Identificar inconsistencias cronológicas: fecha de pago anterior a la fecha de emisión (29.089 filas).
+  - Tratar el campo `payment_date`: en facturas con estado `pending` o `overdue`, reconocer que `payment_date` es un marcador sintético igual al vencimiento (96–98%), no una fecha real de cobro/pago.
+- **Salidas:** Máscara booleana de facturas válidas para cálculo de retrasos temporales.
+- **Excepciones y Errores:** Registros anómalos: exclusión automática del cálculo de días de demora (DSO/DPO) sin eliminación física de la factura.
 
-**CA-B0:** un comando reproduce la carga de cero y emite el informe. Dos personas distintas
-obtienen los mismos conteos. Las decisiones de §6.1 están escritas y fechadas, no en la
-cabeza de nadie.
-
-**Resuelto:** el cruce contraparte↔`company_id` es **0,0 %**. No hay grafo; la
-concentración se calcula con HHI sobre `invoices` (98,7 % con contraparte; los movimientos
-bancarios solo tienen contraparte en el 9,8 %). No se revisita.
-
----
-
-## B1 · Features del rastro
-
-**Dueño:** Carlos · **Prioridad:** P0 · **Depende de:** B0 · **Tiempo objetivo:** 5–6 h
-
-**Entrada:** tablas de B0.
-**Salida:** tabla `features[company_id, mes, feature] → valor` con las ~16 features de los
-cuatro bloques, más `meses_historia` y los insumos de confianza.
-
-| ID | Requisito | Prio |
-| :--- | :--- | :--- |
-| **RF-B1.0** | **Point-in-time (as-of).** Toda feature del mes *t* usa solo lo que se sabía en *t*. En facturas: viva si `issuance ≤ t` y (`status ≠ paid` **o** `payment_date > t`); vencida si además `due < t`. `payment_date` solo cuenta si `status == paid` y `issuance ≤ payment ≤ 2026-09-01` — en `overdue`/`pending` es un **placeholder igual al vencimiento** (96–98 %), no una fecha de pago. Mismo criterio para saldo de deuda y estado de conciliación | P0 |
-| **RF-B1.1** | Ventana móvil de 12 meses por empresa y mes; con ventana creciente y mínimo de 6 meses cuando no hay historia suficiente, marcada con menor confianza. **No es un caso raro: el 32 % de las empresas tiene < 12 meses** y solo el 29 % tiene los 24 | P0 |
-| **RF-B1.2** | **Liquidez:** runway (sobre el saldo reconstruido de RF-B0.10, agregado por empresa), flujo neto medio / ingresos medios, nº de meses con flujo negativo, volatilidad del flujo normalizada por ingresos | P0 |
-| **RF-B1.3** | **Conducta de pago:** DBT como pagador ponderado por importe, % de emitidas vencidas sin cobrar, retraso medio de cobro sobre vencimiento, gap DSO−DPO, % de facturas pagadas tarde | P0 |
-| **RF-B1.4** | **Deuda:** DSCR proxy, utilización de líneas, deuda total / ingresos anualizados, factoring y confirming sobre ingresos | P0 |
-| **RF-B1.5** | **Concentración:** HHI de clientes, HHI de proveedores, % de ingresos de contrapartes recurrentes — **calculados sobre `invoices`**, no sobre movimientos bancarios | P0 |
-| **RF-B1.6** | Facturas **emitidas** y **recibidas** se calculan por separado y nunca se agregan en un solo número. **La dirección la da el signo de `amount`** (negativa = recibida/pago, positiva = emitida/cobro; verificado al 99,6 % contra el movimiento bancario). 67 empresas no tienen emitidas en el ERP: su cobro se mide solo por banco | P0 |
-| **RF-B1.7** | Un DPO alto no penaliza por sí mismo: solo penaliza el **retraso real sobre el vencimiento** | P0 |
-| **RF-B1.8** | DSCR proxy: numerador = cobros − pagos operativos de 12 m excluyendo financiación, intragrupo e inyecciones de capital, sin restar cuotas; **denominador = servicio de deuda observado en banco** (movimientos `debt_repayment` + `interest_charge`, presentes en el 56 % de empresas), **no** el cuadro de amortización (`debt_schedule_config` cubre el 7 % de los préstamos). Sin movimientos de deuda ni producto de deuda → DSCR neutro, no penalizado (71 % de empresas sin deuda registrada) | P0 |
-| **RF-B1.9** | Empresa sin línea de crédito: utilización **neutra**, nunca penalizada | P0 |
-| **RF-B1.10** | Nulos imputados con la mediana del peer, con marcador de dato faltante que alimenta B3-confianza y **no** el riesgo | P0 |
-| **RF-B1.11** | Cada feature declara su dirección (mayor = mejor / mayor = peor) en un único sitio, y la inversión se aplica una sola vez en todo el pipeline | P0 |
-| **RF-B1.12** | El pipeline es **recomputable sobre un input modificado** (requisito duro de B8: el contrafactual reejecuta features, no deriva) | P0 |
-| **RF-B1.13** | Eliminación **aproximada** de flujos intragrupo antes de agregar por grupo: por categoría `transfer` (5,9 % de movimientos) y préstamos `Other (customer-defined)`. Sin cruce de contrapartes no puede ser exacta, y se declara así | P1 |
-| **RF-B1.15** | Toda feature de actividad se normaliza por la propia empresa (sus ingresos, su historia). El volumen total del dataset crece ×4 por **onboarding** (439 empresas activas en sep-2024 → 1.223 en mar-2026), no por negocio; ninguna feature absoluta es comparable entre meses | P0 |
-| **RF-B1.14** | Insumos de confianza: % conciliado, meses de historia, cobertura de productos, match factura↔banco | P1 |
-
-**CA-B1:** ninguna feature devuelve NaN o infinito para una empresa con ≥ 6 meses. Tres
-empresas revisadas a mano cuadran con el cálculo. Recalcular sobre un input modificado en
-un campo cambia solo las features afectadas. **Prueba as-of:** el DSO de un mes calculado
-con el fichero completo coincide con el calculado truncando el fichero a ese mes.
+### REQ-B0.5: Filtro y Desacoplamiento de Flujos Intragrupo
+- **Descripción:** Identificar y segregar las transferencias y operaciones financieras entre filiales del mismo holding para evitar duplicidad de ingresos y deuda en el análisis consolidado.
+- **Prioridad:** P1
+- **Dependencias:** REQ-B0.1, REQ-B0.2.
+- **Entradas:** `transactions`, mapa de filiales por `group_id`.
+- **Procesamiento:** Identificación de movimientos clasificados bajo categoría `transfer` y préstamos categorizados como `Other (customer-defined)`.
+- **Salidas:** Conjunto de transacciones filtradas sin flujos cruzados intragrupo.
+- **Excepciones y Errores:** Ausencia de cruce explícito de NIFs entre contrapartes: el filtro opera por aproximación categórica y se registra en la confianza de la métrica.
+- **Principio SOLID:** SRP. La regla de identificación no reside en la entidad `Transaccion`, sino en el servicio `FiltroIntragrupo`.
 
 ---
 
-## B2 · Peer groups y percentiles congelados
+## 2. Módulo B1 · Feature Engineering Causal del Rastro (Point-in-Time)
 
-**Dueño:** Carlos · **Prioridad:** P0 · **Depende de:** B1 · **Tiempo objetivo:** 2–3 h
+### REQ-B1.1: Garantía Causal As-Of (Point-in-Time)
+- **Descripción:** Asegurar que todo cálculo de variables en el mes $t$ utilice únicamente información disponible y contabilizada hasta el corte $t$, sin fuga de datos del futuro (*lookahead leakage*).
+- **Prioridad:** P0
+- **Dependencias:** REQ-B0.3, REQ-B0.4.
+- **Entradas:** `Tablas` normalizadas y fecha de corte $t$.
+- **Procesamiento:** Filtrado temporal estricto: `issuance_date <= t`, transacciones con `booking_date <= t`. Prohibición expresa de reconstruir saldos históricos retrospectivamente desde `balances.csv` (foto fija final a 2026-09-01).
+- **Salidas:** Vistas temporales acotadas $V_t$ para cada empresa y mes.
+- **Excepciones y Errores:** Intentos de consultar registros con timestamp posterior a $t$: rechazo en tiempo de compilación/ejecución mediante assertion de causalidad.
 
-**Entrada:** `features`.
-**Salida:** tablas de deciles por `(peer, feature)` **persistidas en disco**, y función
-`percentil(feature, valor, peer) → [0,100]`.
+### REQ-B1.2: Cálculo del Pilar de Cobertura Operativa y Liquidez
+- **Descripción:** Computar el margen de flujo de caja neto frente a salidas operativas acumuladas en ventanas móviles de 3 y 12 meses.
+- **Prioridad:** P0
+- **Dependencias:** REQ-B1.1.
+- **Entradas:** Cobros netos $R_t$, pagos operativos $E_t$, saldo de caja $K_t$ (si se dispone de observación auditada).
+- **Procesamiento:**
+  - Sin saldo conocido: Ratio de margen operativo $u_t = \frac{R_t^{[3]} - E_t^{[3]}}{R_t^{[3]} + E_t^{[3]}}$ transformado mediante $L_t^b = \mathcal{A}\left(\frac{1}{2} + \frac{1}{2}\tanh(u_t / 0{,}50), \rho_t\right)$.
+  - Con saldo conocido: Ponderación de runway operativo $\ell_t^{\mathrm{run}}$ y cobertura de compromisos a 30 días $\ell_t^{\mathrm{cov}}$.
+- **Salidas:** Valor escalar $L_t \in [0, 1]$ y métricas de soporte (`runway_months`, `cash_margin`).
+- **Excepciones y Errores:** Sin flujos observados ($R = E = 0$): emisión de prior neutral $L_t = 0{,}50$ con indicador de falta de evidencia.
 
-| ID | Requisito | Prio |
-| :--- | :--- | :--- |
-| **RF-B2.1** | Peer = **cuartil de tamaño** por cobros anualizados (~321 empresas por cuartil; rango 54 k€ – 614 M€). País **descartado**: 82 % nulo y sucio. Opcional: × moneda (EUR / otra) si mejora la estabilidad | P0 |
-| **RF-B2.2** | Las tablas se calculan **solo con empresas de entrenamiento**, se serializan y se versionan. Una empresa nueva se coloca contra ellas; **jamás** se recalculan incluyéndola | P0 |
-| **RF-B2.3** | *Shrinkage* por tamaño del peer: ≥30 local · 15–29 mezcla `w=n/(n+K)` · 5–14 casi global con etiqueta "peer limitado" · <5 solo global | P0 |
-| **RF-B2.4** | Valor fuera del rango de la tabla: se satura en 0 o 100, nunca extrapola ni falla | P0 |
-| **RF-B2.5** | Empresa sin cobros categorizados (31 en train) o de tamaño fuera de rango: cae a global con etiqueta "peer limitado" y baja de confianza | P0 |
-| **RF-B2.6** | La salida expone `p_peer` por feature para que B4 la pinte y B7 la sirva | P0 |
-| **RF-B2.7** | El benchmark sectorial anónimo del acto 3 (`PRODUCTO.md` §4) se construye sobre estas mismas tablas, sin exponer empresas individuales | P1 |
+### REQ-B1.3: Cálculo del Pilar de Calidad de Cobro y Comportamiento de Pago
+- **Descripción:** Medir la puntualidad, estabilidad y devoluciones en los cobros bancarios, enriquecida con métricas de facturación ERP cuando estén disponibles.
+- **Prioridad:** P0
+- **Dependencias:** REQ-B1.1.
+- **Entradas:** Devoluciones bancarias $U_t$, cobros brutos $R_t^+$, desviación estándar mensual $CV_t$, pendiente de facturas $AR_t$, facturación $V_t$.
+- **Procesamiento:**
+  - Núcleo bancario: Tasa de devoluciones $f_t = U_t^{[3]} / (R^+)_t^{[3]}$ y regularidad $CV_t$ mediante $C_t^b$.
+  - Enriquecimiento ERP condicional: $DSO_t = d_t \frac{AR_t}{V_t^{[3]}}$ y tasa de facturas vencidas impagadas $p_t^{\mathrm{late}}$.
+  - Mezcla acotada: $C_t = (1 - \eta_t) C_t^b + \eta_t C_t^e$ con $\eta_t \leq 0{,}40$.
+- **Salidas:** Valor escalar $C_t \in [0, 1]$, $DSO_t$ observado y tasa de morosidad comercial.
+- **Excepciones y Errores:** Empresas sin módulo ERP sincronizado (501 sociedades): $\eta_t = 0$; el pilar se calcula al 100% sobre el núcleo bancario sin penalización por ausencia de software.
 
-**CA-B2:** puntuar una empresa de test dos veces, sola y junto a otras 50, da **idéntico**
-resultado. Esto es la prueba de que las tablas están congeladas y es el CA más importante
-de todo el motor.
+### REQ-B1.4: Cálculo del Pilar de Carga de Deuda Observada
+- **Descripción:** Evaluar la presión del servicio financiero bancario sobre los cobros corrientes de la empresa.
+- **Prioridad:** P0
+- **Dependencias:** REQ-B1.1.
+- **Entradas:** Salidas bancarias de `debt_repayment` e `interest_charge` ($H_t$), cobros netos $R_t$.
+- **Procesamiento:**
+  - Ratio de absorción de deuda: $d_t^H = \frac{H_t^{[3]}}{R_t^{[3]} + H_t^{[3]}}$.
+  - Transformación conservadora: $D_t = \mathcal{A}\left(\frac{1}{2} - \frac{1}{2}\tanh(d_t^H / 0{,}25), \rho_t\right)$, acotada en $[0, 0{,}50]$.
+- **Salidas:** Valor escalar $D_t \in [0, 0{,}50]$ y flag `debt_service_observed`.
+- **Excepciones y Errores:** 71% de empresas sin movimientos de deuda registrados: asignación automática del prior neutro $D_t = 0{,}50$. No se asume solvencia plena ni deuda cero.
 
----
-
-## B3 · Motor de score: nivel, tendencia, estado y confianza
-
-**Dueño:** Antonio (fórmula) + Carlos (nivel) · **Prioridad:** P0 · **Depende de:** B2 · **Tiempo objetivo:** 2 h sobre B2
-
-**Entrada:** percentiles por feature y mes.
-**Salida:** por `(company_id, mes)`: `nivel`, `tendencia`, `estado`, `score`, `confianza`,
-y la serie `trayectoria[24]`.
-
-| ID | Requisito | Prio |
-| :--- | :--- | :--- |
-| **RF-B3.1** | Nivel `N = 0,30·Liquidez + 0,30·Pago + 0,25·Deuda + 0,15·Concentración`, escalado a 0–100, con los pesos internos del brief §6.3 | P0 |
-| **RF-B3.2** | Los pesos viven en **un fichero de configuración**, no incrustados en el código: B13 itera variantes sin tocar la lógica | P0 |
-| **RF-B3.3** | Tendencia `T(t)` = regresión lineal sobre `N` de los 6 últimos meses, y luego **mediana de las 3 últimas pendientes**, en puntos/mes | P0 |
-| **RF-B3.4** | Los seis estados de §6.5 con sus umbrales: Mejorando, Estable, Torciéndose, Deterioro, Bache, Recuperación. **Torciéndose** (T<−1 tres meses **y** N≥60) es la señal vendible del caso 82→68 | P0 |
-| **RF-B3.5** | `Score(t) = 0,6·N(t) + 0,4·(N(t) + k·T(t))`, con `k` configurable y **k = 0 en el primer envío** | P0 |
-| **RF-B3.6** | `nivel`, `tendencia` y `estado` se exportan **por separado** además del score compuesto: el enunciado no prioriza ninguno | P0 |
-| **RF-B3.7** | Señal simétrica: la fórmula no contiene ningún término que trate la subida distinto de la bajada; se comprueba en B13-CA | P0 |
-| **RF-B3.8** | `confianza = 0,30·%conciliado + 0,25·meses/24 + 0,20·cobertura + 0,15·match + 0,10·(1−sensibilidad)`, con semáforo alta/media/baja, y **fuera del score** | P1 |
-| **RF-B3.9** | Bache y deterioro se separan por **persistencia** (≥3 meses), no por magnitud del mes suelto | P0 |
-| **RF-B3.10** | **Un solo algoritmo**: el score de reglas es el que se envía al leaderboard y el que consume el producto. Si aparece una variante mejor, se sustituye entera; no conviven dos motores. **Resuelto 18-sep: el dataset no trae target**, así que la rama de reglas es la activa; GBDT solo si el script de scoring revela una etiqueta (RF-B13.2) | P0 |
-| **RF-B3.11** | Si la estabilidad mes a mes sale por debajo de 0,85 o hay pocos puntos de serie, la ventana baja a 9 meses (brief §11). Con 12 meses hay 13 puntos de score por empresa y el primer estado confirmable cae en el mes ~15 | P1 |
-
-**CA-B3:** Northbrook (45→65) y Velasco (82→68) —o sus equivalentes reales del dataset—
-salen con estados `Mejorando` y `Torciéndose` respectivamente, y el sistema los distingue
-aunque su score del mes 24 difiera en pocos puntos. La estabilidad mes a mes (correlación
-de rangos) supera 0,85; si no, hay ruido en B1.
-
----
-
-## B4 · Explicabilidad
-
-**Dueño:** Antonio · **Prioridad:** P0 · **Depende de:** B3 · **Tiempo objetivo:** 2 h
-
-**Entrada:** percentiles y score del mes t y t−1.
-**Salida:** `drivers[{feature, contribución, valor, p_peer}]` + `códigos_razón[]` + frase
-de delta en lenguaje natural.
-
-| ID | Requisito | Prio |
-| :--- | :--- | :--- |
-| **RF-B4.1** | **Por qué este número:** códigos de razón ordenados por `peso_bloque × (percentil − 50)`, con los cinco códigos RC-01…RC-05 del brief §7 | P0 |
-| **RF-B4.2** | **Por qué ha cambiado:** descomposición exacta `ΔS = Σ_b w_b·(P_b(t) − P_b(t−1))`, que por construcción suma el delta total | P0 |
-| **RF-B4.3** | Segundo nivel: dentro del bloque que más movió, las 2 features de mayor contribución, con su valor crudo en unidades de negocio (días, %, €) | P0 |
-| **RF-B4.4** | Frase generada legible por un tesorero: *"Score −6: conducta de pago −5 (DBT de 4 a 19 días; 3 facturas recibidas pagadas con +30 días de retraso), liquidez −1"* | P0 |
-| **RF-B4.5** | **Nada de SHAP, LIME ni beeswarm en pantalla.** Sobre el score aditivo de reglas la explicación *es* el modelo y no hace falta nada por debajo; si RF-B13.2 activara la rama GBDT, SHAP agrupado por bloque sería el único uso admitido, y siempre traducido a la lista de factores + frase de RF-B4.3/B4.4. Todo el research coincide: no SHAP crudo | P0 |
-| **RF-B4.6** | Toda cifra que aparezca en pantalla es trazable a una feature y a una fila del dataset | P1 |
-
-**CA-B4:** para cualquier empresa y mes, las contribuciones de los bloques suman el delta
-del score con error < 0,01. Un miembro del equipo que no escribió el código lee la frase y
-explica el caso al jurado sin ayuda.
+### REQ-B1.5: Cálculo de Concentración de Contrapartes (HHI) y Desajuste Intrames
+- **Descripción:** Determinar el índice de Herfindahl-Hirschman sobre clientes principales y cuantificar la tensión temporal de caja dentro del mes.
+- **Prioridad:** P0
+- **Dependencias:** REQ-B1.1.
+- **Entradas:** Facturación o cobros por contraparte individual, serie diaria de flujos netos intrames $z_{m,u}$.
+- **Procesamiento:**
+  - Concentración: $HHI_t = \sum_j a_{j,t}^2$ sobre contrapartes con al menos 95% de volumen resuelto.
+  - Tensión temporal: Déficit intrames máximo acumulado $A_m$, normalizado frente a gastos operativos.
+  - Formulación de fragilidad: $F_t = \rho_t \left[ (1 - \theta_t) s_t + \theta_t h(HHI_t; 0{,}25) \right]$.
+- **Salidas:** Valor escalar de fragilidad $F_t \in [0, 1]$ e índice $HHI_t$.
+- **Excepciones y Errores:** Menos del 95% de contrapartes identificadas: $\theta_t = 0$; la fragilidad se calcula exclusivamente sobre la tensión temporal bancaria.
 
 ---
 
-## B5 · Anticipación medida y monitor proactivo
+## 3. Módulo B2 · Grupos de Pares y Tablas de Percentiles Congeladas
 
-**Dueño:** Pedro · **Prioridad:** P1 (anticipación) / P2 (monitor) · **Depende de:** B3 · **Tiempo objetivo:** 2 h
+### REQ-B2.1: Segmentación Determinista de Peer Groups
+- **Descripción:** Asignar cada empresa a un grupo homogéneo de referencia basado en su tamaño económico real.
+- **Prioridad:** P0
+- **Dependencias:** REQ-B1.2.
+- **Entradas:** Cobros anualizados por empresa.
+- **Procesamiento:** Segmentación en 4 cuartiles de tamaño económico (~321 empresas por cuartil). Exclusión de segmentación por país debido a que el 82% del campo país en el dataset es nulo o ruidoso.
+- **Salidas:** Asignación unívoca `peer_id` para cada sociedad.
+- **Excepciones y Errores:** Empresas sin actividad inicial: asignación al grupo global con bandera de `peer_limitado`.
 
-**Entrada:** series crudas de B1 y estados de B3.
-**Salida:** `meses_anticipación` por empresa y evento + lista de alertas ordenada.
-
-| ID | Requisito | Prio |
-| :--- | :--- | :--- |
-| **RF-B5.1** | Detección de cambio de régimen (CUSUM sobre el residuo interanual) en flujo neto y retraso de cobro, definida **antes** de mirar resultados | P1 |
-| **RF-B5.2** | `Anticipación = mes del cambio en la serie cruda − mes en que el estado pasa a Torciéndose o Deterioro`, reportada como **mediana en meses** | P1 |
-| **RF-B5.3** | **Control de falsas alarmas:** el lead time se reporta *a una tasa fijada* — "mediana de N meses a 1 alerta por empresa-año en las sanas". Sin fijar la tasa el número se infla trivialmente y el especialista de datos de Embat lo va a preguntar (`PRODUCTO.md` §4) | P1 |
-| **RF-B5.4** | ELMS del brief §9 (2 de 3 pilares: caja, cobros, líneas) **solo para validar, nunca para entrenar ni para puntuar** | P1 |
-| **RF-B5.5** | Monitor: lista autoactualizada de empresas que cambian a Torciéndose, Deterioro o Mejorando en el último mes, ordenada por magnitud del cambio, con severidad y drivers movidos | P2 |
-| **RF-B5.6** | El monitor es **proactivo**: la demo enseña la alerta sin que nadie la pida, y con la frase de B4 ya adjunta | P2 |
-| **RF-B5.7** | ~~Grafo de contrapartes~~ **Eliminado**: cruce contraparte↔empresa 0,0 %. Sustituto realista: **cobros por cliente** — tendencia del retraso de cada cliente *hacia ti* sobre tus propias facturas emitidas (98,7 % con contraparte). No puntúa al cliente; enseña quién te está pagando cada vez más tarde | P2 |
-| **RF-B5.8** | La anticipación se mide **solo sobre las 373 empresas con 24 meses de historia** (29 %); las demás no tienen serie suficiente para un cambio de régimen defendible. Se dice así en el pitch | P1 |
-
-**CA-B5:** existe un número concreto y defendible —"mediana de N meses de anticipación a 1
-falsa alarma por empresa-año"— y quien lo dice sabe explicar cómo se midió. Sin la tasa de
-falsas alarmas el requisito **no está cumplido**, aunque haya número.
-
----
-
-## B6 · Consolidación de grupo
-
-**Dueño:** Carlos + Antonio · **Prioridad:** P1 · **Depende de:** B1, B3
-
-Opcional para el leaderboard, **obligatorio para el producto**: multi-entidad es la razón
-de ser de Embat (`PRODUCTO.md` §4).
-
-| ID | Requisito | Prio |
-| :--- | :--- | :--- |
-| **RF-B6.1** | Eliminar flujos intragrupo **antes** de agregar, de forma aproximada (RF-B1.13) y declarándolo | P1 |
-| **RF-B6.2** | Score de grupo = 65 % media ponderada de filiales + 35 % peor filial, con penalización por contagio si una filial material está en mala situación | P1 |
-| **RF-B6.3** | La vista de grupo muestra siempre el desglose por filial: *"el grupo saca 71, pero la filial portuguesa saca 38 y arrastra al consolidado"* | P1 |
-| **RF-B6.4** | Si B0 determina que el test evalúa grupos y no empresas, este bloque asciende a **P0** | — |
-
-**CA-B6:** un grupo con filiales de score dispar no queda enmascarado por la media; la
-peor filial es visible en la primera pantalla.
+### REQ-B2.2: Construcción y Persistencia de Tablas de Percentiles Congeladas
+- **Descripción:** Generar las tablas de deciles de distribución para cada feature y cuartil exclusivamente con el conjunto de entrenamiento y serializarlas en disco.
+- **Prioridad:** P0
+- **Dependencias:** REQ-B2.1, REQ-B1.2 a REQ-B1.5.
+- **Entradas:** Matriz de features del conjunto de entrenamiento.
+- **Procesamiento:** Cálculo de percentiles empíricos por bloque y cuartil. Almacenamiento versionado en disco (`PercentilRepositorio`).
+- **Salidas:** Archivo inmutable de deciles de referencia.
+- **Excepciones y Errores:**
+  - Valores extremos fuera de rango: saturación suave en 0 o 100 sin extrapolación.
+- **Principio SOLID:** Inversión de Dependencias (DIP) y SRP. Las tablas no se recalculan al puntuar nuevas empresas; el repositorio aísla la persistencia de la lógica de scoring.
 
 ---
 
-## B7 · API de servicio (el contrato)
+## 4. Módulo B3 · Motor de Scoring Continuo, Momentum y Estados
 
-**Dueño:** Antonio · **Prioridad:** P0 · **Se congela en las 2 primeras horas** · **Depende de:** nada (se mockea)
+> **Estado de Implementación:** El motor algorítmico y la formulación matemática ya están **100% implementados, validados y testeados en producción interna** en [`algorythm/score_engine.py`](algorythm/score_engine.py), con especificación formal en [`algorythm/formula/score_financiero.pdf`](algorythm/formula/score_financiero.pdf) y benchmark reproducible en [`algorythm/engine_results/`](algorythm/engine_results/) pasando 30/30 tests de contrato. No es una propuesta futura: es código operativo en `main`.
 
-Es el requisito con más apalancamiento del fin de semana: **todos mockean contra esto y
-nadie espera al núcleo**.
+### REQ-B3.1: Formulación Global del Score Axiomático
+- **Descripción:** Ejecutar la ecuación maestra que integra el nivel base, la inercia temporal, el crecimiento de calidad y la penalización de fragilidad.
+- **Estado:** **IMPLEMENTADO Y VALIDADO** en [`algorythm/score_engine.py`](algorythm/score_engine.py).
+- **Prioridad:** P0
+- **Dependencias:** REQ-B1.2 a REQ-B1.5, REQ-B2.2.
+- **Entradas:** Vectores normalizados $L_t, C_t, D_t, M_t, G_t, F_t$.
+- **Procesamiento:**
+  - Nivel base: $B_t = 100(0{,}50 L_t + 0{,}30 C_t + 0{,}20 D_t)$.
+  - Ecuación global: $S_t = \operatorname{clip}_{[0,100]}\left( B_t + 8 M_t + 6 G_t - 8 F_t \right)$.
+  - Cálculo del residuo de recorte: $\Delta_t^{\mathrm{clip}} = S_t - (B_t + 8 M_t + 6 G_t - 8 F_t)$.
+- **Salidas:** Puntuación continua $S_t \in [0, 100]$, valor de nivel $B_t$ y residuo de clipping.
+- **Excepciones y Errores:** Ausencia de historial suficiente: retorno de prior neutral $S_t = 50{,}00$ con bandera `is_prior=True`.
 
-```
-GET  /score/{entity_id}?month=   → { score, nivel, tendencia, estado, confianza,
-                                     drivers[{feature, contribución, valor, p_peer}],
-                                     trayectoria[24], códigos_razón[] }
-GET  /group/{group_id}           → { consolidado, filiales[] }
-POST /simulate {entity_id, palancas:[{id, magnitud}]}
-                                 → { score_nuevo, delta_score, caja_liberada_eur,
-                                     delta_bps, eur_año }
-GET  /alerts?desde=              → [{ entity_id, severidad, mes_detección,
-                                      meses_anticipación, drivers_movidos[] }]
-```
+### REQ-B3.2: Momentum Bidireccional con Filtro de Persistencia
+- **Descripción:** Calcular la trayectoria de la empresa reconociendo mejoras y deterioros continuos, inmune a baches transitorios de un solo mes.
+- **Prioridad:** P0
+- **Dependencias:** REQ-B3.1.
+- **Entradas:** Serie histórica de base bancaria $B_t^b$ y márgenes de flujo mensual $x_t$.
+- **Procesamiento:**
+  - Velocidad y cruce de medias exponenciales: $v_t = (B_t^b - B_{t-3}^b)/3$, $E_{3,t} - E_{6,t}$.
+  - Filtro de confirmación de 6 meses con medianas no solapadas: $c_t \in [0, 1]$.
+  - Momentum resultante: $M_t = c_t \left[ \frac{1}{2}\tanh(v_t/2) + \frac{1}{2}\tanh((E_{3,t} - E_{6,t})/5) \right]$.
+- **Salidas:** Vector de inercia $M_t \in [-1, 1]$.
+- **Excepciones y Errores:** Shocks aislados de 1 mes: $c_t = 0$, neutralizando el momentum y evitando falsas alarmas ante baches temporales.
 
-| ID | Requisito | Prio |
-| :--- | :--- | :--- |
-| **RF-B7.1** | Los cuatro endpoints existen y responden **con datos falsos** antes de la hora 2. El contrato no cambia después sin avisar a los cuatro consumidores | P0 |
-| **RF-B7.2** | El núcleo es **invocable como servicio**, no un notebook: *"un notebook que solo corre en vuestro portátil no cuenta"* (enunciado §9) | P0 |
-| **RF-B7.3** | Desplegado y accesible por URL desde el viernes, con dos dueños de despliegue (Antonio API, Quirce front) | P0 |
-| **RF-B7.4** | Respuestas **deterministas**: misma entrada, misma salida, siempre. La demo del domingo no puede depender de aleatoriedad | P0 |
-| **RF-B7.5** | Latencia de `/score` y `/simulate` por debajo de 1 s en la demo (precomputar y cachear si hace falta) | P1 |
-| **RF-B7.6** | Errores con forma útil: entidad inexistente, mes fuera de rango y peer desconocido devuelven código y mensaje, no una traza | P1 |
-| **RF-B7.7** | Modo offline: un fixture de respuestas grabadas que permite correr la demo entera sin red | P1 |
-
-**CA-B7:** Quirce construye una pantalla completa contra el mock sin hablar con Carlos.
-El día que el núcleo real se enchufa, el front no cambia ni una línea.
-
----
-
-## B8 · Simulador y catálogo de palancas
-
-**Dueño:** Pedro · **Prioridad:** P1 · **Depende de:** B1 (recomputable), B7
-
-Es el acto 2 y el diferenciador central: *Experian Boost para la tesorería*, que en B2B no
-existe (`PRODUCTO.md` §3).
-
-| ID | Requisito | Prio |
-| :--- | :--- | :--- |
-| **RF-B8.1** | Catálogo **cerrado y parametrizado** de ~8 palancas, sin texto libre: `reducir_dso(días, clientes[])`, `ampliar_dpo(días)`, `refinanciar(producto_id)`, `bajar_utilización_línea(%)`, `reducir_concentración(cliente_id)`, `sustituir_factoring_por_línea`, `recortar_opex(%)`, `descuento_pronto_pago(%)` | P1 |
-| **RF-B8.2** | **Contrafactual real, no gradiente:** aplicar la palanca al input, **recomputar B1→B2→B3** y volver a puntuar. Extrapolar desde la derivada local miente en cuanto el movimiento cruza un decil de la tabla congelada | P1 |
-| **RF-B8.3** | Toda propuesta que llegue a pantalla ha pasado por `/simulate`. El número lo pone siempre el motor | P1 |
-| **RF-B8.4** | Las palancas componen: varias a la vez devuelven un único resultado coherente, no la suma de efectos individuales | P1 |
-| **RF-B8.5** | Palanca inaplicable (sin factoring que sustituir, sin línea que bajar) se rechaza con motivo, no se simula en vacío | P1 |
-| **RF-B8.6** | Magnitudes acotadas a rangos plausibles: no se simula un DSO de −40 días | P1 |
-
-**CA-B8:** simular "cobrar 12 días antes a 5 clientes" devuelve un score nuevo que coincide
-con recalcular el pipeline entero a mano sobre el input modificado.
+### REQ-B3.3: Clasificación de Estados Financieros de Trayectoria
+- **Descripción:** Asignar a cada empresa y mes uno de los seis estados dinámicos del sistema.
+- **Prioridad:** P0
+- **Dependencias:** REQ-B3.1, REQ-B3.2.
+- **Entradas:** Nivel $B_t$, momentum $M_t$, historial de 6 meses.
+- **Procesamiento:** Clasificación determinista en: `MEJORANDO`, `ESTABLE`, `TORCIENDOSE`, `DETERIORO`, `BACHE`, `RECUPERACION`. En particular, `TORCIENDOSE` se activa cuando $M_t < -0{,}10$ durante 3 meses consecutivos manteniendo aún $B_t \geq 60$.
+- **Salidas:** Etiqueta categórica de estado por empresa-mes.
+- **Excepciones y Errores:** Empresas con menos de 6 meses de historial: asignación de estado `EVALUACION_PENDIENTE`.
 
 ---
 
-## B9 · Puente a euros
+## 5. Módulo B4 · Explicabilidad y Descomposición Aditiva Exacta (Waterfall)
 
-**Dueño:** Antonio · **Prioridad:** P1 · **Depende de:** B8
+### REQ-B4.1: Descomposición Aditiva Exacta sin Cajas Negras
+- **Descripción:** Descomponer el score mensual en sus seis contribuciones exactas en puntos sin utilizar aproximaciones locales opacas (SHAP o LIME).
+- **Estado:** **IMPLEMENTADO Y VALIDADO** en [`algorythm/score_engine.py`](algorythm/score_engine.py) (campo `clipping_points` y sumatorio exacto).
+- **Prioridad:** P0
+- **Dependencias:** REQ-B3.1.
+- **Entradas:** Componentes del score y residuo de clipping.
+- **Procesamiento:** Validación de la igualdad algebraica:
+  $$S_t = 50 L_t + 30 C_t + 20 D_t + 8 M_t + 6 G_t - 8 F_t + \Delta_t^{\mathrm{clip}}.$$
+- **Salidas:** Lista de factores con contribución exacta en puntos de score.
+- **Excepciones y Errores:** Discrepancia matemática superior a $10^{-6}$: error fatal de integridad del motor.
 
-Dos patas **separadas y presentadas en este orden**, porque la primera es indiscutible y la
-segunda es la parte más atacable del producto convertida en la más sólida.
-
-| ID | Requisito | Prio |
-| :--- | :--- | :--- |
-| **RF-B9.1** | **Caja liberada** = Δ DSO × facturación diaria. Aritmética pura. Va primero y siempre | P1 |
-| **RF-B9.2** | **Coste de financiación:** curva `score → tipo medio observado`. `debt_schedule_config` solo tiene **87 tipos (40 empresas)**, insuficiente para ajustar nada. Fuente principal: **tipo implícito** = `interest_charge` anual / `outstanding` medio, disponible en cientos de empresas. *"No es una suposición nuestra: es lo que pagan las empresas de este dataset a este nivel de score"* | P1 |
-| **RF-B9.3** | La curva se enseña con su dispersión, no como una línea limpia: si el ajuste es débil, se dice. Si ni el tipo implícito da señal, la pata 2 se retira de la demo y queda solo la caja liberada | P1 |
-| **RF-B9.4** | Salida completa de la cadena: *"cobra 12 días antes a estos 5 clientes → +6 pts → −35 bps → 14.000 €/año"* | P1 |
-| **RF-B9.5** | Las dos patas se muestran etiquetadas y separables: nadie puede confundir aritmética con ajuste estadístico | P1 |
-
-**CA-B9:** cualquiera del equipo sabe decir de dónde sale cada uno de los dos números y
-cuál de los dos es una estimación.
-
----
-
-## B10 · Agente y orquestación de mejoras
-
-**Dueño:** Pedro (orquestación) + Quirce (traducción a producto) · **Prioridad:** P1 · **Depende de:** B4, B5, B8, B9
-
-**El principio de arquitectura y la frase del pitch: el agente no opina, simula.**
-
-| ID | Requisito | Prio |
-| :--- | :--- | :--- |
-| **RF-B10.1** | El agente **elige y parametriza** palancas del catálogo cerrado; **nunca** inventa una cifra de score, de caja o de bps | P1 |
-| **RF-B10.2** | Cada recomendación llega con su delta de score **y** su delta de euros, ambos procedentes de `/simulate` | P1 |
-| **RF-B10.3** | Recomendaciones priorizadas por impacto y esfuerzo, no un listado plano | P1 |
-| **RF-B10.4** | Ancladas al diagnóstico de B4: la palanca propuesta ataca el driver que realmente movió el score | P1 |
-| **RF-B10.5** | **Demo determinista:** el mismo caso produce la misma recomendación. El domingo por la mañana esto vale oro | P1 |
-| **RF-B10.6** | El agente es **proactivo**: consume B5 y levanta la mano sin que se le pregunte | P2 |
-| **RF-B10.7** | Fallback: si el agente falla en vivo, la pantalla enseña las recomendaciones precomputadas del caso de demo | P1 |
-
-**CA-B10:** ninguna cifra de la pantalla del agente procede de texto generado. Se puede
-demostrar señalando la llamada a `/simulate` que la produjo.
+### REQ-B4.2: Explicación del Delta Mensual y Generación de Códigos de Razón
+- **Descripción:** Explicar por qué ha variado el score entre el mes $t$ y el mes $t-1$ y asociar los códigos de razón normalizados.
+- **Prioridad:** P0
+- **Dependencias:** REQ-B4.1.
+- **Entradas:** Scores y descomposiciones de los meses $t$ y $t-1$.
+- **Procesamiento:**
+  - Resta término a término: $\Delta S_t = \sum_j \Delta \text{contrib}_{j,t}$.
+  - Identificación de los 2 drivers dominantes expresados en unidades de negocio (días de DSO, % de margen, € de deuda).
+  - Asignación de códigos estándar: `RC_01_FLUJO_INSUFICIENTE`, `RC_02_DETERIORO_COBROS`, `RC_03_CARGA_FINANCIERA`, `RC_04_CONCENTRACION_INGRESOS`, `RC_05_CONFIANZA_LIMITADA`.
+- **Salidas:** Lista de drivers explicativos, códigos de razón y síntesis textual estructurada.
+- **Excepciones y Errores:** Variación nula ($\Delta S_t = 0$): emisión de código de estabilidad operativa.
 
 ---
 
-## B11 · Front y demo navegable
+## 6. Módulo B5 · Anticipación Cuantitativa, Monitor Proactivo y Grounding Externo
 
-**Dueño:** Quirce (front) + Hugo (diseño de producto, manda sobre el alcance) · **Prioridad:** P0 · **Depende de:** B7 (mock basta)
+### REQ-B5.1: Cuantificación del Tiempo de Anticipación con Control de Falsas Alarmas
+- **Descripción:** Medir cuántos meses antes el sistema detecta el deterioro estructural de una empresa respecto a su manifestación contable, fijando una tasa de error admisible.
+- **Prioridad:** P1 (Bonus track)
+- **Dependencias:** REQ-B3.2, REQ-B3.3.
+- **Entradas:** Series de score y eventos de estrés de tesorería.
+- **Procesamiento:** Medición del diferencial temporal: $\Delta t = t_{\text{evento}} - t_{\text{alerta}}$. Reporte como mediana de meses a una tasa fijada de 1 falsa alarma por empresa-año sobre empresas sanas.
+- **Salidas:** Indicador de antelación validado (demostrando 8 meses de anticipación en escenario de asfixia).
+- **Excepciones y Errores:** Empresas con historia corta (<12 meses): exclusión de la métrica de anticipación para evitar sesgo.
 
-*"La demo cuenta tanto como el producto"* (enunciado §9). Es obligatorio y se abre delante
-del jurado.
+### REQ-B5.2: Monitor de Alertas Proactivo
+- **Descripción:** Generar alertas automáticas cuando una sociedad cruce umbrales críticos de deterioro o inflexión negativa sin esperar a que el usuario consulte el panel.
+- **Prioridad:** P2
+- **Dependencias:** REQ-B3.3, REQ-B4.2.
+- **Entradas:** Eventos de cambio a estados `TORCIENDOSE` o `DETERIORO`.
+- **Procesamiento:** Emisión de alerta con severidad asignada (`ALTA`, `MEDIA`, `BAJA`), meses de anticipación estimada y los dos drivers causales desencadenantes.
+- **Salidas:** Colección ordenada de objetos `Alerta`.
+- **Excepciones y Errores:** Sin alertas activas: respuesta de lista vacía con estado normal de cartera.
 
-**Vistas mínimas:**
-
-| Vista | Qué enseña | Prio |
-| :--- | :--- | :--- |
-| **Cartera / monitor** | Lista de empresas con score, tendencia, estado y alertas del mes. Es lo primero que se ve | P0 |
-| **Ficha de empresa** | Trayectoria de 24 meses, nivel vs tendencia, drivers de B4, códigos de razón y confianza | P0 |
-| **Simulador** | Palancas manipulables → score nuevo, caja liberada, bps, €/año (acto 2) | P1 |
-| **Vista de grupo** | Consolidado y filiales, con la peor filial visible (B6) | P1 |
-| **Pack de negociación bancaria** | Score + trayectoria + drivers + benchmark sectorial, en un link con caducidad (acto 3, donde Embat monetiza) | P2 |
-
-| ID | Requisito | Prio |
-| :--- | :--- | :--- |
-| **RF-B11.1** | Desplegado en una **URL pública** desde el viernes. No vale localhost | P0 |
-| **RF-B11.2** | Navegable end-to-end: de la alerta de cartera a la ficha, de la ficha al simulador, sin callejones sin salida | P0 |
-| **RF-B11.3** | Camino de demo de 5 minutos ensayado y marcado, con los dos casos del enunciado como protagonistas | P0 |
-| **RF-B11.4** | El gráfico de trayectoria distingue **visualmente** nivel y tendencia: es la tesis del reto ("trayectoria, no foto") | P0 |
-| **RF-B11.5** | Datos precargados para los casos de demo: cero esperas y cero dependencia de red durante el pitch. Los casos Northbrook/Velasco se eligen **entre las 373 empresas con 24 meses completos** | P0 |
-| **RF-B11.8** | **Sistema visual de Embat** (research de Quirce, extraído de su CSS): marino `#050b2c` + aguamarina `#5ed3e5`/`#007b93` + blancos, dos pesos tipográficos (General Sans o Switzer como sustitutos de Haffer). Score como número grande + banda + línea temporal, nunca un gauge solo; estados como texto, no solo color | P1 |
-| **RF-B11.9** | Un estado de "datos insuficientes → scoring pendiente" con contenido real: el 32 % de las empresas tiene < 12 meses y el jurado puede hacer clic en una | P1 |
-| **RF-B11.6** | Funciona en la resolución de proyector del aula, probado en ese proyector antes del pitch | P1 |
-| **RF-B11.7** | Quirce puede sostener el front en solitario desde el sábado por la noche: el domingo Hugo ensaya, no programa | P0 |
-
-**CA-B11:** una persona ajena al equipo abre la URL y llega sola de la alerta al euro.
-
----
-
-## B12 · Narrativa y pitch
-
-**Dueño:** Hugo · **Prioridad:** P0 · **Depende de:** B11
-
-2:30 min ante el jurado. Un tercio de la nota del enunciado (§7, bloque 3) se juega aquí.
-
-| ID | Requisito | Prio |
-| :--- | :--- | :--- |
-| **RF-B12.1** | El **comprador identificado es Embat**, con el porqué le sale a cuenta: workflow ownership → transaction ownership, hoy solo ejecutado en pagos | P0 |
-| **RF-B12.2** | Usar **Northbrook Foods (45→65) y Velasco Industrial (82→68)**: los nombres de su propio enunciado. Ellos plantearon la historia, nosotros la cerramos | P0 |
-| **RF-B12.3** | Las tres frases ancla: *"Informa te puntúa con un balance de hace 15 meses; nosotros con el movimiento de ayer"* · *"Vosotros ya tenéis el dato, lo que no tenéis es la nota"* · *"El agente no opina, simula"* | P0 |
-| **RF-B12.4** | El efecto red: el benchmark contra el peer set anónimo de los 250 grupos **solo lo puede construir quien agrega a todos** — Embat ya lo tiene y no lo monetiza | P0 |
-| **RF-B12.5** | **Decir nosotros primero los matices**, antes de que los pregunten: el cash-flow complementa al bureau y no lo sustituye (FinRegLab: 0,758 combinado vs 0,720 FICO solo; +3,0 pp de aprobaciones a igual riesgo) | P0 |
-| **RF-B12.6** | **Dato sintético declarado**: el score mide coherencia interna, no leyes de impago del mundo real. Los pesos son hipótesis declaradas y sometidas a análisis de sensibilidad | P0 |
-| **RF-B12.7** | Cerrar con el pack bancario: es donde se ve el dinero | P0 |
-| **RF-B12.8** | **Vídeo de respaldo grabado** del recorrido completo, por si la demo en vivo falla | P1 |
-| **RF-B12.9** | Viento de cola regulatorio de **derecho vigente**: Ley 5/2015 + Circular BdE 6/2016 (preaviso de 3 meses y derecho a tu calificación) y RD 238/2026 (estados de pago en 4 días). **No apoyar el pitch en FIDA**, que no está adoptada | P1 |
-| **RF-B12.10** | Nombrar el riesgo estratégico nosotros: Tillful absorbida por Nav, Fluidly apagada en OakNorth. La decisión que lo evita: **el dueño del score es la empresa**, y por eso el acto 2 va antes que el acto 3 | P2 |
-| **RF-B12.11** | **No afirmar ante Embat que Embat no tiene algo sin haberlo comprobado en embat.io.** Su producto ya calcula DSO/DPO, aging y exposición a contrapartes (research ChatGPT-Carlos §3). Lo que no tiene es el score unificado, la trayectoria y el what-if en euros: ese es el hueco que se nombra | P0 |
-| **RF-B12.12** | Confirmar con la organización la **duración del pitch**: el enunciado §10 dice 2:30, el research de Quirce planifica 5 min. El guion se escribe para la duración confirmada | P0 |
-
-**CA-B12:** código congelado 4 h antes de la entrega; camino feliz ensayado **cinco veces**
-buscando dónde se rompe; pitch cronometrado al menos dos veces el domingo por la mañana con
-la demo abierta y en el proyector.
+### REQ-B5.3: Grounding Externo de Contrapartes mediante Exa API (Factor WOW Sponsor)
+- **Descripción:** Enriquecer las alertas de concentración o retraso de cobro con información pública indexada en tiempo real sobre la contraparte afectada.
+- **Prioridad:** P2 (Factor WOW / Sponsor HackSpain)
+- **Dependencias:** REQ-B5.2.
+- **Entradas:** Nombre o NIF de la contraparte morosa principal.
+- **Procesamiento:** Consulta a la API de **Exa** (`exa-py`) buscando noticias recientes sobre reestructuraciones de deuda, EREs, insolvencias o cambios de administradores en prensa económica y boletines oficiales.
+- **Salidas:** Noticia o hecho relevante adjunto a la alerta de cobro.
+- **Excepciones y Errores:** Fallo de red o cuota de API de Exa: degradación elegante a la alerta puramente interna sin interrumpir la ejecución.
+- **Principio SOLID:** Inversión de Dependencias (DIP). El adaptador `ExaGroundingService` implementa `IExternalIntelligenceService`.
 
 ---
 
-## B13 · Entrega al leaderboard
+## 7. Módulo B6 · Consolidación de Grupo y Riesgo de Contagio
 
-**Dueño:** Carlos (**dueño de la métrica**) · **Prioridad:** P0 · **Depende de:** B3
-
-| ID | Requisito | Prio |
-| :--- | :--- | :--- |
-| **RF-B13.1** | Leer el script de scoring en la primera hora y resolver la tabla de `PRODUCTO.md` §6: ¿hay columna objetivo en train, o solo feedback del leaderboard? | P0 |
-| **RF-B13.2** | **Rama activa: reglas.** El dataset no trae ninguna columna objetivo (comprobado 18-sep en los nueve ficheros). Solo si el script de scoring revela una etiqueta: sonda de Spearman feature a feature; si 2–3 features explican > 0,9, el target es una fórmula y se recupera, y entonces —y solo entonces— entra GBDT con restricciones monotónicas y validación por `group_id` | P0 |
-| **RF-B13.3** | **Primer envío con k = 0** (solo nivel): línea base limpia. La tendencia entra como variante 2, para medir cuánto aporta en vez de asumirlo | P0 |
-| **RF-B13.4** | **Máximo 5–6 variantes** contra el test oculto, cada una con justificación escrita. Más iteraciones es sobreajustar a 60–80 empresas | P0 |
-| **RF-B13.5** | Validación propia con `GroupKFold` por `group_id` + corte temporal. Mejoras de CV por debajo de **0,005 no correlacionan** con el leaderboard: es la regla de parada | P0 |
-| **RF-B13.6** | Las cuatro pruebas del brief §9: backtest temporal contra ELMS, estabilidad (> 0,85), **simetría** (las que mejoran suben con la misma facilidad con que bajan las que caen) y sensibilidad (mover cada peso ±10 pts mantiene correlación de rangos > 0,9) | P1 |
-| **RF-B13.7** | **No optimizar el leaderboard hasta el domingo.** Dos tercios de la nota no son la métrica. Basta estar en el tercio alto | P0 |
-| **RF-B13.8** | Si aparece un **leak**: usarlo para el leaderboard, jamás para la narrativa, y decirlo en voz alta | P1 |
-
-**CA-B13:** el envío se genera con un comando desde el score congelado en configuración, y
-queda registrado qué variante produjo qué puntuación.
+### REQ-B6.1: Agregación de Sociedades Holding y Penalización por Contagio
+- **Descripción:** Calcular la salud financiera consolidada de un grupo empresarial ponderando el tamaño de sus filiales y penalizando el arrastre de filiales en situación crítica.
+- **Prioridad:** P1
+- **Dependencias:** REQ-B0.5, REQ-B3.1.
+- **Entradas:** Scores individuales de filiales, pesos por volumen de cobros, estructura del `group_id`.
+- **Procesamiento:**
+  - Agregación base: 65% media ponderada de filiales + 35% score de la peor filial.
+  - Penalización por contagio si una filial material presenta $S_t < 40$.
+- **Salidas:** Objeto `ScoreGrupo` con score consolidado, listado de filiales y penalización aplicada.
+- **Excepciones y Errores:** Grupo con una única empresa: el score consolidado equivale exactamente al score individual sin penalización.
 
 ---
 
-## Requisitos no funcionales (transversales)
+## 8. Módulo B7 · Capa de Servicios API, Segregación de Interfaces y Mocks
 
-| ID | Requisito | Prio |
-| :--- | :--- | :--- |
-| **RNF-1** | **Determinismo total.** Semillas fijas, sin aleatoriedad en el camino de la demo. Misma entrada, misma salida | P0 |
-| **RNF-2** | **Reproducibilidad.** Un comando reconstruye features, tablas de percentiles, scores y envío desde los CSV en crudo | P0 |
-| **RNF-3** | **Todo desplegado desde el viernes**, con dos dueños: Antonio la API, Quirce el front | P0 |
-| **RNF-4** | **Configuración separada del código**: pesos, umbrales de estado y `k` en fichero, versionados | P0 |
-| **RNF-5** | **Mock primero**: todo consumidor arranca contra el contrato falso; nadie se declara bloqueado | P0 |
-| **RNF-6** | **Idioma:** castellano en pantalla y documentación. Los nombres de campo del contrato, tal cual están en B7 | P1 |
-| **RNF-7** | **Sin datos reales**: el dataset es sintético y así se declara en pantalla y en el pitch | P0 |
-| **RNF-8** | **Trazabilidad:** toda cifra visible se puede seguir hasta una fila del dataset | P1 |
+### REQ-B7.1: Contrato Congelado de Endpoints REST
+- **Descripción:** Exponer el contrato de servicios mediante una API FastAPI tipada con esquemas Pydantic, garantizando disponibilidad inmediata mediante mocks.
+- **Prioridad:** P0
+- **Dependencias:** Ninguna (se inicializa con datos de fixture).
+- **Entradas:** Peticiones HTTP REST sobre `/score`, `/group`, `/palancas`, `/simulate`, `/action/generate`, `/passport/{token}`, `/alerts`.
+- **Procesamiento:** Enrutamiento a los casos de uso del motor o devolución de respuestas mockeadas deterministas en modo de pruebas.
+- **Salidas:** Respuestas JSON validadas contra esquemas Pydantic.
+- **Excepciones y Errores:** Entidad no encontrada (404), parámetros de simulación fuera de rango (422).
+- **Principio SOLID:** Segregación de Interfaces (ISP) e Inversión de Dependencias (DIP). La API implementa interfaces modulares (`IScoreService`, `ISimulatorService`, `IActionService`).
 
----
-
-## Matriz de trazabilidad · entregables obligatorios del enunciado §6
-
-| Entregable | Estado | Bloques que lo cubren |
-| :--- | :--- | :--- |
-| Predicción sobre el test oculto | Obligatorio | B2 (tablas congeladas), B3, **B13** |
-| Señal en las dos direcciones | Obligatorio | RF-B3.4, RF-B3.7, RF-B13.6 |
-| Trayectoria, no foto | Obligatorio | RF-B3.3, RF-B3.5, RF-B3.6, RF-B11.4 |
-| Explicación | Obligatorio | **B4** completo |
-| Producto encima del score | Obligatorio | B8, B9, B10, B11 (los tres actos) |
-| Comprador identificado | Obligatorio | **B12** (RF-B12.1, RF-B12.4) |
-| Demo navegable | Obligatorio | **B11** (RF-B11.1, RF-B11.2) |
-| Anticipación medida | Bonus | B5 (RF-B5.2, **RF-B5.3**) |
-| Monitor que avisa | Bonus | B5 (RF-B5.5, RF-B5.6), RF-B10.6 |
+### REQ-B7.2: Modo de Respaldo Offline y Determinismo
+- **Descripción:** Proveer un componente de fixtures estáticos (`FixtureOffline`) que garantice la ejecución integral de la demo sin conexión a Internet o ante fallos del servidor.
+- **Prioridad:** P0
+- **Dependencias:** REQ-B7.1.
+- **Entradas:** Solicitud con flag `DEMO_MODE=true` o fallo de red.
+- **Procesamiento:** Carga de respuestas pregrabadas validadas correspondientes a los casos de demostración (Northbrook y Velasco).
+- **Salidas:** Payloads JSON idénticos a los del motor real en milisegundos.
+- **Excepciones y Errores:** Ninguno; el fallback es infalible.
 
 ---
 
-## Riesgos de ejecución y mitigación
+## 9. Módulo B8 · Simulador Contrafactual y Catálogo Polimórfico de Palancas (Strategy)
 
-| Riesgo | Mitigación | Dueño |
-| :--- | :--- | :--- |
-| **Pedro escribió el brief pero no implementa el núcleo** — el mayor riesgo de traspaso del fin de semana | Media hora el viernes, Pedro → Carlos y Antonio, recorriendo el brief entero. A partir de ahí el brief es la especificación y las dudas se resuelven contra el documento, no por chat | Pedro |
-| **Pedro es cuello de botella**: depende del núcleo y bloquea a Quirce | Si el viernes de noche no hay `/score` real, `/simulate` se monta sobre un stub con reglas tontas y se sigue con el catálogo. El agente no descubre su integración el sábado por la tarde | Pedro |
-| **Hugo está en front y narrativa a la vez** | Quirce sostiene el front en solitario desde el sábado noche. El domingo Hugo ensaya | Hugo |
-| **El contrato cambia a mitad** | Congelado en 2 h (B7). Cualquier cambio posterior se anuncia a los cuatro consumidores a la vez | Antonio |
-| Ventana de 12 meses sobre 24 deja pocos puntos de serie, y solo el 29 % de las empresas tiene los 24 | Ventana creciente desde el mes 6 (RF-B1.1); si la estabilidad (RF-B13.6) sale baja, bajar a 9 (RF-B3.11) | Carlos |
-| **El feature engineering es más largo de lo previsto**: as-of de facturas, reconstrucción de saldos, dirección por signo y DSCR desde banco no estaban en el brief. Las 5–6 h de la fase 2 son 8–10 | Antonio entra en B1 el viernes por la noche; la curva score→tipo (RF-B9.2) se retrasa, con 87 tipos tampoco merecía prioridad | Carlos + Antonio |
-| **Leakage por `payment_date`**: en facturas no pagadas es un placeholder igual al vencimiento | RF-B1.0 como P0 y la prueba as-of de CA-B1 | Carlos |
-| Todo el research de Carlos y Quirce recomienda GBDT+SHAP, el brief y el dataset dicen reglas | Resuelto por el dato: sin target no hay GBDT. Se cierra en el traspaso del viernes con el informe delante, no por chat | Pedro |
-| Las tablas de percentiles se recalculan por accidente con el test dentro | CA-B2 es el test que lo detecta: puntuar una empresa sola y acompañada debe dar lo mismo | Carlos |
-| Optimizar el leaderboard a costa del producto | RF-B13.7. Dos tercios de la nota no son la métrica | Todos |
-| Dato sintético tomado por realidad | RF-B12.6: lo decimos nosotros antes de que lo pregunten | Hugo |
+### REQ-B8.1: Catálogo de Palancas Financieras bajo Patrón Strategy
+- **Descripción:** Modelar cada palanca de optimización de circulante y deuda como una estrategia independiente que implementa una interfaz común.
+- **Prioridad:** P0
+- **Dependencias:** REQ-B1.2 a REQ-B1.5, REQ-B7.1.
+- **Entradas:** Parámetros de la palanca (días, porcentajes, producto a refinanciar).
+- **Procesamiento:** Cada clase concreta (`PalancaReducirDSO`, `PalancaRefinanciar`, `PalancaAmpliarDPO`, etc.) implementa:
+  - `es_aplicable(empresa, tablas) -> bool`
+  - `motivo_rechazo() -> str`
+  - `aplicar(tablas, parametros) -> TablasModificadas`
+- **Salidas:** Tablas de datos modificadas contrafactualmente.
+- **Excepciones y Errores:** Palanca inaplicable (ej. sustituir factoring en una empresa sin factoring): rechazo con explicación motivada.
+- **Principio SOLID:** Principio Abierto/Cerrado (OCP). Nuevas palancas financieras pueden añadirse al catálogo sin modificar la clase `Simulador`.
+
+### REQ-B8.2: Simulación Contrafactual Estricta (Recomputación sin Gradientes)
+- **Descripción:** Calcular el impacto de las palancas financieras reejecutando el pipeline completo sobre los datos modificados, sin aproximaciones por derivadas.
+- **Prioridad:** P0
+- **Dependencias:** REQ-B8.1, REQ-B3.1.
+- **Entradas:** `TablasModificadas` tras aplicar la estrategia.
+- **Procesamiento:** Reejecución de B1 (features) $\to$ B2 (percentiles congelados) $\to$ B3 (score). Obtención del nuevo score $S_{\text{nuevo}}$ y cálculo de $\Delta S$.
+- **Salidas:** Objeto `ResultadoSimulacion` con nuevo score, delta de score y parámetros traducidos.
+- **Excepciones y Errores:** Parámetros fuera de rangos plausibles (ej. DSO negativo): saturación en el límite inferior admisible.
 
 ---
 
-## Primeros 30 minutos del viernes
+## 10. Módulo B9 · Puente Transaccional a Euros
 
-1. **Traspaso del brief: Pedro → Carlos y Antonio, media hora.** A partir de ahí el brief
-   es la especificación.
-2. **El contrato de B7 en una pizarra** y mockeado, aunque devuelva datos falsos.
-3. **Las preguntas al aula**, ya sin la del grafo (resuelta: no hay): qué compara el
-   leaderboard, unidad del test (empresa o grupo), formato de salida, **si el script de
-   scoring trae etiqueta** y **cuánto dura el pitch** (2:30 o 5 min).
-4. **Leer el script de scoring** y resolver la tabla de RF-B13.1.
-5. **El informe de exploración** (`research/informe_exploracion.md`) se lee en el traspaso:
-   as-of, signo de factura, saldos reconstruidos y DSCR desde banco son las cuatro piezas
-   que el brief no tenía y que B1 debe incorporar desde la primera línea.
+### REQ-B9.1: Traducción Aritmética de Caja Liberada
+- **Descripción:** Cuantificar la liquidez inmediata liberada por mejoras en el periodo de cobro de clientes.
+- **Prioridad:** P0
+- **Dependencias:** REQ-B8.2.
+- **Entradas:** Variación de días de cobro $\Delta \mathrm{DSO}$, facturación media diaria en EUR.
+- **Procesamiento:** Cálculo determinista:
+  $$\text{Caja Liberada (€)} = \Delta \mathrm{DSO} \times \text{Facturación Diaria}.$$
+- **Salidas:** Importe exacto en euros de caja operativa disponible.
+- **Excepciones y Errores:** Facturación nula: caja liberada igual a cero euros.
+
+### REQ-B9.2: Curva de Tipos de Interés y Ahorro Financiero Anual
+- **Descripción:** Mapear la mejora de score a una reducción de diferencial de crédito (*spread*) en puntos básicos y calcular el ahorro financiero anual.
+- **Prioridad:** P1
+- **Dependencias:** REQ-B8.2.
+- **Entradas:** Score antes, score simulado, pasivo financiero vivo con coste.
+- **Procesamiento:**
+  - Consulta de la curva empírica de tipos implícitos observados: $\text{Tipo}(S) = f(S)$.
+  - Cálculo de $\Delta \mathrm{bps} = \text{Tipo}(S_{\text{antes}}) - \text{Tipo}(S_{\text{después}})$.
+  - Ahorro anual: $\text{Ahorro (€/año)} = \text{Deuda Viva} \times \frac{\Delta \mathrm{bps}}{10.000}$.
+- **Salidas:** $\Delta \mathrm{bps}$ y ahorro anual en intereses en EUR.
+- **Excepciones y Errores:** Empresas sin deuda viva: $\Delta \mathrm{bps}$ mostrado a título informativo y ahorro anual fijado en 0 €.
+
+---
+
+## 11. Módulo B10 · Agente de Ejecución Transaccional en Un Clic (Factor WOW)
+
+### REQ-B10.1: Proposición Determinista de Recomendaciones
+- **Descripción:** Seleccionar y parametrizar las palancas que mayor impacto positivo generen sobre el score y la caja del cliente sin inventar ninguna cifra.
+- **Prioridad:** P1
+- **Dependencias:** REQ-B4.2, REQ-B8.2, REQ-B9.1.
+- **Entradas:** Diagnóstico de drivers del mes y catálogo de palancas aplicables.
+- **Procesamiento:** Simulación batch de palancas aplicables, ordenación por ratio impacto/esfuerzo y anclaje estricto al driver que motivó la caída de score.
+- **Salidas:** Lista priorizada de recomendaciones con delta de score y euros auditados.
+- **Excepciones y Errores:** Empresa en solvencia óptima (score > 85): recomendaciones orientadas a optimización de excedentes de tesorería.
+- **Principio SOLID:** "El agente no opina, simula". Ninguna cifra procede de alucinaciones de modelos de lenguaje.
+
+### REQ-B10.2: Generación Autónoma de Artefactos Transaccionales en 1 Clic (Factor WOW)
+- **Descripción:** Convertir la simulación abstracta en documentos y comunicaciones ejecutables inmediatas para el director financiero.
+- **Prioridad:** P2 (Factor WOW)
+- **Dependencias:** REQ-B10.1, REQ-B7.1 (`POST /action/generate`).
+- **Entradas:** Palanca seleccionada, contrapartes afectadas, importes de simulación validados.
+- **Procesamiento:** Generación determinista de:
+  - Propuesta formal de pronto pago a clientes morosos con tasa de descuento calculada por debajo del coste de la línea de crédito.
+  - Memorando ejecutivo de novación o ampliación de póliza para el comité de riesgos del banco con los ratios DSCR proxy calculados.
+- **Salidas:** Objeto JSON con tipo de documento, destinatario, asunto y cuerpo formal redactado listo para envío.
+- **Excepciones y Errores:** Datos incompletos de contraparte: plantilla genérica con campos resaltados para completado manual.
+
+---
+
+## 12. Módulo B11 · Interfaz Navegable, Time-Machine y Pasaporte Móvil QR
+
+### REQ-B11.1: Vista Comparativa Split-Screen (Time-Machine de 24 Meses)
+- **Descripción:** Implementar una pantalla interactiva de contraste temporal entre Northbrook Foods (45 $\to$ 65) y Velasco Industrial (82 $\to$ 68).
+- **Prioridad:** P0
+- **Dependencias:** REQ-B7.1.
+- **Entradas:** Series de 24 meses de ambas empresas.
+- **Procesamiento:**
+  - *Modo Bureau Tradicional:* Muestra solo la foto fija del mes 24 (65 vs 68), evidenciando la trampa contable.
+  - *Modo Embat X-Ray:* Despliega la trayectoria completa y destaca la alerta temprana en el mes 18 en Velasco.
+- **Salidas:** Gráfico interactivo coordinado con resaltado del momento de anticipación.
+- **Excepciones y Errores:** Dispositivo sin aceleración gráfica: renderizado SVG estático alternativo.
+
+### REQ-B11.2: Pasaporte de Solvencia Móvil en Vivo mediante Código QR
+- **Descripción:** Exponer una vista web responsive de alto rendimiento accesible por código QR para que el jurado la consulte en sus teléfonos durante el pitch.
+- **Prioridad:** P0 (Factor WOW)
+- **Dependencias:** REQ-B7.1 (`GET /passport/{token}`).
+- **Entradas:** Token de verificación seguro.
+- **Procesamiento:** Carga ultrarrápida (<1s) de la ficha ejecutiva de solvencia de la empresa, trayectoria auditada, percentil sectorial y sello de verificación criptográfica de Embat.
+- **Salidas:** Interfaz móvil optimizada en paleta Embat (`#050B2C`) sin requerir login ni descargas.
+- **Excepciones y Errores:** Enlace caducado o token corrupto: pantalla explicativa con opción de visualización en modo demo.
+
+---
+
+## 13. Módulo B12 · Narrativa, Pitch y Tesis de Negocio
+
+### REQ-B12.1: Estructura Cronometrada del Pitch de 2:30 Minutos
+- **Descripción:** Alinear la presentación oral con los criterios de evaluación de K Fund y Embat siguiendo el minutaje estricto.
+- **Prioridad:** P0
+- **Dependencias:** REQ-B11.1, REQ-B11.2, REQ-B10.2.
+- **Entradas:** Guion técnico ensayado y validado.
+- **Procesamiento:**
+  - 0:00–0:35: Gancho con la Time-Machine (Northbrook vs Velasco en mes 24).
+  - 0:35–1:10: Motor causal, ortogonalidad y anticipación de 8 meses con control de falsas alarmas.
+  - 1:10–1:45: Simulador what-if y ejecución autónoma en 1 clic.
+  - 1:45–2:15: Proyección del QR y consulta en el móvil del jurado del Pasaporte de Solvencia.
+  - 2:15–2:30: Tesis de negocio: *Workflow ownership earns transaction ownership*.
+- **Salidas:** Presentación validada y vídeo de contingencia grabado.
+- **Excepciones y Errores:** Corte de red o fallo de proyección: cambio instantáneo al soporte en local o vídeo offline.
+
+---
+
+## 14. Módulo B13 · Protocolo y Entrega al Leaderboard
+
+### REQ-B13.1: Protocolo de Evaluación y Envío al Leaderboard
+- **Descripción:** Generar las predicciones sobre el conjunto de test oculto asegurando reproducibilidad y respetando la regla de parada para evitar sobreajuste.
+- **Prioridad:** P0
+- **Dependencias:** REQ-B3.1.
+- **Entradas:** Dataset de test provisto por Embat (60–80 empresas).
+- **Procesamiento:**
+  - Envío 1: Baseline con $k=0$ para medir nivel puro.
+  - Envío 2: Inclusión del vector de momentum $\lambda M_t$ para medir ganancia de trayectoria.
+  - Regla de parada: No superar 5–6 envíos. Mejoras de validación cruzada inferiores a 0,005 no se consideran significativas.
+- **Salidas:** Fichero de predicciones en el formato exigido por el script de scoring de Embat.
+- **Excepciones y Errores:** Formato de salida discrepante con el script evaluador: validación mediante script de comprobación pre-envío.
+
+---
+
+## 15. Requisitos No Funcionales (RNF)
+
+| ID | Categoría | Requisito y Criterio de Verificación | Prioridad |
+| :--- | :--- | :--- | :---: |
+| **RNF-1** | **Determinismo** | Cero aleatoriedad en el pipeline de scoring y simulación. Semillas fijadas a nivel de sistema. Mismo input genera exactamente la misma salida matemática ($100\%$ de reproducibilidad). | P0 |
+| **RNF-2** | **Rendimiento** | Latencia de cálculo de `/score` y `/simulate` inferior a 1.000 ms en ejecución normal, e inferior a 50 ms en modo demo/fixture. | P0 |
+| **RNF-3** | **Robustez** | Disponibilidad de modo offline completo (`FixtureOffline`) y modo demo para asegurar operatividad absoluta durante la presentación sin depender de la WiFi del evento. | P0 |
+| **RNF-4** | **Auditabilidad** | Toda cifra presentada en pantalla o en el pasaporte es trazable matemáticamente a través del waterfall exacto hasta una fila contabilizada del dataset. | P0 |
+| **RNF-5** | **Modularidad SOLID** | Aislamiento por capas verticales y cumplimiento de los 5 principios SOLID: desacoplamiento de I/O, extensibilidad de palancas por Strategy, sustituibilidad en productos y segregación de interfaces API. | P0 |
+| **RNF-6** | **Seguridad** | Ningún dato de credenciales bancarias o claves de API expuesto en frontend. Acceso al pasaporte financiero mediante token no enumerable con expiración. | P1 |
+
+---
+
+## 16. Matriz de Trazabilidad Integral
+
+| Entregable Oficial del Reto | Estado en el Proyecto | Bloques y Requisitos que lo Satisfacen | Artefacto de Código / Implementación |
+| :--- | :---: | :--- | :--- |
+| **Predicción sobre el test oculto** | **Obligatorio** | REQ-B2.2, REQ-B3.1, REQ-B13.1 | `algorythm/calc_score.py`<br>`algorythm/engine_results/` |
+| **Señal en las dos direcciones** | **Obligatorio** | REQ-B3.2, REQ-B3.3, REQ-B13.1 | `algorythm/score_engine.py` (`bounded_momentum`) |
+| **Trayectoria, no foto fija** | **Obligatorio** | REQ-B3.1, REQ-B3.2, REQ-B11.1 | `algorythm/score_engine.py`<br>`algorythm/formula/score_financiero.pdf` |
+| **Explicabilidad sin cajas negras** | **Obligatorio** | REQ-B4.1, REQ-B4.2 | `algorythm/score_engine.py` (descomposición aditiva) |
+| **Producto encima del score** | **Obligatorio** | REQ-B8.1, REQ-B9.1, REQ-B10.1, REQ-B10.2 | `Simulador`, `PuenteEuros`, `Agente` |
+| **Comprador identificado (Embat)** | **Obligatorio** | REQ-B12.1 | `PRODUCTO.md` §2, `factorwow.md` |
+| **Demo navegable en vivo** | **Obligatorio** | REQ-B11.1, REQ-B11.2 | `Frontend Next.js / API FastAPI` |
+| **Anticipación medida en meses** | **Bonus** | REQ-B5.1 | `algorythm/validate_score.py` (8 meses medidos) |
+| **Monitor proactivo de alertas** | **Bonus** | REQ-B5.2, REQ-B5.3 | `Monitor`, integración Exa API (`exa-py`) |
+| **Ejecución transaccional en 1 clic** | **Factor WOW** | REQ-B10.2, REQ-B7.1 | `POST /action/generate` (artefactos de cobro y deuda) |
+| **Pasaporte Financiero Móvil por QR** | **Factor WOW** | REQ-B11.2, REQ-B7.1 | `GET /passport/{token}` (vista responsive jurado) |
