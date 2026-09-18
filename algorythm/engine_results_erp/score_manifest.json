@@ -1,0 +1,64 @@
+{
+  "companies": 1286,
+  "months": 24,
+  "config": {
+    "base_weights": [
+      0.5,
+      0.3,
+      0.2
+    ],
+    "momentum_weight": 8.0,
+    "growth_weight": 6.0,
+    "fragility_weight": 8.0,
+    "momentum_mix": 0.5,
+    "velocity_scale": 2.0,
+    "ema_scale": 5.0,
+    "persistence_deadband": 0.02,
+    "liquidity_scale": 0.5,
+    "refund_scale": 0.05,
+    "debt_scale": 0.25,
+    "hhi_scale": 0.25,
+    "funding_gap_scale": 0.5,
+    "growth_scale": 0.2,
+    "dso_scale": 60.0,
+    "dso_change_scale": 30.0,
+    "erp_weight": 0.4
+  },
+  "audit": {
+    "bank": {
+      "excluded_currency_or_fx": 97401,
+      "excluded_date_or_status": 45568,
+      "unknown_or_mismatched_product": 1313,
+      "bank_hhi_endpoint_available": 125
+    },
+    "erp": {
+      "excluded_currency_or_fx": 17129,
+      "excluded_invalid_due_or_pending": 4555,
+      "companies_with_any_invoice": 785,
+      "companies_with_usable_snapshot": 466,
+      "assumes_positive_invoice_amount_is_sale": true,
+      "payment_date_used_to_infer_payment": false,
+      "snapshot_as_of": "2026-09-01",
+      "mode": "single_snapshot_assumed_positive_sales"
+    }
+  },
+  "input_sha256": {
+    "companies.csv": "5496ad00a1e9228f7e756a55c71c512fd06a73ad45a09ce3f103a620a5ad72ae",
+    "banking_products.csv": "0fc5aa20fea32981a962cc08251720ece3f2afad8495910111d2fd8b16514d3c",
+    "debt_products.csv": "bf38430ccd15f6a9ca8769113c5f47d4aeee8fe55c425687731481cd002f05d8",
+    "transactions.csv": "000a6820a7500c66aa70a17b3e813d0c57a8270b3c58f6f2f006708a20228f2b",
+    "invoices.csv": "6686bd878244881bac78348a108852f3f30713ef244267f1fa3754b9be619c53"
+  },
+  "engine_sha256": "76f92ab82401a9eaf358e6dc156b61bbf627808b7a6230665defb599a4cc63e4",
+  "data_adapter_sha256": "56e45cd5664423079c944049e2925e24b5a4ed4905ec5fa4c254003f773c00b1",
+  "runtime": {
+    "python": "3.12.10",
+    "numpy": "2.5.3"
+  },
+  "cash_observations_sha256": null,
+  "terminal_balances_used": false,
+  "credit_rating_calibrated": false,
+  "endpoint_prior_count": 111,
+  "endpoint_cash_known_count": 0,
+  "endpoint_erp_used_count": 466
+}
