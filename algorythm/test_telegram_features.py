@@ -289,45 +289,48 @@ class TestTelegramFeatures(unittest.TestCase):
         self.assertIsNone(parse_amount('invalid_amount'))
         self.assertIsNone(parse_amount(''))
 
+    @patch('algorythm.score_telegram_bot.send_chat_action')
     @patch('algorythm.score_telegram_bot.add_subscriber')
     @patch('algorythm.score_telegram_bot.handle_chart_query')
     @patch('algorythm.score_telegram_bot.answer_callback_query')
-    def test_handle_callback_query_chart(self, mock_answer, mock_chart, mock_add_sub):
+    def test_handle_callback_query_chart(self, mock_answer, mock_chart, mock_add_sub, mock_action):
         cb = {
             'id': 'cb_1001',
             'data': 'cb_chart:COMP_0010',
             'message': {'chat': {'id': 12345}}
         }
         handle_callback_query(cb)
-        mock_answer.assert_called_once_with('cb_1001')
+        mock_answer.assert_called_once_with('cb_1001', text='⏳ Generando gráfica 24M de COMP_0010...')
         mock_chart.assert_called_once_with(12345, 'COMP_0010')
         mock_add_sub.assert_called_once_with(12345)
 
+    @patch('algorythm.score_telegram_bot.send_chat_action')
     @patch('algorythm.score_telegram_bot.add_subscriber')
     @patch('algorythm.score_telegram_bot.handle_whatif_query')
     @patch('algorythm.score_telegram_bot.answer_callback_query')
-    def test_handle_callback_query_whatif(self, mock_answer, mock_whatif, mock_add_sub):
+    def test_handle_callback_query_whatif(self, mock_answer, mock_whatif, mock_add_sub, mock_action):
         cb = {
             'id': 'cb_1002',
             'data': 'cb_whatif:COMP_0010',
             'message': {'chat': {'id': 12345}}
         }
         handle_callback_query(cb)
-        mock_answer.assert_called_once_with('cb_1002')
+        mock_answer.assert_called_once_with('cb_1002', text='⏳ Calculando simulación What-If de COMP_0010...')
         mock_whatif.assert_called_once_with(12345, 'COMP_0010', None)
         mock_add_sub.assert_called_once_with(12345)
 
+    @patch('algorythm.score_telegram_bot.send_chat_action')
     @patch('algorythm.score_telegram_bot.add_subscriber')
     @patch('algorythm.score_telegram_bot.handle_score_query')
     @patch('algorythm.score_telegram_bot.answer_callback_query')
-    def test_handle_callback_query_drivers(self, mock_answer, mock_score, mock_add_sub):
+    def test_handle_callback_query_drivers(self, mock_answer, mock_score, mock_add_sub, mock_action):
         cb = {
             'id': 'cb_1003',
             'data': 'cb_drivers:COMP_0010',
             'message': {'chat': {'id': 12345}}
         }
         handle_callback_query(cb)
-        mock_answer.assert_called_once_with('cb_1003')
+        mock_answer.assert_called_once_with('cb_1003', text='⏳ Extrayendo desglose Waterfall de COMP_0010...')
         mock_score.assert_called_once_with(12345, 'COMP_0010')
         mock_add_sub.assert_called_once_with(12345)
 

@@ -17,7 +17,7 @@ from algorythm.telegram_notifier import (
     load_config, add_subscriber, load_subscribers,
     send_telegram_message, format_alert_html, broadcast_alert,
     build_alert_keyboard, send_telegram_photo, answer_callback_query,
-    get_ssl_context
+    send_chat_action, get_ssl_context
 )
 from algorythm.score_monitor import monitor_once
 from algorythm.telegram_charts import generate_company_chart
@@ -307,6 +307,7 @@ def parse_amount(val_str):
 
 
 def handle_chart_query(chat_id, company_id):
+    send_chat_action(chat_id, action="upload_photo")
     cid = company_id.strip().upper()
     try:
         photo_bytes = generate_company_chart(cid)
@@ -325,6 +326,7 @@ def handle_chart_query(chat_id, company_id):
 
 
 def handle_whatif_query(chat_id, company_id, amount=None):
+    send_chat_action(chat_id, action="typing")
     cid = company_id.strip().upper()
     res = simulate_whatif(cid, injection_amount=amount)
     if not res:
@@ -343,15 +345,31 @@ def handle_callback_query(callback_query):
         return
 
     add_subscriber(chat_id)
+
+    parts = data.split(':', 1) if data else ['', '']
+    action = parts[0]
+    cid = parts[1] if len(parts) > 1 else ''
+
+    if action == 'cb_chart':
+        toast = f"⏳ Generando gráfica 24M de {cid}..."
+        chat_action = "upload_photo"
+    elif action == 'cb_whatif':
+        toast = f"⏳ Calculando simulación What-If de {cid}..."
+        chat_action = "typing"
+    elif action == 'cb_drivers':
+        toast = f"⏳ Extrayendo desglose Waterfall de {cid}..."
+        chat_action = "typing"
+    else:
+        toast = "⏳ Cargando petición..."
+        chat_action = "typing"
+
     if cb_id:
-        answer_callback_query(cb_id)
+        answer_callback_query(cb_id, text=toast)
+
+    send_chat_action(chat_id, action=chat_action)
 
     if not data:
         return
-
-    parts = data.split(':', 1)
-    action = parts[0]
-    cid = parts[1] if len(parts) > 1 else ''
 
     if action == 'cb_chart' and cid:
         handle_chart_query(chat_id, cid)

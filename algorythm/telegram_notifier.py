@@ -202,6 +202,21 @@ def answer_callback_query(callback_query_id, text=None, show_alert=False, bot_to
         return {'ok': False, 'error': str(error)}
 
 
+def send_chat_action(chat_id, action="typing", bot_token=None):
+    token = bot_token or load_config().get('bot_token')
+    if not token or not chat_id:
+        return {'ok': False, 'error': 'Missing token or chat_id'}
+
+    url = f"https://api.telegram.org/bot{token}/sendChatAction"
+    data = json.dumps({'chat_id': str(chat_id), 'action': action}).encode('utf-8')
+    req = urllib.request.Request(url, data=data, headers={'Content-Type': 'application/json'})
+    try:
+        with urllib.request.urlopen(req, timeout=5, context=get_ssl_context()) as response:
+            return json.loads(response.read().decode('utf-8'))
+    except Exception as error:
+        return {'ok': False, 'error': str(error)}
+
+
 
 def format_alert_html(alert):
     severity = alert.get('severity', 'MEDIA')
