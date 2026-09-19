@@ -383,3 +383,15 @@ class RankingsResponse(BaseModel):
     sugerencias: List[Dict[str, Any]] = []
     opciones_circulante: List[Dict[str, Any]] = []
     recomendado: Optional[Dict[str, Any]] = None
+
+
+class PrevisionEstructuralResponse(BaseModel):
+    company_id: str = Field(..., json_schema_extra={"example": "COMP_0010"})
+    model: str = Field("structural_v2", json_schema_extra={"example": "structural_v2"})
+    status: str = Field(..., json_schema_extra={"example": "available"})
+    as_of: Optional[str] = Field(None, json_schema_extra={"example": "2026-08-01"})
+    meses: int = Field(..., json_schema_extra={"example": 12})
+    current_score: Optional[float] = Field(None, json_schema_extra={"example": 61.4})
+    alto: List[float] = Field(..., description="Score del escenario optimista, t+1 … t+meses")
+    medio: List[float] = Field(..., description="Score del escenario central, t+1 … t+meses")
+    bajo: List[float] = Field(..., description="Score del escenario pesimista, t+1 … t+meses")
