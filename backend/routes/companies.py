@@ -11,6 +11,7 @@ from typing import Any, Dict, List, Optional
 from fastapi import APIRouter, HTTPException, Query, Response
 
 from algorythm.score_decompose import history_with_reparto
+from algorythm.score_episodes import empty_company_episodes, episodes_for_company
 from algorythm.telegram_charts import generate_company_chart
 from backend.database import get_cursor, normalize_company_id, query_dicts, query_one
 from backend.routes.forecasts import _load_banks
@@ -27,6 +28,7 @@ from backend.schemas import (
     InvoiceItem,
     PeerPoint,
 )
+from backend.calendar import LAST_CLOSED_MONTH, closed_month_iso
 from forecasting.structural import as_of_from_origin
 
 router = APIRouter(prefix="/api/companies", tags=["Empresas y Cartera"])
@@ -35,17 +37,41 @@ RESULTS_DIR = Path(__file__).resolve().parents[2] / "algorythm" / "engine_result
 
 
 @lru_cache(maxsize=4)
-def _read_episodes(path: str, modified_ns: int) -> Dict[str, Any]:
-    return json.loads(Path(path).read_text())
+def _read_score_panels(path: str, modified_ns: int) -> Dict[str, Any]:
+    import numpy as np
+    with np.load(path, allow_pickle=False) as data:
+        return {key: data[key] for key in data.files}
+
+
+def _results_dir() -> Path:
+    return Path(os.environ.get("XRAY_RESULTS_DIR", str(RESULTS_DIR)))
 
 
 def _episodes_for(cid: str) -> Dict[str, Any]:
-    """Episodios del snapshot del motor; vacío si el artefacto no existe."""
-    path = Path(os.environ.get("XRAY_RESULTS_DIR", str(RESULTS_DIR))) / "episodes.json"
+    """Episodios al vuelo sobre el recorte de la empresa. Vacío si no hay paneles."""
+    panels_path = _results_dir() / "score_panels.npz"
     try:
-        return _read_episodes(str(path), path.stat().st_mtime_ns)["companies"].get(cid) or {}
+        panels = _read_score_panels(str(panels_path), panels_path.stat().st_mtime_ns)
     except (FileNotFoundError, KeyError, ValueError, OSError):
-        return {}
+        return empty_company_episodes()
+    bank = None
+    ap = None
+    try:
+        from algorythm.bank_panels import get_company_bank_slice
+        bank_path = _results_dir() / "bank_inputs.npz"
+        bank = get_company_bank_slice(cid, path=bank_path if bank_path.exists() else None)
+    except (FileNotFoundError, KeyError, OSError):
+        bank = None
+    try:
+        from algorythm.levers_objects import OBJECTS_PATH, ap_pending_vector
+        if OBJECTS_PATH.exists():
+            ap = ap_pending_vector([cid])
+    except (FileNotFoundError, KeyError, OSError):
+        ap = None
+    try:
+        return episodes_for_company(cid, panels, bank=bank, ap_pending=ap)
+    except (KeyError, ValueError):
+        return empty_company_episodes()
 
 
 @router.get("", response_model=CompanyListResponse)
@@ -62,8 +88,8 @@ def get_companies(
     offset: int = Query(0, ge=0, description="Desplazamiento para paginación"),
 ):
     """
-    Lista paginada y filtrable de empresas en el último corte mensual analítico (2026-09-01).
-    Utilizada para alimentar la tabla de cartera del CFO.
+    Lista paginada y filtrable de empresas en el último corte analítico (as_of=2026-09-01).
+    Ese corte cierra el mes de agosto de 2026; septiembre es foto de 1 día y no entra aquí.
     """
     conditions = []
     params = []
@@ -256,7 +282,7 @@ def get_company_detail(id: str):
     except Exception:
         pass
 
-    # 7. Episodios de cambio (snapshot del motor; ausente → vacío, nunca 500)
+    # 7. Episodios de cambio (mismo recorte que el score; vacío si no hay paneles)
     ep_data = _episodes_for(cid)
 
     return CompanyDetailResponse(
@@ -303,6 +329,7 @@ def get_company_detail(id: str):
         perspectivas_sin_aviso=ep_data.get("perspectivas_sin_aviso", []),
         trayectoria_marcas=ep_data.get("trayectoria_marcas"),
         parametros_episodios=ep_data.get("parametros"),
+        last_closed_month=LAST_CLOSED_MONTH.isoformat(),
     )
 
 
@@ -328,6 +355,8 @@ def _reparto_lookup(cid: str, rows, banks=None):
     The bank panel labels months at the start of each interval (2024-09 … 2026-08);
     company_scores uses the following first-of-month (2024-10 … 2026-09). Same 24
     cuts, last score 45.6 both ways. Join with DuckDB dates so the chart mes matches.
+    The public series also expose `closed_month` (bank-panel clock) so the UI never
+    paints September 2026 as a complete month.
     """
     tables = banks if banks is not None else _load_banks()
     if cid not in tables or not rows:
@@ -390,6 +419,7 @@ def get_company_history(
     history = [
         HistoryPoint(
             as_of=_as_of_key(row["as_of"]),
+            closed_month=closed_month_iso(row["as_of"]),
             score=round(float(row["score"]), 2),
             base_health=round(float(row["base_health"]), 2),
             state=str(row["state"]),
@@ -406,7 +436,12 @@ def get_company_history(
         for row in rows
     ]
 
-    return CompanyHistoryResponse(company_id=cid, months=len(history), history=history)
+    return CompanyHistoryResponse(
+        company_id=cid,
+        months=len(history),
+        last_closed_month=LAST_CLOSED_MONTH.isoformat(),
+        history=history,
+    )
 
 
 # -------------------------------------------------------------
@@ -480,7 +515,9 @@ def _get_peer_data() -> Dict[str, Any]:
                         "label": quartile_labels.get(q, f"cuartil Q{q}"),
                         "history": [],
                     }
-                quartile_series[q]["history"].append(PeerPoint(mes=str(mes), mediana=float(med)))
+                quartile_series[q]["history"].append(
+                    PeerPoint(mes=str(mes), closed_month=closed_month_iso(f"{mes}-01"), mediana=float(med))
+                )
 
             # Suavizado de meses iniciales pre-operativos (2024-10 y 2024-11)
             for q, data in quartile_series.items():
@@ -523,6 +560,7 @@ def get_company_peers(id: str):
         quartile=quartile,
         label=q_data["label"],
         n_companies=q_data["n"],
+        last_closed_month=LAST_CLOSED_MONTH.isoformat(),
         history=q_data["history"],
     )
 

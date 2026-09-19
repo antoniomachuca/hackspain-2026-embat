@@ -6,6 +6,7 @@ import Link from "next/link";
 import { apiPortfolio, apiEmpresas, type ApiPortfolioItem } from "@/lib/api";
 import { nombreDe } from "@/lib/motor";
 import { ESTADO_LABEL, type Estado } from "@/lib/data";
+import { LAST_CLOSED_MONTH, mesDePunto } from "@/lib/calendar";
 import { num, mesCorto } from "@/lib/format";
 import { SEGMENTOS, segmentoDe, type Segmento } from "@/lib/cartera";
 import { Cabecera } from "@/components/shell";
@@ -72,8 +73,8 @@ export default async function Cartera({ searchParams }: { searchParams: Promise<
     );
   }
 
-  const mes = pf.as_of.slice(0, 7);
-  const trayectoria = pf.trajectory.map((t) => ({ mes: t.as_of.slice(0, 7), score: t.average_score, nivel: t.median_score }));
+  const mes = (pf.calendar?.last_closed_month ?? LAST_CLOSED_MONTH).slice(0, 7);
+  const trayectoria = pf.trajectory.map((t) => ({ mes: mesDePunto(t), score: t.average_score, nivel: t.median_score }));
   const pctRiesgo = pf.total_companies ? (pf.risk_companies_count / pf.total_companies) * 100 : 0;
   const totalLista = lista?.total ?? 0;
   const paginas = Math.max(1, Math.ceil(totalLista / POR_PAGINA));
@@ -84,8 +85,7 @@ export default async function Cartera({ searchParams }: { searchParams: Promise<
         titulo="Cartera Embat"
         sub={
           <>
-            {num(pf.total_companies, 0)} clientes · {num(pf.eligible_companies, 0)} con score · {mesCorto(mes)} ·{" "}
-            <span className="tnum text-[var(--color-ink-4)]">motor conectado</span>
+            {num(pf.total_companies, 0)} clientes · {num(pf.eligible_companies, 0)} con score · {mesCorto(mes)} · corte 1-sep
           </>
         }
       />
@@ -95,7 +95,7 @@ export default async function Cartera({ searchParams }: { searchParams: Promise<
         <KPI etiqueta="Score medio de la cartera" valor={num(pf.average_score)} nota={`mediana ${num(pf.median_score)} · solo con historia suficiente`} />
         <KPI etiqueta="Clientes en mejora" valor={num(pf.improving_companies_count, 0)} nota="mejorando o en recuperación" />
         <KPI etiqueta="Clientes en riesgo" valor={num(pf.risk_companies_count, 0)} nota={`${num(pctRiesgo)} % · bache, torciéndose o deterioro`} />
-        <KPI etiqueta="Alertas este mes" valor={num(pf.alerts_last_month, 0)} nota={`emitidas en el corte de ${mesCorto(mes)}`} />
+        <KPI etiqueta="Alertas este mes" valor={num(pf.alerts_last_month, 0)} nota={`emitidas en el corte del 1-sep (mes de ${mesCorto(mes)})`} />
       </div>
 
       {/* ── Cómo está y hacia dónde va ─────────────────────────────── */}

@@ -4,7 +4,7 @@ import Link from "next/link";
 import type { GrupoCartera, MotivoGrupo } from "@/lib/motor";
 import { apiGrafo, type ApiGrafo } from "@/lib/api";
 import { eur, num } from "@/lib/format";
-import { FilaGrupo, TarjetaGrupo } from "@/components/cartera-grupos";
+import { TarjetaGrupo } from "@/components/cartera-grupos";
 import { Grafo } from "@/components/grafo";
 import { Modal } from "@/components/modal";
 

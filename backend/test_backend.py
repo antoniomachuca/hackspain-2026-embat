@@ -155,6 +155,9 @@ def test_get_company_history_reparto_aligned_and_scores_untouched():
     history = data["history"]
     assert history[0]["as_of"].startswith("2024-10")
     assert history[-1]["as_of"].startswith("2026-09")
+    assert history[0]["closed_month"].startswith("2024-09")
+    assert history[-1]["closed_month"].startswith("2026-08")
+    assert data["last_closed_month"] == "2026-08-01"
     assert history[-1]["score"] == pytest.approx(45.56, abs=0.05)
     assert history[0]["reparto"]["drivers"] == []
     assert history[0]["reparto"]["pct_tendencia"] == 0
@@ -179,6 +182,9 @@ def test_get_company_peers():
     assert len(data["history"]) == 24
     assert data["history"][0]["mes"] == "2024-10"
     assert data["history"][-1]["mes"] == "2026-09"
+    assert data["history"][0]["closed_month"].startswith("2024-09")
+    assert data["history"][-1]["closed_month"].startswith("2026-08")
+    assert data["last_closed_month"] == "2026-08-01"
     assert all("mediana" in p for p in data["history"])
 
 
@@ -288,12 +294,52 @@ def test_get_stats():
     data = response.json()
     assert data["total_companies"] == 1286
     assert data["latest_as_of"] == "2026-09-01"
+    assert data["calendar"]["as_of"] == "2026-09-01"
+    assert data["calendar"]["last_closed_month"] == "2026-08-01"
+    assert data["calendar"]["partial_month"] == "2026-09-01"
+    assert data["calendar"]["partial_month_days"] == 1
+    assert "1-sep" in data["calendar"]["partial_month_label"]
     assert "distribution_by_state" in data
     assert data["risk_companies_count"] > 0
     assert data["risk_percentage"] > 0.0
     assert data["total_transactions_count"] > 2000000
     assert data["total_invoices_count"] > 800000
     assert data["total_overdue_volume"] > 0
+
+
+def test_calendar_endpoint():
+    """El dataset declara agosto 2026 como último mes cerrado y septiembre como foto de 1 día."""
+    response = client.get("/api/calendar")
+    assert response.status_code == 200
+    data = response.json()
+    assert data["as_of"] == "2026-09-01"
+    assert data["last_closed_month"] == "2026-08-01"
+    assert data["partial_month"] == "2026-09-01"
+    assert data["partial_month_days"] == 1
+    assert "1 día" in data["partial_month_label"]
+
+
+def test_portfolio_uses_closed_month_on_trajectory():
+    """La trayectoria de cartera no presenta septiembre como mes cerrado."""
+    response = client.get("/api/portfolio")
+    assert response.status_code == 200
+    data = response.json()
+    assert data["as_of"] == "2026-09-01"
+    assert data["calendar"]["last_closed_month"] == "2026-08-01"
+    assert data["trajectory"]
+    assert data["trajectory"][0]["as_of"].startswith("2024-10")
+    assert data["trajectory"][-1]["as_of"].startswith("2026-09")
+    assert data["trajectory"][0]["closed_month"].startswith("2024-09")
+    assert data["trajectory"][-1]["closed_month"].startswith("2026-08")
+    assert all(not point["closed_month"].startswith("2026-09") for point in data["trajectory"])
+
+
+def test_company_detail_exposes_last_closed_month():
+    response = client.get("/api/companies/COMP_0010")
+    assert response.status_code == 200
+    data = response.json()
+    assert data["as_of"].startswith("2026-09")
+    assert data["last_closed_month"] == "2026-08-01"
 
 
 def test_get_groups():
@@ -307,3 +353,12 @@ def test_get_groups():
     assert "group_id" in first
     assert "company_count" in first
     assert "average_score" in first
+
+
+def test_get_groups_honors_limit_and_reports_total():
+    """El catálogo respeta el límite solicitado sin perder el total real."""
+    response = client.get("/api/groups?limit=1")
+    assert response.status_code == 200
+    data = response.json()
+    assert data["total"] > len(data["groups"])
+    assert len(data["groups"]) == 1

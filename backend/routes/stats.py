@@ -3,10 +3,12 @@ Endpoints de estadísticas globales, KPIs de cartera, grupos corporativos y salu
 """
 
 from datetime import datetime
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Query
 
+from backend.calendar import DATA_CUTOFF, calendar_fields, closed_month_iso
 from backend.database import DB_PATH, query_dicts, query_one
 from backend.schemas import (
+    DataCalendar,
     GroupCompanyItem,
     PortfolioCompanyItem,
     PortfolioHistogramBucket,
@@ -21,6 +23,19 @@ from backend.schemas import (
 )
 
 router = APIRouter(tags=["Estadísticas y Salud"])
+
+
+@router.get("/api/calendar", response_model=DataCalendar)
+def get_data_calendar():
+    """
+    Tres relojes del dataset congelado.
+
+    `as_of` es el corte oficial (snapshot ERP/saldos y último score).
+    `last_closed_month` es agosto de 2026, el último ciclo completo de
+    transacciones. `partial_month` es el 1-sep: un día suelto que no entra
+    en medias ni comparativas mensuales.
+    """
+    return DataCalendar(**calendar_fields())
 
 
 @router.get("/api/stats", response_model=StatsResponse)
@@ -42,7 +57,7 @@ def get_portfolio_stats():
     """)
 
     total_companies = score_stats["total_companies"] if score_stats else 0
-    latest_as_of = str(score_stats["latest_as_of"]) if score_stats and score_stats["latest_as_of"] else "2026-09-01"
+    latest_as_of = str(score_stats["latest_as_of"]) if score_stats and score_stats["latest_as_of"] else DATA_CUTOFF.isoformat()
     risk_count = score_stats["risk_companies_count"] if score_stats else 0
     risk_pct = round((risk_count / total_companies * 100.0), 2) if total_companies > 0 else 0.0
     avg_score = float(score_stats["average_score"]) if score_stats and score_stats["average_score"] is not None else 0.0
@@ -77,6 +92,7 @@ def get_portfolio_stats():
     return StatsResponse(
         total_companies=total_companies,
         latest_as_of=latest_as_of,
+        calendar=DataCalendar(**calendar_fields()),
         distribution_by_state=distribution,
         risk_companies_count=risk_count,
         risk_percentage=risk_pct,
@@ -153,7 +169,7 @@ def get_portfolio(top: int = 10, per_segment: int = 8):
             count(*) FILTER (WHERE state IN ('MEJORANDO', 'RECUPERACION')) AS improving_companies_count
         FROM v_latest_company_scores;
     """) or {}
-    as_of = str(kpi.get("latest_as_of") or "2026-09-01")
+    as_of = str(kpi.get("latest_as_of") or DATA_CUTOFF.isoformat())
 
     alerts_row = query_one("SELECT count(*) AS cnt FROM alerts WHERE as_of = ?;", (as_of,))
 
@@ -185,6 +201,7 @@ def get_portfolio(top: int = 10, per_segment: int = 8):
     trajectory = [
         PortfolioTrajectoryPoint(
             as_of=str(r["as_of"]),
+            closed_month=closed_month_iso(r["as_of"]),
             average_score=float(r["average_score"]),
             median_score=float(r["median_score"]),
             eligible_companies=int(r["eligible_companies"]),
@@ -223,6 +240,7 @@ def get_portfolio(top: int = 10, per_segment: int = 8):
 
     return PortfolioResponse(
         as_of=as_of,
+        calendar=DataCalendar(**calendar_fields()),
         total_companies=int(kpi.get("total_companies") or 0),
         eligible_companies=int(kpi.get("eligible_companies") or 0),
         average_score=float(kpi.get("average_score") or 0.0),
@@ -242,7 +260,7 @@ def get_portfolio(top: int = 10, per_segment: int = 8):
 
 
 @router.get("/api/groups", response_model=GroupListResponse)
-def get_groups():
+def get_groups(limit: int = Query(250, ge=1, le=500, description="Cantidad máxima de grupos a devolver")):
     """
     Lista los grupos corporativos con métricas agregadas de empresas, score medio y riesgo.
     """
@@ -256,8 +274,9 @@ def get_groups():
         FROM groups g
         LEFT JOIN v_latest_company_scores s ON g.group_id = s.group_id
         GROUP BY g.group_id, g.erp
-        ORDER BY company_count DESC, average_score ASC;
-    """)
+        ORDER BY company_count DESC, average_score ASC, g.group_id ASC
+        LIMIT ?;
+    """, (limit,))
 
     groups = [
         GroupItem(
@@ -270,7 +289,9 @@ def get_groups():
         for row in rows
     ]
 
-    return GroupListResponse(total=len(groups), groups=groups)
+    total_row = query_one("SELECT count(*) AS total FROM groups;")
+    total = int(total_row["total"]) if total_row else 0
+    return GroupListResponse(total=total, groups=groups)
 
 
 def normalize_group_id(raw_id: str) -> str:

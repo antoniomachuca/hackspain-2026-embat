@@ -1,12 +1,14 @@
 "use client";
 import { useState } from "react";
 import type { Episodio, Punto } from "@/lib/data";
+import { mesCerradoDeAsOf } from "@/lib/calendar";
 import { num } from "@/lib/format";
 import { Trayectoria } from "./charts";
 
 const MESES = ["ene", "feb", "mar", "abr", "may", "jun", "jul", "ago", "sep", "oct", "nov", "dic"];
 const mesAno = (iso: string) => {
-  const [a, m] = iso.split("-");
+  const cerrado = mesCerradoDeAsOf(iso);
+  const [a, m] = cerrado.split("-");
   return `${MESES[+m - 1]} ${a}`;
 };
 
@@ -17,17 +19,11 @@ const ESTADOS_MOTOR: Record<string, string> = {
 };
 
 function fraseConfirmacion(ep: Episodio): string {
-  const n = ep.meses_anticipacion;
-  switch (ep.estado_confirmacion) {
-    case "confirmado":
-      if (n != null && n > 0) return `detectado ${n} ${n === 1 ? "mes" : "meses"} antes del cambio material`;
-      if (n === 0) return "detectado el mismo mes del cambio material";
-      return `el cambio material se había producido ${Math.abs(n ?? 0)} ${Math.abs(n ?? 0) === 1 ? "mes" : "meses"} antes: detección tardía`;
-    case "pendiente":
-      return "cambio material pendiente de confirmación";
-    case "no_confirmado":
-      return "no se confirmó cambio material";
+  const n = ep.perspectiva?.meses_antes_deteccion;
+  if (ep.perspectiva && n != null) {
+    return `la perspectiva se vio ${n} ${n === 1 ? "mes" : "meses"} antes de la detección`;
   }
+  return ep.direccion === "deterioro" ? "giro persistente" : "mejora persistente";
 }
 
 const COLOR = { deterioro: "var(--color-warm)", mejora: "var(--color-success)" } as const;
@@ -79,7 +75,10 @@ export function EpisodiosPanel({ episodios, destacado, trayectoria }: {
         </div>
         {episodios.length > 1 && (
           <button
+            type="button"
             onClick={() => setAbierto((v) => !v)}
+            aria-expanded={abierto}
+            aria-controls="historico-episodios"
             className="rounded-md border border-[var(--color-line-2)] px-3 py-1.5 text-[12px] text-[var(--color-ink-2)] hover:bg-[var(--color-surface-3)]"
           >
             {abierto ? "Ocultar histórico" : `Ver histórico (${episodios.length})`}
@@ -91,21 +90,30 @@ export function EpisodiosPanel({ episodios, destacado, trayectoria }: {
         <Trayectoria
           datos={trayectoria}
           deteccion={{
-            mes: ep.deteccion.slice(0, 7),
+            mes: mesCerradoDeAsOf(ep.deteccion),
             direccion: ep.direccion,
-            texto: ep.texto,
             senales: ep.senales,
           }}
+          camino={ep.perspectiva ? {
+            mes: mesCerradoDeAsOf(ep.perspectiva.as_of),
+            scoreProyectado: ep.perspectiva.score_proyectado,
+            familia: ep.familia,
+          } : undefined}
           altura={210}
         />
+        <p className="mt-2 text-center text-[12px] leading-relaxed text-[var(--color-ink-2)]">
+          {ep.texto}
+        </p>
       </div>
 
       {abierto && (
-        <div className="mt-4 space-y-1 border-t border-[var(--color-line)] pt-3">
+        <div id="historico-episodios" className="mt-4 space-y-1 border-t border-[var(--color-line)] pt-3">
           {episodios.map((x, i) => (
             <button
+              type="button"
               key={i}
               onClick={() => setSel(i)}
+              aria-pressed={i === sel}
               className={`fila flex w-full items-center justify-between gap-3 rounded-md px-3 py-2 text-left text-[12px] ${
                 i === sel ? "bg-[var(--color-surface-3)]" : ""
               }`}

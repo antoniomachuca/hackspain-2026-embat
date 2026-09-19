@@ -2,7 +2,7 @@ import json
 
 import numpy as np
 
-from algorythm.score_episodes import EpisodeConfig, SIGNAL_KEYS, build_episodes, month_diff
+from algorythm.score_episodes import EpisodeConfig, SIGNAL_KEYS, build_episodes, episodes_for_company, month_diff
 
 
 def make_panels(states_rows, base_health_rows, signals=None, months=24):
@@ -51,8 +51,8 @@ def test_deterioro_ramp_with_escalada_and_delta_10():
     assert ep['estado_confirmacion'] == 'confirmado'
     assert ep['cierre'] == '2025-07-01' and ep['motivo_cierre'] == 'estabilizacion'
     assert ep['senales'][0]['senal'] == 'liquidez' and ep['senales'][0]['delta_puntos'] == -4.
-    assert 'señales de deterioro en oct 2024' in ep['texto']
-    assert 'se confirmó 4 meses después' in ep['texto']
+    assert ep['texto'] == 'Giro persistente de salud (cobros, gastos o deuda).'
+    assert 'cambio material' not in ep['texto']
     assert result['C0']['episodio_destacado'] == 0
     assert result['C0']['trayectoria_marcas']['deteccion']['as_of'] == '2024-10-01'
 
@@ -69,6 +69,7 @@ def test_mejora_with_positive_signals_and_banda_70():
     assert ep['cambio_material'] == '2025-01-01' and ep['meses_anticipacion'] == 3
     assert all(s['delta_puntos'] > 0 for s in ep['senales'])
     assert 'señales de mejora' in ep['texto']
+    assert 'cambio material' not in ep['texto']
 
 
 def test_closed_without_material_change_is_no_confirmado():
@@ -78,7 +79,8 @@ def test_closed_without_material_change_is_no_confirmado():
     ep = result['C0']['episodios'][0]
     assert ep['cierre'] == '2025-02-01' and ep['motivo_cierre'] == 'estabilizacion'
     assert ep['estado_confirmacion'] == 'no_confirmado' and ep['cambio_material'] is None
-    assert 'No se confirmó un cambio material' in ep['texto']
+    assert ep['texto'] == 'Giro persistente de salud (cobros, gastos o deuda).'
+    assert 'cambio material' not in ep['texto']
 
 
 def test_late_detection_has_negative_anticipation():
@@ -88,7 +90,8 @@ def test_late_detection_has_negative_anticipation():
     ep = result['C0']['episodios'][0]
     assert ep['cambio_material'] == '2024-09-01'  # second month of the 7-8 run
     assert ep['meses_anticipacion'] == -1
-    assert 'detección tardía' in ep['texto']
+    assert 'detección tardía' not in ep['texto']
+    assert 'cambio material' not in ep['texto']
 
 
 def test_direction_flip_closes_and_opens_new_episode():
@@ -174,3 +177,29 @@ def test_direct_mejorando_to_recuperacion_is_escalada():
     assert len(episodios) == 1
     assert episodios[0]['direccion'] == 'mejora' and episodios[0]['estado_deteccion'] == 'MEJORANDO'
     assert episodios[0]['escaladas'] == [{'as_of': '2024-10-01', 'estado': 'RECUPERACION'}]
+
+
+def test_bache_does_not_increment_close_counter():
+    # T T T | B B | E E  — dos baches no cierran; cierran los dos ESTABLE siguientes.
+    states = ['ESTABLE'] * 6 + ['TORCIENDOSE'] * 3 + ['BACHE'] * 2 + ['ESTABLE'] * 13
+    result = build_episodes(make_panels([states], [[70.] * 24]))
+    ep = result['C0']['episodios'][0]
+    assert ep['cierre'] == '2025-01-01' and ep['motivo_cierre'] == 'estabilizacion'
+    assert ep['deteccion'] == '2024-07-01'
+
+
+def test_two_consecutive_baches_do_not_close():
+    states = ['ESTABLE'] * 6 + ['TORCIENDOSE'] * 16 + ['BACHE'] * 2
+    result = build_episodes(make_panels([states], [[70.] * 24]))
+    ep = result['C0']['episodios'][0]
+    assert ep['estado'] == 'activo' and ep['cierre'] is None
+
+
+def test_episodes_for_company_matches_full_build():
+    states = ['ESTABLE'] * 9 + ['TORCIENDOSE'] * 3 + ['ESTABLE'] * 12
+    panels = make_panels([states, ['ESTABLE'] * 24], [[60.] * 24, [70.] * 24])
+    full = build_episodes(panels)
+    one = episodes_for_company('C0', panels)
+    assert one == full['C0']
+    missing = episodes_for_company('NOPE', panels)
+    assert missing['episodios'] == [] and missing['episodio_destacado'] is None

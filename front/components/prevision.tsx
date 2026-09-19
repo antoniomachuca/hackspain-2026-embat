@@ -174,7 +174,8 @@ export function Prevision({
         </div>
         <div className="flex gap-1.5">
           {RANGOS.map((r) => (
-            <button key={r} onClick={() => { setRango(r); setHover(null); }}
+            <button type="button" key={r} onClick={() => { setRango(r); setHover(null); }}
+              aria-pressed={r === rango}
               className={`pildora ${r === rango ? "on" : ""}`} style={{ padding: "5px 13px", fontSize: 12 }}>
               {r}M
             </button>
@@ -305,9 +306,10 @@ export function Prevision({
             texto no se escala con el viewBox. */}
         {hBase && (() => {
           const arribaDelTodo = y(hBase.score) < padT + h * 0.34;
+          const ancla = hover === 0 ? "translate-x-0" : hover === datos.length - 1 ? "-translate-x-full" : "-translate-x-1/2";
           return (
           <div
-            className={`pointer-events-none absolute z-10 -translate-x-1/2 whitespace-nowrap rounded-xl border px-3 py-2 shadow-[0_8px_28px_rgba(0,0,0,.55)] ${arribaDelTodo ? "" : "-translate-y-full"}`}
+            className={`pointer-events-none absolute z-10 ${ancla} max-w-[min(280px,calc(100vw-2rem))] whitespace-normal break-words rounded-xl border px-3 py-2 shadow-[0_8px_28px_rgba(0,0,0,.55)] ${arribaDelTodo ? "" : "-translate-y-full"}`}
             style={{
               left: `${(x(hover!) / ancho) * 100}%`,
               top: `${((y(hBase.score) + (arribaDelTodo ? 16 : -14)) / alto) * 100}%`,

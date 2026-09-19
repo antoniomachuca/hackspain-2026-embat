@@ -75,7 +75,11 @@ export type ApiEpisodio = {
 };
 
 export type ApiCamino = {
-  as_of: string; score_proyectado: number;
+  as_of: string;
+  outlook?: string;
+  score_observado?: number;
+  score_proyectado: number;
+  familia?: string;
 };
 
 export type ApiTrayectoriaMarcas = {
@@ -87,7 +91,9 @@ export type ApiTrayectoriaMarcas = {
 export type ApiEmpresa = {
   company_id: string; group_id: string; currency: string;
   country: string | null; erp: string | null; has_erp: boolean;
-  as_of: string; score: number; base_health: number; state: string;
+  as_of: string;
+  last_closed_month?: string;
+  score: number; base_health: number; state: string;
   momentum: number; delta_3m: number; health_band: string | null;
   data_confidence_index: number; state_eligible: boolean;
   waterfall: ApiWaterfall;
@@ -134,20 +140,24 @@ export type ApiReparto = {
 
 export type ApiHistoria = {
   company_id: string; months: number;
+  last_closed_month?: string;
   history: Array<{
-    as_of: string; score: number; base_health: number; state: string;
+    as_of: string;
+    closed_month?: string;
+    score: number; base_health: number; state: string;
     momentum: number; data_confidence_index: number;
     reparto?: ApiReparto;
   } & Omit<ApiWaterfall, "clipping_points">>;
 };
 
-export type ApiPeerPoint = { mes: string; mediana: number };
+export type ApiPeerPoint = { mes: string; closed_month?: string; mediana: number };
 
 export type ApiPeersResponse = {
   company_id: string;
   quartile: number;
   label: string;
   n_companies: number;
+  last_closed_month?: string;
   history: ApiPeerPoint[];
 };
 
@@ -158,7 +168,7 @@ export type ApiPalanca = {
 };
 
 export type ApiSugerencia = {
-  id: string; familia: string; delta_score: number;
+  id: string; familia: string; delta_score: number | null;
   caja_liberada_eur: number | null; eur_año: number | null;
   days: number | null; pct: number | null; haircut: number | null;
   agreement_type: string | null; warnings: string[]; label: string;
@@ -191,8 +201,17 @@ export type ApiWhatIfResponse = {
   executive_message: string;
 };
 
+export type ApiCalendar = {
+  as_of: string;
+  last_closed_month: string;
+  partial_month: string;
+  partial_month_label: string;
+  partial_month_days: number;
+};
+
 export type ApiStats = {
   total_companies: number; latest_as_of: string;
+  calendar?: ApiCalendar;
   distribution_by_state: Record<string, number>;
   risk_companies_count: number; risk_percentage: number;
   average_score: number; median_score: number;
@@ -322,13 +341,14 @@ export type ApiPortfolioSegment = {
 
 export type ApiPortfolio = {
   as_of: string;
+  calendar?: ApiCalendar;
   total_companies: number; eligible_companies: number;
   average_score: number; median_score: number;
   risk_companies_count: number; improving_companies_count: number; alerts_last_month: number;
   distribution_by_state: Record<string, number>;
   distribution_by_band: Record<string, number>;
   histogram: Array<{ bucket: number; count: number }>;
-  trajectory: Array<{ as_of: string; average_score: number; median_score: number; eligible_companies: number }>;
+  trajectory: Array<{ as_of: string; closed_month?: string; average_score: number; median_score: number; eligible_companies: number }>;
   top_score: ApiPortfolioItem[]; top_growth: ApiPortfolioItem[]; top_decline: ApiPortfolioItem[];
   segments: ApiPortfolioSegment[];
 };

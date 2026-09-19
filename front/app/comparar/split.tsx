@@ -4,7 +4,8 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import type { Empresa } from "@/lib/data";
 import type { OpcionComparar } from "@/lib/motor";
-import { num, mesCorto } from "@/lib/format";
+import { LAST_CLOSED_MONTH, mesCerradoDeAsOf } from "@/lib/calendar";
+import { num, mesCorto, mesCortoCerrado } from "@/lib/format";
 import { Cabecera } from "@/components/shell";
 import { Trayectoria } from "@/components/charts";
 import { Card, ScoreBadge, BandaChip, EstadoChip, Delta } from "@/components/ui";
@@ -39,8 +40,8 @@ export default function SplitScreen({
   const epSube = ultimo(sube, "mejora");
   const frase = (ep: NonNullable<typeof epBaja>, verbo: string) =>
     ep.estado === "activo"
-      ? `lleva ${verbo} desde ${mesCorto(ep.deteccion.slice(0, 7))}, cuando detectamos las primeras señales.`
-      : `tuvo un episodio de ${ep.direccion} detectado en ${mesCorto(ep.deteccion.slice(0, 7))} y cerrado en ${mesCorto((ep.cierre ?? ep.deteccion).slice(0, 7))}.`;
+      ? `lleva ${verbo} desde ${mesCortoCerrado(ep.deteccion)}, cuando detectamos las primeras señales.`
+      : `tuvo un episodio de ${ep.direccion} detectado en ${mesCortoCerrado(ep.deteccion)} y cerrado en ${mesCortoCerrado(ep.cierre ?? ep.deteccion)}.`;
 
   return (
     <>
@@ -99,12 +100,12 @@ export default function SplitScreen({
             { emp: baja, rol: "baja" as const, opts: opcionesBaja, onSelect: cambiarBaja },
           ].map(({ emp: e, rol, opts, onSelect }) => {
             const primerScore = e.trayectoria[0]?.score ?? 50;
-            const ultimoMes = e.trayectoria[e.trayectoria.length - 1]?.mes ?? "2026-09";
+            const ultimoMes = e.trayectoria[e.trayectoria.length - 1]?.mes ?? LAST_CLOSED_MONTH.slice(0, 7);
             // El gráfico marca el mismo episodio que describe el texto: el último de la dirección del rol.
             const ep = rol === "sube" ? epSube : epBaja;
             return (
               <Card key={e.id} className="overflow-hidden">
-                <div className="flex items-start justify-between gap-4 border-b border-[var(--color-line)] px-5 py-4">
+                <div className="grid grid-cols-[minmax(0,1fr)_auto] items-start gap-2 border-b border-[var(--color-line)] px-5 py-4 sm:flex sm:justify-between sm:gap-4">
                   <div className="min-w-0 flex-1">
                     <div className="flex items-center gap-2">
                       <Link
@@ -147,9 +148,17 @@ export default function SplitScreen({
                   <div className="px-3 py-4">
                     <Trayectoria
                       datos={e.trayectoria}
-                      deteccion={ep ? { mes: ep.deteccion.slice(0, 7), direccion: ep.direccion, texto: ep.texto, senales: ep.senales } : undefined}
+                      deteccion={ep ? { mes: mesCerradoDeAsOf(ep.deteccion), direccion: ep.direccion, senales: ep.senales } : undefined}
+                      camino={ep?.perspectiva ? {
+                        mes: mesCerradoDeAsOf(ep.perspectiva.as_of),
+                        scoreProyectado: ep.perspectiva.score_proyectado,
+                        familia: ep.familia,
+                      } : undefined}
                       altura={200}
                     />
+                    {ep?.texto && (
+                      <p className="px-3 pt-1 text-center text-[12px] leading-relaxed text-[var(--color-ink-2)]">{ep.texto}</p>
+                    )}
                     <div className="flex items-center justify-between px-3 pt-2 text-[12px]">
                       <span className="tnum text-[var(--color-ink-3)]">
                         mes 1: {num(primerScore)} → mes 24: {num(e.score)}

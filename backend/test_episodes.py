@@ -1,4 +1,4 @@
-"""Detalle de empresa con episodios del snapshot del motor (episodes.json)."""
+"""Detalle de empresa con episodios calculados al vuelo sobre el recorte del motor."""
 from fastapi.testclient import TestClient
 
 from backend.main import app

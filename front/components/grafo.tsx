@@ -38,12 +38,11 @@ const UMBRAL_ARRASTRE = 8;
 
 const ORIGEN: Camara = { x: 0, y: 0, k: 1 };
 
-export function Grafo({ nodos, aristas, vista = "auto", destacar, alto = 520 }: {
+export function Grafo({ nodos, aristas, destacar, alto = 520 }: {
   nodos: ApiGrafoNodo[]; aristas: ApiGrafoArista[]; vista?: Vista; destacar?: string; alto?: number;
 }) {
   const [layout, setLayout] = useState<{ nodos: Nodo[]; aristas: Arista[] } | null>(null);
   const [hover, setHover] = useState<{ x: number; y: number; texto: React.ReactNode } | null>(null);
-  const [modo, setModo] = useState<"embat" | "empresa">("empresa");
   const [gestoUi, setGestoUi] = useState<"pan" | "nodo" | null>(null);
   const router = useRouter();
 
@@ -127,14 +126,9 @@ export function Grafo({ nodos, aristas, vista = "auto", destacar, alto = 520 }: 
 
   useEffect(() => () => { pararAnimacion(); if (temporizador.current) clearTimeout(temporizador.current); }, []);
 
-  // Los dos effects fijan estado a propósito: sessionStorage y el layout solo existen
-  // en el navegador, y calcularlos en el servidor daría una hidratación distinta.
+  // El layout solo existe en el navegador; calcularlo en el servidor daría una
+  // hidratación distinta.
   /* eslint-disable react-hooks/set-state-in-effect */
-  useEffect(() => {
-    if (vista !== "auto") { setModo(vista); return; }
-    try { const v = sessionStorage.getItem("xray:modo"); if (v === "embat" || v === "empresa") setModo(v); } catch {}
-  }, [vista]);
-
   useEffect(() => {
     const maxEur = Math.max(1, ...nodos.map((n) => n.eur_in + n.eur_out));
     const ns: Nodo[] = nodos.map((n) => ({
@@ -336,6 +330,9 @@ export function Grafo({ nodos, aristas, vista = "auto", destacar, alto = 520 }: 
   }
 
   const cursor = gestoUi === "pan" || gestoUi === "nodo" ? "grabbing" : "grab";
+  const tooltipMaxWidth = hover ? Math.min(320, window.innerWidth - 24) : 0;
+  const tooltipLeft = hover ? Math.max(12, Math.min(hover.x + 12, window.innerWidth - tooltipMaxWidth - 12)) : 0;
+  const tooltipTop = hover ? Math.max(12, Math.min(hover.y + 12, window.innerHeight - 112)) : 0;
 
   return (
     <div className="relative">
@@ -494,8 +491,8 @@ export function Grafo({ nodos, aristas, vista = "auto", destacar, alto = 520 }: 
           hijos `fixed`. Dentro de ella, las coordenadas del ratón se
           desplazaban y el globo caía fuera de la vista. */}
       {hover && !gestoUi && createPortal(
-        <div className="glass pointer-events-none fixed z-50 rounded-xl px-3 py-2 text-[12px]"
-          style={{ left: hover.x + 12, top: hover.y + 12 }}>
+        <div className="glass pointer-events-none fixed z-50 max-w-[min(320px,calc(100vw-1.5rem))] break-words rounded-xl px-3 py-2 text-[12px]"
+          style={{ left: tooltipLeft, top: tooltipTop, maxHeight: "calc(100vh - 24px)", overflowY: "auto" }}>
           {hover.texto}
         </div>,
         document.body,

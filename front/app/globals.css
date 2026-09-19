@@ -136,8 +136,12 @@ body::before {
 .panel-lat.cerrado { width: 76px; }
 
 @media (max-width: 639px) {
+  /* `.panel-lat` is a flex container, so it wins over Tailwind's `hidden`
+     utility by source order. Keep the drawer out of the layout until the
+     mobile trigger adds the explicit `movil` state. */
+  .panel-lat { display: none; }
   .panel-lat.movil,
-  .panel-lat.movil.cerrado { position: fixed; inset: 0 auto 0 0; z-index: 50; width: 272px; }
+  .panel-lat.movil.cerrado { display: flex; position: fixed; inset: 0 auto 0 0; z-index: 50; width: 272px; }
 }
 
 .pl-cab {
@@ -517,4 +521,3 @@ input[type="range"]::-moz-range-thumb {
   box-shadow: 0 0 0 1.5px rgba(176,131,232,.55), 0 1px 3px rgba(0,0,0,.5);
 }
 input[type="range"]:focus-visible { outline: 2px solid var(--color-purple); outline-offset: 4px; border-radius: 6px; }
-

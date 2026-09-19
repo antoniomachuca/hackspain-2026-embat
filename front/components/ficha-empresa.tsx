@@ -5,7 +5,8 @@
  */
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { MES_ACTUAL } from "@/lib/data";
+import { CORTE_AS_OF, MES_ACTUAL } from "@/lib/data";
+import { LAST_CLOSED_MONTH } from "@/lib/calendar";
 import { eur, num, mesCorto, banda } from "@/lib/format";
 import { cargarEmpresa, cargarRecomendaciones, cargarFiliales, cargarTrayectoriasFiliales, cargarPrevision, nombreDe } from "@/lib/motor";
 import { SEGMENTOS, segmentoDe } from "@/lib/cartera";
@@ -73,7 +74,7 @@ export async function FichaEmpresa({ id, vista }: { id: string; vista: Vista }) 
     momentum: f.momentum,
     estado: f.state,
     mesesHistoria: f.state_eligible ? 24 : 8,
-    trayectoria: [{ mes: "2026-09", score: f.score, nivel: f.base_health }],
+    trayectoria: [{ mes: LAST_CLOSED_MONTH.slice(0, 7), score: f.score, nivel: f.base_health }],
   }));
 
   const trayectorias = await cargarTrayectoriasFiliales(filiales.map((f) => f.id), 12);
@@ -90,25 +91,8 @@ export async function FichaEmpresa({ id, vista }: { id: string; vista: Vista }) 
   const consolidado = Math.round((0.65 * mediaGrupo + 0.35 * peorScore) * 10) / 10;
   const penalizacion = peorScore < 40 ? Math.round((40 - peorScore) * 0.25 * 10) / 10 : 0;
 
-  // Sugerencias contrafactuales del motor y What-If
   const recomendada = rk?.recomendado ?? null;
-  const rawSugerencias = rk?.sugerencias ?? [];
-  const vistas = new Set<string>();
-  const palancasSalud: typeof rawSugerencias = [];
-
-  if (recomendada?.id) {
-    vistas.add(recomendada.id);
-    palancasSalud.push(recomendada);
-  }
-
-  for (const s of rawSugerencias) {
-    if (!vistas.has(s.id)) {
-      vistas.add(s.id);
-      palancasSalud.push(s);
-    }
-  }
-
-  const whatif = rk?.whatif ?? null;
+  const circulante = rk?.opcionesCirculante ?? [];
 
   return (
     <>
@@ -117,9 +101,9 @@ export async function FichaEmpresa({ id, vista }: { id: string; vista: Vista }) 
         sub={
           <>
             {embat ? <>{e.id} · Grupo {e.grupo.replace("GROUP_", "")} · </> : <>{e.sector} · </>}
-            {mesCorto(MES_ACTUAL)} ·{" "}
+            {mesCorto(MES_ACTUAL)} · corte 1-sep ·{" "}
             <span className="tnum text-[var(--color-ink-4)]">
-              motor conectado · {e.moneda}
+              {e.moneda}
               {rk?.modelVersion ? ` · ${rk.modelVersion.slice(0, 8)}` : ""}
             </span>
           </>
@@ -163,12 +147,6 @@ export async function FichaEmpresa({ id, vista }: { id: string; vista: Vista }) 
               </div>
               <p className="mt-1.5 text-[12.5px] leading-relaxed text-[var(--color-ink-2)]">
                 {seg?.accion ?? "Estable, sin señal de cambio: solo observar."}
-                {whatif && (
-                  <span className="text-[var(--color-ink-3)]">
-                    {" "}<strong className="font-medium text-[var(--color-ink-1)]">{whatif.recommended_product}</strong>
-                    {" "}· {eur(whatif.injection_amount)} → {whatif.delta_score >= 0 ? "+" : "−"}{num(Math.abs(whatif.delta_score))} pts.
-                  </span>
-                )}
               </p>
             </div>
 
@@ -184,6 +162,18 @@ export async function FichaEmpresa({ id, vista }: { id: string; vista: Vista }) 
               <EstadoChip estado={e.estado} />
             </div>
           </div>
+          {recomendada && (
+            <p className="mt-2 text-[11.5px] text-[var(--color-ink-3)]">
+              Palanca del motor:{" "}
+              <strong className="font-medium text-[var(--color-ink-2)]">{recomendada.label.replace(/\s*\(.*\)$/, "")}</strong>
+              {recomendada.caja_liberada_eur != null && recomendada.caja_liberada_eur > 0 && (
+                <> · {eur(recomendada.caja_liberada_eur)} caja</>
+              )}
+              {recomendada.delta_score != null
+                ? <> · {recomendada.delta_score >= 0 ? "+" : ""}{num(recomendada.delta_score)} pts</>
+                : " · circulante, no mueve el score"}
+            </p>
+          )}
         </Card>
       )}
 
@@ -215,7 +205,7 @@ export async function FichaEmpresa({ id, vista }: { id: string; vista: Vista }) 
 
       {/* ── Score de la Empresa y Trayectoria ─────────────────────── */}
       <div className="grid gap-5 xl:grid-cols-[296px_1fr]">
-        <Card className="relative flex flex-col items-center overflow-hidden px-6 py-6">
+        <Card className="relative min-w-0 flex flex-col items-center overflow-hidden px-6 py-6">
           <div
             className="pointer-events-none absolute -top-24 left-1/2 h-56 w-56 -translate-x-1/2 rounded-full opacity-35 blur-3xl"
             style={{ background: "radial-gradient(circle, rgba(176,131,232,.55), transparent 70%)" }}
@@ -242,17 +232,23 @@ export async function FichaEmpresa({ id, vista }: { id: string; vista: Vista }) 
               <Dato k="Días de Caja" v={`${num(e.diasCaja, 1)} días`} />
               <Dato k="DSO / DPO" v={`${num(e.dso, 1)} d / ${num(e.dpo, 1)} d`} />
               {e.utilizacionLinea > 0 && <Dato k="Utilización Línea" v={`${num(e.utilizacionLinea)}%`} />}
-              <Dato k="Corte Analítico" v={MES_ACTUAL} />
+              <Dato k="Corte analítico" v={CORTE_AS_OF} />
+              <Dato k="Último mes cerrado" v={MES_ACTUAL} />
               <Dato k="Grupo Corporativo" v={e.grupo} />
               <Dato k="Historia" v={`${e.mesesHistoria} meses`} />
             </div>
           </div>
         </Card>
 
-        <Card className="px-6 py-5">
-          <div className="mb-3 flex items-center justify-between">
-            <h2 className="text-[15px] font-semibold tracking-tight">Histórico y proyección (24 meses)</h2>
-            <span className="text-[11px] text-[var(--color-ink-4)]">{e.id} · DuckDB Single Source of Truth</span>
+        <Card className="min-w-0 px-6 py-5">
+          <div className="mb-3 flex min-w-0 items-start justify-between gap-3">
+            <h2 className="min-w-0 flex-1 text-[15px] font-semibold tracking-tight">Histórico y proyección (24 meses)</h2>
+            <span
+              className="min-w-0 max-w-[48%] truncate text-right text-[11px] text-[var(--color-ink-4)]"
+              title={`${e.id} · DuckDB Single Source of Truth`}
+            >
+              {e.id} · DuckDB Single Source of Truth
+            </span>
           </div>
           <Prevision
             datos={e.trayectoria}
@@ -263,9 +259,7 @@ export async function FichaEmpresa({ id, vista }: { id: string; vista: Vista }) 
             reparto={e.reparto}
             inflexion={e.inflexion}
           />
-          <p className="mt-3 text-center text-[11px] leading-relaxed text-[var(--color-ink-4)]">
-            Serie temporal directa de <code className="text-[10px]">xray.duckdb</code> calculada con el motor aditivo.
-          </p>
+
         </Card>
       </div>
 
@@ -308,8 +302,8 @@ export async function FichaEmpresa({ id, vista }: { id: string; vista: Vista }) 
             <Palancas
               empresa={e}
               sugerencias={rk?.sugerencias}
+              circulante={circulante}
               palancas={rk?.palancas}
-              whatif={whatif}
               recomendado={recomendada}
             />
           </div>
@@ -347,18 +341,18 @@ export async function FichaEmpresa({ id, vista }: { id: string; vista: Vista }) 
 
 function Dato({ k, v }: { k: string; v: string }) {
   return (
-    <div className="flex items-baseline justify-between gap-3">
-      <span className="text-[12px] text-[var(--color-ink-3)]">{k}</span>
-      <span className="tnum text-[12.5px] font-medium">{v}</span>
+    <div className="flex min-w-0 items-baseline justify-between gap-3">
+      <span className="min-w-0 truncate text-[12px] text-[var(--color-ink-3)]">{k}</span>
+      <span className="tnum min-w-0 truncate text-right text-[12.5px] font-medium" title={v}>{v}</span>
     </div>
   );
 }
 
 function Mini({ k, v }: { k: string; v: string }) {
   return (
-    <div className="text-center">
-      <p className="text-[10.5px] uppercase tracking-wider text-[var(--color-ink-4)]">{k}</p>
-      <p className="tnum mt-1 text-[17px] font-semibold leading-none">{v}</p>
+    <div className="min-w-0 text-center">
+      <p className="truncate text-[10.5px] uppercase tracking-wider text-[var(--color-ink-4)]" title={k}>{k}</p>
+      <p className="tnum mt-1 truncate text-[17px] font-semibold leading-none" title={v}>{v}</p>
     </div>
   );
 }

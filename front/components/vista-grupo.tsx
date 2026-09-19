@@ -100,7 +100,7 @@ export async function VistaGrupo({ g, base }: { g: GrupoDetalle; base: "" | "/em
         <Card className="mt-5">
           <CardHead titulo="Filial más débil" sub={peor ? `${peor.nombre} (${peor.id}) · Score: ${num(peor.score)}` : "Sin datos"} />
           <div className="px-3 py-4">
-            {peor && <Trayectoria datos={peor.trayectoria} deteccion={peor.deteccion} altura={230} />}
+            {peor && <Trayectoria datos={peor.trayectoria} deteccion={peor.deteccion} camino={peor.camino} altura={230} />}
           </div>
         </Card>
 

@@ -15,7 +15,6 @@ if not __package__:
 
 from algorythm.score_data import add_cash_observations, load_bank_panel, load_erp_snapshot, sha256
 from algorythm.score_engine import ScoreConfig, calculate_scores
-from algorythm.score_episodes import build_episodes
 from algorythm.score_monitor import atomic_json, monitor_once
 from algorythm.score_states import StateConfig, classify_states
 
@@ -57,11 +56,6 @@ def export_scores(directory, companies, edges, bank, output, manifest, state_con
         np.savez_compressed(staging / 'score_panels.npz', **panels)
         manifest['panels_sha256'] = sha256(staging / 'score_panels.npz')
         manifest['csv_sha256'] = sha256(staging / 'scores_monthly.csv')
-        episodes = {'model_version': manifest.get('model_version'), 'as_of': edges[-1].isoformat(),
-                    'companies': build_episodes(panels, state_config)}
-        atomic_json(staging / 'episodes.json', episodes)
-        manifest['episodes_sha256'] = sha256(staging / 'episodes.json')
-        os.replace(staging / 'episodes.json', directory / 'episodes.json')
         for filename in ('scores_monthly.csv', 'score_panels.npz'):
             os.replace(staging / filename, directory / filename)
         atomic_json(directory / 'score_manifest.json', manifest)
