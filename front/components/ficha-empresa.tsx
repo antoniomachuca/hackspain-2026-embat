@@ -326,7 +326,7 @@ export async function FichaEmpresa({ id, vista }: { id: string; vista: Vista }) 
             <span className="text-[11px] text-[var(--color-ink-3)]">consolidado</span>
             <span className="tnum text-[24px] font-semibold leading-none"
               style={{ color: banda(consolidado).color }}>{num(consolidado)}</span>
-            <Link href={`/grupo/${e.grupo}`} className="ml-2 text-[11.5px] text-[var(--color-purple)] hover:underline">
+            <Link href={embat ? `/grupo/${e.grupo}` : `/${e.id}/grupo`} className="ml-2 text-[11.5px] text-[var(--color-purple)] hover:underline">
               Ver el grupo
             </Link>
           </div>

@@ -70,7 +70,7 @@ const seccionesDe = (modo: Modo, empresa: string): Seccion[] => [
             label: "X Ray", nota: "Salud financiera y anticipación", icono: I.rayos, href: `/${empresa}`,
             hijos: [
               { href: `/${empresa}`, label: "Resumen", icono: I.panel },
-              { href: "/grupos", label: "Mi grupo", icono: I.grupo },
+              { href: `/${empresa}/grupo`, label: "Mi grupo", icono: I.grupo },
               { href: "/comparar", label: "Escenarios", icono: I.rayos },
             ],
           },
@@ -97,6 +97,13 @@ const seccionesDe = (modo: Modo, empresa: string): Seccion[] => [
     ],
   },
 ];
+
+/** Qué entrada del submenú se enciende. Las raíces ("/" y "/COMP_xxxx") solo en exacto o en sus fichas. */
+function activoHijo(href: string, path: string, empresa: string): boolean {
+  if (href === "/") return path === "/" || path.startsWith("/embat");
+  if (href === `/${empresa}`) return path === href || path.startsWith("/empresa/");
+  return path.startsWith(href);
+}
 
 export function Shell({ children }: { children: React.ReactNode }) {
   const path = usePathname();
@@ -170,7 +177,7 @@ export function Shell({ children }: { children: React.ReactNode }) {
                       <div className="pl-hijos">
                         {m.hijos.map((h) => (
                           <Link key={h.href} href={h.href}
-                            className={`pl-hijo ${(h.href === "/" ? path === "/" || path.startsWith("/embat") : path.startsWith(h.href)) ? "on" : ""}`}>
+                            className={`pl-hijo ${activoHijo(h.href, path, empresa) ? "on" : ""}`}>
                             <Icono width="14" height="14" trazo={h.icono} />
                             {h.label}
                           </Link>
