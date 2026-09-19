@@ -1,0 +1,773 @@
+{
+  "nota": "Fixture de contrato. Mismo shape que GET /api/companies/{id}/history una vez anide `reparto` en cada HistoryPoint. El mes 0 no tiene split.",
+  "shock_index": 12,
+  "shock_as_of": "2025-01-01",
+  "companies": [
+    {
+      "company_id": "DEMO_OPEX",
+      "months": 24,
+      "history": [
+        {
+          "as_of": "2024-01-01",
+          "score": 50.0,
+          "reparto": {
+            "delta": 0.0,
+            "pct_tendencia": 0,
+            "pct_bache": 0,
+            "struct_pts": 0.0,
+            "circ_pts": 0.0,
+            "drivers": []
+          }
+        },
+        {
+          "as_of": "2024-02-01",
+          "score": 50.0,
+          "reparto": {
+            "delta": 0.0,
+            "pct_tendencia": 0,
+            "pct_bache": 0,
+            "struct_pts": 0.0,
+            "circ_pts": 0.0,
+            "drivers": []
+          }
+        },
+        {
+          "as_of": "2024-03-01",
+          "score": 57.8,
+          "reparto": {
+            "delta": 7.79,
+            "pct_tendencia": 100,
+            "pct_bache": 0,
+            "struct_pts": 7.79,
+            "circ_pts": 0.0,
+            "drivers": [
+              {
+                "field": "arrastre",
+                "etiqueta": "Ventana 3 meses",
+                "points": 7.79,
+                "kind": "estructural",
+                "family": "formula",
+                "reason": "arrastre",
+                "razon": "ventana 3 meses"
+              }
+            ]
+          }
+        },
+        {
+          "as_of": "2024-04-01",
+          "score": 57.8,
+          "reparto": {
+            "delta": 0.0,
+            "pct_tendencia": 0,
+            "pct_bache": 0,
+            "struct_pts": 0.0,
+            "circ_pts": 0.0,
+            "drivers": []
+          }
+        },
+        {
+          "as_of": "2024-05-01",
+          "score": 57.8,
+          "reparto": {
+            "delta": 0.0,
+            "pct_tendencia": 0,
+            "pct_bache": 0,
+            "struct_pts": 0.0,
+            "circ_pts": 0.0,
+            "drivers": []
+          }
+        },
+        {
+          "as_of": "2024-06-01",
+          "score": 65.3,
+          "reparto": {
+            "delta": 7.5,
+            "pct_tendencia": 100,
+            "pct_bache": 0,
+            "struct_pts": 7.5,
+            "circ_pts": 0.0,
+            "drivers": [
+              {
+                "field": "arrastre",
+                "etiqueta": "Ventana 3 meses",
+                "points": 7.5,
+                "kind": "estructural",
+                "family": "formula",
+                "reason": "arrastre",
+                "razon": "ventana 3 meses"
+              }
+            ]
+          }
+        },
+        {
+          "as_of": "2024-07-01",
+          "score": 65.3,
+          "reparto": {
+            "delta": 0.0,
+            "pct_tendencia": 0,
+            "pct_bache": 0,
+            "struct_pts": 0.0,
+            "circ_pts": 0.0,
+            "drivers": []
+          }
+        },
+        {
+          "as_of": "2024-08-01",
+          "score": 65.3,
+          "reparto": {
+            "delta": 0.0,
+            "pct_tendencia": 0,
+            "pct_bache": 0,
+            "struct_pts": 0.0,
+            "circ_pts": 0.0,
+            "drivers": []
+          }
+        },
+        {
+          "as_of": "2024-09-01",
+          "score": 65.3,
+          "reparto": {
+            "delta": 0.0,
+            "pct_tendencia": 0,
+            "pct_bache": 0,
+            "struct_pts": 0.0,
+            "circ_pts": 0.0,
+            "drivers": []
+          }
+        },
+        {
+          "as_of": "2024-10-01",
+          "score": 65.3,
+          "reparto": {
+            "delta": 0.0,
+            "pct_tendencia": 0,
+            "pct_bache": 0,
+            "struct_pts": 0.0,
+            "circ_pts": 0.0,
+            "drivers": []
+          }
+        },
+        {
+          "as_of": "2024-11-01",
+          "score": 65.3,
+          "reparto": {
+            "delta": 0.0,
+            "pct_tendencia": 0,
+            "pct_bache": 0,
+            "struct_pts": 0.0,
+            "circ_pts": 0.0,
+            "drivers": []
+          }
+        },
+        {
+          "as_of": "2024-12-01",
+          "score": 65.3,
+          "reparto": {
+            "delta": 0.0,
+            "pct_tendencia": 0,
+            "pct_bache": 0,
+            "struct_pts": 0.0,
+            "circ_pts": 0.0,
+            "drivers": []
+          }
+        },
+        {
+          "as_of": "2025-01-01",
+          "score": 67.0,
+          "reparto": {
+            "delta": 1.71,
+            "pct_tendencia": 100,
+            "pct_bache": 0,
+            "struct_pts": 1.71,
+            "circ_pts": 0.0,
+            "drivers": [
+              {
+                "field": "expenses",
+                "etiqueta": "Gastos",
+                "points": 1.71,
+                "kind": "estructural",
+                "family": "salud",
+                "reason": "opex",
+                "razon": "se queda"
+              }
+            ]
+          }
+        },
+        {
+          "as_of": "2025-02-01",
+          "score": 70.1,
+          "reparto": {
+            "delta": 3.05,
+            "pct_tendencia": 100,
+            "pct_bache": 0,
+            "struct_pts": 3.05,
+            "circ_pts": 0.0,
+            "drivers": [
+              {
+                "field": "arrastre",
+                "etiqueta": "Ventana 3 meses",
+                "points": 3.05,
+                "kind": "estructural",
+                "family": "formula",
+                "reason": "arrastre",
+                "razon": "ventana 3 meses"
+              }
+            ]
+          }
+        },
+        {
+          "as_of": "2025-03-01",
+          "score": 74.1,
+          "reparto": {
+            "delta": 4.01,
+            "pct_tendencia": 100,
+            "pct_bache": 0,
+            "struct_pts": 4.01,
+            "circ_pts": 0.0,
+            "drivers": [
+              {
+                "field": "arrastre",
+                "etiqueta": "Ventana 3 meses",
+                "points": 4.01,
+                "kind": "estructural",
+                "family": "formula",
+                "reason": "arrastre",
+                "razon": "ventana 3 meses"
+              }
+            ]
+          }
+        },
+        {
+          "as_of": "2025-04-01",
+          "score": 73.3,
+          "reparto": {
+            "delta": -0.75,
+            "pct_tendencia": 100,
+            "pct_bache": 0,
+            "struct_pts": -0.75,
+            "circ_pts": 0.0,
+            "drivers": [
+              {
+                "field": "arrastre",
+                "etiqueta": "Ventana 3 meses",
+                "points": -0.75,
+                "kind": "estructural",
+                "family": "formula",
+                "reason": "arrastre",
+                "razon": "ventana 3 meses"
+              }
+            ]
+          }
+        },
+        {
+          "as_of": "2025-05-01",
+          "score": 70.4,
+          "reparto": {
+            "delta": -2.96,
+            "pct_tendencia": 100,
+            "pct_bache": 0,
+            "struct_pts": -2.96,
+            "circ_pts": 0.0,
+            "drivers": [
+              {
+                "field": "arrastre",
+                "etiqueta": "Ventana 3 meses",
+                "points": -2.96,
+                "kind": "estructural",
+                "family": "formula",
+                "reason": "arrastre",
+                "razon": "ventana 3 meses"
+              }
+            ]
+          }
+        },
+        {
+          "as_of": "2025-06-01",
+          "score": 70.4,
+          "reparto": {
+            "delta": 0.0,
+            "pct_tendencia": 0,
+            "pct_bache": 0,
+            "struct_pts": 0.0,
+            "circ_pts": 0.0,
+            "drivers": []
+          }
+        },
+        {
+          "as_of": "2025-07-01",
+          "score": 70.4,
+          "reparto": {
+            "delta": 0.0,
+            "pct_tendencia": 0,
+            "pct_bache": 0,
+            "struct_pts": 0.0,
+            "circ_pts": 0.0,
+            "drivers": []
+          }
+        },
+        {
+          "as_of": "2025-08-01",
+          "score": 70.4,
+          "reparto": {
+            "delta": 0.0,
+            "pct_tendencia": 0,
+            "pct_bache": 0,
+            "struct_pts": 0.0,
+            "circ_pts": 0.0,
+            "drivers": []
+          }
+        },
+        {
+          "as_of": "2025-09-01",
+          "score": 70.4,
+          "reparto": {
+            "delta": 0.0,
+            "pct_tendencia": 0,
+            "pct_bache": 0,
+            "struct_pts": 0.0,
+            "circ_pts": 0.0,
+            "drivers": []
+          }
+        },
+        {
+          "as_of": "2025-10-01",
+          "score": 70.4,
+          "reparto": {
+            "delta": 0.0,
+            "pct_tendencia": 0,
+            "pct_bache": 0,
+            "struct_pts": 0.0,
+            "circ_pts": 0.0,
+            "drivers": []
+          }
+        },
+        {
+          "as_of": "2025-11-01",
+          "score": 70.4,
+          "reparto": {
+            "delta": 0.0,
+            "pct_tendencia": 0,
+            "pct_bache": 0,
+            "struct_pts": 0.0,
+            "circ_pts": 0.0,
+            "drivers": []
+          }
+        },
+        {
+          "as_of": "2025-12-01",
+          "score": 70.4,
+          "reparto": {
+            "delta": 0.0,
+            "pct_tendencia": 0,
+            "pct_bache": 0,
+            "struct_pts": 0.0,
+            "circ_pts": 0.0,
+            "drivers": []
+          }
+        }
+      ]
+    },
+    {
+      "company_id": "DEMO_COBROS",
+      "months": 24,
+      "history": [
+        {
+          "as_of": "2024-01-01",
+          "score": 50.0,
+          "reparto": {
+            "delta": 0.0,
+            "pct_tendencia": 0,
+            "pct_bache": 0,
+            "struct_pts": 0.0,
+            "circ_pts": 0.0,
+            "drivers": []
+          }
+        },
+        {
+          "as_of": "2024-02-01",
+          "score": 50.0,
+          "reparto": {
+            "delta": 0.0,
+            "pct_tendencia": 0,
+            "pct_bache": 0,
+            "struct_pts": 0.0,
+            "circ_pts": 0.0,
+            "drivers": []
+          }
+        },
+        {
+          "as_of": "2024-03-01",
+          "score": 57.8,
+          "reparto": {
+            "delta": 7.79,
+            "pct_tendencia": 100,
+            "pct_bache": 0,
+            "struct_pts": 7.79,
+            "circ_pts": 0.0,
+            "drivers": [
+              {
+                "field": "arrastre",
+                "etiqueta": "Ventana 3 meses",
+                "points": 7.79,
+                "kind": "estructural",
+                "family": "formula",
+                "reason": "arrastre",
+                "razon": "ventana 3 meses"
+              }
+            ]
+          }
+        },
+        {
+          "as_of": "2024-04-01",
+          "score": 57.8,
+          "reparto": {
+            "delta": 0.0,
+            "pct_tendencia": 0,
+            "pct_bache": 0,
+            "struct_pts": 0.0,
+            "circ_pts": 0.0,
+            "drivers": []
+          }
+        },
+        {
+          "as_of": "2024-05-01",
+          "score": 57.8,
+          "reparto": {
+            "delta": 0.0,
+            "pct_tendencia": 0,
+            "pct_bache": 0,
+            "struct_pts": 0.0,
+            "circ_pts": 0.0,
+            "drivers": []
+          }
+        },
+        {
+          "as_of": "2024-06-01",
+          "score": 65.3,
+          "reparto": {
+            "delta": 7.5,
+            "pct_tendencia": 100,
+            "pct_bache": 0,
+            "struct_pts": 7.5,
+            "circ_pts": 0.0,
+            "drivers": [
+              {
+                "field": "arrastre",
+                "etiqueta": "Ventana 3 meses",
+                "points": 7.5,
+                "kind": "estructural",
+                "family": "formula",
+                "reason": "arrastre",
+                "razon": "ventana 3 meses"
+              }
+            ]
+          }
+        },
+        {
+          "as_of": "2024-07-01",
+          "score": 65.3,
+          "reparto": {
+            "delta": 0.0,
+            "pct_tendencia": 0,
+            "pct_bache": 0,
+            "struct_pts": 0.0,
+            "circ_pts": 0.0,
+            "drivers": []
+          }
+        },
+        {
+          "as_of": "2024-08-01",
+          "score": 65.3,
+          "reparto": {
+            "delta": 0.0,
+            "pct_tendencia": 0,
+            "pct_bache": 0,
+            "struct_pts": 0.0,
+            "circ_pts": 0.0,
+            "drivers": []
+          }
+        },
+        {
+          "as_of": "2024-09-01",
+          "score": 65.3,
+          "reparto": {
+            "delta": 0.0,
+            "pct_tendencia": 0,
+            "pct_bache": 0,
+            "struct_pts": 0.0,
+            "circ_pts": 0.0,
+            "drivers": []
+          }
+        },
+        {
+          "as_of": "2024-10-01",
+          "score": 65.3,
+          "reparto": {
+            "delta": 0.0,
+            "pct_tendencia": 0,
+            "pct_bache": 0,
+            "struct_pts": 0.0,
+            "circ_pts": 0.0,
+            "drivers": []
+          }
+        },
+        {
+          "as_of": "2024-11-01",
+          "score": 65.3,
+          "reparto": {
+            "delta": 0.0,
+            "pct_tendencia": 0,
+            "pct_bache": 0,
+            "struct_pts": 0.0,
+            "circ_pts": 0.0,
+            "drivers": []
+          }
+        },
+        {
+          "as_of": "2024-12-01",
+          "score": 65.3,
+          "reparto": {
+            "delta": 0.0,
+            "pct_tendencia": 0,
+            "pct_bache": 0,
+            "struct_pts": 0.0,
+            "circ_pts": 0.0,
+            "drivers": []
+          }
+        },
+        {
+          "as_of": "2025-01-01",
+          "score": 68.0,
+          "reparto": {
+            "delta": 2.69,
+            "pct_tendencia": 0,
+            "pct_bache": 100,
+            "struct_pts": 0.0,
+            "circ_pts": 2.69,
+            "drivers": [
+              {
+                "field": "receipts",
+                "etiqueta": "Cobros",
+                "points": 2.69,
+                "kind": "coyuntural",
+                "family": "salud",
+                "reason": "pulso_cobros",
+                "razon": "timing de cobros"
+              }
+            ]
+          }
+        },
+        {
+          "as_of": "2025-02-01",
+          "score": 62.5,
+          "reparto": {
+            "delta": -5.51,
+            "pct_tendencia": 31,
+            "pct_bache": 69,
+            "struct_pts": 4.64,
+            "circ_pts": -10.14,
+            "drivers": [
+              {
+                "field": "arrastre",
+                "etiqueta": "Ventana 3 meses",
+                "points": 4.64,
+                "kind": "estructural",
+                "family": "formula",
+                "reason": "arrastre",
+                "razon": "ventana 3 meses"
+              },
+              {
+                "field": "receipts",
+                "etiqueta": "Cobros",
+                "points": -10.14,
+                "kind": "coyuntural",
+                "family": "salud",
+                "reason": "pulso_cobros",
+                "razon": "timing de cobros"
+              }
+            ]
+          }
+        },
+        {
+          "as_of": "2025-03-01",
+          "score": 62.5,
+          "reparto": {
+            "delta": 0.0,
+            "pct_tendencia": 0,
+            "pct_bache": 0,
+            "struct_pts": 0.0,
+            "circ_pts": 0.0,
+            "drivers": [
+              {
+                "field": "arrastre",
+                "etiqueta": "Ventana 3 meses",
+                "points": -6.95,
+                "kind": "estructural",
+                "family": "formula",
+                "reason": "arrastre",
+                "razon": "ventana 3 meses"
+              },
+              {
+                "field": "receipts",
+                "etiqueta": "Cobros",
+                "points": 6.95,
+                "kind": "estructural",
+                "family": "salud",
+                "reason": "volumen",
+                "razon": "volumen"
+              }
+            ]
+          }
+        },
+        {
+          "as_of": "2025-04-01",
+          "score": 58.5,
+          "reparto": {
+            "delta": -3.99,
+            "pct_tendencia": 100,
+            "pct_bache": 0,
+            "struct_pts": -3.99,
+            "circ_pts": 0.0,
+            "drivers": [
+              {
+                "field": "arrastre",
+                "etiqueta": "Ventana 3 meses",
+                "points": -3.99,
+                "kind": "estructural",
+                "family": "formula",
+                "reason": "arrastre",
+                "razon": "ventana 3 meses"
+              }
+            ]
+          }
+        },
+        {
+          "as_of": "2025-05-01",
+          "score": 62.5,
+          "reparto": {
+            "delta": 3.99,
+            "pct_tendencia": 100,
+            "pct_bache": 0,
+            "struct_pts": 3.99,
+            "circ_pts": 0.0,
+            "drivers": [
+              {
+                "field": "arrastre",
+                "etiqueta": "Ventana 3 meses",
+                "points": 3.99,
+                "kind": "estructural",
+                "family": "formula",
+                "reason": "arrastre",
+                "razon": "ventana 3 meses"
+              }
+            ]
+          }
+        },
+        {
+          "as_of": "2025-06-01",
+          "score": 62.5,
+          "reparto": {
+            "delta": 0.0,
+            "pct_tendencia": 0,
+            "pct_bache": 0,
+            "struct_pts": 0.0,
+            "circ_pts": 0.0,
+            "drivers": []
+          }
+        },
+        {
+          "as_of": "2025-07-01",
+          "score": 64.7,
+          "reparto": {
+            "delta": 2.27,
+            "pct_tendencia": 100,
+            "pct_bache": 0,
+            "struct_pts": 2.27,
+            "circ_pts": 0.0,
+            "drivers": [
+              {
+                "field": "arrastre",
+                "etiqueta": "Ventana 3 meses",
+                "points": 2.27,
+                "kind": "estructural",
+                "family": "formula",
+                "reason": "arrastre",
+                "razon": "ventana 3 meses"
+              }
+            ]
+          }
+        },
+        {
+          "as_of": "2025-08-01",
+          "score": 65.3,
+          "reparto": {
+            "delta": 0.54,
+            "pct_tendencia": 100,
+            "pct_bache": 0,
+            "struct_pts": 0.54,
+            "circ_pts": 0.0,
+            "drivers": [
+              {
+                "field": "arrastre",
+                "etiqueta": "Ventana 3 meses",
+                "points": 0.54,
+                "kind": "estructural",
+                "family": "formula",
+                "reason": "arrastre",
+                "razon": "ventana 3 meses"
+              }
+            ]
+          }
+        },
+        {
+          "as_of": "2025-09-01",
+          "score": 65.3,
+          "reparto": {
+            "delta": 0.0,
+            "pct_tendencia": 0,
+            "pct_bache": 0,
+            "struct_pts": 0.0,
+            "circ_pts": 0.0,
+            "drivers": []
+          }
+        },
+        {
+          "as_of": "2025-10-01",
+          "score": 65.3,
+          "reparto": {
+            "delta": 0.0,
+            "pct_tendencia": 0,
+            "pct_bache": 0,
+            "struct_pts": 0.0,
+            "circ_pts": 0.0,
+            "drivers": []
+          }
+        },
+        {
+          "as_of": "2025-11-01",
+          "score": 65.3,
+          "reparto": {
+            "delta": 0.0,
+            "pct_tendencia": 0,
+            "pct_bache": 0,
+            "struct_pts": 0.0,
+            "circ_pts": 0.0,
+            "drivers": []
+          }
+        },
+        {
+          "as_of": "2025-12-01",
+          "score": 65.3,
+          "reparto": {
+            "delta": 0.0,
+            "pct_tendencia": 0,
+            "pct_bache": 0,
+            "struct_pts": 0.0,
+            "circ_pts": 0.0,
+            "drivers": []
+          }
+        }
+      ]
+    }
+  ]
+}

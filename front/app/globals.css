@@ -85,8 +85,9 @@ body::before {
 ::selection { background: rgba(176,131,232,.34); color: #fff; }
 
 /* ---------- cristal ---------- */
+/* Tooltips de gráficos y grafo: fondo casi opaco para que la barra de debajo no se lea a través. */
 .glass {
-  background: linear-gradient(158deg, rgba(255,255,255,.075), rgba(255,255,255,.028));
+  background: linear-gradient(158deg, rgba(38,30,60,.97), rgba(24,18,38,.97));
   border: 1px solid var(--glass-2);
   backdrop-filter: blur(22px) saturate(150%);
   -webkit-backdrop-filter: blur(22px) saturate(150%);
@@ -204,6 +205,71 @@ body::before {
   .panel-lat, .pl-etiqueta, .pl-titulo { transition: none; }
 }
 
+/* El cuerpo se desplaza por dentro, sin barra a la vista, y los bordes se
+   difuminan para que se vea que hay más contenido arriba y abajo. */
+.modal-cuerpo { flex: 1; min-height: 0; overflow: hidden; }
+
+
+/* Columna que se desplaza por dentro: sin barra a la vista y con los bordes
+   difuminados, para que se vea que hay más sin necesitar una barra. */
+.columna-scroll {
+  min-height: 0;
+  overflow-y: auto; overscroll-behavior: contain;
+  scrollbar-width: none; -ms-overflow-style: none;
+  /* Solo por abajo: difuminar también arriba cortaba el canto de la primera
+     tarjeta nada más abrir, cuando todavía no hay nada que se haya ido. */
+  -webkit-mask-image: linear-gradient(to bottom, #000 calc(100% - 24px), transparent 100%);
+  mask-image: linear-gradient(to bottom, #000 calc(100% - 24px), transparent 100%);
+}
+.columna-scroll::-webkit-scrollbar { display: none; }
+
+/* La columna principal se desplaza igual, pero solo se difumina por abajo:
+   difuminar también arriba cortaba el borde de la primera tarjeta, que es
+   donde está el score y tiene que leerse entero. */
+.columna-derecha {
+  min-height: 0; max-height: 100%;
+  overflow-y: auto; overscroll-behavior: contain;
+  scrollbar-width: none; -ms-overflow-style: none;
+  -webkit-mask-image: linear-gradient(to bottom, #000 calc(100% - 26px), transparent 100%);
+  mask-image: linear-gradient(to bottom, #000 calc(100% - 26px), transparent 100%);
+}
+.columna-derecha::-webkit-scrollbar { display: none; }
+
+/* Desglose con más de cuatro palancas: se queda en cuatro y el resto se
+   recorre por dentro. La última asoma difuminada, que es lo que dice que hay
+   más sin necesitar una barra. */
+.lista-desglose {
+  overflow-y: auto; overscroll-behavior: contain;
+  scrollbar-width: none; -ms-overflow-style: none;
+  -webkit-mask-image: linear-gradient(to bottom, #000 calc(100% - 30px), transparent 100%);
+  mask-image: linear-gradient(to bottom, #000 calc(100% - 30px), transparent 100%);
+}
+.lista-desglose::-webkit-scrollbar { display: none; }
+
+/* La caja de decisiones tiene ALTURA FIJA, punto. No depende de cuántas
+   acciones haya ni de la cadena de flex y grid de sus padres: se declara aquí
+   y no se mueve. Dentro, la cabecera se queda quieta y la lista se desplaza. */
+.caja-decisiones {
+  height: 552px;
+  min-height: 552px;
+  max-height: 552px;
+  display: flex; flex-direction: column;
+  overflow: hidden;
+}
+@media (max-height: 820px) {
+  .caja-decisiones { height: 440px; min-height: 440px; max-height: 440px; }
+}
+
+/* La columna principal ocupa lo mismo, y su última tarjeta llega hasta abajo
+   en vez de dejar un hueco bajo el desglose. */
+.columna-derecha {
+  height: 552px;
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
+}
+@media (max-height: 820px) { .columna-derecha { height: 440px; } }
+.columna-derecha > :last-child { min-height: 0; display: flex; flex-direction: column; }
+
 /* ---------- tarjetas ---------- */
 .panel {
   border-radius: 24px;
@@ -236,3 +302,209 @@ body::before {
 .pildora.on { background: var(--color-purple); color: #0d0416; font-weight: 600; border-color: transparent; }
 
 input[type="range"] { accent-color: var(--color-purple); }
+
+/* ══════ Estética de la sección de acciones ══════ */
+/* Flechas del contador: triángulos sueltos, sin caja. La dirección manda
+   sobre el significado, como en el resto de la interfaz. */
+.flecha {
+  display: flex; align-items: center; justify-content: center;
+  width: 46px; height: 30px; padding: 0;
+  background: none; border: 0; border-radius: 4px;
+  transition: transform .12s ease, opacity .16s ease, filter .16s ease;
+}
+/* Verde literal: --color-success se reasignó a morado con la paleta. */
+.flecha.subir { color: #80efa2; }
+.flecha.bajar { color: var(--color-danger); }
+.flecha:hover:not(:disabled) { filter: brightness(1.18); }
+.flecha.subir:hover:not(:disabled) { transform: translateY(-2px); }
+.flecha.bajar:hover:not(:disabled) { transform: translateY(2px); }
+.flecha:active:not(:disabled) { transform: scale(.9); }
+.flecha.chica { width: 24px; height: 15px; border-radius: 4px; }
+.flecha:disabled { opacity: .22; cursor: default; }
+.flecha.subir:focus-visible { outline: 2px solid #80efa2; outline-offset: 2px; }
+.flecha.bajar:focus-visible { outline: 2px solid var(--color-danger); outline-offset: 2px; }
+
+/* Marca de selección: redonda, y el tick dibujado a mano para poder darle el
+   morado de la casa. El nativo se pinta blanco sobre el accent-color y en
+   Safari además sale de otro tono. */
+.marca {
+  -webkit-appearance: none; appearance: none;
+  width: 18px; height: 18px; border-radius: 50%;
+  background: rgba(255,255,255,.04);
+  border: 1.5px solid rgba(255,255,255,.26);
+  display: inline-flex; align-items: center; justify-content: center;
+  cursor: pointer; position: relative;
+  transition: background .16s ease, border-color .16s ease, transform .12s ease;
+}
+.marca:hover { border-color: rgba(176,131,232,.6); }
+.marca:checked {
+  background: rgba(176,131,232,.18);
+  border-color: var(--color-purple);
+}
+.marca:checked::after {
+  content: ""; position: absolute;
+  width: 5px; height: 9px; margin-top: -1.5px;
+  border: solid var(--color-purple);
+  border-width: 0 2px 2px 0;
+  transform: rotate(45deg);
+}
+.marca:active { transform: scale(.92); }
+.marca:focus-visible { outline: 2px solid var(--color-purple); outline-offset: 2px; }
+
+/* Tarjeta de acción: hasta que se marca se lee como apagada —no como
+   deshabilitada—, para que se note cuáles están dentro del plan. */
+.accion {
+  position: relative;
+  border-radius: 14px; padding: 15px 16px;
+  background: rgba(255,255,255,.028);
+  border: 1px solid rgba(255,255,255,.06);
+  opacity: .62;
+  transition: opacity .18s ease, background .18s ease;
+}
+.accion:hover { opacity: .92; background: rgba(255,255,255,.05); }
+
+/* Activa: el detalle va DENTRO. Un reflejo claro arriba y una veladura que
+   cae hacia el fondo; el borde se queda discreto para que no se dibuje una
+   caja alrededor del texto. */
+.accion.on {
+  opacity: 1;
+  border-color: rgba(255,255,255,.09);
+  background:
+    linear-gradient(180deg, rgba(255,255,255,.085) 0%, rgba(255,255,255,.028) 46%, rgba(255,255,255,.015) 100%);
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.22),
+    inset 0 -1px 0 rgba(255,255,255,.05);
+}
+/* El separador interior, en claro: es el detalle que parte la tarjeta en
+   "qué es" y "cómo se ajusta". */
+.accion.on .sep { border-color: rgba(255,255,255,.17) !important; }
+.accion.on .descripcion { display: none; }
+
+/* La sección de la recomendación: el halo lo lleva la propia tarjeta, así no
+   hace falta una caja dentro de otra. */
+.seccion-embat { position: relative; overflow: hidden; }
+.seccion-embat::before {
+  content: ""; position: absolute; inset: 0; pointer-events: none;
+  background: radial-gradient(90% 120% at 100% 0%, rgba(176,131,232,.14), transparent 58%);
+}
+.seccion-embat > * { position: relative; }
+
+.embat-sello {
+  display: inline-block; font-size: 10px; font-weight: 600;
+  letter-spacing: .09em; text-transform: uppercase;
+  color: var(--color-purple);
+}
+
+/* Blanco y opaco: es la salida de la sección, y sobre cristal un botón
+   translúcido más se pierde entre las capas. */
+.boton-simulador {
+  display: flex; align-items: center; justify-content: center; gap: 7px;
+  border-radius: 999px; padding: 11px 20px; font-size: 12.5px; font-weight: 600;
+  color: #0d0416;
+  background: #ffffff;
+  border: 0;
+  box-shadow: 0 6px 20px rgba(0,0,0,.3);
+  transition: background .18s ease, transform .14s ease, box-shadow .18s ease;
+}
+.boton-simulador:hover {
+  background: #f1eef7; transform: translateY(-1px);
+  box-shadow: 0 8px 24px rgba(0,0,0,.38);
+}
+.boton-simulador:active { transform: translateY(0); }
+
+/* La palanca que asoma y se desvanece: hay más, pero no aquí. */
+.difuminada {
+  -webkit-mask-image: linear-gradient(to bottom, #000 0 26%, transparent 88%);
+  mask-image: linear-gradient(to bottom, #000 0 26%, transparent 88%);
+  pointer-events: none;
+}
+
+.accion.on .sep { border-color: rgba(255,255,255,.16); }
+
+/* ---------- diálogo ---------- */
+.modal-fondo {
+  position: fixed; inset: 0; z-index: 60;
+  display: flex; align-items: center; justify-content: center;
+  padding: 56px 32px;
+  /* Bastante opaco: con el fondo claro se leía el panel de detrás a través
+     del diálogo y las dos capas de texto competían. */
+  background: rgba(3,2,6,.985);
+  backdrop-filter: blur(22px) saturate(110%);
+  -webkit-backdrop-filter: blur(22px) saturate(110%);
+  animation: modal-fondo .18s ease both;
+}
+@media (max-width: 640px) { .modal-fondo { padding: 20px 14px; } }
+@keyframes modal-fondo { from { opacity: 0 } to { opacity: 1 } }
+
+.modal-caja {
+  width: 100%; max-width: 1040px;
+  /* Alto fijo: si lo marcan las tarjetas, el diálogo salta de tamaño cada vez
+     que se marca o desmarca una acción. */
+  height: min(664px, calc(100dvh - 112px));
+  display: flex; flex-direction: column;
+  /* dvh sigue a la barra de herramientas de Safari; vh queda de respaldo. */
+  overflow: hidden; outline: none;
+  animation: modal-caja .26s cubic-bezier(.22,.61,.24,1) both;
+}
+
+/* El gráfico cede altura cuando la ventana es baja, en vez de empujar el
+   resto del diálogo fuera de la vista. */
+.modal-grafico {
+  width: 100%; height: auto;
+  max-height: 30dvh;
+}
+@media (max-height: 820px) { .modal-grafico { max-height: 24dvh; } }
+@keyframes modal-caja {
+  from { opacity: 0; transform: translateY(14px) scale(.985) }
+  to   { opacity: 1; transform: none }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .modal-fondo, .modal-caja { animation: none; }
+}
+
+/* El mando necesita altura para poder agarrarse con soltura.
+   Safari aclara mucho el `accent-color`, así que se usa el morado profundo
+   de Embat en vez del claro, y se dibujan pista y pulgar a mano para que
+   los dos navegadores enseñen lo mismo. */
+input[type="range"] {
+  accent-color: var(--color-purple-deep);
+  width: 100%; height: 26px; cursor: pointer; background: transparent;
+  touch-action: none;
+  -webkit-appearance: none; appearance: none;
+}
+input[type="range"]::-webkit-slider-runnable-track {
+  height: 5px; border-radius: 999px;
+  /* Dos tramos: morado hasta el pulgar, apagado a partir de ahí. */
+  background: linear-gradient(
+    to right,
+    var(--color-purple) 0 var(--pct, 0%),
+    rgba(255,255,255,.11) var(--pct, 0%) 100%
+  );
+}
+/* Aro exterior alrededor del círculo: lo separa de la pista y lo hace
+   visible tanto sobre el tramo recorrido como sobre el que queda. */
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none; appearance: none;
+  width: 15px; height: 15px; margin-top: -5px; border-radius: 50%;
+  background: var(--color-purple);
+  border: 2px solid #120d1d;
+  box-shadow: 0 0 0 1.5px rgba(176,131,232,.55), 0 1px 3px rgba(0,0,0,.5);
+  transition: transform .14s ease, box-shadow .16s ease;
+}
+input[type="range"]:hover::-webkit-slider-thumb { transform: scale(1.08); box-shadow: 0 0 0 2px rgba(176,131,232,.85), 0 1px 3px rgba(0,0,0,.5); }
+input[type="range"]:active::-webkit-slider-thumb { transform: scale(1.14); }
+input[type="range"]::-moz-range-track {
+  height: 5px; border-radius: 999px; background: rgba(255,255,255,.11);
+}
+input[type="range"]::-moz-range-progress {
+  height: 5px; border-radius: 999px; background: var(--color-purple);
+}
+input[type="range"]::-moz-range-thumb {
+  width: 15px; height: 15px; border-radius: 50%;
+  background: var(--color-purple);
+  border: 2px solid #120d1d;
+  box-shadow: 0 0 0 1.5px rgba(176,131,232,.55), 0 1px 3px rgba(0,0,0,.5);
+}
+input[type="range"]:focus-visible { outline: 2px solid var(--color-purple); outline-offset: 4px; border-radius: 6px; }
+

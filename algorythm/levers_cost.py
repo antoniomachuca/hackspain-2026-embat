@@ -5,7 +5,6 @@ from __future__ import annotations
 from typing import Any
 
 from algorythm.levers_catalog import (
-    AGREEMENT_COBROS,
     AGREEMENT_DPO,
     DISCOUNT_ANCHORS,
     DPO_COST_ANCHORS,
@@ -13,6 +12,7 @@ from algorythm.levers_catalog import (
     TIPO_REF_ANUAL,
     canonical_lever_id,
 )
+from algorythm.levers_lines import max_tasa
 
 _MAX_HAIRCUT = 0.03
 _DISCOUNT_NAMES = ('minimo', 'tipico', 'agresivo')
@@ -53,21 +53,22 @@ def impacto_anual_eur(delta_mensual: float) -> float:
 
 
 def validate_agreement(
-    lever_id: str, agreement_type: str | None
+    lever_id: str, agreement_type: str | None, params: dict[str, Any] | None = None,
 ) -> tuple[bool, str | None]:
     canonical = canonical_lever_id(lever_id)
     meta = LEVER_CATALOG[canonical]
     allowed = set(meta['agreement_types'])
-    if canonical == 'adelantar_cobros':
-        allowed = set(AGREEMENT_COBROS - {'descuento_pronto_pago'})
-    elif canonical == 'descuento_pronto_pago':
-        allowed = {'descuento_pronto_pago'}
-    elif canonical == 'ampliar_dpo':
+    if canonical == 'ampliar_dpo':
         allowed = set(AGREEMENT_DPO - {'confirming_en_su_lugar'})
 
     if not meta['needs_agreement']:
         return True, None
     if agreement_type is None:
+        if canonical == 'adelantar_cobros' and (
+            lever_id == 'descuento_pronto_pago'
+            or (params and max_tasa(params) > 0)
+        ):
+            return True, None
         return False, 'missing_agreement_type'
     if agreement_type not in allowed:
         return False, 'invalid_agreement_type'

@@ -3,7 +3,7 @@ Modelos Pydantic v2 para validación y serialización de la API REST de X-Ray.
 """
 
 from typing import Any, Dict, List, Optional
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, model_validator
 
 
 # -------------------------------------------------------------
@@ -297,6 +297,108 @@ class StatsResponse(BaseModel):
     total_alerts_count: int
 
 
+class PortfolioCompanyItem(BaseModel):
+    """Fila resumida de la cartera Embat: lo justo para rankings y segmentos."""
+    company_id: str
+    group_id: str
+    erp: Optional[str] = None
+    score: float
+    state: str
+    momentum: float
+    delta_3m: float
+    health_band: Optional[str] = None
+    state_eligible: bool
+    segment: Optional[str] = Field(None, description="APOSTAR · VIGILAR · ACOMPANAR · None")
+
+
+class PortfolioSegment(BaseModel):
+    key: str
+    label: str
+    action: str
+    count: int
+    items: List[PortfolioCompanyItem]
+
+
+class PortfolioHistogramBucket(BaseModel):
+    bucket: int = Field(..., description="Límite inferior del tramo de 10 puntos")
+    count: int
+
+
+class PortfolioTrajectoryPoint(BaseModel):
+    as_of: str
+    average_score: float
+    median_score: float
+    eligible_companies: int
+
+
+class PortfolioResponse(BaseModel):
+    as_of: str
+    total_companies: int
+    eligible_companies: int
+    average_score: float
+    median_score: float
+    risk_companies_count: int
+    improving_companies_count: int
+    alerts_last_month: int
+    distribution_by_state: Dict[str, int]
+    distribution_by_band: Dict[str, int]
+    histogram: List[PortfolioHistogramBucket]
+    trajectory: List[PortfolioTrajectoryPoint]
+    top_score: List[PortfolioCompanyItem]
+    top_growth: List[PortfolioCompanyItem]
+    top_decline: List[PortfolioCompanyItem]
+    segments: List[PortfolioSegment]
+
+
+# -------------------------------------------------------------
+# Mapa de flujos intragrupo (inferidos por emparejamiento)
+# -------------------------------------------------------------
+
+class GraphNode(BaseModel):
+    company_id: str
+    score: float
+    state: str
+    health_band: Optional[str] = None
+    state_eligible: bool
+    delta_3m: float
+    segment: Optional[str] = None
+    eur_out: float = Field(0.0, description="Euros que salen hacia otras sociedades del grupo")
+    eur_in: float = Field(0.0, description="Euros que llegan desde otras sociedades del grupo")
+
+
+class GraphEdge(BaseModel):
+    source: str
+    target: str
+    matches: int = Field(..., description="Movimientos emparejados (mismo día, mismo importe)")
+    eur: float
+    last_date: str
+
+
+class GraphResponse(BaseModel):
+    group_id: str
+    min_matches: int
+    nodes: List[GraphNode]
+    edges: List[GraphEdge]
+
+
+class GraphGroupSummary(BaseModel):
+    group_id: str
+    companies: int
+    edges: int
+    matches: int
+    eur: float
+    average_score: float
+    worst_score: float
+
+
+class GraphSummaryResponse(BaseModel):
+    min_matches: int
+    groups_with_flows: int
+    total_edges: int
+    total_eur: float
+    groups: List[GraphGroupSummary]
+
+
 class GroupItem(BaseModel):
     group_id: str
     erp: Optional[str] = None
@@ -349,6 +451,25 @@ class HealthResponse(BaseModel):
 # 7. Simulador de palancas (rescoring honesto · capa intermedia)
 # -------------------------------------------------------------
 
+class SimulateLeverLine(BaseModel):
+    facturas: Optional[List[str]] = Field(None, description="Ids de factura (operation_id)")
+    clientes: Optional[List[str]] = Field(None, description="Contrapartes AR")
+    proveedores: Optional[List[str]] = Field(None, description="Contrapartes AP")
+    dias: Optional[int] = None
+    days: Optional[int] = None
+    tasa_descuento: Optional[float] = Field(None, description="Haircut 0..1; 0 = sin descuento")
+    tasa: Optional[float] = None
+    haircut: Optional[float] = None
+    proposed_cost_pct: Optional[float] = None
+
+    @model_validator(mode='after')
+    def facturas_xor_clientes(self):
+        n = sum(bool(value) for value in (self.facturas, self.clientes, self.proveedores))
+        if n > 1:
+            raise ValueError('una línea admite facturas o clientes, no ambos')
+        return self
+
+
 class SimulateLeverItem(BaseModel):
     id: str = Field(..., description="Id de palanca del catálogo", json_schema_extra={"example": "adelantar_cobros"})
     amount_eur: Optional[float] = Field(None, description="Euros a adelantar / liberar")
@@ -369,7 +490,19 @@ class SimulateLeverItem(BaseModel):
     days: Optional[int] = Field(None, description="Días de adelanto 7/15/30")
     dias: Optional[int] = None
     clientes: Optional[List[str]] = None
+    facturas: Optional[List[str]] = None
+    proveedores: Optional[List[str]] = None
     tasa_descuento: Optional[float] = None
+    lineas: Optional[List[SimulateLeverLine]] = None
+
+    @model_validator(mode='after')
+    def top_level_targets_xor(self):
+        if self.lineas:
+            return self
+        n = sum(bool(value) for value in (self.facturas, self.clientes, self.proveedores))
+        if n > 1:
+            raise ValueError('una línea admite facturas o clientes, no ambos')
+        return self
 
 
 class SimulateRequest(BaseModel):
@@ -447,3 +580,15 @@ class RankingsResponse(BaseModel):
     sugerencias: List[Dict[str, Any]] = []
     opciones_circulante: List[Dict[str, Any]] = []
     recomendado: Optional[Dict[str, Any]] = None
+
+
+class PrevisionEstructuralResponse(BaseModel):
+    company_id: str = Field(..., json_schema_extra={"example": "COMP_0010"})
+    model: str = Field("structural_v2", json_schema_extra={"example": "structural_v2"})
+    status: str = Field(..., json_schema_extra={"example": "available"})
+    as_of: Optional[str] = Field(None, json_schema_extra={"example": "2026-08-01"})
+    meses: int = Field(..., json_schema_extra={"example": 12})
+    current_score: Optional[float] = Field(None, json_schema_extra={"example": 61.4})
+    alto: List[float] = Field(..., description="Score del escenario optimista, t+1 … t+meses")
+    medio: List[float] = Field(..., description="Score del escenario central, t+1 … t+meses")
+    bajo: List[float] = Field(..., description="Score del escenario pesimista, t+1 … t+meses")

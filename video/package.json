@@ -1,0 +1,32 @@
+{
+  "name": "embat-video",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Vídeos de producto del reto Embat, generados con Remotion",
+  "scripts": {
+    "dev": "remotion studio",
+    "render": "remotion render XRay out/xray-presentacion.mp4",
+    "render:rapido": "remotion render XRay out/xray-borrador.mp4 --scale=0.5 --jpeg-quality=70",
+    "render:gif": "remotion render XRay out/xray-presentacion.gif --codec=gif --every-nth-frame=2 --scale=0.5",
+    "medir": "remotion still MedidaResumen out/medida-resumen.png && remotion still MedidaEscenarios out/medida-escenarios.png",
+    "upgrade": "remotion upgrade",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@remotion/cli": "4.0.502",
+    "@remotion/tailwind-v4": "^4.0.502",
+    "@remotion/transitions": "^4.0.502",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "recharts": "^2.15.4",
+    "remotion": "4.0.502",
+    "tailwindcss": "^4.3.3"
+  },
+  "devDependencies": {
+    "@types/react": "^19.0.0",
+    "typescript": "^5.8.0"
+  },
+  "allowScripts": {
+    "esbuild@0.28.1": true
+  }
+}

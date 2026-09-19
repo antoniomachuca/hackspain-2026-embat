@@ -49,9 +49,12 @@ def test_validate_agreement_cobros_requires_type():
     assert ok is True
 
     ok, reason = validate_agreement('descuento_pronto_pago', 'presion_comercial')
-    assert ok is False
+    assert ok is True
 
     ok, reason = validate_agreement('descuento_pronto_pago', 'descuento_pronto_pago')
+    assert ok is True
+
+    ok, reason = validate_agreement('adelantar_cobros', None, params={'tasa_descuento': 0.02})
     assert ok is True
 
 

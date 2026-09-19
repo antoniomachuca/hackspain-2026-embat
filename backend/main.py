@@ -20,6 +20,7 @@ from backend.database import close_db_connection, get_db_connection
 from backend.routes.alerts import router as alerts_router
 from backend.routes.companies import router as companies_router
 from backend.routes.forecasts import router as forecasts_router
+from backend.routes.graph import router as graph_router
 from backend.routes.stats import router as stats_router
 from backend.routes.whatif import router as whatif_router
 from backend.routes.simulate import router as simulate_router
@@ -49,6 +50,7 @@ app = FastAPI(
     - **Simulador What-If (/api/whatif):** Modelado contrafactual de inyecciones de tesorería y anticipo de facturas.
     - **Feed de Alertas (/api/alerts):** Detección temprana de deterioros y riesgos de impago.
     - **KPIs Globales (/api/stats):** Métricas consolidadas de la cartera empresarial.
+    - **Previsión estructural (/api/companies/{id}/prevision-estructural):** 12 meses de score en tres escenarios, proyectando cobros/gastos/deuda y aplicando el motor de score.
     """,
     version="1.0.0",
     docs_url="/docs",
@@ -84,6 +86,7 @@ app.include_router(simulate_router)
 app.include_router(palancas_router)
 app.include_router(alerts_router)
 app.include_router(stats_router)
+app.include_router(graph_router)
 app.include_router(forecasts_router)
 
 
@@ -105,6 +108,7 @@ def root():
                 "simulate": "/api/simulate",
                 "palancas": "/api/palancas",
                 "groups": "/api/groups",
+                "prevision_estructural": "/api/companies/{id}/prevision-estructural",
                 "health": "/api/health",
             },
         }

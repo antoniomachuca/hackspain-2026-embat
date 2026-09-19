@@ -1,0 +1,2243 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>X-Ray · El score financiero de tu empresa</title>
+
+<!-- Tipografías: General Sans (Fontshare) para el texto, JetBrains Mono para datos y microetiquetas -->
+<link rel="preconnect" href="https://api.fontshare.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://api.fontshare.com/v2/css?f[]=general-sans@400,500,600,700&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap">
+
+<style>
+/* ===========================================
+   TEMA — paleta muestreada del vídeo del producto
+   Cambia estas variables y cambia todo el deck
+   =========================================== */
+:root {
+    /* Fondos */
+    --stage-bg: #04061A;
+    --slide-bg: #06081E;
+    --panel-a: #1B1E4C;
+    --panel-b: #14173B;
+    --panel-c: #101331;
+
+    /* Bordes y texto */
+    --border: rgba(124, 134, 205, 0.22);
+    --border-hi: rgba(124, 134, 205, 0.40);
+    --text: #EEF0FC;
+    --text-dim: #9095BE;
+    --text-faint: #666C99;
+
+    /* Acentos del dashboard */
+    --blue: #3A7AFA;
+    --cyan: #3DD9E8;
+    --green: #7FEFA1;
+    --coral: #F98274;
+    --violet: #A56BF5;
+
+    /* Tipografía — medidas al tamaño de lienzo 1920×1080 */
+    --font-sans: 'General Sans', sans-serif;
+    --font-mono: 'JetBrains Mono', monospace;
+
+    /* Movimiento */
+    --ease: cubic-bezier(0.16, 1, 0.3, 1);
+    --dur: 0.75s;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+/* ===========================================
+   FIXED 16:9 STAGE: MANDATORY BASE STYLES
+   Slides authored at 1920×1080, scaled as a whole.
+   =========================================== */
+
+/* 1. Lock the browser viewport */
+html,
+body {
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    overflow: hidden;
+    background: var(--stage-bg, #000);
+}
+
+/* 2. Full-window deck viewport */
+.deck-viewport {
+    position: fixed;
+    inset: 0;
+    overflow: hidden;
+    background: var(--stage-bg, #000);
+}
+
+/* 3. Fixed 16:9 design canvas.
+   JavaScript sets transform: translate(...) scale(...). */
+.deck-stage {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 1920px;
+    height: 1080px;
+    overflow: hidden;
+    transform-origin: 0 0;
+    background: var(--slide-bg, #fff);
+}
+
+/* 4. Slides stack inside the fixed stage. */
+.slide {
+    position: absolute;
+    inset: 0;
+    width: 1920px;
+    height: 1080px;
+    overflow: hidden;
+    display: block;
+    visibility: hidden;
+    opacity: 0;
+    pointer-events: none;
+    background: var(--slide-bg, #fff);
+}
+
+.slide.active,
+.slide.visible {
+    visibility: visible;
+    opacity: 1;
+    pointer-events: auto;
+    z-index: 1;
+}
+
+/* 5. Keep media inside authored slide bounds */
+img,
+video,
+canvas,
+svg {
+    max-width: 100%;
+    max-height: 100%;
+}
+
+/* 6. Presentation chrome stays outside the slide design system */
+.deck-controls {
+    position: fixed;
+    left: 50%;
+    bottom: 22px;
+    transform: translateX(-50%);
+    z-index: 1000;
+}
+
+/* 7. Print one fixed-size slide per page */
+@media print {
+    html, body { width: 1920px; height: auto; overflow: visible; background: #fff; }
+    .deck-viewport { position: static; overflow: visible; background: #fff; }
+    .deck-stage { position: static; width: auto; height: auto; transform: none !important; background: none; }
+    .slide {
+        position: relative; display: block !important; visibility: visible !important;
+        opacity: 1 !important; pointer-events: auto !important;
+        width: 1920px; height: 1080px; break-after: page; page-break-after: always;
+    }
+    .slide:last-child { break-after: auto; page-break-after: auto; }
+    .deck-controls { display: none !important; }
+}
+
+/* 8. Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        transition-duration: 0.2s !important;
+    }
+}
+
+/* ===========================================
+   ATMÓSFERA — rejilla + halos, como el fondo del dashboard
+   =========================================== */
+body { font-family: var(--font-sans); color: var(--text); }
+
+/* Rejilla fina desvanecida hacia los bordes */
+.slide::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image:
+        linear-gradient(rgba(140, 150, 220, 0.05) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(140, 150, 220, 0.05) 1px, transparent 1px);
+    background-size: 64px 64px;
+    -webkit-mask-image: radial-gradient(ellipse 70% 60% at 50% 42%, #000 20%, transparent 80%);
+    mask-image: radial-gradient(ellipse 70% 60% at 50% 42%, #000 20%, transparent 80%);
+    pointer-events: none;
+}
+
+/* Halos azul/violeta que respiran lentamente */
+.slide::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background:
+        radial-gradient(900px 620px at 84% 8%, rgba(58, 122, 250, 0.22), transparent 62%),
+        radial-gradient(780px 640px at 2% 98%, rgba(165, 107, 245, 0.14), transparent 64%);
+}
+
+.slide.visible::after { animation: breathe 14s ease-in-out infinite; }
+
+@keyframes breathe {
+    0%, 100% { opacity: 0.85; transform: scale(1); }
+    50%      { opacity: 1;    transform: scale(1.06); }
+}
+
+/* ===========================================
+   ANIMACIONES DE ENTRADA
+   Se disparan con la clase .visible de la slide activa
+   =========================================== */
+.reveal {
+    opacity: 0;
+    transform: translateY(34px);
+    transition: opacity var(--dur) var(--ease), transform var(--dur) var(--ease);
+}
+.slide.visible .reveal { opacity: 1; transform: translateY(0); }
+
+.reveal-blur {
+    opacity: 0;
+    filter: blur(14px);
+    transform: translateY(20px);
+    transition: opacity 1s var(--ease), filter 1s var(--ease), transform 1s var(--ease);
+}
+.slide.visible .reveal-blur { opacity: 1; filter: blur(0); transform: translateY(0); }
+
+.reveal-x {
+    opacity: 0;
+    transform: translateX(-44px);
+    transition: opacity var(--dur) var(--ease), transform var(--dur) var(--ease);
+}
+.slide.visible .reveal-x { opacity: 1; transform: translateX(0); }
+
+.reveal-scale {
+    opacity: 0;
+    transform: scale(0.94);
+    transition: opacity var(--dur) var(--ease), transform var(--dur) var(--ease);
+}
+.slide.visible .reveal-scale { opacity: 1; transform: scale(1); }
+
+/* Escalonado genérico: --d marca el retardo de cada elemento */
+[style*="--d"] { transition-delay: var(--d); }
+
+/* ===========================================
+   PIEZAS DEL SISTEMA VISUAL
+   Copiadas del lenguaje del producto: paneles, píldoras,
+   microetiquetas monoespaciadas con punto de color
+   =========================================== */
+
+/* Panel: tarjeta índigo con borde fino y luz interior arriba */
+.panel {
+    position: relative;
+    border-radius: 24px;
+    background: linear-gradient(158deg, var(--panel-a) 0%, var(--panel-b) 58%, var(--panel-c) 100%);
+    border: 1px solid var(--border);
+    box-shadow: 0 40px 90px -40px rgba(0, 0, 0, 0.9),
+                inset 0 1px 0 rgba(255, 255, 255, 0.06);
+    padding: 40px 44px;
+}
+
+/* Cabecera de panel: título a la izquierda, píldoras a la derecha */
+.panel-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 30px;
+}
+.panel-title { font-size: 30px; font-weight: 500; letter-spacing: -0.01em; }
+.panel-tools { display: flex; align-items: center; gap: 12px; }
+
+/* Píldora con punto de color, tal cual las leyendas del dashboard */
+.pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    padding: 9px 16px;
+    border-radius: 999px;
+    border: 1px solid var(--border);
+    background: rgba(8, 11, 38, 0.55);
+    font-family: var(--font-mono);
+    font-size: 16px;
+    font-weight: 500;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    white-space: nowrap;
+}
+.dot { width: 9px; height: 9px; border-radius: 50%; flex: none; }
+.dot.blue   { background: var(--blue);   box-shadow: 0 0 12px var(--blue); }
+.dot.cyan   { background: var(--cyan);   box-shadow: 0 0 12px var(--cyan); }
+.dot.green  { background: var(--green);  box-shadow: 0 0 12px var(--green); }
+.dot.coral  { background: var(--coral);  box-shadow: 0 0 12px var(--coral); }
+.dot.violet { background: var(--violet); box-shadow: 0 0 12px var(--violet); }
+.dot.dim    { background: var(--text-faint); }
+
+/* Microetiqueta suelta (kicker) */
+.kicker {
+    font-family: var(--font-mono);
+    font-size: 18px;
+    font-weight: 500;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--text-faint);
+}
+
+/* ===========================================
+   SLIDE 1 — PORTADA
+   =========================================== */
+.cover {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 0 130px;
+    position: relative;
+    z-index: 1;
+    height: 100%;
+}
+.cover > * { position: relative; z-index: 2; }
+
+/* Marca: rombo girado, eco del isotipo del producto */
+.brand { display: flex; align-items: center; gap: 18px; margin-bottom: 68px; }
+.brand-mark {
+    width: 40px; height: 40px;
+    border-radius: 11px;
+    background: linear-gradient(145deg, var(--blue), var(--violet));
+    transform: rotate(45deg);
+    box-shadow: 0 0 34px rgba(58, 122, 250, 0.55);
+}
+.brand-text {
+    font-family: var(--font-mono);
+    font-size: 19px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--text-dim);
+}
+
+.cover h1 {
+    font-size: 132px;
+    font-weight: 600;
+    line-height: 0.98;
+    letter-spacing: -0.035em;
+    max-width: 1380px;
+}
+.cover h1 em {
+    font-style: normal;
+    background: linear-gradient(100deg, var(--cyan), var(--blue) 52%, var(--violet));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+}
+.cover .lede {
+    margin-top: 44px;
+    max-width: 1080px;
+    font-size: 31px;
+    line-height: 1.52;
+    color: var(--text-dim);
+    font-weight: 400;
+}
+
+/* Fila de seis fichas numeradas bajo el titular */
+.chips { display: flex; gap: 14px; margin-top: 66px; }
+.chip {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 14px 22px;
+    border-radius: 14px;
+    border: 1px solid var(--border);
+    background: rgba(20, 23, 59, 0.6);
+    font-size: 19px;
+    color: var(--text-dim);
+}
+.chip b {
+    font-family: var(--font-mono);
+    font-weight: 700;
+    font-size: 16px;
+    color: var(--blue);
+}
+
+.cover-foot {
+    position: absolute;
+    left: 130px;
+    bottom: 76px;
+    display: flex;
+    gap: 34px;
+    align-items: center;
+}
+
+/* ===========================================
+   SLIDES 3-8 — PREGUNTA: texto a la izquierda, panel a la derecha
+   =========================================== */
+.q {
+    position: relative;
+    z-index: 1;
+    height: 100%;
+    display: grid;
+    grid-template-columns: 700px 1fr;
+    gap: 80px;
+    padding: 112px 100px 110px;
+    align-items: center;
+}
+.q > * { position: relative; z-index: 2; }
+
+.q-left { padding-top: 6px; }
+
+/* Numeral grande, contorneado, como marca de agua legible */
+.q-num {
+    display: flex;
+    align-items: baseline;
+    gap: 20px;
+    margin-bottom: 26px;
+}
+.q-num span:first-child {
+    font-family: var(--font-mono);
+    font-size: 84px;
+    font-weight: 700;
+    line-height: 1;
+    color: transparent;
+    -webkit-text-stroke: 2px var(--border-hi);
+}
+.q-num span:last-child {
+    font-family: var(--font-mono);
+    font-size: 17px;
+    letter-spacing: 0.24em;
+    text-transform: uppercase;
+    color: var(--text-faint);
+}
+
+.q h2 {
+    font-size: 78px;
+    font-weight: 600;
+    line-height: 1.04;
+    letter-spacing: -0.03em;
+    margin-bottom: 34px;
+}
+.q p {
+    font-size: 27px;
+    line-height: 1.62;
+    color: var(--text-dim);
+    max-width: 640px;
+}
+
+/* Bloque "Cómo": barra de acento a la izquierda */
+.how {
+    margin-top: 42px;
+    padding-left: 26px;
+    border-left: 3px solid var(--blue);
+    max-width: 620px;
+}
+.how .kicker { display: block; margin-bottom: 12px; color: var(--blue); }
+.how p { font-size: 23px; line-height: 1.55; color: var(--text); }
+
+/* ===========================================
+   WIDGET: SCORE GRANDE (pregunta 1)
+   =========================================== */
+.score-wrap { display: flex; align-items: center; gap: 56px; }
+.score-num {
+    font-family: var(--font-mono);
+    font-size: 210px;
+    font-weight: 700;
+    line-height: 0.86;
+    letter-spacing: -0.05em;
+    background: linear-gradient(170deg, #FFFFFF, var(--cyan) 110%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+}
+.score-side { display: flex; flex-direction: column; gap: 18px; }
+.badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+    align-self: flex-start;
+    padding: 12px 22px;
+    border-radius: 999px;
+    background: rgba(127, 239, 161, 0.12);
+    border: 1px solid rgba(127, 239, 161, 0.38);
+    color: var(--green);
+    font-family: var(--font-mono);
+    font-size: 18px;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+}
+.score-side small { font-size: 21px; color: var(--text-dim); line-height: 1.5; }
+
+/* Escala 0-100 con marcador */
+.scale { margin-top: 44px; }
+.scale-bar {
+    height: 12px;
+    border-radius: 999px;
+    background: linear-gradient(90deg, var(--coral), #E0C56A 48%, var(--green));
+    opacity: 0.85;
+    position: relative;
+}
+.scale-mark {
+    position: absolute;
+    top: -9px;
+    width: 4px;
+    height: 30px;
+    border-radius: 3px;
+    background: #FFF;
+    box-shadow: 0 0 18px rgba(255, 255, 255, 0.85);
+    left: 0;
+    transition: left 1.4s var(--ease) 0.5s;
+}
+.slide.visible .scale-mark { left: calc(84% - 2px); }
+.scale-legend {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 16px;
+    font-family: var(--font-mono);
+    font-size: 15px;
+    letter-spacing: 0.1em;
+    color: var(--text-faint);
+}
+
+/* ===========================================
+   GRÁFICOS SVG — trazo que se dibuja al entrar
+   =========================================== */
+.chart { width: 100%; height: auto; display: block; overflow: visible; }
+
+/* pathLength="1" permite animar el trazo sin conocer su longitud real */
+.draw {
+    stroke-dasharray: 1;
+    stroke-dashoffset: 1;
+    transition: stroke-dashoffset 1.8s var(--ease) 0.35s;
+}
+.slide.visible .draw { stroke-dashoffset: 0; }
+
+.fade-in { opacity: 0; transition: opacity 0.8s ease 1.1s; }
+.slide.visible .fade-in { opacity: 1; }
+
+.pop { opacity: 0; transform: scale(0.4); transform-origin: center; transition: opacity .5s var(--ease), transform .5s var(--ease); }
+.slide.visible .pop { opacity: 1; transform: scale(1); }
+
+.axis-label {
+    font-family: var(--font-mono);
+    font-size: 16px;
+    fill: var(--text-faint);
+    letter-spacing: 0.08em;
+}
+.val-label {
+    font-family: var(--font-mono);
+    font-size: 22px;
+    font-weight: 700;
+}
+
+/* ===========================================
+   WIDGET: BACHE vs ESTRUCTURAL (pregunta 4)
+   =========================================== */
+.split {
+    display: flex;
+    height: 74px;
+    border-radius: 16px;
+    overflow: hidden;
+    border: 1px solid var(--border);
+}
+.split > div {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--font-mono);
+    font-size: 24px;
+    font-weight: 700;
+    color: #06081E;
+    width: 0;
+    transition: width 1.3s var(--ease) 0.4s;
+}
+.split .puntual {
+    background: repeating-linear-gradient(115deg, var(--green) 0 14px, #6FE096 14px 28px);
+}
+.split .estructural { background: var(--coral); }
+.slide.visible .split .puntual { width: 70%; }
+.slide.visible .split .estructural { width: 30%; }
+
+.split-legend { display: flex; gap: 24px; margin-top: 30px; }
+.split-legend > div {
+    flex: 1;
+    padding: 26px 28px;
+    border-radius: 18px;
+    border: 1px solid var(--border);
+    background: rgba(8, 11, 38, 0.45);
+}
+.split-legend b {
+    display: block;
+    font-family: var(--font-mono);
+    font-size: 40px;
+    font-weight: 700;
+    margin-bottom: 8px;
+}
+.split-legend span { font-size: 20px; color: var(--text-dim); line-height: 1.45; }
+
+.mono-row {
+    margin-top: 34px;
+    padding: 18px 22px;
+    border-radius: 14px;
+    background: rgba(4, 6, 26, 0.7);
+    border: 1px solid var(--border);
+    font-family: var(--font-mono);
+    font-size: 20px;
+    color: var(--text-dim);
+}
+.mono-row b { color: var(--text); font-weight: 700; }
+
+/* ===========================================
+   WIDGET: TARJETA DE INSIGHT (pregunta 5)
+   Réplica del popover violeta del producto
+   =========================================== */
+.insight {
+    border-radius: 20px;
+    padding: 32px 34px;
+    background: linear-gradient(140deg, rgba(165, 107, 245, 0.20), rgba(58, 122, 250, 0.10) 70%, transparent);
+    border: 1px solid rgba(165, 107, 245, 0.42);
+    box-shadow: 0 0 60px -20px rgba(165, 107, 245, 0.55);
+}
+.insight .kicker { color: var(--violet); margin-bottom: 14px; display: block; }
+.insight p { font-size: 25px; line-height: 1.55; color: var(--text); }
+.insight p b { color: var(--cyan); font-weight: 600; }
+
+/* Cadena algoritmo → palanca → LLM */
+.chain { display: flex; align-items: center; gap: 16px; margin-bottom: 30px; }
+.chain-step {
+    flex: 1;
+    padding: 20px 18px;
+    border-radius: 14px;
+    border: 1px solid var(--border);
+    background: rgba(8, 11, 38, 0.5);
+    text-align: center;
+}
+.chain-step .kicker { font-size: 14px; letter-spacing: 0.16em; display: block; margin-bottom: 8px; }
+.chain-step strong { font-size: 21px; font-weight: 500; }
+.chain-arrow { color: var(--text-faint); font-size: 26px; flex: none; }
+
+/* ===========================================
+   SLIDE 2 — REJILLA DE LAS SEIS PREGUNTAS
+   =========================================== */
+.grid-slide {
+    position: relative;
+    z-index: 1;
+    height: 100%;
+    padding: 96px 100px 92px;
+    display: flex;
+    flex-direction: column;
+}
+.grid-slide > * { position: relative; z-index: 2; }
+.grid-head { margin-bottom: 50px; }
+.grid-head h2 {
+    font-size: 66px;
+    font-weight: 600;
+    letter-spacing: -0.03em;
+    margin-top: 16px;
+}
+.six {
+    flex: 1;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    grid-template-rows: repeat(2, 1fr);
+    gap: 26px;
+}
+.six-card {
+    border-radius: 20px;
+    border: 1px solid var(--border);
+    background: linear-gradient(158deg, rgba(27, 30, 76, 0.85), rgba(16, 19, 49, 0.85));
+    padding: 34px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    position: relative;
+    overflow: hidden;
+}
+/* Filo de color en el borde superior de cada tarjeta */
+.six-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+    background: var(--edge, var(--blue));
+    opacity: 0.9;
+}
+.six-card .n {
+    position: absolute;
+    top: 30px;
+    left: 34px;
+    font-family: var(--font-mono);
+    font-size: 17px;
+    font-weight: 700;
+    letter-spacing: 0.2em;
+    color: var(--edge, var(--blue));
+}
+.six-card h3 {
+    font-size: 40px;
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    line-height: 1.12;
+    margin: 22px 0 14px;
+}
+.six-card p { font-size: 20px; line-height: 1.5; color: var(--text-dim); }
+
+/* ===========================================
+   SLIDE 9 — LAS TRES PIEZAS DE LA APP
+   =========================================== */
+.three {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 30px;
+    height: 640px;
+    margin-bottom: auto;
+}
+.three .panel { padding: 38px 36px; display: flex; flex-direction: column; }
+.three h3 {
+    font-size: 38px;
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    line-height: 1.12;
+    margin: 20px 0 20px;
+}
+.three ul { list-style: none; display: flex; flex-direction: column; gap: 16px; }
+.three li {
+    font-size: 20px;
+    line-height: 1.45;
+    color: var(--text-dim);
+    padding-left: 24px;
+    position: relative;
+}
+.three li::before {
+    content: '';
+    position: absolute;
+    left: 0; top: 11px;
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: var(--edge, var(--blue));
+}
+.three .tag {
+    margin-top: auto;
+    padding-top: 26px;
+    font-family: var(--font-mono);
+    font-size: 15px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--text-faint);
+}
+.three .big-score {
+    margin-top: auto;          /* reparte el aire: centra el bloque del score */
+    font-family: var(--font-mono);
+    font-size: 128px;
+    font-weight: 700;
+    line-height: 1;
+    letter-spacing: -0.05em;
+    background: linear-gradient(170deg, #FFF, var(--cyan));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    margin-bottom: 4px;
+}
+
+/* ===========================================
+   SLIDE 10 — CIERRE
+   =========================================== */
+.close {
+    position: relative;
+    z-index: 1;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    padding: 0 160px;
+}
+.close > * { position: relative; z-index: 2; }
+.close h2 {
+    font-size: 104px;
+    font-weight: 600;
+    line-height: 1.08;
+    letter-spacing: -0.035em;
+}
+.close h2 em {
+    font-style: normal;
+    background: linear-gradient(100deg, var(--cyan), var(--blue) 55%, var(--violet));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+}
+.close .lede {
+    margin-top: 40px;
+    font-size: 29px;
+    color: var(--text-dim);
+    line-height: 1.55;
+    max-width: 1080px;
+}
+.close .note {
+    margin-top: 70px;
+    font-family: var(--font-mono);
+    font-size: 17px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--text-faint);
+    padding: 16px 28px;
+    border: 1px solid var(--border);
+    border-radius: 999px;
+}
+
+
+/* ===========================================
+   ETIQUETA DE BLOQUE DEL JURADO
+   Marca qué criterio de evaluación cubre cada slide
+   =========================================== */
+.factor-tag {
+    position: absolute;
+    top: 58px;
+    right: 100px;
+    z-index: 3;
+}
+
+/* ===========================================
+   LAYOUT ANCHO — para las slides densas (algoritmo, técnica, negocio)
+   =========================================== */
+.wide {
+    position: relative;
+    z-index: 1;
+    height: 100%;
+    padding: 88px 100px 92px;
+    display: flex;
+    flex-direction: column;
+}
+.wide > * { position: relative; z-index: 2; }
+.wide-head { margin-bottom: 42px; }
+.wide-head h2 {
+    font-size: 62px;
+    font-weight: 600;
+    letter-spacing: -0.03em;
+    line-height: 1.05;
+    margin-top: 14px;
+}
+.wide-head .sub {
+    margin-top: 18px;
+    font-size: 25px;
+    line-height: 1.5;
+    color: var(--text-dim);
+    max-width: 1240px;
+}
+.wide-body { flex: 1; display: flex; flex-direction: column; justify-content: center; gap: 28px; }
+
+/* ===========================================
+   SLIDE 2 — LA PARADOJA DEL MES 24
+   =========================================== */
+.paradox-callout {
+    position: absolute;
+    right: 100px;
+    top: 50%;
+    transform: translateY(-50%);
+    text-align: center;
+    padding: 26px 30px;
+    border-radius: 20px;
+    border: 1px solid var(--border-hi);
+    background: rgba(8, 11, 38, 0.72);
+}
+.paradox-callout b {
+    display: block;
+    font-family: var(--font-mono);
+    font-size: 62px;
+    font-weight: 700;
+    line-height: 1;
+    color: var(--text);
+}
+.paradox-callout span {
+    display: block;
+    margin-top: 10px;
+    font-family: var(--font-mono);
+    font-size: 15px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--text-dim);
+}
+
+/* ===========================================
+   SLIDE 4 — LAS SEIS EN CUATRO PANELES
+   =========================================== */
+.quad {
+    flex: 1;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: 1fr 1fr;
+    gap: 26px;
+}
+.quad .panel { padding: 28px 32px; display: flex; flex-direction: column; }
+.quad .panel-head { margin-bottom: 16px; }
+.quad .panel-title { font-size: 24px; }
+.quad .qref {
+    font-family: var(--font-mono);
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: 0.16em;
+    color: var(--blue);
+}
+.quad .chart-slot { flex: 1; display: flex; align-items: center; }
+
+/* ===========================================
+   SLIDE 5 — COMPOSICIÓN DEL SCORE
+   Barra apilada con los pesos reales del motor
+   =========================================== */
+.stack {
+    display: flex;
+    height: 108px;
+    border-radius: 20px;
+    overflow: hidden;
+    border: 1px solid var(--border);
+}
+.stack > div {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    width: 0;
+    color: #06081E;
+    transition: width 1.3s var(--ease) 0.35s;
+}
+.stack b { font-family: var(--font-mono); font-size: 32px; font-weight: 700; }
+.stack span { font-size: 18px; font-weight: 600; }
+.slide.visible .stack .w-l { width: 50%; }
+.slide.visible .stack .w-c { width: 30%; }
+.slide.visible .stack .w-d { width: 20%; }
+
+/* Modificadores que se suman o restan sobre la base */
+.mods { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
+.mod {
+    padding: 26px 28px;
+    border-radius: 18px;
+    border: 1px solid var(--border);
+    background: rgba(8, 11, 38, 0.45);
+}
+.mod b {
+    display: block;
+    font-family: var(--font-mono);
+    font-size: 34px;
+    font-weight: 700;
+    margin-bottom: 8px;
+}
+.mod strong { display: block; font-size: 22px; font-weight: 600; margin-bottom: 8px; }
+.mod span { font-size: 19px; line-height: 1.45; color: var(--text-dim); }
+
+/* Notas de método en una tira de tarjetas bajas */
+.notes { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; }
+.note-card {
+    padding: 22px 24px;
+    border-radius: 16px;
+    border: 1px solid var(--border);
+    background: rgba(8, 11, 38, 0.35);
+}
+.note-card .kicker { display: block; font-size: 14px; letter-spacing: 0.16em; margin-bottom: 10px; color: var(--cyan); }
+.note-card p { font-size: 18px; line-height: 1.45; color: var(--text-dim); }
+
+/* ===========================================
+   SLIDE 6 — ESTADOS Y ANTICIPACIÓN
+   =========================================== */
+.states { display: flex; gap: 14px; flex-wrap: wrap; }
+.states.compact { gap: 9px; }
+.states.compact .state { padding: 9px 13px; font-size: 14px; gap: 7px; border-radius: 9px; }
+.state {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    padding: 14px 20px;
+    border-radius: 12px;
+    border: 1px solid var(--border);
+    background: rgba(8, 11, 38, 0.5);
+    font-family: var(--font-mono);
+    font-size: 17px;
+    font-weight: 500;
+    letter-spacing: 0.08em;
+    color: var(--text);
+}
+.cols-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 26px; flex: none; }
+.cols-2-1 { display: grid; grid-template-columns: 1.25fr 1fr; gap: 26px; flex: none; }
+.cols-3 .panel, .cols-2-1 .panel { display: flex; flex-direction: column; }
+.cols-3 h3, .cols-2-1 h3 {
+    font-size: 30px;
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    line-height: 1.15;
+    margin: 16px 0 16px;
+}
+.cols-3 p, .cols-2-1 p { font-size: 20px; line-height: 1.5; color: var(--text-dim); }
+.cols-3 .tag, .cols-2-1 .tag {
+    margin-top: auto;
+    padding-top: 22px;
+    font-family: var(--font-mono);
+    font-size: 15px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--text-faint);
+}
+
+/* ===========================================
+   SLIDE 7 — PIPELINE TÉCNICO
+   =========================================== */
+.pipe { display: flex; align-items: stretch; gap: 12px; }
+.pipe-step {
+    flex: 1;
+    padding: 24px 18px;
+    border-radius: 16px;
+    border: 1px solid var(--border);
+    background: linear-gradient(160deg, rgba(27, 30, 76, 0.8), rgba(16, 19, 49, 0.8));
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 8px;
+}
+.pipe-step .kicker { font-size: 14px; letter-spacing: 0.16em; color: var(--blue); }
+.pipe-step strong { font-size: 19px; font-weight: 500; line-height: 1.25; }
+.pipe-arrow { align-self: center; color: var(--text-faint); font-size: 22px; flex: none; }
+
+.stackchips { display: flex; gap: 14px; flex-wrap: wrap; }
+.stackchip {
+    padding: 14px 22px;
+    border-radius: 12px;
+    border: 1px solid var(--border-hi);
+    background: rgba(58, 122, 250, 0.09);
+    font-family: var(--font-mono);
+    font-size: 18px;
+    color: var(--text);
+}
+
+/* ===========================================
+   SLIDE 9 — RECORRIDO DEL CLIENTE
+   =========================================== */
+.journey { display: flex; align-items: stretch; gap: 14px; }
+.jstep { min-height: 240px; }
+.jstep {
+    flex: 1;
+    padding: 30px 26px;
+    border-radius: 18px;
+    border: 1px solid var(--border);
+    background: linear-gradient(160deg, rgba(27, 30, 76, 0.8), rgba(16, 19, 49, 0.8));
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    overflow: hidden;
+}
+.jstep::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+    background: var(--edge, var(--blue));
+}
+.jstep .n {
+    font-family: var(--font-mono);
+    font-size: 15px;
+    font-weight: 700;
+    letter-spacing: 0.18em;
+    color: var(--edge, var(--blue));
+    margin-bottom: 18px;
+}
+.jstep h3 { font-size: 26px; font-weight: 600; line-height: 1.15; margin-bottom: 12px; letter-spacing: -0.015em; }
+.jstep p { font-size: 18px; line-height: 1.45; color: var(--text-dim); }
+
+/* Tira de resultado: la cadena acuerdo → puntos → euros */
+.chainline {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 22px;
+    padding: 26px 34px;
+    border-radius: 18px;
+    border: 1px solid rgba(127, 239, 161, 0.35);
+    background: linear-gradient(100deg, rgba(127, 239, 161, 0.12), rgba(58, 122, 250, 0.08));
+    font-family: var(--font-mono);
+    font-size: 25px;
+    color: var(--text);
+}
+.chainline b { color: var(--green); font-weight: 700; }
+.chainline i { font-style: normal; color: var(--text-faint); }
+
+/* ===========================================
+   PALANCAS — catálogo de acciones y anatomía de la recomendación
+   =========================================== */
+.levers { display: grid; grid-template-columns: repeat(4, 1fr); grid-template-rows: repeat(2, 1fr); gap: 20px; flex: 1; }
+.lever {
+    border-radius: 18px;
+    border: 1px solid var(--border);
+    background: linear-gradient(158deg, rgba(27, 30, 76, 0.85), rgba(16, 19, 49, 0.85));
+    padding: 26px 24px 22px;
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
+.lever::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+    background: var(--edge, var(--blue));
+    opacity: 0.9;
+}
+.lever .kicker { display: block; font-size: 13px; letter-spacing: 0.16em; color: var(--edge, var(--blue)); margin-bottom: 14px; }
+.lever h3 { font-size: 32px; font-weight: 600; letter-spacing: -0.02em; line-height: 1.1; margin: auto 0; }
+.lever .range { font-family: var(--font-mono); font-size: 16px; color: var(--text); }
+.lever .moves { display: flex; gap: 8px; margin-top: 12px; }
+.lever .moves span {
+    font-family: var(--font-mono);
+    font-size: 13px;
+    letter-spacing: 0.1em;
+    padding: 5px 10px;
+    border-radius: 99px;
+    border: 1px solid var(--border);
+    color: var(--text-faint);
+}
+.lever .moves span.on {
+    color: var(--green);
+    border-color: rgba(127, 239, 161, 0.40);
+    background: rgba(127, 239, 161, 0.09);
+}
+
+/* Las dos patas del puente a euros, una al lado de la otra */
+.legs { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; margin-top: 18px; }
+.leg { border-radius: 16px; border: 1px solid var(--border); background: rgba(8, 11, 38, 0.5); padding: 22px 24px; }
+.leg .kicker { display: block; margin-bottom: 10px; }
+.leg b { font-family: var(--font-mono); font-size: 20px; color: var(--text); display: block; margin-bottom: 8px; }
+.leg span { font-size: 17px; line-height: 1.45; color: var(--text-dim); }
+
+/* ===========================================
+   SLIDE 10 — MONETIZACIÓN
+   =========================================== */
+.kpis { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
+.kpi {
+    padding: 30px 32px;
+    border-radius: 20px;
+    border: 1px solid var(--border);
+    background: linear-gradient(158deg, rgba(27, 30, 76, 0.85), rgba(16, 19, 49, 0.85));
+}
+.kpi b {
+    display: block;
+    font-family: var(--font-mono);
+    font-size: 52px;
+    font-weight: 700;
+    line-height: 1;
+    letter-spacing: -0.03em;
+    margin-bottom: 14px;
+    background: linear-gradient(170deg, #FFF, var(--cyan));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+}
+.kpi strong { display: block; font-size: 21px; font-weight: 600; margin-bottom: 8px; }
+.kpi span { font-size: 18px; line-height: 1.45; color: var(--text-dim); }
+
+/* Comparativa con lo que hoy se compra en el mercado */
+.market { width: 100%; border-collapse: collapse; }
+.market th, .market td {
+    text-align: left;
+    padding: 18px 22px;
+    font-size: 19px;
+    border-bottom: 1px solid var(--border);
+}
+.market th {
+    font-family: var(--font-mono);
+    font-size: 14px;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--text-faint);
+    font-weight: 500;
+}
+.market td { color: var(--text-dim); }
+.market td:first-child { color: var(--text); font-weight: 500; }
+.market tr.ours td {
+    color: var(--text);
+    background: rgba(58, 122, 250, 0.10);
+    border-bottom-color: var(--border-hi);
+}
+.market tr.ours td:first-child { color: var(--cyan); font-weight: 600; }
+.market tr:last-child td { border-bottom: none; }
+.market td.price { font-family: var(--font-mono); font-size: 18px; white-space: nowrap; }
+
+/* Pie de slide con la letra pequeña honesta */
+.footnote {
+    margin-top: 22px;
+    font-size: 17px;
+    color: var(--text-faint);
+    line-height: 1.45;
+}
+
+/* ===========================================
+   CHROME DEL DECK — fuera del lienzo de las slides
+   Barra de progreso azul con remate rayado, como el producto
+   =========================================== */
+.progress {
+    position: fixed;
+    top: 0; left: 0;
+    height: 3px;
+    z-index: 1000;
+    background: var(--blue);
+    box-shadow: 0 0 16px rgba(58, 122, 250, 0.9);
+    transition: width 0.45s var(--ease);
+}
+.counter {
+    position: fixed;
+    right: 34px;
+    bottom: 26px;
+    z-index: 1000;
+    font-family: var(--font-mono);
+    font-size: 15px;
+    letter-spacing: 0.14em;
+    color: var(--text-faint);
+}
+.counter b { color: var(--text); font-weight: 700; }
+.hint {
+    position: fixed;
+    left: 34px;
+    bottom: 26px;
+    z-index: 1000;
+    font-family: var(--font-mono);
+    font-size: 13px;
+    letter-spacing: 0.12em;
+    color: var(--text-faint);
+    opacity: 0.5;
+    transition: opacity 0.6s ease;
+}
+.hint.gone { opacity: 0; }
+
+/* ===========================================
+   EDICIÓN EN LÍNEA (tecla E o esquina superior izquierda)
+   Visibilidad controlada por JS, nunca por selector ~ de CSS
+   =========================================== */
+.edit-hotzone {
+    position: fixed;
+    top: 0; left: 0;
+    width: 80px; height: 80px;
+    z-index: 10000;
+    cursor: pointer;
+}
+.edit-toggle {
+    position: fixed;
+    top: 18px; left: 18px;
+    z-index: 10001;
+    width: 46px; height: 46px;
+    border-radius: 12px;
+    border: 1px solid var(--border-hi);
+    background: rgba(20, 23, 59, 0.92);
+    color: var(--text);
+    font-size: 19px;
+    cursor: pointer;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+}
+.edit-toggle.show, .edit-toggle.active { opacity: 1; pointer-events: auto; }
+.edit-toggle.active { border-color: var(--cyan); box-shadow: 0 0 20px rgba(61, 217, 232, 0.5); }
+body.editing [contenteditable="true"]:hover { outline: 1px dashed var(--border-hi); }
+body.editing [contenteditable="true"]:focus { outline: 2px solid var(--cyan); outline-offset: 4px; }
+.edit-banner {
+    position: fixed;
+    top: 18px; left: 76px;
+    z-index: 10001;
+    padding: 12px 18px;
+    border-radius: 10px;
+    background: rgba(20, 23, 59, 0.94);
+    border: 1px solid var(--border-hi);
+    font-family: var(--font-mono);
+    font-size: 13px;
+    letter-spacing: 0.08em;
+    color: var(--text-dim);
+    display: none;
+}
+body.editing .edit-banner { display: block; }
+</style>
+</head>
+<body>
+
+<div class="deck-viewport">
+<main class="deck-stage" id="deckStage">
+    <!-- ============ 1 · PORTADA ============ -->
+    <section class="slide active">
+        <div class="cover">
+            <div class="brand reveal" style="--d:.05s">
+                <div class="brand-mark"></div>
+                <div class="brand-text">X-Ray · un departamento dentro de Embat</div>
+            </div>
+
+            <h1 class="reveal-blur" style="--d:.15s">No te damos un número.<br>Te damos <em>las palancas</em></h1>
+
+            <p class="lede reveal" style="--d:.45s">
+                Todos los scores terminan en un número. El nuestro empieza ahí.
+            </p>
+
+            <div class="chips">
+                <div class="chip reveal" style="--d:.68s"><b>01</b> El motor</div>
+                <div class="chip reveal" style="--d:.78s"><b>02</b> Las palancas</div>
+                <div class="chip reveal" style="--d:.88s"><b>03</b> El negocio</div>
+            </div>
+
+            <div class="cover-foot reveal" style="--d:1.05s">
+                <span class="kicker">HackSpain 2026</span>
+                <span class="kicker" style="color:var(--border-hi)">·</span>
+                <span class="kicker">Reto Embat</span>
+                <span class="kicker" style="color:var(--border-hi)">·</span>
+                <span class="kicker">250 grupos · 24 meses</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- ============ 2 · LA PARADOJA DEL MES 24 ============ -->
+    <section class="slide">
+        <div class="wide">
+            <div class="wide-head">
+                <span class="kicker reveal" style="--d:.05s">El problema</span>
+                <h2 class="reveal" style="--d:.12s">Dos empresas, tres puntos de diferencia</h2>
+                <p class="sub reveal" style="--d:.2s">
+                    Mismo número en el mes 24. Riesgos opuestos.
+                </p>
+            </div>
+
+            <div class="wide-body">
+                <!-- Northbrook sube 45→65; Velasco cae 82→68. Convergen en el mes 24. -->
+                <svg class="chart reveal-scale" style="--d:.3s" viewBox="0 0 1760 470" role="img"
+                     aria-label="Northbrook sube de 45 a 65 mientras Velasco cae de 82 a 68; acaban a tres puntos">
+                    <g stroke="rgba(140,150,220,.12)" stroke-width="1">
+                        <line x1="60" y1="100" x2="1440" y2="100"/>
+                        <line x1="60" y1="200" x2="1440" y2="200"/>
+                        <line x1="60" y1="300" x2="1440" y2="300"/>
+                        <line x1="60" y1="400" x2="1440" y2="400"/>
+                    </g>
+
+                    <!-- Velasco: deterioro continuo -->
+                    <path class="draw" pathLength="1" fill="none" stroke="#F98274" stroke-width="4.5"
+                          stroke-linecap="round" stroke-linejoin="round"
+                          d="M80,114 L250,108 L420,121 L590,135 L760,148 L930,169 L1100,182 L1270,196 L1440,210"/>
+                    <!-- Northbrook: mejora sostenida -->
+                    <path class="draw" style="transition-delay:.5s" pathLength="1" fill="none" stroke="#7FEFA1" stroke-width="4.5"
+                          stroke-linecap="round" stroke-linejoin="round"
+                          d="M80,366 L250,373 L420,346 L590,352 L760,318 L930,298 L1100,278 L1270,250 L1440,230"/>
+
+                    <circle class="pop" style="transition-delay:.3s" cx="80" cy="114" r="9" fill="#06081E" stroke="#F98274" stroke-width="3"/>
+                    <circle class="pop" style="transition-delay:.8s" cx="80" cy="366" r="9" fill="#06081E" stroke="#7FEFA1" stroke-width="3"/>
+                    <circle class="pop" style="transition-delay:2.1s" cx="1440" cy="210" r="10" fill="#F98274"/>
+                    <circle class="pop" style="transition-delay:2.2s" cx="1440" cy="230" r="10" fill="#7FEFA1"/>
+
+                    <text class="fade-in" style="transition-delay:.4s" x="56" y="92" text-anchor="end"
+                          font-family="JetBrains Mono" font-size="30" font-weight="700" fill="#F98274">82</text>
+                    <text class="fade-in" style="transition-delay:.9s" x="56" y="380" text-anchor="end"
+                          font-family="JetBrains Mono" font-size="30" font-weight="700" fill="#7FEFA1">45</text>
+
+                    <text class="fade-in" style="transition-delay:.4s" x="80" y="60"
+                          font-family="General Sans" font-size="24" font-weight="500" fill="#F98274">Velasco Industrial</text>
+                    <text class="fade-in" style="transition-delay:.9s" x="80" y="428"
+                          font-family="General Sans" font-size="24" font-weight="500" fill="#7FEFA1">Northbrook Foods</text>
+
+                    <!-- El remate: acaban a tres puntos -->
+                    <g class="fade-in" style="transition-delay:2.4s">
+                        <path d="M1462,210 L1478,210 L1478,230 L1462,230" fill="none" stroke="#9095BE" stroke-width="2"/>
+                        <rect x="1500" y="152" width="240" height="136" rx="20" fill="rgba(8,11,38,.82)" stroke="rgba(124,134,205,.45)"/>
+                        <text x="1620" y="222" text-anchor="middle" font-family="JetBrains Mono" font-size="54" font-weight="700" fill="#EEF0FC">68 · 65</text>
+                        <text x="1620" y="258" text-anchor="middle" class="axis-label" fill="#9095BE">3 PUNTOS EN EL MES 24</text>
+                    </g>
+
+                    <text class="axis-label" x="60" y="458">mes 1</text>
+                    <text class="axis-label" x="1370" y="458">mes 24</text>
+                </svg>
+
+                <div class="mono-row reveal" style="--d:.5s; text-align:center">
+                    Lo que importa es <b>la trayectoria</b>, no la foto
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ============ 3 · LAS SEIS PREGUNTAS DE UN VISTAZO ============ -->
+    <section class="slide">
+        <div class="grid-slide">
+            <div class="grid-head">
+                <span class="kicker reveal" style="--d:.05s">Lo que el sistema tiene que contestar</span>
+                <h2 class="reveal" style="--d:.12s">Seis preguntas, empresa por empresa y mes a mes</h2>
+            </div>
+
+            <div class="six">
+                <article class="six-card reveal" style="--d:.2s; --edge: var(--cyan)">
+                    <span class="n">01</span>
+                    <div>
+                        <h3>Quién está sano</h3>
+                        <p>No solo quién está en problemas.</p>
+                    </div>
+                </article>
+                <article class="six-card reveal" style="--d:.28s; --edge: var(--green)">
+                    <span class="n">02</span>
+                    <div>
+                        <h3>Quién está mejorando</h3>
+                        <p>De 45 a 65: mediocre hoy, mejor apuesta mañana.</p>
+                    </div>
+                </article>
+                <article class="six-card reveal" style="--d:.36s; --edge: var(--coral)">
+                    <span class="n">03</span>
+                    <div>
+                        <h3>Quién empieza a torcerse</h3>
+                        <p>De 82 a 68 sigue pareciendo sana.</p>
+                    </div>
+                </article>
+                <article class="six-card reveal" style="--d:.44s; --edge: var(--blue)">
+                    <span class="n">04</span>
+                    <div>
+                        <h3>Bache o caída</h3>
+                        <p>Un mes malo no es un deterioro estructural.</p>
+                    </div>
+                </article>
+                <article class="six-card reveal" style="--d:.52s; --edge: var(--violet)">
+                    <span class="n">05</span>
+                    <div>
+                        <h3>Por qué ha cambiado</h3>
+                        <p>Un número sin explicación no sirve para decidir.</p>
+                    </div>
+                </article>
+                <article class="six-card reveal" style="--d:.6s; --edge: #E0C56A">
+                    <span class="n">06</span>
+                    <div>
+                        <h3>Cuándo se vio venir</h3>
+                        <p>La gracia está en cuántos meses antes.</p>
+                    </div>
+                </article>
+            </div>
+
+            <div class="mono-row reveal" style="--d:.72s; text-align:center; margin-top:34px">
+                Y la séptima: <b>y ahora qué hago</b>
+            </div>
+        </div>
+    </section>
+
+    <!-- ============ 4 · LAS SEIS, EN CUATRO PANELES ============ -->
+    <section class="slide" data-count="84">
+        <div class="wide">
+            <div class="wide-head">
+                <span class="kicker reveal" style="--d:.05s">Las seis, en pantalla</span>
+                <h2 class="reveal" style="--d:.12s">Así se contestan</h2>
+            </div>
+
+            <div class="quad">
+                <!-- 01 · el score en grande -->
+                <div class="panel reveal" style="--d:.2s">
+                    <div class="panel-head">
+                        <div class="panel-title">Score financiero</div>
+                        <span class="qref">01</span>
+                    </div>
+                    <div class="chart-slot">
+                        <div style="display:flex; align-items:center; gap:40px; width:100%">
+                            <div class="score-num" style="font-size:132px" data-target="84">0</div>
+                            <div class="score-side">
+                                <span class="badge"><i class="dot green"></i>Sólida</span>
+                                <small>Nivel, trayectoria y estado.</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 02 y 03 · el score se separa de su propio nivel base -->
+                <div class="panel reveal" style="--d:.3s">
+                    <div class="panel-head">
+                        <div class="panel-title">Score vs. nivel base</div>
+                        <span class="qref">02 · 03</span>
+                    </div>
+                    <div class="chart-slot">
+                        <svg class="chart" viewBox="0 0 760 230" role="img" aria-label="El score se separa del nivel base desde febrero">
+                            <g stroke="rgba(140,150,220,.12)" stroke-width="1">
+                                <line x1="30" y1="60" x2="740" y2="60"/>
+                                <line x1="30" y1="130" x2="740" y2="130"/>
+                                <line x1="30" y1="195" x2="740" y2="195"/>
+                            </g>
+                            <line class="fade-in" style="transition-delay:1.2s" x1="267" y1="30" x2="267" y2="200"
+                                  stroke="#F98274" stroke-width="2" stroke-dasharray="5 6" opacity=".7"/>
+                            <text class="axis-label fade-in" style="transition-delay:1.3s" x="248" y="24" fill="#F98274">FEB</text>
+                            <path class="draw" pathLength="1" fill="none" stroke="#666C99" stroke-width="2.5"
+                                  stroke-linecap="round" stroke-linejoin="round"
+                                  d="M40,92 L153,92 L267,98 L380,104 L493,109 L607,109 L720,104"/>
+                            <path class="draw" style="transition-delay:.4s" pathLength="1" fill="none" stroke="#F98274" stroke-width="3.5"
+                                  stroke-linecap="round" stroke-linejoin="round"
+                                  d="M40,75 L153,75 L267,92 L380,115 L493,132 L607,143 L720,155"/>
+                            <circle class="pop" style="transition-delay:1.9s" cx="720" cy="155" r="7" fill="#F98274"/>
+                            <text class="axis-label fade-in" style="transition-delay:1.5s" x="618" y="94" fill="#666C99">nivel base</text>
+                            <text class="axis-label fade-in" style="transition-delay:1.6s" x="668" y="180" fill="#F98274">score</text>
+                            <text class="axis-label" x="30" y="222">ene</text>
+                            <text class="axis-label" x="700" y="222">jul</text>
+                        </svg>
+                    </div>
+                </div>
+
+                <!-- 04 y 05 · bache o caída, y el porqué redactado -->
+                <div class="panel reveal" style="--d:.4s">
+                    <div class="panel-head">
+                        <div class="panel-title">Bache o caída · y por qué</div>
+                        <span class="qref">04 · 05</span>
+                    </div>
+                    <div class="chart-slot">
+                        <div style="width:100%">
+                            <div class="split" style="height:56px">
+                                <div class="puntual" style="font-size:20px">70 % puntual</div>
+                                <div class="estructural" style="font-size:20px">30 %</div>
+                            </div>
+                            <div class="insight" style="margin-top:20px; padding:20px 22px">
+                                <p style="font-size:20px; line-height:1.45"><b>−14 pts</b> en tres meses:
+                                <b>−9,2</b> liquidez, <b>−4,1</b> momentum. La resta exacta.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 06 · cuándo se vio venir -->
+                <div class="panel reveal" style="--d:.5s">
+                    <div class="panel-head">
+                        <div class="panel-title">Previsión del score</div>
+                        <span class="qref">06</span>
+                    </div>
+                    <div class="chart-slot">
+                        <svg class="chart" viewBox="0 0 760 230" role="img" aria-label="Histórico y banda de previsión a seis meses">
+                            <defs>
+                                <linearGradient id="cone2" x1="0" y1="0" x2="1" y2="0">
+                                    <stop offset="0%" stop-color="#3A7AFA" stop-opacity=".32"/>
+                                    <stop offset="100%" stop-color="#3A7AFA" stop-opacity=".06"/>
+                                </linearGradient>
+                            </defs>
+                            <g stroke="rgba(140,150,220,.12)" stroke-width="1">
+                                <line x1="30" y1="60" x2="740" y2="60"/>
+                                <line x1="30" y1="130" x2="740" y2="130"/>
+                                <line x1="30" y1="195" x2="740" y2="195"/>
+                            </g>
+                            <line class="fade-in" style="transition-delay:1s" x1="360" y1="30" x2="360" y2="200"
+                                  stroke="rgba(140,150,220,.45)" stroke-width="2" stroke-dasharray="5 6"/>
+                            <text class="axis-label fade-in" style="transition-delay:1.1s" x="342" y="24" fill="#9095BE">HOY</text>
+                            <path class="fade-in" style="transition-delay:1.15s" fill="url(#cone2)"
+                                  d="M360,112 L450,98 L540,84 L630,71 L700,64 L700,149 L630,142 L540,132 L450,122 Z"/>
+                            <path class="draw" pathLength="1" fill="none" stroke="#3DD9E8" stroke-width="3.5"
+                                  stroke-linecap="round" stroke-linejoin="round"
+                                  d="M40,139 L120,129 L200,132 L280,118 L360,112"/>
+                            <g stroke-linecap="round" stroke-linejoin="round" fill="none">
+                                <path class="draw" style="transition-delay:1.3s" pathLength="1" stroke="#7FEFA1" stroke-width="2.5" d="M360,112 L450,98 L540,84 L630,71 L700,64"/>
+                                <path class="draw" style="transition-delay:1.3s" pathLength="1" stroke="#3A7AFA" stroke-width="3" d="M360,112 L450,110 L540,107 L630,104 L700,98"/>
+                                <path class="draw" style="transition-delay:1.3s" pathLength="1" stroke="#F98274" stroke-width="2.5" d="M360,112 L450,122 L540,132 L630,142 L700,149"/>
+                            </g>
+                            <text class="axis-label" x="30" y="222">−6 m</text>
+                            <text class="axis-label" x="300" y="222" fill="#9095BE">banda 80 %</text>
+                            <text class="axis-label" x="670" y="222">+6 m</text>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ============ 5 · EL MOTOR (DIMENSIONES, MODIFICADORES Y ESTADOS) ============ -->
+    <section class="slide">
+        <span class="pill factor-tag reveal" style="--d:.05s"><i class="dot cyan"></i>Factor 1 · Algoritmo</span>
+        <div class="wide">
+            <div class="wide-head">
+                <span class="kicker reveal" style="--d:.05s">De qué está hecho el número</span>
+                <h2 class="reveal" style="--d:.12s">Aditivo por diseño: por eso se puede accionar</h2>
+                <p class="sub reveal" style="--d:.2s">
+                    Suma exacta de sus sumandos. Por eso cada input tiene precio en puntos.
+                </p>
+            </div>
+
+            <div class="wide-body">
+                <!-- Pesos reales del motor: 0,50 / 0,30 / 0,20 sobre 100 puntos de base -->
+                <div class="reveal" style="--d:.28s">
+                    <div class="stack">
+                        <div class="w-l" style="background:linear-gradient(120deg,#3DD9E8,#2FC3D6)"><b>0,50</b><span>Liquidez</span></div>
+                        <div class="w-c" style="background:linear-gradient(120deg,#5A8DFB,#3A7AFA)"><b>0,30</b><span>Cobros</span></div>
+                        <div class="w-d" style="background:linear-gradient(120deg,#B07DF7,#A56BF5)"><b>0,20</b><span>Deuda</span></div>
+                    </div>
+                    <div class="scale-legend" style="margin-top:14px">
+                        <span>Margen de flujo a 3 meses; runway si hay saldo</span>
+                        <span>Devoluciones y regularidad; DSO si hay ERP</span>
+                        <span>Servicio de deuda sobre ingresos</span>
+                    </div>
+                </div>
+
+                <div class="mods">
+                    <div class="mod reveal" style="--d:.38s">
+                        <b style="color:var(--green)">± 8 pts</b>
+                        <strong>Momentum</strong>
+                        <span>Mejora y deterioro pesan igual.</span>
+                    </div>
+                    <div class="mod reveal" style="--d:.46s">
+                        <b style="color:var(--cyan)">+ 6 pts</b>
+                        <strong>Calidad de crecimiento</strong>
+                        <span>Crecer a crédito no puntúa.</span>
+                    </div>
+                    <div class="mod reveal" style="--d:.54s">
+                        <b style="color:var(--coral)">− 8 pts</b>
+                        <strong>Fragilidad</strong>
+                        <span>Circulante y concentración. Solo resta.</span>
+                    </div>
+                </div>
+
+                <div class="cols-3">
+                    <div class="panel reveal" style="--d:.62s; padding:22px 26px">
+                        <span class="kicker" style="color:var(--blue)">Seis estados</span>
+                        <h3 style="font-size:26px; margin-bottom:14px">Un mes suelto no cambia nada</h3>
+                        <div class="states compact" style="margin-bottom:14px">
+                            <span class="state"><i class="dot green"></i>MEJORANDO</span>
+                            <span class="state"><i class="dot green"></i>RECUPERACIÓN</span>
+                            <span class="state"><i class="dot blue"></i>ESTABLE</span>
+                            <span class="state"><i class="dot dim"></i>BACHE</span>
+                            <span class="state"><i class="dot coral"></i>TORCIÉNDOSE</span>
+                            <span class="state"><i class="dot coral"></i>DETERIORO</span>
+                        </div>
+                        <p style="font-size:18px">Persistencia: 3 meses.</p>
+                    </div>
+
+                    <div class="panel reveal" style="--d:.68s; padding:22px 26px">
+                        <span class="kicker" style="color:var(--cyan)">Sin trampas</span>
+                        <h3 style="font-size:26px; margin-bottom:14px">Point-in-time</h3>
+                        <p style="font-size:18px">Ningún mes usa datos del futuro. Escala absoluta, no percentil.</p>
+                    </div>
+
+                    <div class="panel reveal" style="--d:.74s; padding:22px 26px">
+                        <span class="kicker" style="color:var(--coral)">Honestidad</span>
+                        <h3 style="font-size:26px; margin-bottom:14px">Sin rastro, no hay número</h3>
+                        <p style="font-size:18px">843 de 1.286 evaluadas. El resto, <b style="color:var(--text)">pendientes</b> — no «sanas».</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ============ 6 · LOS NÚMEROS: ANTICIPACIÓN Y PREVISIÓN ============ -->
+    <section class="slide">
+        <span class="pill factor-tag reveal" style="--d:.05s"><i class="dot cyan"></i>Factor 1 · Evidencia</span>
+        <div class="wide">
+            <div class="wide-head">
+                <span class="kicker reveal" style="--d:.05s">Lo que medimos, y contra qué</span>
+                <h2 class="reveal" style="--d:.12s">Anticipación y previsión, medidas</h2>
+            </div>
+
+            <div class="wide-body">
+                <div class="kpis">
+                    <div class="kpi reveal" style="--d:.26s">
+                        <b>14 meses</b>
+                        <strong>Antelación mediana al agotamiento de caja</strong>
+                        <span>353 de 353 casos avisados antes del colapso.</span>
+                    </div>
+                    <div class="kpi reveal" style="--d:.34s">
+                        <b>0,000</b>
+                        <strong>Falsas alarmas por empresa y año</strong>
+                        <span>En series estables y en baches de un mes.</span>
+                    </div>
+                    <div class="kpi reveal" style="--d:.42s">
+                        <b>99 %</b>
+                        <strong>De los avisos, con la base todavía ≥ 60</strong>
+                        <span>Avisamos mientras el balance aún parece sano.</span>
+                    </div>
+                </div>
+
+                <div class="panel reveal" style="--d:.52s; padding:14px 34px 22px">
+                    <table class="market">
+                        <thead>
+                            <tr>
+                                <th>Previsión del score</th>
+                                <th>Modelo elegido</th>
+                                <th>Error medio por grupo</th>
+                                <th>Dirección</th>
+                                <th>Cobertura de la banda 80 %</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>A 1 mes</td>
+                                <td>ridge</td>
+                                <td class="price">4,6 pts</td>
+                                <td class="price">51,9 %</td>
+                                <td class="price">78,0 %</td>
+                            </tr>
+                            <tr>
+                                <td>A 3 meses</td>
+                                <td>media móvil</td>
+                                <td class="price">7,2 pts</td>
+                                <td class="price">56,1 %</td>
+                                <td class="price">82,4 %</td>
+                            </tr>
+                            <tr>
+                                <td>A 6 meses</td>
+                                <td>ridge</td>
+                                <td class="price">9,9 pts</td>
+                                <td class="price">57,5 %</td>
+                                <td class="price">63,0 %</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <p class="footnote reveal" style="--d:.6s">
+                    400 trayectorias por escenario, protocolo fijado antes de ejecutar. Sobre la reserva real de Embat
+                    la precisión sale <b>no concluyente</b> — y no hemos tocado un parámetro contra ese resultado.
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <!-- ============ 7 · LA SOLUCIÓN TÉCNICA ============ -->
+    <section class="slide">
+        <span class="pill factor-tag reveal" style="--d:.05s"><i class="dot cyan"></i>Factor 1 · Solución técnica</span>
+        <div class="wide">
+            <div class="wide-head">
+                <span class="kicker reveal" style="--d:.05s">Cómo está construido</span>
+                <h2 class="reveal" style="--d:.12s">Un pipeline por bloques, con puertos y adaptadores</h2>
+                <p class="sub reveal" style="--d:.2s">
+                    Hexagonal: el núcleo no sabe si detrás hay un CSV, una API o un mock.
+                </p>
+            </div>
+
+            <div class="wide-body">
+                <div class="pipe reveal" style="--d:.28s">
+                    <div class="pipe-step"><span class="kicker">B0</span><strong>Ingesta<br>point-in-time</strong></div>
+                    <span class="pipe-arrow">→</span>
+                    <div class="pipe-step"><span class="kicker">B1</span><strong>Features<br>del rastro</strong></div>
+                    <span class="pipe-arrow">→</span>
+                    <div class="pipe-step"><span class="kicker">B2</span><strong>Calidad<br>y evidencia</strong></div>
+                    <span class="pipe-arrow">→</span>
+                    <div class="pipe-step"><span class="kicker">B3</span><strong>Motor<br>de score</strong></div>
+                    <span class="pipe-arrow">→</span>
+                    <div class="pipe-step"><span class="kicker">B4</span><strong>Explicación<br>aditiva</strong></div>
+                    <span class="pipe-arrow">→</span>
+                    <div class="pipe-step"><span class="kicker">B5</span><strong>Monitor<br>y alertas</strong></div>
+                    <span class="pipe-arrow">→</span>
+                    <div class="pipe-step"><span class="kicker">B7 · B11</span><strong>API<br>y front</strong></div>
+                </div>
+
+                <div class="stackchips reveal" style="--d:.4s">
+                    <span class="stackchip">Python 3.12 · NumPy</span>
+                    <span class="stackchip">DuckDB</span>
+                    <span class="stackchip">FastAPI</span>
+                    <span class="stackchip">Next.js</span>
+                    <span class="stackchip">pytest</span>
+                    <span class="stackchip">Monitor por Telegram</span>
+                </div>
+
+                <div class="cols-3" style="flex:none">
+                    <div class="panel reveal" style="--d:.5s; padding:30px 32px">
+                        <span class="kicker" style="color:var(--cyan)">Regla 1</span>
+                        <h3>Un solo motor</h3>
+                        <p>El score del leaderboard es el que pinta el front. Ni dos números ni dos narrativas.</p>
+                    </div>
+                    <div class="panel reveal" style="--d:.58s; padding:30px 32px">
+                        <span class="kicker" style="color:var(--cyan)">Regla 2</span>
+                        <h3>Contrafactual real</h3>
+                        <p>El simulador recomputa el motor entero. No extrapola derivadas.</p>
+                    </div>
+                    <div class="panel reveal" style="--d:.66s; padding:30px 32px">
+                        <span class="kicker" style="color:var(--cyan)">Regla 3</span>
+                        <h3>El agente no opina</h3>
+                        <p>El LLM redacta. El número lo pone el motor.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ============ 8 · EL PRODUCTO: TRES ACTOS ============ -->
+    <section class="slide">
+        <span class="pill factor-tag reveal" style="--d:.05s"><i class="dot green"></i>Factor 2 · Producto</span>
+        <div class="wide">
+            <div class="wide-head">
+                <span class="kicker reveal" style="--d:.05s">Qué se entrega</span>
+                <h2 class="reveal" style="--d:.12s">El score es el diagnóstico. El producto es la receta</h2>
+            </div>
+
+            <div class="wide-body">
+                <div class="cols-3">
+                    <div class="panel reveal" style="--d:.24s">
+                        <span class="kicker" style="color:var(--cyan)">Acto 1</span>
+                        <h3>El motor</h3>
+                        <p>Score explicable, por filial y por grupo. <i style="font-style:normal;color:var(--text)">«El grupo saca 71;
+                           la filial portuguesa, 38.»</i></p>
+                        <div class="tag">Filial · grupo · cartera</div>
+                    </div>
+
+                    <div class="panel reveal" style="--d:.34s">
+                        <span class="kicker" style="color:var(--blue)">Acto 2</span>
+                        <h3>El simulador de palancas</h3>
+                        <p>Ocho acciones reales, cada una con sus puntos y sus euros.
+                           <b style="color:var(--text);font-weight:600">Esto no lo tiene nadie.</b></p>
+                        <div class="tag">8 palancas · what-if real</div>
+                    </div>
+
+                    <div class="panel reveal" style="--d:.44s">
+                        <span class="kicker" style="color:var(--green)">Acto 3</span>
+                        <h3>El pack bancario</h3>
+                        <p>Vuestros clientes tienen <b style="color:var(--text);font-weight:600">7 bancos de media</b>.
+                           El dossier se monta una vez, no siete.</p>
+                        <div class="tag">Aquí está el dinero</div>
+                    </div>
+                </div>
+
+                <div class="mono-row reveal" style="--d:.56s; text-align:center">
+                    Y <b>el monitor</b>: no espera a que abras el dashboard
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ============ 9 · EL CATÁLOGO DE PALANCAS ============ -->
+    <section class="slide">
+        <span class="pill factor-tag reveal" style="--d:.05s"><i class="dot green"></i>Factor 2 · Lo que nos diferencia</span>
+        <div class="grid-slide">
+            <div class="grid-head">
+                <span class="kicker reveal" style="--d:.05s">Un bureau te dice cuánto vales. Nadie te dice qué mover</span>
+                <h2 class="reveal" style="--d:.12s">Ocho palancas que se pueden accionar el lunes</h2>
+            </div>
+
+            <div class="levers">
+                <article class="lever reveal" style="--d:.18s; --edge: var(--blue)">
+                    <span class="kicker">Cobros</span>
+                    <h3>Reducir DSO</h3>
+                    <div class="range">1 – 30 días antes</div>
+                    <div class="moves"><span class="on">+ PTS</span><span class="on">+ CAJA</span></div>
+                </article>
+                <article class="lever reveal" style="--d:.24s; --edge: var(--blue)">
+                    <span class="kicker">Cobros</span>
+                    <h3>Descuento pronto pago</h3>
+                    <div class="range">1 – 5 % de descuento</div>
+                    <div class="moves"><span class="on">+ PTS</span><span class="on">+ CAJA</span></div>
+                </article>
+                <article class="lever reveal" style="--d:.30s; --edge: var(--cyan)">
+                    <span class="kicker">Liquidez</span>
+                    <h3>Ampliar DPO</h3>
+                    <div class="range">1 – 30 días más</div>
+                    <div class="moves"><span class="on">+ PTS</span><span class="on">+ CAJA</span></div>
+                </article>
+                <article class="lever reveal" style="--d:.36s; --edge: var(--cyan)">
+                    <span class="kicker">Liquidez</span>
+                    <h3>Recortar opex</h3>
+                    <div class="range">1 – 20 %</div>
+                    <div class="moves"><span class="on">+ PTS</span><span class="on">+ CAJA</span></div>
+                </article>
+                <article class="lever reveal" style="--d:.42s; --edge: var(--violet)">
+                    <span class="kicker">Deuda</span>
+                    <h3>Refinanciar</h3>
+                    <div class="range">5 – 80 % del saldo</div>
+                    <div class="moves"><span class="on">+ PTS</span><span class="on">+ CAJA</span></div>
+                </article>
+                <article class="lever reveal" style="--d:.48s; --edge: var(--violet)">
+                    <span class="kicker">Deuda</span>
+                    <h3>Bajar uso de línea</h3>
+                    <div class="range">5 – 50 puntos</div>
+                    <div class="moves"><span class="on">+ PTS</span><span>CAJA</span></div>
+                </article>
+                <article class="lever reveal" style="--d:.54s; --edge: var(--violet)">
+                    <span class="kicker">Deuda</span>
+                    <h3>Sustituir factoring</h3>
+                    <div class="range">10 – 100 % cedido</div>
+                    <div class="moves"><span class="on">+ PTS</span><span class="on">+ CAJA</span></div>
+                </article>
+                <article class="lever reveal" style="--d:.60s; --edge: #E0C56A">
+                    <span class="kicker">Concentración</span>
+                    <h3>Repartir clientes</h3>
+                    <div class="range">5 – 40 % del mayor</div>
+                    <div class="moves"><span class="on">+ PTS</span><span>CAJA</span></div>
+                </article>
+            </div>
+
+            <div class="mono-row reveal" style="--d:.7s; text-align:center; margin-top:30px">
+                Si una palanca no aplica, se <b>rechaza con su motivo</b> — nunca devuelve un cero disfrazado
+            </div>
+        </div>
+    </section>
+
+    <!-- ============ 10 · ANATOMÍA DE UNA RECOMENDACIÓN ============ -->
+    <section class="slide">
+        <span class="pill factor-tag reveal" style="--d:.05s"><i class="dot green"></i>Factor 2 · Lo que nos diferencia</span>
+        <div class="wide">
+            <div class="wide-head">
+                <span class="kicker reveal" style="--d:.05s">Cómo se construye una acción</span>
+                <h2 class="reveal" style="--d:.12s">De «tu liquidez ha caído» a «llama a estos cinco clientes»</h2>
+            </div>
+
+            <div class="wide-body">
+                <div class="chain reveal" style="--d:.24s; margin-bottom:0">
+                    <div class="chain-step">
+                        <span class="kicker" style="color:var(--coral)">01</span>
+                        <strong>Driver débil</strong>
+                    </div>
+                    <span class="chain-arrow">→</span>
+                    <div class="chain-step">
+                        <span class="kicker" style="color:var(--blue)">02</span>
+                        <strong>Palancas de ese driver</strong>
+                    </div>
+                    <span class="chain-arrow">→</span>
+                    <div class="chain-step">
+                        <span class="kicker" style="color:var(--cyan)">03</span>
+                        <strong>Recomputación completa</strong>
+                    </div>
+                    <span class="chain-arrow">→</span>
+                    <div class="chain-step">
+                        <span class="kicker" style="color:var(--green)">04</span>
+                        <strong>Puntos y euros</strong>
+                    </div>
+                    <span class="chain-arrow">→</span>
+                    <div class="chain-step">
+                        <span class="kicker" style="color:#E0C56A">05</span>
+                        <strong>El documento</strong>
+                    </div>
+                </div>
+
+                <div class="cols-2-1">
+                    <div class="panel reveal" style="--d:.36s; padding:30px 34px">
+                        <span class="kicker" style="color:var(--cyan)">Recomputación, no derivada</span>
+                        <h3>Mutamos el dato y reejecutamos<br>features → calidad → score</h3>
+                        <div class="legs">
+                            <div class="leg">
+                                <span class="kicker" style="color:var(--green)">Pata 1 · aritmética</span>
+                                <b>Δ días × facturación diaria</b>
+                                <span>Caja liberada. Una resta, no una estimación.</span>
+                            </div>
+                            <div class="leg">
+                                <span class="kicker" style="color:var(--blue)">Pata 2 · estadística</span>
+                                <b>Δ bps × deuda viva</b>
+                                <span>Ahorro financiero. Etiquetado como estimación.</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="panel reveal" style="--d:.46s; padding:30px 34px">
+                        <span class="kicker" style="color:var(--violet)">Quién decide qué</span>
+                        <h3>El agente no opina: simula</h3>
+                        <p><b style="color:var(--text)">Todas</b> las aplicables, ordenadas por impacto entre esfuerzo.
+                           El LLM redacta; no calcula.</p>
+                        <div class="tag">B8 simulador · B10 recomendador</div>
+                    </div>
+                </div>
+
+                <div class="chainline reveal" style="--d:.58s">
+                    <span>cobra 12 días antes a 5 clientes</span>
+                    <i>→</i>
+                    <b>−1,2 % de descuento</b>
+                    <i>→</i>
+                    <b>+6 pts</b>
+                    <i>→</i>
+                    <b>14.000 €/año de caja</b>
+                </div>
+
+                <p class="footnote reveal" style="--d:.66s">
+                    Caja liberada, no beneficio, anualizada en línea recta. El motor lo etiqueta en cada respuesta.
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <!-- ============ 11 · EL RECORRIDO DEL CLIENTE ============ -->
+    <section class="slide">
+        <span class="pill factor-tag reveal" style="--d:.05s"><i class="dot green"></i>Factor 2 · Usabilidad</span>
+        <div class="wide">
+            <div class="wide-head">
+                <span class="kicker reveal" style="--d:.05s">Cómo lo usa una empresa</span>
+                <h2 class="reveal" style="--d:.12s">De abrir la app a sentarse con el banco</h2>
+                <p class="sub reveal" style="--d:.2s">
+                    El equipo financiero de un cliente de Embat son tres personas. Cinco pasos, y ninguno es un informe.
+                </p>
+            </div>
+
+            <div class="wide-body">
+                <div class="journey">
+                    <div class="jstep reveal" style="--d:.2s; --edge: var(--cyan)">
+                        <span class="n">01</span>
+                        <h3>Ve su score</h3>
+                        <p>Sin jerga.</p>
+                    </div>
+                    <div class="jstep reveal" style="--d:.28s; --edge: var(--blue)">
+                        <span class="n">02</span>
+                        <h3>Entiende por qué</h3>
+                        <p>La descomposición exacta.</p>
+                    </div>
+                    <div class="jstep reveal" style="--d:.36s; --edge: var(--violet)">
+                        <span class="n">03</span>
+                        <h3>Prueba una palanca</h3>
+                        <p>«¿Y si cobro antes?»</p>
+                    </div>
+                    <div class="jstep reveal" style="--d:.44s; --edge: #E0C56A">
+                        <span class="n">04</span>
+                        <h3>Ve los euros</h3>
+                        <p>La caja y lo que cuesta.</p>
+                    </div>
+                    <div class="jstep reveal" style="--d:.52s; --edge: var(--green)">
+                        <span class="n">05</span>
+                        <h3>Va al banco</h3>
+                        <p>El pack, en un clic.</p>
+                    </div>
+                </div>
+
+                <div class="chainline reveal" style="--d:.62s">
+                    <span>el pack:</span>
+                    <b>score</b>
+                    <i>·</i>
+                    <b>24 meses</b>
+                    <i>·</i>
+                    <b>drivers</b>
+                    <i>·</i>
+                    <b>palancas con sus euros</b>
+                </div>
+
+                <p class="footnote reveal" style="--d:.72s">
+                    Tres de los cinco pasos son palancas. El score abre la conversación; no la gana.
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <!-- ============ 12 · MONETIZACIÓN ============ -->
+    <section class="slide">
+        <span class="pill factor-tag reveal" style="--d:.05s"><i class="dot violet"></i>Factor 3 · Negocio</span>
+        <div class="wide">
+            <div class="wide-head">
+                <span class="kicker reveal" style="--d:.05s">Quién lo paga y por qué le sale a cuenta</span>
+                <h2 class="reveal" style="--d:.12s">Se lo vendemos a la empresa, no al que presta</h2>
+                <p class="sub reveal" style="--d:.2s">
+                    Todo el scoring se vende al prestamista. Nadie se lo vende al puntuado. Ese es el hueco.
+                </p>
+            </div>
+
+            <div class="wide-body">
+                <div class="kpis">
+                    <div class="kpi reveal" style="--d:.3s">
+                        <b>250 €/mes</b>
+                        <strong>Por sociedad</strong>
+                        <span>La unidad con la que Embat ya factura.</span>
+                    </div>
+                    <div class="kpi reveal" style="--d:.38s">
+                        <b>1,7–4,2 M€</b>
+                        <strong>ARR sin un logo nuevo</strong>
+                        <span>400 grupos, 5,1 sociedades de media.</span>
+                    </div>
+                    <div class="kpi reveal" style="--d:.46s">
+                        <b>× 4,7</b>
+                        <strong>Lo que devuelve una sola palanca</strong>
+                        <span>3.000 € de módulo, 14.000 € de caja.</span>
+                    </div>
+                </div>
+
+                <div class="chainline reveal" style="--d:.58s">
+                    <span>y el foso:</span>
+                    <b>el score se copia</b>
+                    <i>·</i>
+                    <b>el peer set de 400 grupos, no</b>
+                </div>
+
+                <p class="footnote reveal" style="--d:.68s">
+                    Precio y ARR, estimación sobre la base de clientes y el ICP que Embat declara. La caja de la palanca,
+                    del motor.
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <!-- ============ 13 · CIERRE ============ -->
+    <section class="slide">
+        <div class="close">
+            <h2 class="reveal-blur" style="--d:.1s">El departamento de Embat<br><em>que te vende tu plan de acción.</em></h2>
+            <p class="lede reveal" style="--d:.4s">
+                Ocho acciones con sus euros al lado, y un comprador que ya paga a Embat cada mes.<br>
+                El «banco corporativo del futuro» necesita una primitiva de riesgo. Es esta.
+            </p>
+            <div class="chips" style="justify-content:center; margin-top:56px">
+                <div class="chip reveal" style="--d:.55s"><b>01</b> Algoritmo y solución técnica</div>
+                <div class="chip reveal" style="--d:.63s"><b>02</b> Producto, palancas y usabilidad</div>
+                <div class="chip reveal" style="--d:.71s"><b>03</b> Monetización</div>
+            </div>
+            <span class="note reveal" style="--d:.85s">HackSpain 2026 · Reto Embat · X-Ray</span>
+        </div>
+    </section>
+
+</main>
+</div>
+
+<!-- ===== Chrome del deck: progreso, contador, ayuda ===== -->
+<div class="progress" id="progress"></div>
+<div class="counter"><b id="cur">01</b> / <span id="total">11</span></div>
+<div class="hint" id="hint">← → navegar · E editar</div>
+
+<!-- ===== Edición en línea ===== -->
+<div class="edit-hotzone"></div>
+<button class="edit-toggle" id="editToggle" title="Modo edición (E)" aria-label="Modo edición">✏️</button>
+<div class="edit-banner">EDICIÓN ACTIVA · CLIC EN CUALQUIER TEXTO · ⌘S GUARDA · E SALE</div>
+
+<script>
+/* ===========================================
+   CONTROLADOR DE LA PRESENTACIÓN
+   Escala el lienzo fijo 1920×1080 y gestiona la navegación
+   =========================================== */
+class SlidePresentation {
+    constructor() {
+        this.slides = Array.from(document.querySelectorAll('.slide'));
+        this.stage = document.getElementById('deckStage');
+        this.current = 0;
+        document.getElementById('total').textContent = String(this.slides.length).padStart(2, '0');
+
+        this.setupStageScale();
+        this.setupKeyboardNav();
+        this.setupTouchNav();
+        this.setupWheelNav();
+        this.show(0);
+
+        // La ayuda se desvanece tras el primer avance
+        setTimeout(() => document.getElementById('hint').classList.add('gone'), 6000);
+    }
+
+    /* Una sola transformación escala toda la escena: nunca se re-maqueta */
+    setupStageScale() {
+        const scale = () => {
+            const factor = Math.min(window.innerWidth / 1920, window.innerHeight / 1080);
+            const x = (window.innerWidth - 1920 * factor) / 2;
+            const y = (window.innerHeight - 1080 * factor) / 2;
+            this.stage.style.transform = `translate(${x}px, ${y}px) scale(${factor})`;
+        };
+        scale();
+        window.addEventListener('resize', scale);
+    }
+
+    setupKeyboardNav() {
+        document.addEventListener('keydown', (e) => {
+            if (document.body.classList.contains('editing') &&
+                e.target.getAttribute('contenteditable')) return;
+            if (['ArrowRight', 'ArrowDown', ' ', 'PageDown'].includes(e.key)) { e.preventDefault(); this.next(); }
+            if (['ArrowLeft', 'ArrowUp', 'PageUp'].includes(e.key))          { e.preventDefault(); this.prev(); }
+            if (e.key === 'Home') { e.preventDefault(); this.show(0); }
+            if (e.key === 'End')  { e.preventDefault(); this.show(this.slides.length - 1); }
+        });
+    }
+
+    setupTouchNav() {
+        let x0 = null;
+        document.addEventListener('touchstart', (e) => { x0 = e.changedTouches[0].clientX; }, { passive: true });
+        document.addEventListener('touchend', (e) => {
+            if (x0 === null) return;
+            const dx = e.changedTouches[0].clientX - x0;
+            if (Math.abs(dx) > 60) { dx < 0 ? this.next() : this.prev(); }
+            x0 = null;
+        }, { passive: true });
+    }
+
+    setupWheelNav() {
+        let lock = false;
+        document.addEventListener('wheel', (e) => {
+            if (lock || Math.abs(e.deltaY) < 24) return;
+            lock = true;
+            e.deltaY > 0 ? this.next() : this.prev();
+            setTimeout(() => { lock = false; }, 700);
+        }, { passive: true });
+    }
+
+    next() { this.show(this.current + 1); }
+    prev() { this.show(this.current - 1); }
+
+    show(index) {
+        this.current = Math.max(0, Math.min(index, this.slides.length - 1));
+        this.slides.forEach((slide, i) => {
+            const on = i === this.current;
+            slide.classList.toggle('active', on);
+            slide.classList.toggle('visible', on);   // .visible dispara todas las animaciones
+        });
+
+        document.getElementById('progress').style.width =
+            ((this.current + 1) / this.slides.length * 100) + '%';
+        document.getElementById('cur').textContent = String(this.current + 1).padStart(2, '0');
+        document.getElementById('hint').classList.add('gone');
+
+        this.runCounters(this.slides[this.current]);
+    }
+
+    /* Los números con data-target cuentan hacia arriba al entrar la slide */
+    runCounters(slide) {
+        slide.querySelectorAll('[data-target]').forEach((el) => {
+            const target = parseFloat(el.dataset.target);
+            const start = performance.now();
+            const dur = 1200;
+            const step = (now) => {
+                const t = Math.min((now - start) / dur, 1);
+                const eased = 1 - Math.pow(1 - t, 3);     // ease-out cúbico
+                el.textContent = Math.round(target * eased);
+                if (t < 1) requestAnimationFrame(step);
+            };
+            el.textContent = '0';
+            requestAnimationFrame(step);
+        });
+    }
+}
+
+const deck = new SlidePresentation();
+
+/* ===========================================
+   EDICIÓN EN LÍNEA
+   Guarda en localStorage y permite exportar el HTML editado
+   =========================================== */
+class InlineEditor {
+    constructor() {
+        this.isActive = false;
+        this.selector = 'h1, h2, h3, p, li, small, strong, .chip, .kicker, .panel-title, .tag, .mono-row, .note, .badge, .brand-text, .split-legend span, .chain-step strong';
+        this.restore();
+    }
+
+    get nodes() { return document.querySelectorAll(this.selector); }
+
+    toggle() {
+        this.isActive = !this.isActive;
+        document.body.classList.toggle('editing', this.isActive);
+        document.getElementById('editToggle').classList.toggle('active', this.isActive);
+        this.nodes.forEach((n) => {
+            n.contentEditable = this.isActive ? 'true' : 'false';
+            if (this.isActive) n.addEventListener('blur', this.save, { once: true });
+        });
+    }
+
+    save = () => {
+        const data = {};
+        this.nodes.forEach((n, i) => { data[i] = n.innerHTML; });
+        try { localStorage.setItem('deck-producto-maestro', JSON.stringify(data)); } catch (e) {}
+    };
+
+    restore() {
+        try {
+            const raw = localStorage.getItem('deck-producto-maestro');
+            if (!raw) return;
+            const data = JSON.parse(raw);
+            this.nodes.forEach((n, i) => { if (data[i] !== undefined) n.innerHTML = data[i]; });
+        } catch (e) {}
+    }
+
+    /* Descarga una copia del HTML con las ediciones ya aplicadas */
+    export() {
+        this.nodes.forEach((n) => n.removeAttribute('contenteditable'));
+        const blob = new Blob(['<!DOCTYPE html>\n' + document.documentElement.outerHTML], { type: 'text/html' });
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = 'producto-maestro.html';
+        a.click();
+        if (this.isActive) this.nodes.forEach((n) => { n.contentEditable = 'true'; });
+    }
+}
+
+const editor = new InlineEditor();
+
+/* Botón de edición: visible por hover en la esquina, con margen de 400 ms
+   para que el puntero pueda llegar hasta él sin que desaparezca */
+const hotzone = document.querySelector('.edit-hotzone');
+const editToggle = document.getElementById('editToggle');
+let hideTimeout = null;
+
+hotzone.addEventListener('mouseenter', () => {
+    clearTimeout(hideTimeout);
+    editToggle.classList.add('show');
+});
+hotzone.addEventListener('mouseleave', () => {
+    hideTimeout = setTimeout(() => { if (!editor.isActive) editToggle.classList.remove('show'); }, 400);
+});
+editToggle.addEventListener('mouseenter', () => clearTimeout(hideTimeout));
+editToggle.addEventListener('mouseleave', () => {
+    hideTimeout = setTimeout(() => { if (!editor.isActive) editToggle.classList.remove('show'); }, 400);
+});
+editToggle.addEventListener('click', () => editor.toggle());
+hotzone.addEventListener('click', () => editor.toggle());
+
+document.addEventListener('keydown', (e) => {
+    if ((e.key === 'e' || e.key === 'E') && !e.target.getAttribute('contenteditable')) editor.toggle();
+    if ((e.metaKey || e.ctrlKey) && e.key === 's') { e.preventDefault(); editor.save(); editor.export(); }
+});
+</script>
+</body>
+</html>

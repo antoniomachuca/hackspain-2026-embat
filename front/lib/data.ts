@@ -99,6 +99,8 @@ export type Empresa = {
   scorePrev: number;
   nivelBase: number;      // B_t · el nivel, sin inercia
   momentum: number;       // M_t ∈ [-1, 1] · la tendencia
+  delta3m?: number;       // variación del score en tres meses
+  elegible?: boolean;     // historia suficiente para tener estado
   clipping: number;       // residuo de recorte a [0,100]
   estado: Estado;
   confianza: "ALTA" | "MEDIA" | "BAJA";

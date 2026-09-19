@@ -22,7 +22,7 @@ function Caja({ active, payload, label }: CajaProps) {
       {texto && <p className="text-[11px] text-[var(--color-ink-3)]">{texto}</p>}
       {payload.map((p) => (
         <p key={p.name} className="tnum text-[13px] font-medium" style={{ color: p.color }}>
-          {p.name}: {num(p.value)}
+          {p.name}: {Number.isInteger(p.value) ? num(p.value, 0) : num(p.value)}
         </p>
       ))}
     </div>
@@ -219,13 +219,33 @@ export function Waterfall({ drivers, altura = 240 }: { drivers: Driver[]; altura
 
 export function Sparkline({ datos, w = 92, h = 26 }: { datos: Punto[]; w?: number; h?: number }) {
   const vals = datos.map((d) => d.score);
+  if (vals.length === 0) return null;
   const min = Math.min(...vals), max = Math.max(...vals), span = max - min || 1;
-  const pts = vals.map((v, i) => `${(i / (vals.length - 1)) * w},${h - ((v - min) / span) * (h - 4) - 2}`).join(" ");
+  const pasos = Math.max(1, vals.length - 1);   // con un solo punto, solo el círculo final
+  const pts = vals.map((v, i) => `${(i / pasos) * w},${h - ((v - min) / span) * (h - 4) - 2}`).join(" ");
   const color = banda(vals[vals.length - 1]).color;
   return (
     <svg width={w} height={h} className="overflow-visible" aria-hidden>
       <polyline points={pts} fill="none" stroke={color} strokeWidth={1.5} strokeLinejoin="round" />
       <circle cx={w} cy={h - ((vals[vals.length - 1] - min) / span) * (h - 4) - 2} r={2.2} fill={color} />
     </svg>
+  );
+}
+
+/** Histograma de scores por tramos de 10. Cada barra lleva el color de su banda. */
+export function Histograma({ datos, altura = 180 }: { datos: Array<{ bucket: number; count: number }>; altura?: number }) {
+  const filas = datos.map((d) => ({ tramo: `${d.bucket}–${d.bucket + 10}`, n: d.count, color: banda(d.bucket + 5).color }));
+  return (
+    <ResponsiveContainer width="100%" height={altura}>
+      <BarChart data={filas} margin={{ top: 8, right: 8, bottom: 0, left: -18 }}>
+        <CartesianGrid stroke="rgba(255,255,255,.07)" vertical={false} />
+        <XAxis dataKey="tramo" tick={EJE} tickLine={false} axisLine={{ stroke: "rgba(255,255,255,.12)" }} interval={0} />
+        <YAxis tick={EJE} tickLine={false} axisLine={false} width={44} allowDecimals={false} />
+        <Tooltip content={<Caja />} cursor={{ fill: "rgba(255,255,255,.05)" }} />
+        <Bar dataKey="n" name="Empresas" radius={[4, 4, 0, 0]} barSize={26}>
+          {filas.map((f, i) => <Cell key={i} fill={f.color} />)}
+        </Bar>
+      </BarChart>
+    </ResponsiveContainer>
   );
 }

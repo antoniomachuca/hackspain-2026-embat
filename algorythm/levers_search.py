@@ -20,7 +20,6 @@ from algorythm.levers_gates import evaluate_catalog
 
 _LABELS = {
     'adelantar_cobros': 'Adelantar cobros',
-    'descuento_pronto_pago': 'Descuento pronto pago',
     'recortar_opex': 'Recortar opex',
     'refinanciar': 'Refinanciar',
     'renegociar_interes': 'Renegociar interés',
@@ -48,7 +47,7 @@ _ONE_SHOT = (
     'ofrecer_pronto_pago_proveedor',
 )
 
-_PARAM_KEYS = ('days', 'pct', 'haircut', 'agreement_type', 'proposed_cost_pct', 'amount_eur')
+_PARAM_KEYS = ('days', 'pct', 'haircut', 'tasa_descuento', 'agreement_type', 'proposed_cost_pct', 'amount_eur', 'lineas')
 
 
 def _candidate(lever_id: str, **params: Any) -> dict[str, Any]:
@@ -71,7 +70,7 @@ def _label(candidate: dict[str, Any]) -> str:
     bits: list[str] = []
     days = candidate.get('days')
     pct = candidate.get('pct')
-    haircut = candidate.get('haircut')
+    haircut = candidate.get('haircut') or candidate.get('tasa_descuento')
     cost = candidate.get('proposed_cost_pct')
     if days is not None:
         bits.append(f'{int(days)}d')
@@ -104,13 +103,12 @@ def _build_candidates(applicable: set[str]) -> list[dict[str, Any]]:
                 days=int(days),
                 agreement_type='presion_comercial',
             ))
-
-    if 'descuento_pronto_pago' in applicable:
         for button in discount_buttons(15):
             candidates.append(_candidate(
-                'descuento_pronto_pago',
+                'adelantar_cobros',
                 days=15,
                 haircut=float(button['pct']),
+                tasa_descuento=float(button['pct']),
                 agreement_type='descuento_pronto_pago',
             ))
 
@@ -159,7 +157,7 @@ def _build_candidates(applicable: set[str]) -> list[dict[str, Any]]:
 
 
 def _cost_pct(row: dict[str, Any]) -> float:
-    haircut = row.get('haircut')
+    haircut = row.get('haircut') or row.get('tasa_descuento')
     if haircut:
         return float(haircut)
     return 0.0
@@ -179,7 +177,8 @@ def _row_from_sim(candidate: dict[str, Any], sim: dict[str, Any]) -> dict[str, A
         'eur_año': sim.get('eur_año'),
         'days': candidate.get('days'),
         'pct': candidate.get('pct'),
-        'haircut': candidate.get('haircut'),
+        'haircut': candidate.get('haircut') or candidate.get('tasa_descuento'),
+        'tasa_descuento': candidate.get('tasa_descuento') or candidate.get('haircut'),
         'agreement_type': candidate.get('agreement_type'),
         'warnings': list(sim.get('warnings') or []),
         'label': _label(candidate),

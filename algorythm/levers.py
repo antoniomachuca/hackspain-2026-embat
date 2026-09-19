@@ -19,6 +19,15 @@ from algorythm.levers_catalog import (
 )
 from algorythm.levers_cost import impacto_anual_eur, validate_agreement
 from algorythm.levers_gates import is_applicable
+from algorythm.levers_lines import (
+    check_resource_overlap,
+    line_tasa,
+    lines_have_targets,
+    normalize_lineas,
+    resolve_ap_line,
+    resolve_ar_line,
+    uses_amount_shortcut,
+)
 from algorythm.levers_objects import get_company_objects, select_ar_advance
 from algorythm.score_engine import ScoreConfig, calculate_scores
 from algorythm.score_states import StateConfig, classify_states
@@ -89,11 +98,15 @@ def mutate_opex(bank: dict[str, np.ndarray], pct: float) -> float:
     return save
 
 
-def mutate_dpo(bank: dict[str, np.ndarray], pct: float) -> float:
-    pct = max(0.0, min(1.0, float(pct)))
+def mutate_dpo(bank: dict[str, np.ndarray], pct: float | None = None,
+               amount_eur: float | None = None) -> float:
     m = LAST_MONTH
     ap = float(np.nan_to_num(bank.get('expenses_ap', np.zeros_like(bank['expenses']))[0, m]))
-    defer = ap * pct
+    if amount_eur is not None:
+        defer = min(max(0.0, float(amount_eur)), ap)
+    else:
+        pct = max(0.0, min(1.0, float(pct or 0.0)))
+        defer = ap * pct
     if defer <= 0:
         return 0.0
     bank['expenses'][:, m] = np.maximum(bank['expenses'][:, m] - defer, 0.0)
@@ -102,13 +115,17 @@ def mutate_dpo(bank: dict[str, np.ndarray], pct: float) -> float:
     return defer
 
 
-def mutate_early_ap(bank: dict[str, np.ndarray], pct: float, discount: float) -> float:
+def mutate_early_ap(bank: dict[str, np.ndarray], pct: float | None = None,
+                    discount: float = 0.0, amount_eur: float | None = None) -> float:
     """Pay AP now: expenses rise by net amount (1-discount). Inverse of DPO."""
-    pct = max(0.0, min(1.0, float(pct)))
     discount = max(0.0, min(1.0, float(discount)))
     m = LAST_MONTH
     ap = float(np.nan_to_num(bank.get('expenses_ap', np.zeros_like(bank['expenses']))[0, m]))
-    extra = ap * pct * (1.0 - discount)
+    if amount_eur is not None:
+        extra = max(0.0, float(amount_eur)) * (1.0 - discount)
+    else:
+        pct = max(0.0, min(1.0, float(pct or 0.0)))
+        extra = ap * pct * (1.0 - discount)
     if extra <= 0:
         return 0.0
     bank['expenses'][:, m] = bank['expenses'][:, m] + extra
@@ -149,17 +166,54 @@ def check_mutex(lever_ids: list[str]) -> str | None:
 
 
 def _cobros_amount(params: dict[str, Any], obj) -> tuple[float, float]:
-    haircut = float(params.get('haircut') or params.get('descuento_pct') or params.get('tasa_descuento') or 0.0)
+    haircut = line_tasa(params)
     if 'amount_eur' in params or 'euros' in params:
         amount = float(params.get('amount_eur') or params.get('euros') or 0.0)
         return amount, haircut
     days = int(params.get('days') or params.get('dias') or 15)
-    picked = select_ar_advance(obj, days=days, clients=params.get('clientes'))
+    picked = select_ar_advance(
+        obj, days=days, clients=params.get('clientes'), facturas=params.get('facturas'),
+    )
     return picked.amount_eur, haircut
+
+
+def _apply_cobros_lines(bank: dict[str, np.ndarray], params: dict[str, Any], obj,
+                        original_id: str) -> tuple[float, bool]:
+    lines = normalize_lineas(params)
+    default_tasa = 0.02 if original_id == 'descuento_pronto_pago' else 0.0
+    if uses_amount_shortcut(params):
+        amount, haircut = _cobros_amount(params, obj)
+        if haircut <= 0:
+            haircut = default_tasa
+        return mutate_cobros(bank, amount, haircut), haircut > 0
+
+    euros = 0.0
+    any_haircut = False
+    for line in lines:
+        picked, _missing = resolve_ar_line(obj, line)
+        tasa = line_tasa(line, default=default_tasa)
+        if tasa <= 0:
+            tasa = default_tasa
+        if tasa > 0:
+            any_haircut = True
+        euros += mutate_cobros(bank, picked.amount_eur, tasa)
+    return euros, any_haircut
+
+
+def _apply_ap_lines(params: dict[str, Any], obj) -> float | None:
+    lines = normalize_lineas(params)
+    if not lines_have_targets(lines):
+        return None
+    total = 0.0
+    for line in lines:
+        picked, _missing = resolve_ap_line(obj, line)
+        total += picked.amount_eur
+    return total
 
 
 def apply_lever(bank: dict[str, np.ndarray], lever_id: str, params: dict[str, Any],
                 obj=None) -> dict[str, Any]:
+    original_id = lever_id
     lid = canonical_lever_id(lever_id)
     meta = LEVER_CATALOG[lid]
     mutator = meta['mutator']
@@ -169,14 +223,9 @@ def apply_lever(bank: dict[str, np.ndarray], lever_id: str, params: dict[str, An
     warnings = list(STANDARD_WARNINGS)
 
     if mutator == 'ar_a_receipts':
-        amount, haircut = _cobros_amount(params, obj)
-        if lid == 'descuento_pronto_pago':
-            if haircut <= 0:
-                haircut = float(params.get('haircut', 0.02))
+        euros, discounted = _apply_cobros_lines(bank, params, obj, original_id)
+        if discounted:
             warnings.append('descuento_supuesto')
-        else:
-            haircut = 0.0
-        euros = mutate_cobros(bank, amount, haircut)
         delta_score_allowed = True
     elif mutator == 'opex_whitelist':
         pct = float(params.get('pct', params.get('opex_pct', 0.05)))
@@ -191,16 +240,29 @@ def apply_lever(bank: dict[str, np.ndarray], lever_id: str, params: dict[str, An
         warnings.append('oferta_refinanciacion_supuesta')
         delta_score_allowed = True
     elif mutator == 'retrasar_ap':
-        pct = float(params.get('pct', params.get('dpo_pct', 0.20)))
-        bruto = mutate_dpo(bank, pct)
+        targeted = _apply_ap_lines(params, obj) if obj is not None else None
+        if targeted is not None:
+            bruto = mutate_dpo(bank, amount_eur=targeted)
+        else:
+            pct = float(params.get('pct', params.get('dpo_pct', 0.20)))
+            bruto = mutate_dpo(bank, pct=pct)
         cost = float(params.get('proposed_cost_pct') or params.get('haircut') or 0.0)
+        if targeted is not None:
+            lines = normalize_lineas(params)
+            cost = float(params.get('proposed_cost_pct') or max((line_tasa(line) for line in lines), default=0.0))
         euros = max(0.0, bruto * (1.0 - cost))
         delta_score_allowed = True  # engine will move L; ranking must null it
         warnings.append('circulante_no_salud')
     elif mutator == 'adelantar_ap':
-        pct = float(params.get('pct', 0.20))
         discount = float(params.get('proposed_cost_pct') or params.get('haircut') or 0.02)
-        paid = mutate_early_ap(bank, pct, discount)
+        targeted = _apply_ap_lines(params, obj) if obj is not None else None
+        if targeted is not None:
+            lines = normalize_lineas(params)
+            discount = float(params.get('proposed_cost_pct') or max((line_tasa(line) for line in lines), default=discount))
+            paid = mutate_early_ap(bank, discount=discount, amount_eur=targeted)
+        else:
+            pct = float(params.get('pct', 0.20))
+            paid = mutate_early_ap(bank, pct=pct, discount=discount)
         euros = paid * discount / max(1.0 - discount, 1e-9) if discount < 1 else 0.0
         warnings.append('pronto_pago_proveedor_adelanta_caja')
         delta_score_allowed = True
@@ -209,7 +271,10 @@ def apply_lever(bank: dict[str, np.ndarray], lever_id: str, params: dict[str, An
             raise ValueError('confirming_no_puede_bajar_expenses')
         pct = float(params.get('pct', 0.20))
         base = 0.0
-        if obj is not None:
+        targeted = _apply_ap_lines(params, obj) if obj is not None else None
+        if targeted is not None:
+            base = targeted
+        elif obj is not None:
             base = max(float(obj.ap_pending_eur), float(obj.ap_expenses_m23))
         euros = max(0.0, base * pct)
         delta_score_allowed = False
@@ -299,6 +364,10 @@ def simulate_levers(
     except KeyError:
         return {'ok': False, 'error': 'empresa_no_encontrada', 'company_id': company_id}
 
+    overlap = check_resource_overlap(obj, levers)
+    if overlap:
+        return {'ok': False, 'company_id': company_id, **overlap}
+
     if enforce_gates:
         for item in levers:
             lid = str(item['id'])
@@ -311,7 +380,7 @@ def simulate_levers(
                     'lever_id': canonical_lever_id(lid),
                     'company_id': company_id,
                 }
-            agr_ok, agr_reason = validate_agreement(lid, item.get('agreement_type'))
+            agr_ok, agr_reason = validate_agreement(lid, item.get('agreement_type'), params=item)
             if not agr_ok:
                 return {
                     'ok': False,

@@ -1,7 +1,9 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { cargarGrupoDetalle } from "@/lib/motor";
-import { num } from "@/lib/format";
+import { apiGrafo } from "@/lib/api";
+import { Grafo } from "@/components/grafo";
+import { num, eur } from "@/lib/format";
 import { Cabecera } from "@/components/shell";
 import { Trayectoria, Sparkline } from "@/components/charts";
 import { Card, CardHead, KPI, ScoreBadge, EstadoChip, Delta } from "@/components/ui";
@@ -11,6 +13,8 @@ export default async function Grupo({ params }: { params: Promise<{ id: string }
   const g = await cargarGrupoDetalle(id);
   if (!g || !g.miembros.length) notFound();
   const peor = g.peor;
+  const grafo = await apiGrafo(g.id);
+  const volumenInterno = grafo?.edges.reduce((s, e) => s + e.eur, 0) ?? 0;
 
   return (
     <>
@@ -36,6 +40,21 @@ export default async function Grupo({ params }: { params: Promise<{ id: string }
             <p className="mt-1.5 text-[11px] text-[var(--color-ink-4)]">
               Penalización por contagio activa según el modelo de grupo de X-Ray ({num(g.penalizacion)} pts).
             </p>
+          </Card>
+        )}
+
+        {grafo && grafo.edges.length > 0 && (
+          <Card className="mt-5 px-6 py-5">
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <div>
+                <h2 className="text-[16px] font-semibold tracking-tight">Flujos entre sociedades</h2>
+                <p className="mt-0.5 text-[11.5px] text-[var(--color-ink-4)]">
+                  {grafo.edges.length} flujos inferidos · {eur(volumenInterno, true)} · las flechas van del que paga al que cobra
+                </p>
+              </div>
+              <Link href={`/grafo?grupo=${g.id}`} className="pildora">Ver en el mapa</Link>
+            </div>
+            <div className="mt-3"><Grafo nodos={grafo.nodes} aristas={grafo.edges} destacar={peor?.id} alto={440} /></div>
           </Card>
         )}
 

@@ -78,3 +78,9 @@ data/
 
 # Local demo exports/cache; frozen synthetic datasets and benchmark runs ARE versioned.
 /forecasting/artifacts/
+
+# Restos de compilación del front anterior al rename a front/.
+/front-dashboard/
+
+# Workspace de la carga de datasets (feature retirada); queda en local.
+/runtime/
