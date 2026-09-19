@@ -73,7 +73,10 @@ export function EpisodiosPanel({ episodios, destacado, trayectoria }: {
         </div>
         {episodios.length > 1 && (
           <button
+            type="button"
             onClick={() => setAbierto((v) => !v)}
+            aria-expanded={abierto}
+            aria-controls="historico-episodios"
             className="rounded-md border border-[var(--color-line-2)] px-3 py-1.5 text-[12px] text-[var(--color-ink-2)] hover:bg-[var(--color-surface-3)]"
           >
             {abierto ? "Ocultar histórico" : `Ver histórico (${episodios.length})`}
@@ -102,11 +105,13 @@ export function EpisodiosPanel({ episodios, destacado, trayectoria }: {
       </div>
 
       {abierto && (
-        <div className="mt-4 space-y-1 border-t border-[var(--color-line)] pt-3">
+        <div id="historico-episodios" className="mt-4 space-y-1 border-t border-[var(--color-line)] pt-3">
           {episodios.map((x, i) => (
             <button
+              type="button"
               key={i}
               onClick={() => setSel(i)}
+              aria-pressed={i === sel}
               className={`fila flex w-full items-center justify-between gap-3 rounded-md px-3 py-2 text-left text-[12px] ${
                 i === sel ? "bg-[var(--color-surface-3)]" : ""
               }`}
