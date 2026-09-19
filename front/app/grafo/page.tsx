@@ -88,7 +88,7 @@ export default async function Flujos({ searchParams }: { searchParams: Promise<R
                 <div className="flex flex-wrap items-center justify-between gap-3">
                   <div>
                     <h2 className="text-[16px] font-semibold tracking-tight">{nombreGrupo(grafo.group_id)}</h2>
-                    <p className="mt-0.5 text-[11.5px] text-[var(--color-ink-4)]">Pulsa una sociedad para abrir su ficha. Las flechas van del que paga al que cobra.</p>
+                    <p className="mt-0.5 text-[11.5px] text-[var(--color-ink-4)]">Rueda para zoom, arrastra el mapa o una sociedad. Clic abre la ficha. Las flechas van del que paga al que cobra.</p>
                   </div>
                   <Link href={`/grupo/${grafo.group_id}`} className="pildora">Ver el grupo</Link>
                 </div>

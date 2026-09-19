@@ -3,9 +3,9 @@
  * Mapa de flujos entre las sociedades de un grupo.
  * Nodo = sociedad (color por banda de score, tamaño por euros movidos).
  * Arista = flujo inferido A → B (grosor por euros, opacidad por nº de coincidencias).
- * Se dibuja en SVG con d3-force; el layout se calcula una vez, sin animación.
+ * Layout con d3-force (una vez); el lienzo se mueve, hace zoom y deja arrastrar nodos.
  */
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useId, useMemo, useRef, useState } from "react";
 import { forceSimulation, forceLink, forceManyBody, forceCenter, forceCollide, forceX, forceY, type SimulationNodeDatum } from "d3-force";
 import type { ApiGrafoNodo, ApiGrafoArista } from "@/lib/api";
 import { banda, eur, num, mesCorto } from "@/lib/format";
@@ -13,8 +13,18 @@ import { banda, eur, num, mesCorto } from "@/lib/format";
 type Vista = "embat" | "empresa" | "auto";
 type Nodo = ApiGrafoNodo & SimulationNodeDatum & { r: number };
 type Arista = { source: Nodo; target: Nodo; matches: number; eur: number; last_date: string };
+type Camara = { x: number; y: number; k: number };
+type Gesto =
+  | { tipo: "pan"; lastX: number; lastY: number; moved: boolean }
+  | { tipo: "nodo"; id: string; moved: boolean; ox: number; oy: number }
+  | { tipo: "pinch"; dist: number }
+  | null;
 
 const W = 900, H = 520;
+const K_MIN = 0.28, K_MAX = 6;
+const UMBRAL_ARRASTRE = 4;
+
+const ORIGEN: Camara = { x: 0, y: 0, k: 1 };
 
 export function Grafo({ nodos, aristas, vista = "auto", destacar, alto = 520 }: {
   nodos: ApiGrafoNodo[]; aristas: ApiGrafoArista[]; vista?: Vista; destacar?: string; alto?: number;
@@ -22,11 +32,52 @@ export function Grafo({ nodos, aristas, vista = "auto", destacar, alto = 520 }: 
   const [layout, setLayout] = useState<{ nodos: Nodo[]; aristas: Arista[] } | null>(null);
   const [hover, setHover] = useState<{ x: number; y: number; texto: React.ReactNode } | null>(null);
   const [modo, setModo] = useState<"embat" | "empresa">("empresa");
+  const [gestoUi, setGestoUi] = useState<"pan" | "nodo" | null>(null);
+
+  const svgRef = useRef<SVGSVGElement>(null);
+  const gRef = useRef<SVGGElement>(null);
+  const zoomTxtRef = useRef<HTMLSpanElement>(null);
+  const camara = useRef<Camara>({ ...ORIGEN });
+  const gesto = useRef<Gesto>(null);
+  const punteros = useRef(new Map<number, { x: number; y: number }>());
+  const nodoMovido = useRef<string | null>(null);
+
+  const uid = useId().replace(/:/g, "");
+  const marcador = `flecha-${uid}`;
+
+  const aplicarCamara = () => {
+    const { x, y, k } = camara.current;
+    gRef.current?.setAttribute("transform", `translate(${x} ${y}) scale(${k})`);
+    if (zoomTxtRef.current) zoomTxtRef.current.textContent = `${Math.round(k * 100)}%`;
+  };
+
+  const zoomEn = (clientX: number, clientY: number, factor: number) => {
+    const svg = svgRef.current;
+    if (!svg) return;
+    const pt = pantallaAViewBox(svg, clientX, clientY);
+    const v = camara.current;
+    const nk = clamp(v.k * factor, K_MIN, K_MAX);
+    v.x = pt.x - ((pt.x - v.x) / v.k) * nk;
+    v.y = pt.y - ((pt.y - v.y) / v.k) * nk;
+    v.k = nk;
+    aplicarCamara();
+  };
+
+  const zoomCentro = (factor: number) => {
+    const svg = svgRef.current;
+    if (!svg) return;
+    const r = svg.getBoundingClientRect();
+    zoomEn(r.left + r.width / 2, r.top + r.height / 2, factor);
+  };
+
+  const resetCamara = () => {
+    camara.current = { ...ORIGEN };
+    aplicarCamara();
+  };
 
   // Los dos effects fijan estado a propósito: sessionStorage y el layout solo existen
   // en el navegador, y calcularlos en el servidor daría una hidratación distinta.
   /* eslint-disable react-hooks/set-state-in-effect */
-  // La vista "auto" respeta desde dónde llegó el usuario (lo guarda el Shell).
   useEffect(() => {
     if (vista !== "auto") { setModo(vista); return; }
     try { const v = sessionStorage.getItem("xray:modo"); if (v === "embat" || v === "empresa") setModo(v); } catch {}
@@ -43,8 +94,6 @@ export function Grafo({ nodos, aristas, vista = "auto", destacar, alto = 520 }: 
       .filter((a) => porId.has(a.source) && porId.has(a.target))
       .map((a) => ({ source: porId.get(a.source)!, target: porId.get(a.target)!, matches: a.matches, eur: a.eur, last_date: a.last_date }));
 
-    // Grupos pequeños: más separación para que no queden encogidos en el centro.
-    // Los nodos sin flujos se atraen al centro con más fuerza, o la repulsión los manda a las esquinas.
     const n = ns.length;
     const conectados = new Set(as.flatMap((a) => [a.source.company_id, a.target.company_id]));
     const suelto = (d: Nodo) => !conectados.has(d.company_id);
@@ -57,91 +106,288 @@ export function Grafo({ nodos, aristas, vista = "auto", destacar, alto = 520 }: 
       .force("choque", forceCollide<Nodo>((d) => d.r + 12))
       .stop();
     for (let i = 0; i < 300; i++) sim.tick();
-    // Encajar en el lienzo por si el grupo es grande.
-    for (const n of ns) {
-      n.x = Math.max(n.r + 4, Math.min(W - n.r - 4, n.x ?? W / 2));
-      n.y = Math.max(n.r + 4, Math.min(H - n.r - 4, n.y ?? H / 2));
+    for (const nodo of ns) {
+      nodo.x = Math.max(nodo.r + 4, Math.min(W - nodo.r - 4, nodo.x ?? W / 2));
+      nodo.y = Math.max(nodo.r + 4, Math.min(H - nodo.r - 4, nodo.y ?? H / 2));
     }
+    camara.current = { ...ORIGEN };
     setLayout({ nodos: ns, aristas: as });
   }, [nodos, aristas]);
   /* eslint-enable react-hooks/set-state-in-effect */
 
+  useEffect(() => {
+    aplicarCamara();
+  }, [layout]);
+
+  useEffect(() => {
+    const svg = svgRef.current;
+    if (!svg) return;
+    const onWheel = (ev: WheelEvent) => {
+      ev.preventDefault();
+      const sensibilidad = ev.ctrlKey ? 0.012 : 0.0016;
+      zoomEn(ev.clientX, ev.clientY, Math.exp(-ev.deltaY * sensibilidad));
+    };
+    svg.addEventListener("wheel", onWheel, { passive: false });
+    return () => svg.removeEventListener("wheel", onWheel);
+  }, [layout]);
+
   const maxEurArista = useMemo(() => Math.max(1, ...aristas.map((a) => a.eur)), [aristas]);
   const rutaDe = (id: string) => (modo === "embat" ? `/embat/${id}` : `/${id}`);
+
+  const moverNodo = (id: string, clientX: number, clientY: number, ox: number, oy: number) => {
+    const svg = svgRef.current;
+    if (!svg) return;
+    const mundo = pantallaAMundo(svg, camara.current, clientX, clientY);
+    setLayout((prev) => {
+      if (!prev) return prev;
+      const nodos = prev.nodos.map((n) =>
+        n.company_id === id ? { ...n, x: mundo.x - ox, y: mundo.y - oy } : n,
+      );
+      const porId = new Map(nodos.map((n) => [n.company_id, n]));
+      return {
+        nodos,
+        aristas: prev.aristas.map((a) => ({
+          ...a,
+          source: porId.get(a.source.company_id)!,
+          target: porId.get(a.target.company_id)!,
+        })),
+      };
+    });
+  };
+
+  const onPointerDown = (ev: React.PointerEvent<SVGSVGElement>) => {
+    const svg = svgRef.current;
+    if (!svg) return;
+    svg.focus({ preventScroll: true });
+    punteros.current.set(ev.pointerId, { x: ev.clientX, y: ev.clientY });
+
+    if (punteros.current.size === 2) {
+      const pts = [...punteros.current.values()];
+      gesto.current = { tipo: "pinch", dist: Math.hypot(pts[0].x - pts[1].x, pts[0].y - pts[1].y) || 1 };
+      setGestoUi("pan");
+      setHover(null);
+      svg.setPointerCapture(ev.pointerId);
+      return;
+    }
+
+    const idNodo = (ev.target as Element | null)?.closest?.("[data-nodo]")?.getAttribute("data-nodo");
+    if (idNodo && layout) {
+      const nodo = layout.nodos.find((n) => n.company_id === idNodo);
+      const mundo = pantallaAMundo(svg, camara.current, ev.clientX, ev.clientY);
+      gesto.current = {
+        tipo: "nodo",
+        id: idNodo,
+        moved: false,
+        ox: mundo.x - (nodo?.x ?? 0),
+        oy: mundo.y - (nodo?.y ?? 0),
+      };
+      nodoMovido.current = null;
+    } else {
+      gesto.current = { tipo: "pan", lastX: ev.clientX, lastY: ev.clientY, moved: false };
+      setGestoUi("pan");
+      setHover(null);
+    }
+    svg.setPointerCapture(ev.pointerId);
+  };
+
+  const onPointerMove = (ev: React.PointerEvent<SVGSVGElement>) => {
+    if (punteros.current.has(ev.pointerId)) {
+      punteros.current.set(ev.pointerId, { x: ev.clientX, y: ev.clientY });
+    }
+
+    const g = gesto.current;
+    if (!g) {
+      return;
+    }
+
+    if (g.tipo === "pinch" && punteros.current.size >= 2) {
+      const pts = [...punteros.current.values()];
+      const dist = Math.hypot(pts[0].x - pts[1].x, pts[0].y - pts[1].y) || 1;
+      const cx = (pts[0].x + pts[1].x) / 2;
+      const cy = (pts[0].y + pts[1].y) / 2;
+      zoomEn(cx, cy, dist / g.dist);
+      g.dist = dist;
+      return;
+    }
+
+    if (g.tipo === "pan") {
+      const svg = svgRef.current;
+      if (!svg) return;
+      const dx = ev.clientX - g.lastX;
+      const dy = ev.clientY - g.lastY;
+      if (!g.moved && Math.hypot(dx, dy) < UMBRAL_ARRASTRE) return;
+      g.moved = true;
+      const r = svg.getBoundingClientRect();
+      camara.current.x += dx * (W / r.width);
+      camara.current.y += dy * (H / r.height);
+      g.lastX = ev.clientX;
+      g.lastY = ev.clientY;
+      aplicarCamara();
+      return;
+    }
+
+    if (g.tipo === "nodo") {
+      const svg = svgRef.current;
+      if (!svg) return;
+      const start = punteros.current.get(ev.pointerId);
+      const dist = start ? Math.hypot(ev.clientX - start.x, ev.clientY - start.y) : UMBRAL_ARRASTRE;
+      if (!g.moved && dist < UMBRAL_ARRASTRE) return;
+      if (!g.moved) {
+        g.moved = true;
+        nodoMovido.current = g.id;
+        setGestoUi("nodo");
+        setHover(null);
+      }
+      moverNodo(g.id, ev.clientX, ev.clientY, g.ox, g.oy);
+    }
+  };
+
+  const soltarPuntero = (ev: React.PointerEvent<SVGSVGElement>) => {
+    punteros.current.delete(ev.pointerId);
+    if (punteros.current.size < 2 && gesto.current?.tipo === "pinch") {
+      gesto.current = null;
+      setGestoUi(null);
+    }
+    if (punteros.current.size === 0) {
+      gesto.current = null;
+      setGestoUi(null);
+    }
+  };
+
+  const onKeyDown = (ev: React.KeyboardEvent<SVGSVGElement>) => {
+    const paso = ev.shiftKey ? 80 : 36;
+    if (ev.key === "+" || ev.key === "=") { ev.preventDefault(); zoomCentro(1.18); }
+    else if (ev.key === "-" || ev.key === "_") { ev.preventDefault(); zoomCentro(1 / 1.18); }
+    else if (ev.key === "0") { ev.preventDefault(); resetCamara(); }
+    else if (ev.key === "ArrowLeft") { ev.preventDefault(); camara.current.x += paso; aplicarCamara(); }
+    else if (ev.key === "ArrowRight") { ev.preventDefault(); camara.current.x -= paso; aplicarCamara(); }
+    else if (ev.key === "ArrowUp") { ev.preventDefault(); camara.current.y += paso; aplicarCamara(); }
+    else if (ev.key === "ArrowDown") { ev.preventDefault(); camara.current.y -= paso; aplicarCamara(); }
+  };
 
   if (!layout) {
     return <div style={{ height: alto }} className="flex items-center justify-center text-[12px] text-[var(--color-ink-4)]">Calculando el mapa…</div>;
   }
 
+  const cursor = gestoUi === "pan" || gestoUi === "nodo" ? "grabbing" : "grab";
+
   return (
     <div className="relative">
-      <svg viewBox={`0 0 ${W} ${H}`} style={{ width: "100%", height: alto }} role="img" aria-label="Mapa de flujos entre sociedades del grupo">
-        <defs>
-          <marker id="flecha" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="9" markerHeight="9" markerUnits="userSpaceOnUse" orient="auto-start-reverse">
-            <path d="M0,0 L10,5 L0,10 z" fill="#b083e8" />
-          </marker>
-        </defs>
+      <div
+        className="relative overflow-hidden rounded-[18px]"
+        style={{ height: alto, background: "rgba(0,0,0,.22)", boxShadow: "inset 0 0 0 1px rgba(255,255,255,.05)" }}
+      >
+        <svg
+          ref={svgRef}
+          viewBox={`0 0 ${W} ${H}`}
+          tabIndex={0}
+          role="application"
+          aria-label="Mapa de flujos entre sociedades del grupo. Rueda para zoom, arrastra el fondo, arrastra una sociedad. Clic abre la ficha."
+          className="block h-full w-full touch-none outline-none focus-visible:shadow-[inset_0_0_0_2px_rgba(176,131,232,.55)]"
+          style={{ width: "100%", height: alto, cursor, userSelect: "none" }}
+          onPointerDown={onPointerDown}
+          onPointerMove={onPointerMove}
+          onPointerUp={soltarPuntero}
+          onPointerCancel={soltarPuntero}
+          onDoubleClick={(ev) => {
+            if ((ev.target as Element | null)?.closest?.("[data-nodo]")) return;
+            zoomEn(ev.clientX, ev.clientY, 1.45);
+          }}
+          onKeyDown={onKeyDown}
+        >
+          <defs>
+            <marker id={marcador} viewBox="0 0 10 10" refX="9" refY="5" markerWidth="9" markerHeight="9" markerUnits="userSpaceOnUse" orient="auto-start-reverse">
+              <path d="M0,0 L10,5 L0,10 z" fill="#b083e8" />
+            </marker>
+          </defs>
 
-        {layout.aristas.map((a, i) => {
-          const dx = a.target.x! - a.source.x!, dy = a.target.y! - a.source.y!;
-          const d = Math.hypot(dx, dy) || 1;
-          // Curva hacia un lado para que A→B y B→A no se pisen; se acorta para que la flecha toque el borde.
-          const nx = -dy / d, ny = dx / d;
-          const mx = (a.source.x! + a.target.x!) / 2 + nx * d * 0.16;
-          const my = (a.source.y! + a.target.y!) / 2 + ny * d * 0.16;
-          const tx = a.target.x! - (dx / d) * (a.target.r + 4) + nx * 6;
-          const ty = a.target.y! - (dy / d) * (a.target.r + 4) + ny * 6;
-          const sx = a.source.x! + (dx / d) * (a.source.r + 2) + nx * 6;
-          const sy = a.source.y! + (dy / d) * (a.source.r + 2) + ny * 6;
-          const grosor = 1 + 6 * Math.sqrt(a.eur / maxEurArista);
-          const denso = layout.aristas.length > 60 ? 0.55 : 1;
-          const opacidad = (0.3 + 0.6 * Math.min(1, a.matches / 12)) * denso;
-          const toca = destacar && (a.source.company_id === destacar || a.target.company_id === destacar);
-          return (
-            <path key={i} d={`M${sx},${sy} Q${mx},${my} ${tx},${ty}`} fill="none"
-              stroke={toca ? "#e2ccff" : "#b083e8"} strokeWidth={grosor} strokeOpacity={opacidad} strokeLinecap="round"
-              markerEnd="url(#flecha)" style={{ cursor: "help" }}
-              onMouseMove={(ev) => setHover({ x: ev.clientX, y: ev.clientY, texto: (
-                <>
-                  <p className="font-medium">{corto(a.source.company_id)} → {corto(a.target.company_id)}</p>
-                  <p className="tnum text-[var(--color-ink-3)]">{eur(a.eur)} · {a.matches} coincidencias · último {mesCorto(a.last_date.slice(0, 7))}</p>
-                </>
-              ) })}
-              onMouseLeave={() => setHover(null)} />
-          );
-        })}
+          <g ref={gRef}>
+            {layout.aristas.map((a, i) => {
+              const dx = a.target.x! - a.source.x!, dy = a.target.y! - a.source.y!;
+              const d = Math.hypot(dx, dy) || 1;
+              const nx = -dy / d, ny = dx / d;
+              const mx = (a.source.x! + a.target.x!) / 2 + nx * d * 0.16;
+              const my = (a.source.y! + a.target.y!) / 2 + ny * d * 0.16;
+              const tx = a.target.x! - (dx / d) * (a.target.r + 4) + nx * 6;
+              const ty = a.target.y! - (dy / d) * (a.target.r + 4) + ny * 6;
+              const sx = a.source.x! + (dx / d) * (a.source.r + 2) + nx * 6;
+              const sy = a.source.y! + (dy / d) * (a.source.r + 2) + ny * 6;
+              const grosor = 1 + 6 * Math.sqrt(a.eur / maxEurArista);
+              const denso = layout.aristas.length > 60 ? 0.55 : 1;
+              const opacidad = (0.3 + 0.6 * Math.min(1, a.matches / 12)) * denso;
+              const toca = destacar && (a.source.company_id === destacar || a.target.company_id === destacar);
+              return (
+                <path key={i} d={`M${sx},${sy} Q${mx},${my} ${tx},${ty}`} fill="none"
+                  stroke={toca ? "#e2ccff" : "#b083e8"} strokeWidth={grosor} strokeOpacity={opacidad} strokeLinecap="round"
+                  markerEnd={`url(#${marcador})`} style={{ cursor: "help", pointerEvents: gestoUi ? "none" : "stroke" }}
+                  onMouseMove={(e) => {
+                    if (gesto.current) return;
+                    setHover({ x: e.clientX, y: e.clientY, texto: (
+                      <>
+                        <p className="font-medium">{corto(a.source.company_id)} → {corto(a.target.company_id)}</p>
+                        <p className="tnum text-[var(--color-ink-3)]">{eur(a.eur)} · {a.matches} coincidencias · último {mesCorto(a.last_date.slice(0, 7))}</p>
+                      </>
+                    ) });
+                  }}
+                  onMouseLeave={() => setHover(null)} />
+              );
+            })}
 
-        {layout.nodos.map((n) => {
-          const b = banda(n.score);
-          const activo = n.state_eligible;
-          const esDestacado = destacar === n.company_id;
-          const suelto = n.eur_in + n.eur_out === 0;
-          return (
-            <a key={n.company_id} href={rutaDe(n.company_id)} style={{ cursor: "pointer" }}
-              onMouseMove={(ev) => setHover({ x: ev.clientX, y: ev.clientY, texto: (
-                <>
-                  <p className="font-medium">Sociedad {corto(n.company_id)} · <span className="tnum" style={{ color: b.color }}>{num(n.score)}</span></p>
-                  <p className="tnum text-[var(--color-ink-3)]">
-                    {activo ? b.label : "sin historia suficiente"} · entra {eur(n.eur_in, true)} · sale {eur(n.eur_out, true)}
-                  </p>
-                </>
-              ) })}
-              onMouseLeave={() => setHover(null)}>
-              {esDestacado && <circle cx={n.x} cy={n.y} r={n.r + 6} fill="none" stroke="#ffffff" strokeOpacity={0.6} strokeWidth={1.5} strokeDasharray="3 3" />}
-              <circle cx={n.x} cy={n.y} r={n.r}
-                fill={activo ? b.color : "#1d1630"} fillOpacity={suelto ? 0.55 : 1}
-                stroke={activo ? "rgba(255,255,255,.35)" : "#373c56"} strokeWidth={1.2} />
-              <text x={n.x} y={n.y} textAnchor="middle" dominantBaseline="central"
-                fontSize={n.r >= 24 ? 12.5 : 11} fontWeight={600} className="tnum"
-                fill={activo ? "#0d0416" : "#afafbb"} style={{ pointerEvents: "none" }}>
-                {corto(n.company_id)}
-              </text>
-            </a>
-          );
-        })}
-      </svg>
+            {layout.nodos.map((n) => {
+              const b = banda(n.score);
+              const activo = n.state_eligible;
+              const esDestacado = destacar === n.company_id;
+              const suelto = n.eur_in + n.eur_out === 0;
+              return (
+                <a key={n.company_id} href={rutaDe(n.company_id)} data-nodo={n.company_id}
+                  style={{ cursor: gestoUi === "nodo" ? "grabbing" : "grab" }}
+                  onClick={(e) => { if (nodoMovido.current === n.company_id) e.preventDefault(); }}
+                  onDragStart={(e) => e.preventDefault()}
+                  onMouseMove={(e) => {
+                    if (gesto.current) return;
+                    setHover({ x: e.clientX, y: e.clientY, texto: (
+                      <>
+                        <p className="font-medium">Sociedad {corto(n.company_id)} · <span className="tnum" style={{ color: b.color }}>{num(n.score)}</span></p>
+                        <p className="tnum text-[var(--color-ink-3)]">
+                          {activo ? b.label : "sin historia suficiente"} · entra {eur(n.eur_in, true)} · sale {eur(n.eur_out, true)}
+                        </p>
+                        <p className="mt-0.5 text-[10.5px] text-[var(--color-ink-4)]">Arrastra para mover · clic para abrir</p>
+                      </>
+                    ) });
+                  }}
+                  onMouseLeave={() => setHover(null)}>
+                  {esDestacado && <circle cx={n.x} cy={n.y} r={n.r + 6} fill="none" stroke="#ffffff" strokeOpacity={0.6} strokeWidth={1.5} strokeDasharray="3 3" />}
+                  <circle cx={n.x} cy={n.y} r={n.r}
+                    fill={activo ? b.color : "#1d1630"} fillOpacity={suelto ? 0.55 : 1}
+                    stroke={activo ? "rgba(255,255,255,.35)" : "#373c56"} strokeWidth={1.2} />
+                  <text x={n.x} y={n.y} textAnchor="middle" dominantBaseline="central"
+                    fontSize={n.r >= 24 ? 12.5 : 11} fontWeight={600} className="tnum"
+                    fill={activo ? "#0d0416" : "#afafbb"} style={{ pointerEvents: "none" }}>
+                    {corto(n.company_id)}
+                  </text>
+                </a>
+              );
+            })}
+          </g>
+        </svg>
 
-      {hover && (
+        <div className="absolute right-2.5 top-2.5 z-10 flex items-center gap-0.5 rounded-full border border-[rgba(255,255,255,.1)] bg-[rgba(8,6,14,.78)] p-1 backdrop-blur-md">
+          <BotonVista aria="Alejar" onClick={() => zoomCentro(1 / 1.22)}>−</BotonVista>
+          <button
+            type="button"
+            onClick={resetCamara}
+            className="min-w-[3.1rem] px-1.5 text-center text-[11px] tabular-nums text-[var(--color-ink-3)] transition-[color,background-color,scale] duration-150 hover:text-[var(--color-ink)] active:scale-[0.96]"
+            style={{ transitionTimingFunction: "cubic-bezier(0.2, 0, 0, 1)" }}
+            aria-label="Restablecer zoom"
+            title="Restablecer (0)"
+          >
+            <span ref={zoomTxtRef}>100%</span>
+          </button>
+          <BotonVista aria="Acercar" onClick={() => zoomCentro(1.22)}>+</BotonVista>
+        </div>
+      </div>
+
+      {hover && !gestoUi && (
         <div className="glass pointer-events-none fixed z-50 rounded-xl px-3 py-2 text-[12px]" style={{ left: hover.x + 12, top: hover.y + 12 }}>
           {hover.texto}
         </div>
@@ -152,10 +398,41 @@ export function Grafo({ nodos, aristas, vista = "auto", destacar, alto = 520 }: 
           <span key={s} className="flex items-center gap-1.5"><span className="h-2.5 w-2.5 rounded-full" style={{ background: b.color }} />{b.label}</span>
         ); })}
         <span className="flex items-center gap-1.5"><span className="h-2.5 w-2.5 rounded-full border border-[#373c56] bg-[#1d1630]" />sin historia</span>
-        <span>· tamaño = euros movidos · grosor = euros del flujo · opacidad = coincidencias</span>
+        <span>rueda = zoom · arrastra el mapa · mueve una sociedad · doble clic acerca</span>
       </div>
     </div>
   );
+}
+
+function BotonVista({ children, onClick, aria }: { children: React.ReactNode; onClick: () => void; aria: string }) {
+  return (
+    <button
+      type="button"
+      aria-label={aria}
+      onClick={onClick}
+      className="grid h-8 w-8 place-items-center rounded-full text-[16px] leading-none text-[var(--color-ink-2)] transition-[background-color,color,scale] duration-150 hover:bg-[rgba(255,255,255,.12)] hover:text-[var(--color-ink)] active:scale-[0.96]"
+      style={{ transitionTimingFunction: "cubic-bezier(0.2, 0, 0, 1)" }}
+    >
+      {children}
+    </button>
+  );
+}
+
+function clamp(v: number, lo: number, hi: number) {
+  return Math.max(lo, Math.min(hi, v));
+}
+
+function pantallaAViewBox(svg: SVGSVGElement, clientX: number, clientY: number) {
+  const r = svg.getBoundingClientRect();
+  return {
+    x: ((clientX - r.left) / r.width) * W,
+    y: ((clientY - r.top) / r.height) * H,
+  };
+}
+
+function pantallaAMundo(svg: SVGSVGElement, cam: Camara, clientX: number, clientY: number) {
+  const pt = pantallaAViewBox(svg, clientX, clientY);
+  return { x: (pt.x - cam.x) / cam.k, y: (pt.y - cam.y) / cam.k };
 }
 
 const corto = (id: string) => id.replace("COMP_", "");

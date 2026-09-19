@@ -49,7 +49,7 @@ export default async function Grupo({ params }: { params: Promise<{ id: string }
               <div>
                 <h2 className="text-[16px] font-semibold tracking-tight">Flujos entre sociedades</h2>
                 <p className="mt-0.5 text-[11.5px] text-[var(--color-ink-4)]">
-                  {grafo.edges.length} flujos inferidos · {eur(volumenInterno, true)} · las flechas van del que paga al que cobra
+                  {grafo.edges.length} flujos inferidos · {eur(volumenInterno, true)} · zoom, arrastre y clic en una sociedad
                 </p>
               </div>
               <Link href={`/grafo?grupo=${g.id}`} className="pildora">Ver en el mapa</Link>
