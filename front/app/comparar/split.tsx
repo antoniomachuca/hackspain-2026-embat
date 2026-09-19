@@ -3,7 +3,6 @@ import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import type { Empresa } from "@/lib/data";
-import { episodioDestacado } from "@/lib/data";
 import type { OpcionComparar } from "@/lib/motor";
 import { num, mesCorto, banda } from "@/lib/format";
 import { Cabecera } from "@/components/shell";
@@ -101,7 +100,8 @@ export default function SplitScreen({
           ].map(({ emp: e, rol, opts, onSelect, label }) => {
             const primerScore = e.trayectoria[0]?.score ?? 50;
             const ultimoMes = e.trayectoria[e.trayectoria.length - 1]?.mes ?? "2026-09";
-            const ep = episodioDestacado(e);
+            // El gráfico marca el mismo episodio que describe el texto: el último de la dirección del rol.
+            const ep = rol === "sube" ? epSube : epBaja;
             return (
               <Card key={e.id} className="overflow-hidden">
                 <div className="flex items-start justify-between gap-4 border-b border-[var(--color-line)] px-5 py-4">

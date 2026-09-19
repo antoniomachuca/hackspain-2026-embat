@@ -164,3 +164,13 @@ def test_reentry_with_lower_severity_is_not_escalada():
     assert len(episodios) == 1
     assert episodios[0]['estado_deteccion'] == 'DETERIORO'
     assert episodios[0]['escaladas'] == [{'as_of': '2025-02-01', 'estado': 'DETERIORO'}]
+
+
+def test_direct_mejorando_to_recuperacion_is_escalada():
+    # El monitor no emite evento en MEJORANDO→RECUPERACION; la escalada se detecta dentro del episodio.
+    states = ['ESTABLE'] * 6 + ['MEJORANDO'] * 3 + ['RECUPERACION'] * 3 + ['ESTABLE'] * 12
+    result = build_episodes(make_panels([states], [[50.] * 24]))
+    episodios = result['C0']['episodios']
+    assert len(episodios) == 1
+    assert episodios[0]['direccion'] == 'mejora' and episodios[0]['estado_deteccion'] == 'MEJORANDO'
+    assert episodios[0]['escaladas'] == [{'as_of': '2024-10-01', 'estado': 'RECUPERACION'}]

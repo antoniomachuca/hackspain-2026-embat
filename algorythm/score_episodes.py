@@ -106,34 +106,31 @@ def _company_episodes(panels, c, events, state_config, config):
     for t in range(months):
         event = int(events[c, t])
         if open_ep is not None:
-            # Escalada = subida de gravedad dentro del episodio (TORCIENDOSE→DETERIORO,
-            # MEJORANDO→RECUPERACION). Una reentrada igual o más leve tras un mes neutro no
-            # escala, pero sí reinicia el contador de cierre.
-            if event == direction_of[open_ep['direccion']]:
-                neutral = 0
-                if SEVERITY.get(str(states[t]), 0) > SEVERITY.get(open_ep['_ultimo_estado'], 0):
-                    open_ep['escaladas'].append({'as_of': str(as_of[t]), 'estado': str(states[t])})
-                open_ep['_ultimo_estado'] = str(states[t])
-            elif event == -direction_of[open_ep['direccion']]:
+            if event == -direction_of[open_ep['direccion']]:
                 open_ep['estado'] = 'cerrado'
                 open_ep['cierre'] = str(as_of[t])
                 open_ep['motivo_cierre'] = 'cambio_direccion'
                 episodes.append(open_ep)
                 open_ep = None
                 neutral = 0
+            elif states[t] in direction_states[open_ep['direccion']]:
+                # Escalada = subida de gravedad dentro del episodio (TORCIENDOSE→DETERIORO,
+                # MEJORANDO→RECUPERACION), se compara el estado mes a mes sin depender de los
+                # eventos del monitor. Una reentrada igual o más leve tras un mes neutro no
+                # escala, pero sí reinicia el contador de cierre.
+                neutral = 0
+                if SEVERITY.get(str(states[t]), 0) > SEVERITY.get(open_ep['_ultimo_estado'], 0):
+                    open_ep['escaladas'].append({'as_of': str(as_of[t]), 'estado': str(states[t])})
+                open_ep['_ultimo_estado'] = str(states[t])
             else:
-                if states[t] not in direction_states[open_ep['direccion']]:
-                    neutral += 1
-                    if neutral >= state_config.neutral_persistence_months:
-                        open_ep['estado'] = 'cerrado'
-                        open_ep['cierre'] = str(as_of[t])
-                        open_ep['motivo_cierre'] = 'sin_evaluacion' if states[t] == PENDING else 'estabilizacion'
-                        episodes.append(open_ep)
-                        open_ep = None
-                        neutral = 0
-                else:
+                neutral += 1
+                if neutral >= state_config.neutral_persistence_months:
+                    open_ep['estado'] = 'cerrado'
+                    open_ep['cierre'] = str(as_of[t])
+                    open_ep['motivo_cierre'] = 'sin_evaluacion' if states[t] == PENDING else 'estabilizacion'
+                    episodes.append(open_ep)
+                    open_ep = None
                     neutral = 0
-                    open_ep['_ultimo_estado'] = str(states[t])
         if event and open_ep is None:
             direction = 'deterioro' if event < 0 else 'mejora'
             open_ep = {'direccion': direction, 'estado': 'activo', 'cierre': None, 'motivo_cierre': None,
