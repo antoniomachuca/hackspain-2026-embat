@@ -1,0 +1,123 @@
+"""
+Endpoints de estadísticas globales, KPIs de cartera, grupos corporativos y salud del backend (X-Ray).
+"""
+
+from datetime import datetime
+from fastapi import APIRouter
+
+from backend.database import DB_PATH, query_dicts, query_one
+from backend.schemas import GroupItem, GroupListResponse, HealthResponse, StatsResponse
+
+router = APIRouter(tags=["Estadísticas y Salud"])
+
+
+@router.get("/api/stats", response_model=StatsResponse)
+def get_portfolio_stats():
+    """
+    KPIs globales a nivel de cartera ejecutiva:
+    Total de empresas analizadas, desglose por estado, tasa de riesgo, media/mediana de solvencia
+    y volumen acumulado de facturas en mora.
+    """
+    # Métricas agregadas de empresas y scores
+    score_stats = query_one("""
+        SELECT 
+            count(*) AS total_companies,
+            MAX(as_of) AS latest_as_of,
+            ROUND(AVG(score), 2) AS average_score,
+            ROUND(MEDIAN(score), 2) AS median_score,
+            count(*) FILTER (WHERE state IN ('DETERIORO', 'TORCIENDOSE', 'BACHE')) AS risk_companies_count
+        FROM v_latest_company_scores;
+    """)
+
+    total_companies = score_stats["total_companies"] if score_stats else 0
+    latest_as_of = str(score_stats["latest_as_of"]) if score_stats and score_stats["latest_as_of"] else "2026-09-01"
+    risk_count = score_stats["risk_companies_count"] if score_stats else 0
+    risk_pct = round((risk_count / total_companies * 100.0), 2) if total_companies > 0 else 0.0
+    avg_score = float(score_stats["average_score"]) if score_stats and score_stats["average_score"] is not None else 0.0
+    med_score = float(score_stats["median_score"]) if score_stats and score_stats["median_score"] is not None else 0.0
+
+    # Distribución por estados
+    dist_rows = query_dicts("""
+        SELECT state, count(*) AS count
+        FROM v_latest_company_scores
+        GROUP BY state
+        ORDER BY count DESC;
+    """)
+    distribution = {row["state"]: row["count"] for row in dist_rows}
+
+    # Métricas de facturación y mora
+    inv_stats = query_one("""
+        SELECT 
+            count(*) AS total_invoices,
+            COALESCE(SUM(pending_amount) FILTER (WHERE status = 'overdue' OR (due_date < '2026-09-01' AND (paid_date IS NULL OR paid_date > due_date))), 0.0) AS total_overdue_volume
+        FROM invoices;
+    """)
+    total_invoices = inv_stats["total_invoices"] if inv_stats else 0
+    total_overdue = round(float(inv_stats["total_overdue_volume"]), 2) if inv_stats else 0.0
+
+    # Totales de transacciones y alertas
+    trans_row = query_one("SELECT count(*) AS cnt FROM transactions;")
+    total_trans = trans_row["cnt"] if trans_row else 0
+
+    alerts_row = query_one("SELECT count(*) AS cnt FROM alerts;")
+    total_alerts = alerts_row["cnt"] if alerts_row else 0
+
+    return StatsResponse(
+        total_companies=total_companies,
+        latest_as_of=latest_as_of,
+        distribution_by_state=distribution,
+        risk_companies_count=risk_count,
+        risk_percentage=risk_pct,
+        average_score=avg_score,
+        median_score=med_score,
+        total_overdue_volume=total_overdue,
+        total_invoices_count=total_invoices,
+        total_transactions_count=total_trans,
+        total_alerts_count=total_alerts,
+    )
+
+
+@router.get("/api/groups", response_model=GroupListResponse)
+def get_groups():
+    """
+    Lista los grupos corporativos con métricas agregadas de empresas, score medio y riesgo.
+    """
+    rows = query_dicts("""
+        SELECT 
+            g.group_id,
+            g.erp,
+            count(s.company_id) AS company_count,
+            ROUND(COALESCE(AVG(s.score), 0.0), 2) AS average_score,
+            count(s.company_id) FILTER (WHERE s.state IN ('DETERIORO', 'TORCIENDOSE', 'BACHE')) AS risk_companies_count
+        FROM groups g
+        LEFT JOIN v_latest_company_scores s ON g.group_id = s.group_id
+        GROUP BY g.group_id, g.erp
+        ORDER BY company_count DESC, average_score ASC;
+    """)
+
+    groups = [
+        GroupItem(
+            group_id=row["group_id"],
+            erp=row.get("erp"),
+            company_count=int(row["company_count"]),
+            average_score=float(row["average_score"]),
+            risk_companies_count=int(row["risk_companies_count"]),
+        )
+        for row in rows
+    ]
+
+    return GroupListResponse(total=len(groups), groups=groups)
+
+
+@router.get("/api/health", response_model=HealthResponse)
+def health_check():
+    """
+    Comprueba la conectividad de DuckDB y el estado operativo del microservicio.
+    """
+    tables = query_dicts("SHOW TABLES;")
+    return HealthResponse(
+        status="ok",
+        database=DB_PATH.name,
+        tables_count=len(tables),
+        timestamp=datetime.now().isoformat(),
+    )

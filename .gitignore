@@ -70,3 +70,10 @@ data/
 /algorythm/formula/*.fdb_latexmk
 /algorythm/formula/*.synctex.gz
 /algorythm/formula/*.out
+
+# DuckDB Database files (generadas localmente mediante algorythm/build_duckdb.py)
+*.duckdb
+*.duckdb.wal
+*.log
+
+
