@@ -15,17 +15,27 @@ export function Modal({ abierto, onCerrar, titulo, sub, children }:
   { abierto: boolean; onCerrar: () => void; titulo: string; sub?: string; children: React.ReactNode }) {
   const caja = useRef<HTMLDivElement>(null);
   const desdeElFondo = useRef(false);
+  const focoAnterior = useRef<HTMLElement | null>(null);
+  const cerrarRef = useRef(onCerrar);
+
+  useEffect(() => { cerrarRef.current = onCerrar; }, [onCerrar]);
 
   useEffect(() => {
     if (!abierto) return;
-    const tecla = (e: KeyboardEvent) => { if (e.key === "Escape") onCerrar(); };
+    focoAnterior.current = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+    const tecla = (e: KeyboardEvent) => { if (e.key === "Escape") cerrarRef.current(); };
     document.addEventListener("keydown", tecla);
     // Sin esto la página de detrás sigue desplazándose con la rueda.
     const previo = document.body.style.overflow;
     document.body.style.overflow = "hidden";
     caja.current?.focus();
-    return () => { document.removeEventListener("keydown", tecla); document.body.style.overflow = previo; };
-  }, [abierto, onCerrar]);
+    return () => {
+      document.removeEventListener("keydown", tecla);
+      document.body.style.overflow = previo;
+      focoAnterior.current?.focus();
+      focoAnterior.current = null;
+    };
+  }, [abierto]);
 
   // `abierto` solo se pone a true desde un clic, así que aquí ya hay DOM.
   if (!abierto) return null;
