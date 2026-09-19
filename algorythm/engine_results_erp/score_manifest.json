@@ -29,7 +29,7 @@
       "excluded_currency_or_fx": 97401,
       "excluded_date_or_status": 45568,
       "unknown_or_mismatched_product": 1313,
-      "bank_hhi_endpoint_available": 125
+      "bank_hhi_endpoint_available": 74
     },
     "erp": {
       "excluded_currency_or_fx": 17129,
@@ -38,10 +38,21 @@
       "companies_with_usable_snapshot": 466,
       "assumes_positive_invoice_amount_is_sale": true,
       "payment_date_used_to_infer_payment": false,
-      "snapshot_as_of": "2026-09-01",
-      "mode": "single_snapshot_assumed_positive_sales"
+      "snapshot_as_of": null,
+      "mode": "continuous_monthly_erp_panel"
     }
   },
+  "state_config": {
+    "persistence_months": 3,
+    "momentum_threshold": 0.1,
+    "base_boundary": 60.0,
+    "minimum_quality": 0.5,
+    "minimum_observed_months": 6,
+    "neutral_persistence_months": 2,
+    "pulse_margin_drop": 0.12,
+    "year_over_year_deadband": 0.06
+  },
+  "model_version": "f93a85030e94cb2bb99bcc7ac8854ef29752db9dacbf7b316db37aac9550b825",
   "input_sha256": {
     "companies.csv": "5496ad00a1e9228f7e756a55c71c512fd06a73ad45a09ce3f103a620a5ad72ae",
     "banking_products.csv": "0fc5aa20fea32981a962cc08251720ece3f2afad8495910111d2fd8b16514d3c",
@@ -49,8 +60,10 @@
     "transactions.csv": "000a6820a7500c66aa70a17b3e813d0c57a8270b3c58f6f2f006708a20228f2b",
     "invoices.csv": "6686bd878244881bac78348a108852f3f30713ef244267f1fa3754b9be619c53"
   },
-  "engine_sha256": "76f92ab82401a9eaf358e6dc156b61bbf627808b7a6230665defb599a4cc63e4",
-  "data_adapter_sha256": "56e45cd5664423079c944049e2925e24b5a4ed4905ec5fa4c254003f773c00b1",
+  "engine_sha256": "f65e2bea2acb625e667769086c470cd537702bf59c7b1e7a77d1612f733d4370",
+  "data_adapter_sha256": "c5b950723c22033d24155faca8dfaeb3335062e871ffa8f239061ffa2c9e5a87",
+  "state_engine_sha256": "94440bb14157cd65e61a5f171770918fff4d4c57d11a4b3c733c454ec16b4072",
+  "monitor_sha256": "bcb2cd53b56502ae03b12eecd8637c37b162d219b1bdcbe0d61c335ef5051175",
   "runtime": {
     "python": "3.12.10",
     "numpy": "2.5.3"
@@ -58,7 +71,9 @@
   "cash_observations_sha256": null,
   "terminal_balances_used": false,
   "credit_rating_calibrated": false,
-  "endpoint_prior_count": 111,
+  "endpoint_prior_count": 93,
   "endpoint_cash_known_count": 0,
-  "endpoint_erp_used_count": 466
+  "endpoint_erp_used_count": 466,
+  "panels_sha256": "7af5cecc687d750bd9fce7154f8d499cc055ff38763da1b677ddecc24f8f0675",
+  "csv_sha256": "6e676c1cc4b9b49b44d14507a7473b50a9ce6c0758985b0fac837d222c936018"
 }

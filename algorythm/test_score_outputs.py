@@ -38,10 +38,9 @@ class ExportedScoreTests(unittest.TestCase):
 
     def test_actual_erp_snapshot_has_no_effect_on_earlier_scores(self):
         core, enriched = self.results[0][0], self.results[1][0]
-        np.testing.assert_array_equal(core['score'][:, :-1], enriched['score'][:, :-1])
-        np.testing.assert_array_equal(core['momentum'], enriched['momentum'])
-        no_erp = ~enriched['erp_used'][:, -1]
-        np.testing.assert_array_equal(core['score'][no_erp, -1], enriched['score'][no_erp, -1])
+        no_erp = ~enriched['erp_used']
+        np.testing.assert_array_equal(core['score'][no_erp], enriched['score'][no_erp])
+        self.assertGreater(enriched['erp_used'].sum(), 0)
 
     def test_csv_rows_and_point_contributions_match_numpy_export(self):
         panels = self.results[0][0]

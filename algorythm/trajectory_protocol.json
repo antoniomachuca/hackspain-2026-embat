@@ -1,0 +1,50 @@
+{
+  "version": "trajectory-monitor-v1",
+  "purpose": "Validate observed financial trajectories and an operational monitor; not a supervised credit-rating validation",
+  "synthetic": {
+    "development_seed": 101,
+    "validation_seed": 202,
+    "test_seed": 303,
+    "companies_per_scenario": 400,
+    "months": 36,
+    "change_month_index": 12,
+    "scenarios": ["stable", "pulse", "seasonal", "deterioration", "improvement", "recovery", "abrupt_deterioration"],
+    "healthy_margin_range": [0.08, 0.22],
+    "recovery_margin_range": [-0.22, -0.08],
+    "margin_step_range": [0.02, 0.035],
+    "margin_noise_sd": 0.012,
+    "noise_autocorrelation": 0.3,
+    "seasonal_amplitude": 0.10,
+    "pulse_size": 0.35,
+    "cash_at_change_outflow_months_range": [0.5, 6.0],
+    "cash_oracle_is_not_a_feature": true
+  },
+  "monitor_candidates": {
+    "persistence_months": [2, 3],
+    "momentum_threshold": 0.10,
+    "base_boundary": 60.0,
+    "minimum_quality": 0.50,
+    "minimum_observed_months": 6,
+    "neutral_persistence_months": 2,
+    "pulse_margin_drop": 0.12,
+    "year_over_year_deadband": 0.06
+  },
+  "selection": "Development seed only: candidates must have at most one adverse alert per eligible company-year on stable and seasonal paths and at most 5% false structural detections on pulse paths. Among admissible candidates select the shortest average delay on deterioration/improvement/recovery. Freeze before validation and test. Report failures rather than retuning on test.",
+  "real_data": {
+    "held_out_group_seed": 42,
+    "held_out_group_positions": [50, 100],
+    "cutoff_indices": [17, 20],
+    "future_horizon_months": 3,
+    "proxy": "future observed cash-flow coverage and its change versus the preceding quarter",
+    "direction_deadband": 0.05,
+    "no_parameter_tuning_on_real_holdout": true,
+    "limitations": ["The dataset has already been explored", "No official financial-health labels", "No historical cash anchor for empirical collapse dates", "Bank classifications and product metadata lack historical vintages"]
+  },
+  "reporting": {
+    "synthetic_false_alarm_rate_unit": "emitted adverse alert events per eligible company-year",
+    "report_pre_change_alerts_separately": true,
+    "do_not_backdate_confirmation": true,
+    "no_empirical_lead_time_without_known_event": true,
+    "report_censored_cash_paths": true
+  }
+}

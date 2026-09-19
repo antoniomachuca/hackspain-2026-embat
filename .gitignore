@@ -69,3 +69,4 @@ data/
 /algorythm/formula/*.fls
 /algorythm/formula/*.fdb_latexmk
 /algorythm/formula/*.synctex.gz
+/algorythm/formula/*.out
