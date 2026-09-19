@@ -85,8 +85,7 @@ export default async function Cartera({ searchParams }: { searchParams: Promise<
         titulo="Cartera Embat"
         sub={
           <>
-            {num(pf.total_companies, 0)} clientes · {num(pf.eligible_companies, 0)} con score · {mesCorto(mes)} · corte 1-sep ·{" "}
-            <span className="tnum text-[var(--color-ink-4)]">motor conectado</span>
+            {num(pf.total_companies, 0)} clientes · {num(pf.eligible_companies, 0)} con score · {mesCorto(mes)} · corte 1-sep
           </>
         }
       />

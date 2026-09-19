@@ -103,7 +103,7 @@ export async function FichaEmpresa({ id, vista }: { id: string; vista: Vista }) 
             {embat ? <>{e.id} · Grupo {e.grupo.replace("GROUP_", "")} · </> : <>{e.sector} · </>}
             {mesCorto(MES_ACTUAL)} · corte 1-sep ·{" "}
             <span className="tnum text-[var(--color-ink-4)]">
-              motor conectado · {e.moneda}
+              {e.moneda}
               {rk?.modelVersion ? ` · ${rk.modelVersion.slice(0, 8)}` : ""}
             </span>
           </>
@@ -256,9 +256,6 @@ export async function FichaEmpresa({ id, vista }: { id: string; vista: Vista }) 
             reparto={e.reparto}
             inflexion={e.inflexion}
           />
-          <p className="mt-6 text-center text-[11px] leading-relaxed text-[var(--color-ink-4)]">
-            Serie temporal directa de <code className="text-[10px]">xray.duckdb</code> calculada con el motor aditivo.
-          </p>
         </Card>
       </div>
 
