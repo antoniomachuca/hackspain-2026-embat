@@ -8,6 +8,11 @@ from fastapi import APIRouter, HTTPException
 from backend.database import DB_PATH, query_dicts, query_one
 from backend.schemas import (
     GroupCompanyItem,
+    PortfolioCompanyItem,
+    PortfolioHistogramBucket,
+    PortfolioResponse,
+    PortfolioSegment,
+    PortfolioTrajectoryPoint,
     GroupDetailResponse,
     GroupItem,
     GroupListResponse,
@@ -81,6 +86,158 @@ def get_portfolio_stats():
         total_invoices_count=total_invoices,
         total_transactions_count=total_trans,
         total_alerts_count=total_alerts,
+    )
+
+
+# ── Cartera Embat ──────────────────────────────────────────────────────
+# Segmentación determinista sobre el último corte. Es una regla, no un modelo:
+# la misma que aplica el front en lib/cartera.ts, y debe cambiarse en los dos sitios.
+#   APOSTAR   → sana y creciendo: candidata a línea de crédito / módulo gratis.
+#   VIGILAR   → se tuerce o deteriora: retención, ofrecer ayuda antes de perderla.
+#   ACOMPANAR → bache puntual: seguimiento, sin actuar todavía.
+SEGMENT_SQL = """
+    CASE
+        WHEN state_eligible AND score >= 60
+             AND (state IN ('MEJORANDO', 'RECUPERACION') OR delta_3m >= 10) THEN 'APOSTAR'
+        WHEN state IN ('TORCIENDOSE', 'DETERIORO') THEN 'VIGILAR'
+        WHEN state = 'BACHE' THEN 'ACOMPANAR'
+        ELSE NULL
+    END
+"""
+
+SEGMENTS = [
+    ("APOSTAR", "Apostar", "Sana y creciendo. Candidata a línea de crédito o módulo sin coste."),
+    ("VIGILAR", "Vigilar", "Empieza a torcerse. Retención: ofrecer ayuda antes de perder al cliente."),
+    ("ACOMPANAR", "Acompañar", "Bache puntual. Seguimiento cercano, sin actuar todavía."),
+]
+
+PORTFOLIO_COLS = f"""
+    company_id, group_id, erp, score, state, momentum, delta_3m, health_band, state_eligible,
+    {SEGMENT_SQL} AS segment
+"""
+
+
+def _portfolio_item(row) -> PortfolioCompanyItem:
+    return PortfolioCompanyItem(
+        company_id=row["company_id"],
+        group_id=row["group_id"],
+        erp=row.get("erp"),
+        score=round(float(row["score"]), 2),
+        state=str(row["state"]),
+        momentum=round(float(row["momentum"]), 4),
+        delta_3m=round(float(row["delta_3m"]), 2),
+        health_band=row.get("health_band"),
+        state_eligible=bool(row["state_eligible"]),
+        segment=row.get("segment"),
+    )
+
+
+@router.get("/api/portfolio", response_model=PortfolioResponse)
+def get_portfolio(top: int = 10, per_segment: int = 8):
+    """
+    Vista de cartera para Embat en una sola llamada: KPIs, distribución, histograma,
+    trayectoria media a 24 meses, rankings y segmentos de oportunidad.
+    Los rankings solo consideran empresas con historia suficiente (state_eligible).
+    """
+    top = max(1, min(top, 50))
+    per_segment = max(1, min(per_segment, 50))
+
+    kpi = query_one("""
+        SELECT
+            count(*) AS total_companies,
+            count(*) FILTER (WHERE state_eligible) AS eligible_companies,
+            MAX(as_of) AS latest_as_of,
+            ROUND(AVG(score) FILTER (WHERE state_eligible), 2) AS average_score,
+            ROUND(MEDIAN(score) FILTER (WHERE state_eligible), 2) AS median_score,
+            count(*) FILTER (WHERE state IN ('DETERIORO', 'TORCIENDOSE', 'BACHE')) AS risk_companies_count,
+            count(*) FILTER (WHERE state IN ('MEJORANDO', 'RECUPERACION')) AS improving_companies_count
+        FROM v_latest_company_scores;
+    """) or {}
+    as_of = str(kpi.get("latest_as_of") or "2026-09-01")
+
+    alerts_row = query_one("SELECT count(*) AS cnt FROM alerts WHERE as_of = ?;", (as_of,))
+
+    dist_state = {r["state"]: int(r["count"]) for r in query_dicts(
+        "SELECT state, count(*) AS count FROM v_latest_company_scores GROUP BY state ORDER BY count DESC;")}
+    dist_band = {str(r["health_band"] or "SIN_BANDA"): int(r["count"]) for r in query_dicts(
+        "SELECT health_band, count(*) AS count FROM v_latest_company_scores GROUP BY health_band ORDER BY count DESC;")}
+
+    hist_rows = query_dicts("""
+        SELECT CAST(LEAST(FLOOR(score / 10) * 10, 90) AS INTEGER) AS bucket, count(*) AS count
+        FROM v_latest_company_scores
+        WHERE state_eligible
+        GROUP BY bucket ORDER BY bucket;
+    """)
+    hist_map = {int(r["bucket"]): int(r["count"]) for r in hist_rows}
+    histogram = [PortfolioHistogramBucket(bucket=b, count=hist_map.get(b, 0)) for b in range(0, 100, 10)]
+
+    # Media de la cartera mes a mes. Los primeros meses nadie es elegible (arranque
+    # del motor), así que se cae a la media de todas para no dejar huecos.
+    traj_rows = query_dicts("""
+        SELECT
+            as_of,
+            ROUND(COALESCE(AVG(score) FILTER (WHERE state_eligible), AVG(score)), 2) AS average_score,
+            ROUND(COALESCE(MEDIAN(score) FILTER (WHERE state_eligible), MEDIAN(score)), 2) AS median_score,
+            count(*) FILTER (WHERE state_eligible) AS eligible_companies
+        FROM company_scores
+        GROUP BY as_of ORDER BY as_of;
+    """)
+    trajectory = [
+        PortfolioTrajectoryPoint(
+            as_of=str(r["as_of"]),
+            average_score=float(r["average_score"]),
+            median_score=float(r["median_score"]),
+            eligible_companies=int(r["eligible_companies"]),
+        )
+        for r in traj_rows
+    ]
+
+    def ranking(order: str) -> list:
+        rows = query_dicts(f"""
+            SELECT {PORTFOLIO_COLS}
+            FROM v_latest_company_scores
+            WHERE state_eligible
+            ORDER BY {order}, company_id
+            LIMIT ?;
+        """, (top,))
+        return [_portfolio_item(r) for r in rows]
+
+    segments = []
+    for key, label, action in SEGMENTS:
+        cnt = query_one(
+            f"SELECT count(*) AS cnt FROM v_latest_company_scores WHERE {SEGMENT_SQL} = ?;", (key,)
+        ) or {"cnt": 0}
+        # Dentro del segmento, primero quien más se mueve en la dirección que importa.
+        order = "delta_3m DESC" if key == "APOSTAR" else "delta_3m ASC"
+        rows = query_dicts(f"""
+            SELECT {PORTFOLIO_COLS}
+            FROM v_latest_company_scores
+            WHERE {SEGMENT_SQL} = ?
+            ORDER BY {order}, score DESC, company_id
+            LIMIT ?;
+        """, (key, per_segment))
+        segments.append(PortfolioSegment(
+            key=key, label=label, action=action,
+            count=int(cnt["cnt"]), items=[_portfolio_item(r) for r in rows],
+        ))
+
+    return PortfolioResponse(
+        as_of=as_of,
+        total_companies=int(kpi.get("total_companies") or 0),
+        eligible_companies=int(kpi.get("eligible_companies") or 0),
+        average_score=float(kpi.get("average_score") or 0.0),
+        median_score=float(kpi.get("median_score") or 0.0),
+        risk_companies_count=int(kpi.get("risk_companies_count") or 0),
+        improving_companies_count=int(kpi.get("improving_companies_count") or 0),
+        alerts_last_month=int(alerts_row["cnt"]) if alerts_row else 0,
+        distribution_by_state=dist_state,
+        distribution_by_band=dist_band,
+        histogram=histogram,
+        trajectory=trajectory,
+        top_score=ranking("score DESC"),
+        top_growth=ranking("delta_3m DESC"),
+        top_decline=ranking("delta_3m ASC"),
+        segments=segments,
     )
 
 

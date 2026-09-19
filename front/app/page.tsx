@@ -1,410 +1,274 @@
+/**
+ * Home de Embat: la cartera entera de clientes vista con X-Ray.
+ * Quién está sano, quién crece, quién se tuerce, y qué hacer con cada uno.
+ */
 import Link from "next/link";
-import {
-  empresa, grupo, recomendar, MI_EMPRESA, MES_ACTUAL, EMPRESAS_CON_SCORE,
-  ANTICIPACION_MEDIANA, MODEL_VERSION,
-} from "@/lib/data";
-import { eur, num, mesCorto } from "@/lib/format";
-import { cargarEmpresa, cargarRecomendaciones, cargarFiliales, nombreDe } from "@/lib/motor";
+import { apiPortfolio, apiEmpresas, type ApiPortfolioItem } from "@/lib/api";
+import { nombreDe } from "@/lib/motor";
+import { ESTADO_LABEL, type Estado } from "@/lib/data";
+import { num, mesCorto } from "@/lib/format";
+import { SEGMENTOS, segmentoDe, type Segmento } from "@/lib/cartera";
 import { Cabecera } from "@/components/shell";
-import { Waterfall, Sparkline } from "@/components/charts";
-import { Anillo } from "@/components/anillo";
-import { Prevision } from "@/components/prevision";
-import { Card, ScoreBadge, BandaChip, EstadoChip, Confianza, Delta, Boton } from "@/components/ui";
+import { Histograma, Trayectoria } from "@/components/charts";
+import { Card, KPI, ScoreBadge, EstadoChip, Delta, Vacio } from "@/components/ui";
 
-export default async function Resumen() {
-  // El motor manda; si no responde, el front sigue con los datos de demostración.
-  const real = await cargarEmpresa(MI_EMPRESA);
-  const e = real ?? empresa(MI_EMPRESA) ?? EMPRESAS_CON_SCORE[1];
+const POR_PAGINA = 25;
+const ORDENES = ["score", "delta_3m", "momentum", "company_id", "group_id"] as const;
+const ESTADOS_FILTRO = ["MEJORANDO", "RECUPERACION", "ESTABLE", "BACHE", "TORCIENDOSE", "DETERIORO", "EVALUACION_PENDIENTE"];
 
-  const [rk, rawFiliales] = await Promise.all([
-    cargarRecomendaciones(e.id),
-    cargarFiliales(e.grupo, e.id),
+type Filtros = { orden: string; dir: "asc" | "desc"; estado: string; q: string; pagina: number };
+
+function leerFiltros(sp: Record<string, string | string[] | undefined>): Filtros {
+  const uno = (k: string) => (Array.isArray(sp[k]) ? sp[k]![0] : sp[k]) ?? "";
+  const orden = (ORDENES as readonly string[]).includes(uno("orden")) ? uno("orden") : "score";
+  return {
+    orden,
+    dir: uno("dir") === "asc" ? "asc" : "desc",
+    estado: ESTADOS_FILTRO.includes(uno("estado")) ? uno("estado") : "",
+    q: uno("q").slice(0, 20),
+    pagina: Math.max(1, parseInt(uno("pagina") || "1", 10) || 1),
+  };
+}
+
+function urlCon(f: Filtros, cambios: Partial<Filtros>) {
+  const n = { ...f, ...cambios };
+  const p = new URLSearchParams();
+  if (n.orden !== "score") p.set("orden", n.orden);
+  if (n.dir !== "desc") p.set("dir", n.dir);
+  if (n.estado) p.set("estado", n.estado);
+  if (n.q) p.set("q", n.q);
+  if (n.pagina > 1) p.set("pagina", String(n.pagina));
+  const qs = p.toString();
+  return `/${qs ? `?${qs}` : ""}#cartera`;
+}
+
+const etiquetaEstado = (st: string) => ESTADO_LABEL[st as Estado] ?? (st === "EVALUACION_PENDIENTE" ? "Pendiente" : st);
+
+export default async function Cartera({ searchParams }: { searchParams: Promise<Record<string, string | string[] | undefined>> }) {
+  const f = leerFiltros(await searchParams);
+
+  const [pf, lista] = await Promise.all([
+    apiPortfolio(10, 6),
+    apiEmpresas({
+      state: f.estado || undefined,
+      search: f.q || undefined,
+      order_by: f.orden,
+      order_dir: f.dir,
+      limit: POR_PAGINA,
+      offset: (f.pagina - 1) * POR_PAGINA,
+    }),
   ]);
 
-  const g = grupo(e.grupo);
-  const filiales = (rawFiliales && rawFiliales.length > 0)
-    ? rawFiliales.map((f) => ({
-        id: f.company_id,
-        nombre: nombreDe(f.company_id),
-        sector: f.erp ? `ERP ${f.erp}` : "Sin ERP",
-        score: f.score,
-        momentum: f.momentum,
-        estado: f.state as any,
-        mesesHistoria: f.state_eligible ? 24 : 8,
-        trayectoria: [{ mes: "2026-09", score: f.score, nivel: f.base_health }],
-      }))
-    : g.miembros.filter((m) => m.id !== e.id);
-
-  const todosScores = [e.score, ...filiales.map((f) => f.score)];
-  const mediaGrupo = todosScores.reduce((a, b) => a + b, 0) / (todosScores.length || 1);
-  const peorScore = Math.min(...todosScores);
-  const consolidado = Math.round((0.65 * mediaGrupo + 0.35 * peorScore) * 10) / 10;
-  const penalizacion = peorScore < 40 ? Math.round((40 - peorScore) * 0.25 * 10) / 10 : 0;
-
-  const recomendada = rk?.recomendado ?? null;
-  const rawSugerencias = rk?.sugerencias ?? [];
-  const vistas = new Set<string>();
-  const palancasSalud: typeof rawSugerencias = [];
-
-  if (recomendada?.id) {
-    vistas.add(recomendada.id);
-    palancasSalud.push(recomendada);
+  // Aquí no hay modo demo: una cartera de 1.286 empresas no se finge.
+  if (!pf) {
+    return (
+      <>
+        <Cabecera titulo="Cartera Embat" sub="Salud financiera de todos los clientes" />
+        <Vacio
+          titulo="El motor no responde"
+          texto="Arranca el backend (uvicorn backend.main:app) para ver la cartera. Esta vista lee directamente de xray.duckdb."
+        />
+      </>
+    );
   }
 
-  for (const s of rawSugerencias) {
-    if (!vistas.has(s.id)) {
-      vistas.add(s.id);
-      palancasSalud.push(s);
-    }
-  }
-
-  const mejorCirculante = rk?.opcionesCirculante?.[0] ?? null;
-  const whatif = rk?.whatif ?? null;
-  const recos = recomendar(empresa(MI_EMPRESA) ?? EMPRESAS_CON_SCORE[1], 3);
-  const percentil = e.drivers?.[0]?.p_peer ?? 50;
+  const mes = pf.as_of.slice(0, 7);
+  const trayectoria = pf.trajectory.map((t) => ({ mes: t.as_of.slice(0, 7), score: t.average_score, nivel: t.median_score }));
+  const pctRiesgo = pf.total_companies ? (pf.risk_companies_count / pf.total_companies) * 100 : 0;
+  const totalLista = lista?.total ?? 0;
+  const paginas = Math.max(1, Math.ceil(totalLista / POR_PAGINA));
 
   return (
     <>
       <Cabecera
-        titulo={e.nombre}
-        sub={<>{e.sector} · {mesCorto(MES_ACTUAL)} · <span className="tnum text-[var(--color-ink-4)]">{real ? "motor conectado" : "modo demo"}{rk?.modelVersion ? ` · ${rk.modelVersion.slice(0, 12)}` : ""}</span></>}
-        extra={<Boton tono="plano" href={`/empresa/${e.id}/escenarios`}>Simular mejoras</Boton>}
+        titulo="Cartera Embat"
+        sub={
+          <>
+            {num(pf.total_companies, 0)} clientes · {num(pf.eligible_companies, 0)} con score · {mesCorto(mes)} ·{" "}
+            <span className="tnum text-[var(--color-ink-4)]">motor conectado</span>
+          </>
+        }
       />
 
-      {/* ── Tu score y tu proyección ───────────────────────────────── */}
-      <div className="grid gap-5 xl:grid-cols-[296px_1fr]">
-        <Card className="relative flex flex-col items-center overflow-hidden px-6 py-6">
-          <div className="pointer-events-none absolute -top-24 left-1/2 h-56 w-56 -translate-x-1/2 rounded-full opacity-35 blur-3xl"
-            style={{ background: "radial-gradient(circle, rgba(176,131,232,.55), transparent 70%)" }} />
-          <div className="relative flex w-full flex-col items-center">
-            <p className="text-[12.5px] text-[var(--color-ink-3)]">Tu salud financiera</p>
-            <div className="mt-3"><Anillo score={e.score} delta={e.score - e.scorePrev} estado={e.estado} tam={162} /></div>
+      {/* ── Los cuatro números ─────────────────────────────────────── */}
+      <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+        <KPI etiqueta="Score medio de la cartera" valor={num(pf.average_score)} nota={`mediana ${num(pf.median_score)} · solo con historia suficiente`} />
+        <KPI etiqueta="Clientes en mejora" valor={num(pf.improving_companies_count, 0)} nota="mejorando o en recuperación" />
+        <KPI etiqueta="Clientes en riesgo" valor={num(pf.risk_companies_count, 0)} nota={`${num(pctRiesgo)} % · bache, torciéndose o deterioro`} />
+        <KPI etiqueta="Alertas este mes" valor={num(pf.alerts_last_month, 0)} nota={`emitidas en el corte de ${mesCorto(mes)}`} />
+      </div>
 
-            <div className="mt-4 flex items-center gap-2">
-              <EstadoChip estado={e.estado} />
-              <Confianza nivel={e.confianza} />
-            </div>
-
-            <div className="mt-5 grid w-full grid-cols-3 gap-3 border-t border-[var(--color-line)] pt-4">
-              <Mini k="Nivel" v={num(e.nivelBase)} />
-              <Mini k="Momentum" v={(e.momentum >= 0 ? "+" : "−") + num(Math.abs(e.momentum), 2)} />
-              <Mini k="Percentil" v={`P${percentil}`} />
-            </div>
-
-            <div className="mt-4 w-full space-y-2 border-t border-[var(--color-line)] pt-4">
-              <Dato k="Días de caja" v={`${e.diasCaja}`} />
-              <Dato k="DSO / DPO" v={`${e.dso} / ${e.dpo} d`} />
-              <Dato k="Uso de línea" v={`${e.utilizacionLinea}%`} />
-              <Dato k="Historia" v={`${e.mesesHistoria} meses`} />
-            </div>
+      {/* ── Cómo está y hacia dónde va ─────────────────────────────── */}
+      <div className="mt-5 grid gap-5 lg:grid-cols-2">
+        <Card className="px-6 py-5">
+          <h2 className="text-[15px] font-semibold tracking-tight">Cómo se reparte la cartera</h2>
+          <p className="mt-0.5 text-[11.5px] text-[var(--color-ink-4)]">
+            {num(pf.eligible_companies, 0)} clientes con score, por tramos de diez puntos
+          </p>
+          <div className="mt-4"><Histograma datos={pf.histogram} /></div>
+          <div className="mt-3 flex flex-wrap gap-1.5">
+            {Object.entries(pf.distribution_by_state).map(([st, n]) => (
+              <Link key={st} href={urlCon(f, { estado: st, pagina: 1 })} className="flex items-center gap-1.5 rounded-md bg-[rgba(255,255,255,.05)] px-2 py-1 hover:bg-[rgba(255,255,255,.1)]">
+                <EstadoChip estado={st} /><span className="tnum text-[11.5px] text-[var(--color-ink-3)]">{num(n, 0)}</span>
+              </Link>
+            ))}
           </div>
         </Card>
 
         <Card className="px-6 py-5">
-          <h2 className="mb-3 text-[15px] font-semibold tracking-tight">Histórico y proyección</h2>
-          <Prevision
-            datos={e.trayectoria} momentum={e.momentum}
-            peer={e.peer} datosPeer={e.trayectoriaPeer}
-            reparto={e.reparto} inflexion={e.inflexion}
-          />
-          <p className="mt-6 text-center text-[11px] leading-relaxed text-[var(--color-ink-4)]">
-            La proyección extiende tu inercia observada y abre la horquilla con el horizonte.
-            Es un escenario, no una predicción cerrada.
-          </p>
-        </Card>
-      </div>
-
-      {/* ── Aviso, si lo hay ───────────────────────────────────────── */}
-      {e.alerta && (
-        <Card className="mt-5 px-6 py-5">
-          <div className="flex flex-wrap items-center justify-between gap-3">
-            <div>
-              <p className="text-[13.5px] font-medium">
-                Lo vimos {e.alerta.mesesAnticipacion} meses antes, en {mesCorto(e.alerta.mesDeteccion)}
-              </p>
-              <p className="mt-1 text-[12px] leading-relaxed text-[var(--color-ink-3)]">
-                {e.alerta.texto}. Se movieron {e.alerta.driversMovidos.join(" y ").toLowerCase()}.
-              </p>
-            </div>
-            <div className="flex flex-wrap items-center gap-1.5">
-              {e.alerta.driversMovidos.map((d, i) => (
-                <span key={d} className="rounded-md bg-[rgba(255,255,255,.07)] px-2.5 py-1 text-[11px] text-[var(--color-ink-2)]">
-                  {d} <span className="tnum text-[var(--color-ink-4)]">{e.alerta!.codigosRazon[i]}</span>
-                </span>
-              ))}
-            </div>
-          </div>
-        </Card>
-      )}
-
-      {/* ── Por qué y qué hacer ────────────────────────────────────── */}
-      <div className="mt-5 grid gap-5 lg:grid-cols-2">
-        <Card className="px-6 py-6">
-          <h2 className="text-[15px] font-semibold tracking-tight">Por qué este número</h2>
+          <h2 className="text-[15px] font-semibold tracking-tight">Trayectoria media de la cartera</h2>
           <p className="mt-0.5 text-[11.5px] text-[var(--color-ink-4)]">
-            Seis contribuciones que suman exactamente tu score
+            Score medio mes a mes, 24 meses. Los primeros meses son de arranque del motor.
           </p>
-          <div className="-mx-2 mt-4"><Waterfall drivers={e.drivers} altura={260} /></div>
-          <Link href={`/empresa/${e.id}/drivers`} className="mt-2 inline-block text-[12.5px] text-[var(--color-purple)] hover:underline">
-            Ver el detalle
-          </Link>
-        </Card>
-
-        <Card className="px-6 py-6">
-          <div className="flex items-start justify-between gap-3">
-            <div>
-              <h2 className="text-[15px] font-semibold tracking-tight">Qué puedes hacer (Simulador What-If)</h2>
-              <p className="mt-0.5 text-[11.5px] text-[var(--color-ink-4)]">
-                Diagnóstico de tesorería y palancas calculadas sobre el balance de {e.id}.
-              </p>
-            </div>
-            {rk?.nSims ? (
-              <span className="rounded-md border border-[rgba(255,255,255,.08)] bg-[rgba(255,255,255,.03)] px-2 py-0.5 text-[10.5px] text-[var(--color-ink-3)]">
-                {rk.nSims} sims evaluadas
-              </span>
-            ) : null}
-          </div>
-
-          {/* ── Recomendación Ejecutiva Embat (Directa de balance / Telegram) ── */}
-          {whatif && (
-            <div className="mt-4 rounded-xl border border-[rgba(176,131,232,.25)] bg-[rgba(176,131,232,.06)] p-4">
-              <div className="flex flex-wrap items-center justify-between gap-2">
-                <div className="flex items-center gap-2">
-                  <span className="rounded bg-[var(--color-purple)]/20 px-2 py-0.5 text-[11px] font-medium text-[var(--color-purple)]">
-                    ★ Solución Embat
-                  </span>
-                  <span className="text-[12px] font-semibold text-white">
-                    {whatif.recommended_product}
-                  </span>
-                </div>
-                <span className="rounded bg-emerald-500/15 px-2 py-0.5 text-[10.5px] font-medium text-[var(--color-emerald)]">
-                  {whatif.projected_state}
-                </span>
-              </div>
-              <p className="mt-2 text-[11.5px] leading-relaxed text-[var(--color-ink-2)]">
-                {whatif.product_rationale}
-              </p>
-              <div className="mt-3 flex flex-wrap items-center gap-x-5 gap-y-1.5 border-t border-[rgba(255,255,255,.08)] pt-2.5 text-[11.5px] text-[var(--color-ink-3)]">
-                <span>
-                  Inyección / tramo óptimo:{" "}
-                  <strong className="tnum font-semibold text-white">
-                    {eur(whatif.injection_amount)}
-                  </strong>
-                </span>
-                <span>
-                  Score proyectado:{" "}
-                  <strong className="tnum font-semibold text-[var(--color-purple)]">
-                    {num(whatif.projected_score)}
-                  </strong>{" "}
-                  <span className="text-[var(--color-emerald)] font-medium">
-                    (+{num(whatif.delta_score)} pts)
-                  </span>
-                </span>
-              </div>
-            </div>
-          )}
-
-          {/* ── Rankings de Palancas (Salud + Circulante sin humo) ── */}
-          <div className="mt-4 flex flex-col gap-2.5">
-            {palancasSalud.length > 0 ? (
-              <>
-                {palancasSalud.slice(0, 3).map((s, idx) => {
-                  const esRec = recomendada?.id === s.id && recomendada?.label === s.label;
-                  return (
-                    <Link
-                      key={`${s.id}-${idx}`}
-                      href={`/empresa/${e.id}/escenarios`}
-                      className={`fila px-4 py-3.5 transition-all ${
-                        esRec ? "border-l-2 border-l-[var(--color-purple)] bg-[rgba(176,131,232,.04)]" : ""
-                      }`}
-                    >
-                      <div className="flex items-start justify-between gap-3">
-                        <div className="min-w-0">
-                          <div className="flex items-center gap-2">
-                            <p className="text-[13px] font-medium text-[var(--color-ink-1)]">
-                              {s.label}
-                            </p>
-                            {esRec && (
-                              <span className="rounded bg-[var(--color-purple)]/15 px-1.5 py-0.2 text-[10px] font-medium text-[var(--color-purple)]">
-                                ★ Recomendada
-                              </span>
-                            )}
-                          </div>
-                          <p className="mt-0.5 text-[11.5px] text-[var(--color-ink-3)]">
-                            {s.agreement_type
-                              ? `Acuerdo: ${s.agreement_type.replace(/_/g, " ")}`
-                              : s.days
-                              ? `Ajuste temporal: ${s.days} días`
-                              : s.pct
-                              ? `Optimización: ${Math.round(s.pct * 100)}%`
-                              : "Palanca estructural de balance"}
-                            {s.haircut ? ` · dto ${Math.round(s.haircut * 1000) / 10}%` : ""}
-                          </p>
-                        </div>
-                        <Delta v={s.delta_score} sufijo=" pts" className="shrink-0 pt-0.5" />
-                      </div>
-                      <div className="tnum mt-2 flex flex-wrap gap-x-4 gap-y-1 text-[11.5px] text-[var(--color-ink-2)]">
-                        {s.caja_liberada_eur && s.caja_liberada_eur > 0 && (
-                          <span>
-                            Caja liberada:{" "}
-                            <strong className="font-medium text-white">
-                              {eur(s.caja_liberada_eur)}
-                            </strong>
-                          </span>
-                        )}
-                        {s.eur_año && s.eur_año > 0 && (
-                          <span>
-                            Ahorro anual:{" "}
-                            <strong className="font-medium text-white">
-                              {eur(s.eur_año)}/año
-                            </strong>
-                          </span>
-                        )}
-                      </div>
-                    </Link>
-                  );
-                })}
-
-                {/* Opción de Circulante Puro (Caja sin computar CIRBE ni alterar score) */}
-                {mejorCirculante && (
-                  <Link
-                    href={`/empresa/${e.id}/escenarios`}
-                    className="fila px-4 py-3.5 border-dashed border-[rgba(255,255,255,.12)]"
-                  >
-                    <div className="flex items-start justify-between gap-3">
-                      <div className="min-w-0">
-                        <div className="flex items-center gap-2">
-                          <p className="text-[13px] font-medium text-[var(--color-ink-1)]">
-                            {mejorCirculante.label}
-                          </p>
-                          <span className="rounded bg-[rgba(255,255,255,.08)] px-1.5 py-0.2 text-[10px] text-[var(--color-ink-3)]">
-                            Circulante puro
-                          </span>
-                        </div>
-                        <p className="mt-0.5 text-[11.5px] text-[var(--color-ink-3)]">
-                          {mejorCirculante.agreement_type
-                            ? `Acuerdo: ${mejorCirculante.agreement_type.replace(/_/g, " ")} · `
-                            : ""}
-                          Caja inmediata a proveedores sin computar endeudamiento ni alterar CIRBE
-                        </p>
-                      </div>
-                      <span className="text-[11px] text-[var(--color-ink-4)] shrink-0 pt-0.5">
-                        ΔS nulo
-                      </span>
-                    </div>
-                    <div className="tnum mt-2 text-[11.5px] text-[var(--color-ink-2)]">
-                      Caja liberada:{" "}
-                      <strong className="font-medium text-white">
-                        {eur(mejorCirculante.caja_liberada_eur ?? 0)}
-                      </strong>
-                    </div>
-                  </Link>
-                )}
-              </>
-            ) : (
-              recos.map((r) => (
-                <Link key={r.palanca.id} href={`/empresa/${e.id}/escenarios`} className="fila px-4 py-3.5">
-                  <div className="flex items-start justify-between gap-3">
-                    <div className="min-w-0">
-                      <p className="text-[13px] font-medium">
-                        {r.palanca.nombre} · <span className="tnum font-normal">{r.valor} {r.palanca.unidad}</span>
-                      </p>
-                      <p className="mt-0.5 text-[11.5px] text-[var(--color-ink-3)]">{r.palanca.descripcion}</p>
-                    </div>
-                    <Delta v={r.deltaScore} sufijo=" pts" className="shrink-0 pt-0.5" />
-                  </div>
-                  <div className="tnum mt-2 flex flex-wrap gap-x-4 gap-y-1 text-[11.5px] text-[var(--color-ink-2)]">
-                    {r.cajaLiberada > 0 && <span>Caja <strong className="font-medium">{eur(r.cajaLiberada)}</strong></span>}
-                    {r.eurAnio > 0 && <span>Ahorro <strong className="font-medium">{eur(r.eurAnio)}/año</strong></span>}
-                  </div>
-                </Link>
-              ))
-            )}
-          </div>
-
-          <div className="mt-4 flex justify-end border-t border-[var(--color-line)] pt-3">
-            <Link
-              href={`/empresa/${e.id}/escenarios`}
-              className="flex items-center gap-1 text-[12px] font-medium text-[var(--color-purple)] hover:underline"
-            >
-              Abrir simulador interactivo de palancas →
-            </Link>
-          </div>
+          <div className="mt-4"><Trayectoria datos={trayectoria} altura={220} /></div>
         </Card>
       </div>
 
-      {/* ── Tu grupo ───────────────────────────────────────────────── */}
-      <Card className="mt-5 px-6 py-6">
-        <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
+      {/* ── Qué hacer: tres segmentos ──────────────────────────────── */}
+      <div className="mt-8 mb-3">
+        <h2 className="text-[17px] font-semibold tracking-tight">Dónde actuar</h2>
+        <p className="mt-0.5 text-[12px] text-[var(--color-ink-3)]">
+          Una regla sobre score, estado y variación a tres meses. Quien crece y usa Embat, interesa que siga creciendo.
+        </p>
+      </div>
+      <div className="grid gap-5 lg:grid-cols-3">
+        {pf.segments.map((s) => {
+          const seg = SEGMENTOS[s.key];
+          return (
+            <Card key={s.key} className="flex flex-col px-5 py-5">
+              <div className="flex items-start justify-between gap-3">
+                <div>
+                  <span className="rounded-md px-2 py-0.5 text-[12px] font-semibold" style={{ background: seg.bg, color: seg.color }}>{seg.label}</span>
+                  <p className="mt-2 text-[12px] leading-relaxed text-[var(--color-ink-2)]">{s.action}</p>
+                </div>
+                <span className="tnum text-[28px] font-medium leading-none" style={{ color: seg.color }}>{num(s.count, 0)}</span>
+              </div>
+              <div className="mt-4 flex flex-col gap-1.5">
+                {s.items.map((c) => <FilaEmpresa key={c.company_id} c={c} />)}
+              </div>
+            </Card>
+          );
+        })}
+      </div>
+
+      {/* ── Rankings ───────────────────────────────────────────────── */}
+      <div className="mt-8 grid gap-5 xl:grid-cols-3">
+        <Ranking titulo="Mejor score" sub="Los diez clientes más sólidos hoy" items={pf.top_score} />
+        <Ranking titulo="Más crecen" sub="Mayor subida del score en tres meses" items={pf.top_growth} />
+        <Ranking titulo="Más caen" sub="Mayor caída del score en tres meses" items={pf.top_decline} />
+      </div>
+
+      {/* ── Toda la cartera ────────────────────────────────────────── */}
+      <Card className="mt-8 px-6 py-5" >
+        <div id="cartera" className="flex flex-wrap items-end justify-between gap-3">
           <div>
-            <h2 className="text-[16px] font-semibold tracking-tight">{e.grupoNombre}</h2>
+            <h2 className="text-[15px] font-semibold tracking-tight">Todos los clientes</h2>
             <p className="mt-0.5 text-[11.5px] text-[var(--color-ink-4)]">
-              Tus {todosScores.length} sociedades · consolidado {num(consolidado)} · penalización por contagio {num(penalizacion)}
+              {num(totalLista, 0)} resultados · página {f.pagina} de {paginas}
             </p>
           </div>
-          <Link href={`/grupo/${e.grupo}`} className="pildora">Ver el grupo</Link>
+          <form method="get" action="/#cartera" className="flex flex-wrap items-center gap-2">
+            <input type="hidden" name="orden" value={f.orden} />
+            <input type="hidden" name="dir" value={f.dir} />
+            <input name="q" defaultValue={f.q} placeholder="Buscar COMP_ o GROUP_" maxLength={20}
+              className="h-9 w-48 rounded-full border border-[rgba(255,255,255,.1)] bg-[rgba(255,255,255,.06)] px-3.5 text-[12.5px] outline-none placeholder:text-[var(--color-ink-4)] focus:border-[var(--color-purple)]" />
+            <select name="estado" defaultValue={f.estado}
+              className="h-9 rounded-full border border-[rgba(255,255,255,.1)] bg-[rgba(255,255,255,.06)] px-3 text-[12.5px] outline-none">
+              <option value="">Todos los estados</option>
+              {ESTADOS_FILTRO.map((st) => <option key={st} value={st}>{etiquetaEstado(st)}</option>)}
+            </select>
+            <button type="submit" className="pildora h-9">Filtrar</button>
+            {(f.q || f.estado) && <Link href={urlCon(f, { q: "", estado: "", pagina: 1 })} className="text-[12px] text-[var(--color-ink-3)] hover:underline">Quitar filtros</Link>}
+          </form>
         </div>
 
-        <div className="flex flex-col gap-2">
-          {filiales.map((m) => (
-            <Link key={m.id} href={`/${m.id}`}
-              className="fila grid grid-cols-2 items-center gap-4 px-4 py-3.5 lg:grid-cols-[2fr_.6fr_.7fr_.8fr_.9fr]">
-              <div className="col-span-2 min-w-0 lg:col-span-1">
-                <p className="truncate text-[13.5px] font-medium">{m.nombre}</p>
-                <p className="truncate text-[11px] text-[var(--color-ink-4)]">{m.sector}</p>
-              </div>
-              <div className="text-right">
-                {m.mesesHistoria >= 12 ? <ScoreBadge score={m.score} size="sm" /> : <span className="text-[11.5px] text-[var(--color-ink-4)]">sin score</span>}
-              </div>
-              <div className="text-right">{m.mesesHistoria >= 12 && <Delta v={m.momentum} />}</div>
-              <div className="hidden lg:block">{m.mesesHistoria >= 12 && <Sparkline datos={m.trayectoria} />}</div>
-              <div className="hidden lg:block">{m.mesesHistoria >= 12 && <EstadoChip estado={m.estado} />}</div>
-            </Link>
-          ))}
+        <div className="mt-4 hidden grid-cols-[2fr_1fr_.6fr_.7fr_.7fr_.9fr_.9fr] gap-4 px-4 text-[10.5px] uppercase tracking-wider text-[var(--color-ink-4)] lg:grid">
+          <Orden f={f} campo="company_id">Cliente</Orden>
+          <Orden f={f} campo="group_id">Grupo</Orden>
+          <Orden f={f} campo="score" derecha>Score</Orden>
+          <Orden f={f} campo="delta_3m" derecha>Δ 3 m</Orden>
+          <Orden f={f} campo="momentum" derecha>Momentum</Orden>
+          <span>Estado</span>
+          <span>Acción</span>
         </div>
-      </Card>
 
-      {/* ── Comparativa anónima ────────────────────────────────────── */}
-      <Card className="mt-5 px-6 py-6">
-        <h2 className="text-[15px] font-semibold tracking-tight">Tu posición frente a empresas comparables</h2>
-        <p className="mt-0.5 text-[11.5px] text-[var(--color-ink-4)]">
-          Contra el conjunto anónimo de 250 grupos. Nunca se identifica a ninguna empresa.
-        </p>
-        <div className="mt-6">
-          <div className="relative h-2 w-full rounded-full"
-            style={{ background: "linear-gradient(90deg,#e5775b 0%,#e59f5e 34%,#dfb631 62%,#80efa2 100%)" }}>
-            <span className="absolute top-1/2 h-4 w-[3px] -translate-y-1/2 rounded-full bg-white"
-              style={{ left: `${percentil}%` }} />
-          </div>
-          <div className="tnum mt-2.5 flex justify-between text-[11px] text-[var(--color-ink-4)]">
-            <span>P0</span><span>P25</span><span>P50</span><span>P75</span><span>P100</span>
-          </div>
-          <p className="mt-4 text-[13px] leading-relaxed text-[var(--color-ink-2)]">
-            Estás en el <strong className="font-medium">percentil {percentil}</strong> de tu grupo de pares
-            —empresas de tamaño y moneda comparables—. La mediana de anticipación del sistema es de{" "}
-            <strong className="font-medium">{ANTICIPACION_MEDIANA} meses</strong>, medida a una tasa fijada
-            de una falsa alarma por empresa y año.
-          </p>
+        <div className="mt-2 flex flex-col gap-1.5">
+          {(lista?.items ?? []).map((c) => {
+            const segmento = segmentoDe({ score: c.score, estado: c.state, delta3m: c.delta_3m, elegible: c.state_eligible });
+            return (
+              <Link key={c.company_id} href={`/embat/${c.company_id}`}
+                className="fila grid grid-cols-2 items-center gap-3 px-4 py-3 lg:grid-cols-[2fr_1fr_.6fr_.7fr_.7fr_.9fr_.9fr] lg:gap-4">
+                <div className="min-w-0">
+                  <p className="truncate text-[13.5px] font-medium">{nombreDe(c.company_id)}</p>
+                  <p className="truncate text-[11px] text-[var(--color-ink-4)]">{c.company_id}{c.erp ? ` · ERP ${c.erp}` : ""}</p>
+                </div>
+                <p className="truncate text-right text-[12px] text-[var(--color-ink-3)] lg:text-left">{c.group_id.replace("GROUP_", "Grupo ")}</p>
+                <div className="text-right">
+                  {c.state_eligible ? <ScoreBadge score={c.score} size="sm" /> : <span className="tnum text-[13px] text-[var(--color-ink-4)]">{num(c.score, 0)}</span>}
+                </div>
+                <div className="text-right"><Delta v={c.delta_3m} /></div>
+                <div className="hidden text-right lg:block"><Delta v={c.momentum} /></div>
+                <div className="hidden lg:block"><EstadoChip estado={c.state} /></div>
+                <div className="hidden lg:block"><SegmentoChip s={segmento} /></div>
+              </Link>
+            );
+          })}
+          {lista && lista.items.length === 0 && (
+            <p className="py-8 text-center text-[12.5px] text-[var(--color-ink-4)]">Ningún cliente cumple el filtro.</p>
+          )}
         </div>
+
+        {paginas > 1 && (
+          <div className="mt-4 flex items-center justify-between border-t border-[var(--color-line)] pt-4 text-[12.5px]">
+            {f.pagina > 1 ? <Link href={urlCon(f, { pagina: f.pagina - 1 })} className="pildora">← Anterior</Link> : <span />}
+            <span className="tnum text-[var(--color-ink-3)]">{(f.pagina - 1) * POR_PAGINA + 1}–{Math.min(f.pagina * POR_PAGINA, totalLista)} de {num(totalLista, 0)}</span>
+            {f.pagina < paginas ? <Link href={urlCon(f, { pagina: f.pagina + 1 })} className="pildora">Siguiente →</Link> : <span />}
+          </div>
+        )}
       </Card>
     </>
   );
 }
 
-function Dato({ k, v }: { k: string; v: string }) {
+function Orden({ f, campo, derecha, children }: { f: Filtros; campo: string; derecha?: boolean; children: React.ReactNode }) {
+  const activo = f.orden === campo;
+  const dir = activo && f.dir === "desc" ? "asc" : "desc";
   return (
-    <div className="flex items-baseline justify-between gap-3">
-      <span className="text-[12px] text-[var(--color-ink-3)]">{k}</span>
-      <span className="tnum text-[12.5px] font-medium">{v}</span>
-    </div>
+    <Link href={urlCon(f, { orden: campo, dir, pagina: 1 })}
+      className={`${derecha ? "text-right" : ""} hover:text-[var(--color-ink-2)] ${activo ? "text-[var(--color-ink-2)]" : ""}`}>
+      {children}{activo ? (f.dir === "desc" ? " ↓" : " ↑") : ""}
+    </Link>
   );
 }
 
-function Mini({ k, v }: { k: string; v: string }) {
+function SegmentoChip({ s }: { s: Segmento | null }) {
+  if (!s) return <span className="text-[11px] text-[var(--color-ink-4)]">—</span>;
+  const seg = SEGMENTOS[s];
+  return <span className="rounded-md px-2 py-0.5 text-[11px] font-medium" style={{ background: seg.bg, color: seg.color }}>{seg.label}</span>;
+}
+
+function FilaEmpresa({ c, puesto }: { c: ApiPortfolioItem; puesto?: number }) {
   return (
-    <div className="text-center">
-      <p className="text-[10.5px] uppercase tracking-wider text-[var(--color-ink-4)]">{k}</p>
-      <p className="tnum mt-1 text-[17px] font-semibold leading-none">{v}</p>
-    </div>
+    <Link href={`/embat/${c.company_id}`} className="fila grid grid-cols-[auto_1fr_auto_auto] items-center gap-3 px-3 py-2">
+      {puesto !== undefined ? <span className="tnum w-5 text-[11px] text-[var(--color-ink-4)]">{puesto}</span> : <span className="w-0" />}
+      <div className="min-w-0">
+        <p className="truncate text-[13px] font-medium">{nombreDe(c.company_id)}</p>
+        <p className="truncate text-[10.5px] text-[var(--color-ink-4)]">{etiquetaEstado(c.state)} · {c.group_id.replace("GROUP_", "Grupo ")}</p>
+      </div>
+      <Delta v={c.delta_3m} />
+      <ScoreBadge score={c.score} size="sm" />
+    </Link>
+  );
+}
+
+function Ranking({ titulo, sub, items }: { titulo: string; sub: string; items: ApiPortfolioItem[] }) {
+  return (
+    <Card className="px-5 py-5">
+      <h2 className="text-[15px] font-semibold tracking-tight">{titulo}</h2>
+      <p className="mt-0.5 text-[11.5px] text-[var(--color-ink-4)]">{sub}</p>
+      <div className="mt-3 flex flex-col gap-1">
+        {items.map((c, i) => <FilaEmpresa key={c.company_id} c={c} puesto={i + 1} />)}
+      </div>
+    </Card>
   );
 }

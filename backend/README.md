@@ -55,6 +55,9 @@ Una vez arrancado el servidor, abre en tu navegador:
 | `POST` | `/api/whatif` | Simulador contrafactual: proyecta el impacto de una inyección de circulante o calcula el tramo óptimo mínimo. |
 | `GET` | `/api/alerts` | Feed de eventos y alertas de riesgo emitidas por el monitor de solvencia. |
 | `GET` | `/api/stats` | KPIs globales: total analizado, tasa de riesgo, score medio/mediano y volumen en mora. |
+| `GET` | `/api/graph` | Grupos con flujos internos detectados (`min_matches`, `limit`), ordenados por volumen. |
+| `GET` | `/api/graph/{group_id}` | Nodos (sociedades con score, € que entran/salen) y aristas (A → B: `matches`, `eur`, `last_date`) de un grupo. Flujos inferidos: mismo día, mismo importe, mismo grupo. |
+| `GET` | `/api/portfolio` | Cartera Embat en una llamada: KPIs, histograma, trayectoria media 24 m, rankings (`top_score`, `top_growth`, `top_decline`, solo `state_eligible`) y segmentos `APOSTAR` / `VIGILAR` / `ACOMPANAR` (regla determinista, `SEGMENT_SQL`). Parámetros `top` y `per_segment`. |
 | `GET` | `/api/groups` | Desglose por grupos corporativos y empresas vinculadas. |
 | `GET` | `/api/companies/{id}/prevision-estructural` | 12 meses de score estructural (`alto` / `medio` / `bajo`). Proyecta cobros, gastos y deuda y aplica `calculate_scores`. No usa artefactos del benchmark. |
 | `GET` | `/api/companies/{id}/forecast` | Puntos 1/3/6 meses del laboratorio (`forecasting/artifacts/forecasts.json`). No es el gráfico principal. |

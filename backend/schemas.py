@@ -233,6 +233,108 @@ class StatsResponse(BaseModel):
     total_alerts_count: int
 
 
+class PortfolioCompanyItem(BaseModel):
+    """Fila resumida de la cartera Embat: lo justo para rankings y segmentos."""
+    company_id: str
+    group_id: str
+    erp: Optional[str] = None
+    score: float
+    state: str
+    momentum: float
+    delta_3m: float
+    health_band: Optional[str] = None
+    state_eligible: bool
+    segment: Optional[str] = Field(None, description="APOSTAR · VIGILAR · ACOMPANAR · None")
+
+
+class PortfolioSegment(BaseModel):
+    key: str
+    label: str
+    action: str
+    count: int
+    items: List[PortfolioCompanyItem]
+
+
+class PortfolioHistogramBucket(BaseModel):
+    bucket: int = Field(..., description="Límite inferior del tramo de 10 puntos")
+    count: int
+
+
+class PortfolioTrajectoryPoint(BaseModel):
+    as_of: str
+    average_score: float
+    median_score: float
+    eligible_companies: int
+
+
+class PortfolioResponse(BaseModel):
+    as_of: str
+    total_companies: int
+    eligible_companies: int
+    average_score: float
+    median_score: float
+    risk_companies_count: int
+    improving_companies_count: int
+    alerts_last_month: int
+    distribution_by_state: Dict[str, int]
+    distribution_by_band: Dict[str, int]
+    histogram: List[PortfolioHistogramBucket]
+    trajectory: List[PortfolioTrajectoryPoint]
+    top_score: List[PortfolioCompanyItem]
+    top_growth: List[PortfolioCompanyItem]
+    top_decline: List[PortfolioCompanyItem]
+    segments: List[PortfolioSegment]
+
+
+# -------------------------------------------------------------
+# Mapa de flujos intragrupo (inferidos por emparejamiento)
+# -------------------------------------------------------------
+
+class GraphNode(BaseModel):
+    company_id: str
+    score: float
+    state: str
+    health_band: Optional[str] = None
+    state_eligible: bool
+    delta_3m: float
+    segment: Optional[str] = None
+    eur_out: float = Field(0.0, description="Euros que salen hacia otras sociedades del grupo")
+    eur_in: float = Field(0.0, description="Euros que llegan desde otras sociedades del grupo")
+
+
+class GraphEdge(BaseModel):
+    source: str
+    target: str
+    matches: int = Field(..., description="Movimientos emparejados (mismo día, mismo importe)")
+    eur: float
+    last_date: str
+
+
+class GraphResponse(BaseModel):
+    group_id: str
+    min_matches: int
+    nodes: List[GraphNode]
+    edges: List[GraphEdge]
+
+
+class GraphGroupSummary(BaseModel):
+    group_id: str
+    companies: int
+    edges: int
+    matches: int
+    eur: float
+    average_score: float
+    worst_score: float
+
+
+class GraphSummaryResponse(BaseModel):
+    min_matches: int
+    groups_with_flows: int
+    total_edges: int
+    total_eur: float
+    groups: List[GraphGroupSummary]
+
+
 class GroupItem(BaseModel):
     group_id: str
     erp: Optional[str] = None

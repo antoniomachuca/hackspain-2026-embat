@@ -28,8 +28,24 @@ const I = {
 type Modulo = { label: string; nota: string; icono: React.ReactNode; href?: string; hijos?: { href: string; label: string; icono: React.ReactNode }[] };
 type Seccion = { titulo: string; modulos: Modulo[] };
 
+/** Dos maneras de entrar a X Ray: Embat mirando su cartera, o una empresa mirándose a sí misma. */
+type Modo = "embat" | "empresa";
+
+function modoDe(path: string): Modo | null {
+  if (path === "/" || path.startsWith("/embat")) return "embat";
+  if (/^\/(COMP_)?\d{1,4}(\/|$)/i.test(path) || path.startsWith("/empresa/")) return "empresa";
+  return null;   // /grupos, /comparar… valen para los dos
+}
+
+function empresaDe(path: string): string | null {
+  const m = path.match(/^\/(?:empresa\/)?((?:COMP_)?\d{1,4})(?:\/|$)/i);
+  if (!m) return null;
+  const n = m[1].toUpperCase().replace("COMP_", "").padStart(4, "0");
+  return `COMP_${n}`;
+}
+
 /** El catálogo de Embat. X Ray entra en riesgos financieros, que es su sitio. */
-const SECCIONES: Seccion[] = [
+const seccionesDe = (modo: Modo, empresa: string): Seccion[] => [
   {
     titulo: "Gestión de tesorería",
     modulos: [
@@ -40,14 +56,24 @@ const SECCIONES: Seccion[] = [
   {
     titulo: "Gestión de riesgos financieros",
     modulos: [
-      {
-        label: "X Ray", nota: "Salud financiera y anticipación", icono: I.rayos, href: "/",
-        hijos: [
-          { href: "/", label: "Resumen", icono: I.panel },
-          { href: "/grupos", label: "Mi grupo", icono: I.grupo },
-          { href: "/comparar", label: "Escenarios", icono: I.rayos },
-        ],
-      },
+      modo === "embat"
+        ? {
+            label: "X Ray", nota: "Salud financiera de la cartera", icono: I.rayos, href: "/",
+            hijos: [
+              { href: "/", label: "Cartera", icono: I.panel },
+              { href: "/grupos", label: "Grupos", icono: I.grupo },
+              { href: "/grafo", label: "Flujos intragrupo", icono: I.nodos },
+              { href: "/comparar", label: "Escenarios", icono: I.rayos },
+            ],
+          }
+        : {
+            label: "X Ray", nota: "Salud financiera y anticipación", icono: I.rayos, href: `/${empresa}`,
+            hijos: [
+              { href: `/${empresa}`, label: "Resumen", icono: I.panel },
+              { href: "/grupos", label: "Mi grupo", icono: I.grupo },
+              { href: "/comparar", label: "Escenarios", icono: I.rayos },
+            ],
+          },
       { label: "Gestión de contrapartes", nota: "Gestiona tus relaciones financieras", icono: I.escudo },
       { label: "Gestión de la deuda", nota: "Gestiona y optimiza la deuda", icono: I.deuda },
     ],
@@ -76,6 +102,26 @@ export function Shell({ children }: { children: React.ReactNode }) {
   const path = usePathname();
   const [abierto, setAbierto] = useState(true);
 
+  // El modo se deduce de la ruta; en las compartidas (/grupos, /comparar) se
+  // conserva el último conocido para que el menú no salte.
+  const [modoGuardado, setModoGuardado] = useState<Modo>("embat");
+  const [empresa, setEmpresa] = useState("COMP_0773");
+  const modo = modoDe(path) ?? modoGuardado;
+  // sessionStorage solo existe tras hidratar; leerlo en el effect evita un desajuste con el servidor.
+  /* eslint-disable react-hooks/set-state-in-effect */
+  useEffect(() => {
+    const m = modoDe(path);
+    const id = empresaDe(path);
+    try {
+      if (m) { sessionStorage.setItem("xray:modo", m); setModoGuardado(m); }
+      else { const v = sessionStorage.getItem("xray:modo"); if (v === "embat" || v === "empresa") setModoGuardado(v); }
+      if (id) { sessionStorage.setItem("xray:empresa", id); setEmpresa(id); }
+      else { const v = sessionStorage.getItem("xray:empresa"); if (v) setEmpresa(v); }
+    } catch {}
+  }, [path]);
+  /* eslint-enable react-hooks/set-state-in-effect */
+  const SECCIONES = seccionesDe(modo, empresa);
+
   // Se recuerda entre visitas; si el navegador no deja, se queda abierto.
   useEffect(() => {
     try { const v = localStorage.getItem("xray:panel"); if (v !== null) setAbierto(v === "1"); } catch {}
@@ -94,7 +140,9 @@ export function Shell({ children }: { children: React.ReactNode }) {
           </button>
           <div className="pl-etiqueta min-w-0 leading-tight">
             <p className="truncate text-[13.5px] font-semibold">Embat</p>
-            <p className="truncate text-[11px] text-[var(--color-ink-4)]">Sociedad 0773</p>
+            <p className="truncate text-[11px] text-[var(--color-ink-4)]">
+              {modo === "embat" ? "Cartera de clientes" : empresa.replace("COMP_", "Sociedad ")}
+            </p>
           </div>
         </div>
 
@@ -103,7 +151,8 @@ export function Shell({ children }: { children: React.ReactNode }) {
             <div key={sec.titulo} className="pl-seccion">
               <p className="pl-titulo">{sec.titulo}</p>
               {sec.modulos.map((m) => {
-                const activo = !!m.href && (m.href === "/" ? path === "/" || path.startsWith("/empresa") || path.startsWith("/grupo") || path.startsWith("/comparar") : path.startsWith(m.href));
+                // X Ray es el único módulo con ruta: está activo en todo lo que no sea catálogo.
+                const activo = !!m.href;
                 const contenido = (
                   <>
                     <Icono width="17" height="17" trazo={m.icono} />
@@ -121,7 +170,7 @@ export function Shell({ children }: { children: React.ReactNode }) {
                       <div className="pl-hijos">
                         {m.hijos.map((h) => (
                           <Link key={h.href} href={h.href}
-                            className={`pl-hijo ${h.href === "/" ? path === "/" : path.startsWith(h.href) ? "on" : ""}`}>
+                            className={`pl-hijo ${(h.href === "/" ? path === "/" || path.startsWith("/embat") : path.startsWith(h.href)) ? "on" : ""}`}>
                             <Icono width="14" height="14" trazo={h.icono} />
                             {h.label}
                           </Link>

@@ -181,9 +181,10 @@ export const apiAlertas   = (id?: string, limite = 20) =>
   get<{ total: number; alerts: ApiAlert[] }>(`/api/alerts?limit=${limite}${id ? `&company_id=${id}` : ""}`);
 export const apiGrupos    = (limite = 250) => get<{ total: number; groups: Array<{ group_id: string; erp: string | null; company_count: number; average_score: number; risk_companies_count: number }> }>(`/api/groups?limit=${limite}`);
 export const apiGrupo     = (gid: string) => get<ApiGrupoDetalle>(`/api/groups/${gid}`);
-export const apiEmpresas = (params?: { state?: string; limit?: number; offset?: number; order_by?: string; order_dir?: string }) => {
+export const apiEmpresas = (params?: { state?: string; search?: string; limit?: number; offset?: number; order_by?: string; order_dir?: string }) => {
   const q = new URLSearchParams();
   if (params?.state) q.set("state", params.state);
+  if (params?.search) q.set("search", params.search);
   if (params?.limit) q.set("limit", String(params.limit));
   if (params?.offset) q.set("offset", String(params.offset));
   if (params?.order_by) q.set("order_by", params.order_by);
@@ -246,3 +247,50 @@ export const BLOQUES: Array<{ campo: keyof ApiWaterfall; etiqueta: string; codig
   { campo: "growth_points",      etiqueta: "Crecimiento", codigo: "CRE-02" },
   { campo: "fragility_points",   etiqueta: "Fragilidad",  codigo: "FRA-01" },
 ];
+
+// ── Cartera Embat ────────────────────────────────────────────────────
+export type ApiPortfolioItem = {
+  company_id: string; group_id: string; erp: string | null;
+  score: number; state: string; momentum: number; delta_3m: number;
+  health_band: string | null; state_eligible: boolean;
+  segment: "APOSTAR" | "VIGILAR" | "ACOMPANAR" | null;
+};
+
+export type ApiPortfolioSegment = {
+  key: "APOSTAR" | "VIGILAR" | "ACOMPANAR"; label: string; action: string;
+  count: number; items: ApiPortfolioItem[];
+};
+
+export type ApiPortfolio = {
+  as_of: string;
+  total_companies: number; eligible_companies: number;
+  average_score: number; median_score: number;
+  risk_companies_count: number; improving_companies_count: number; alerts_last_month: number;
+  distribution_by_state: Record<string, number>;
+  distribution_by_band: Record<string, number>;
+  histogram: Array<{ bucket: number; count: number }>;
+  trajectory: Array<{ as_of: string; average_score: number; median_score: number; eligible_companies: number }>;
+  top_score: ApiPortfolioItem[]; top_growth: ApiPortfolioItem[]; top_decline: ApiPortfolioItem[];
+  segments: ApiPortfolioSegment[];
+};
+
+export const apiPortfolio = (top = 10, porSegmento = 8) =>
+  get<ApiPortfolio>(`/api/portfolio?top=${top}&per_segment=${porSegmento}`);
+
+// ── Flujos intragrupo (inferidos: mismo día, mismo importe, mismo grupo) ──
+export type ApiGrafoNodo = {
+  company_id: string; score: number; state: string; health_band: string | null;
+  state_eligible: boolean; delta_3m: number; segment: string | null;
+  eur_out: number; eur_in: number;
+};
+export type ApiGrafoArista = { source: string; target: string; matches: number; eur: number; last_date: string };
+export type ApiGrafo = { group_id: string; min_matches: number; nodes: ApiGrafoNodo[]; edges: ApiGrafoArista[] };
+export type ApiGrafoResumen = {
+  min_matches: number; groups_with_flows: number; total_edges: number; total_eur: number;
+  groups: Array<{ group_id: string; companies: number; edges: number; matches: number; eur: number; average_score: number; worst_score: number }>;
+};
+
+export const apiGrafoResumen = (limite = 30, minCoincidencias = 2) =>
+  get<ApiGrafoResumen>(`/api/graph?limit=${limite}&min_matches=${minCoincidencias}`);
+export const apiGrafo = (gid: string, minCoincidencias = 2) =>
+  get<ApiGrafo>(`/api/graph/${gid}?min_matches=${minCoincidencias}`);

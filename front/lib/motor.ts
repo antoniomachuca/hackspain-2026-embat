@@ -178,6 +178,8 @@ export async function cargarEmpresa(id: string): Promise<Empresa | null> {
     scorePrev: prev,
     nivelBase: e.base_health,
     momentum: e.momentum,
+    delta3m: e.delta_3m,
+    elegible: e.state_eligible,
     clipping: e.waterfall.clipping_points,
     estado: ESTADOS[e.state] ?? "ESTABLE",
     confianza: e.data_confidence_index >= 80 ? "ALTA" : e.data_confidence_index >= 40 ? "MEDIA" : "BAJA",

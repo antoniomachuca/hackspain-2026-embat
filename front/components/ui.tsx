@@ -80,7 +80,8 @@ export function EstadoChip({ estado }: { estado: Estado | string }) {
       : st === "ESTABLE"
       ? "rgba(159,227,180,.16)"
       : "var(--color-surface-3)";
-  const label = ESTADO_LABEL[estado as Estado] ?? estado;
+  // El motor emite un séptimo estado que el enunciado no contempla.
+  const label = ESTADO_LABEL[estado as Estado] ?? (st === "EVALUACION_PENDIENTE" ? "Pendiente" : estado);
   return (
     <span className="rounded-md px-2 py-0.5 text-[11px] font-medium" style={{ background: bg, color }}>
       {label}
