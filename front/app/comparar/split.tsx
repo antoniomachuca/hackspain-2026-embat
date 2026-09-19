@@ -104,7 +104,7 @@ export default function SplitScreen({
             const ep = rol === "sube" ? epSube : epBaja;
             return (
               <Card key={e.id} className="overflow-hidden">
-                <div className="flex items-start justify-between gap-4 border-b border-[var(--color-line)] px-5 py-4">
+                <div className="grid grid-cols-[minmax(0,1fr)_auto] items-start gap-2 border-b border-[var(--color-line)] px-5 py-4 sm:flex sm:justify-between sm:gap-4">
                   <div className="min-w-0 flex-1">
                     <div className="flex items-center gap-2">
                       <Link
