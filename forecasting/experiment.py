@@ -5,6 +5,7 @@ import inspect
 import json
 import platform
 import re
+import sys
 import time
 from pathlib import Path
 
@@ -16,6 +17,7 @@ from algorythm.score_data import load_bank_panel, sha256
 from forecasting.benchmark import load_protocol, metrics
 from forecasting.context import load_context
 from forecasting.data import Samples, feature_panel, make_samples, partition_samples, split_groups
+from forecasting.models import CANDIDATES, Forecaster
 from forecasting.registry import HOME, comparison_spec, digest
 from forecasting.stress import SCENARIOS
 
@@ -38,7 +40,34 @@ def evaluate(model, samples):
     elapsed = time.perf_counter()-start
     result = metrics(samples, predictions, probabilities)
     result['inference_ms_per_1000'] = elapsed/max(1, len(samples.y))*1_000_000
+    result['group_mae'] = {str(g): float(np.mean(np.abs(samples.y-predictions[:, 1])[samples.group == g]))
+                           for g in np.unique(samples.group)}
     return result
+
+
+def paired_group_bootstrap(model_group_mae, baseline_group_mae, seed=419, draws=2000):
+    """Positive delta = the new model has lower macro-group MAE than the baseline."""
+    groups = sorted(model_group_mae)
+    diff = np.array([baseline_group_mae[g]-model_group_mae[g] for g in groups])
+    rng = np.random.default_rng(seed)
+    means = diff[rng.integers(0, len(diff), (draws, len(diff)))].mean(axis=1)
+    return {'delta_macro_group_mae': float(diff.mean()), 'ci95': np.quantile(means, [.025, .975]).tolist(),
+            'probability_better': float(np.mean(means > 0)), 'groups': len(groups)}
+
+
+def local_dependencies(module):
+    """Other forecasting.experiments modules already imported by the factory module."""
+    deps = {}
+    experiments_dir = HOME/'experiments'
+    for name, imported in sys.modules.items():
+        if not name.startswith('forecasting.experiments.') or imported is module:
+            continue
+        file = getattr(imported, '__file__', None)
+        if file is None or Path(file).resolve().parent != experiments_dir:
+            continue
+        path = Path(file).resolve()
+        deps[str(path.relative_to(HOME.parent))] = {'sha256': sha256(path), 'source_code': path.read_text()}
+    return deps
 
 
 def check_explanations(model, samples):
@@ -92,11 +121,14 @@ def run(factory_spec, author, run_name, dataset, context, output, final_test=Fal
     stress, stress_hash = load_frozen_stress(HOME/'datasets/synthetic/v1')
     source = Path(inspect.getfile(module))
     source_hash = sha256(source)
+    dependencies = local_dependencies(module)
+    shared_code = {p: sha256(HOME.parent/p) for p in ('forecasting/models.py', 'forecasting/adapters.py')}
     run_id = f'{author}__{run_name}'
     report = {'schema_version': 1, 'run_id': run_id, 'comparison': comparison, 'protocol': protocol,
               'input_sha256': inputs, 'contribution': {**info, 'author': author, 'factory': factory_spec,
                   'source_sha256': source_hash, 'source_file': str(source.relative_to(HOME.parent)),
-                  'source_code': source.read_text(),
+                  'source_code': source.read_text(), 'local_dependencies': dependencies,
+                  'shared_model_code_sha256': shared_code,
                   'explanation_checked': True}, 'stress_manifest_sha256': stress_hash,
               'versions': {'python': platform.python_version(), 'numpy': np.__version__, 'sklearn': sklearn.__version__},
               'test_policy': 'visible_v1_diagnostic_only' if final_test else 'not_evaluated',
@@ -113,7 +145,14 @@ def run(factory_spec, author, run_name, dataset, context, output, final_test=Fal
         check_explanations(model, parts['validation'])
         row = {'validation': {name: evaluate(model, parts['validation'])}, 'test': {},
                'fit_and_calibration_seconds': elapsed,
+               'selected_params': json.loads(json.dumps(getattr(model, 'selected_params', None), default=float)),
+               'paired_vs_baseline': {},
                'partitions': {p: {'samples': len(s.y), 'groups': len(np.unique(s.group))} for p, s in parts.items()}}
+        model_group_mae = row['validation'][name]['group_mae']
+        for candidate in CANDIDATES:
+            baseline_model = Forecaster(candidate, horizon, protocol['seed']).fit(parts['train']).calibrate(parts['calibration'])
+            baseline_group_mae = evaluate(baseline_model, parts['validation'])['group_mae']
+            row['paired_vs_baseline'][candidate] = paired_group_bootstrap(model_group_mae, baseline_group_mae)
         if final_test:
             row['test'][name] = evaluate(model, parts['test'])
         report['horizons'][str(horizon)] = row
@@ -124,6 +163,12 @@ def run(factory_spec, author, run_name, dataset, context, output, final_test=Fal
             report['stress'][str(horizon)][scenario] = evaluate(model, samples) if len(samples.y) else {'status': 'no_eligible_samples'}
     if sha256(source) != source_hash:
         raise RuntimeError('Experiment source changed during training; rerun')
+    for relative, recorded in dependencies.items():
+        if sha256(HOME.parent/relative) != recorded['sha256']:
+            raise RuntimeError('Experiment dependency changed during training; rerun')
+    for relative, recorded in shared_code.items():
+        if sha256(HOME.parent/relative) != recorded:
+            raise RuntimeError('Shared model code changed during training; rerun')
     if comparison_spec(protocol, inputs, 'strict_point_in_time', groups) != comparison:
         raise RuntimeError('Common evaluation code changed during training; rerun')
     report['result_sha256'] = digest(report)
