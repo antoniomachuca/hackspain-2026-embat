@@ -153,3 +153,21 @@ export function Sparkline({ datos, w = 92, h = 26 }: { datos: Punto[]; w?: numbe
     </svg>
   );
 }
+
+/** Histograma de scores por tramos de 10. Cada barra lleva el color de su banda. */
+export function Histograma({ datos, altura = 180 }: { datos: Array<{ bucket: number; count: number }>; altura?: number }) {
+  const filas = datos.map((d) => ({ tramo: `${d.bucket}–${d.bucket + 10}`, n: d.count, color: banda(d.bucket + 5).color }));
+  return (
+    <ResponsiveContainer width="100%" height={altura}>
+      <BarChart data={filas} margin={{ top: 8, right: 8, bottom: 0, left: -18 }}>
+        <CartesianGrid stroke="rgba(255,255,255,.07)" vertical={false} />
+        <XAxis dataKey="tramo" tick={EJE} tickLine={false} axisLine={{ stroke: "rgba(255,255,255,.12)" }} interval={0} />
+        <YAxis tick={EJE} tickLine={false} axisLine={false} width={44} allowDecimals={false} />
+        <Tooltip content={<Caja />} cursor={{ fill: "rgba(255,255,255,.05)" }} />
+        <Bar dataKey="n" name="Empresas" radius={[4, 4, 0, 0]} barSize={26}>
+          {filas.map((f, i) => <Cell key={i} fill={f.color} />)}
+        </Bar>
+      </BarChart>
+    </ResponsiveContainer>
+  );
+}

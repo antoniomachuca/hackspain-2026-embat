@@ -233,6 +233,59 @@ class StatsResponse(BaseModel):
     total_alerts_count: int
 
 
+class PortfolioCompanyItem(BaseModel):
+    """Fila resumida de la cartera Embat: lo justo para rankings y segmentos."""
+    company_id: str
+    group_id: str
+    erp: Optional[str] = None
+    score: float
+    state: str
+    momentum: float
+    delta_3m: float
+    health_band: Optional[str] = None
+    state_eligible: bool
+    segment: Optional[str] = Field(None, description="APOSTAR · VIGILAR · ACOMPANAR · None")
+
+
+class PortfolioSegment(BaseModel):
+    key: str
+    label: str
+    action: str
+    count: int
+    items: List[PortfolioCompanyItem]
+
+
+class PortfolioHistogramBucket(BaseModel):
+    bucket: int = Field(..., description="Límite inferior del tramo de 10 puntos")
+    count: int
+
+
+class PortfolioTrajectoryPoint(BaseModel):
+    as_of: str
+    average_score: float
+    median_score: float
+    eligible_companies: int
+
+
+class PortfolioResponse(BaseModel):
+    as_of: str
+    total_companies: int
+    eligible_companies: int
+    average_score: float
+    median_score: float
+    risk_companies_count: int
+    improving_companies_count: int
+    alerts_last_month: int
+    distribution_by_state: Dict[str, int]
+    distribution_by_band: Dict[str, int]
+    histogram: List[PortfolioHistogramBucket]
+    trajectory: List[PortfolioTrajectoryPoint]
+    top_score: List[PortfolioCompanyItem]
+    top_growth: List[PortfolioCompanyItem]
+    top_decline: List[PortfolioCompanyItem]
+    segments: List[PortfolioSegment]
+
+
 class GroupItem(BaseModel):
     group_id: str
     erp: Optional[str] = None
