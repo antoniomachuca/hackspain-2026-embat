@@ -32,6 +32,8 @@ class ArPick:
     amount_eur: float
     n_invoices: int
     clients: tuple[str, ...] = ()
+    invoice_ids: tuple[str, ...] = ()
+    resource_keys: tuple[str, ...] = ()
 
 
 @dataclass(frozen=True)
@@ -105,33 +107,37 @@ def _clear_cache() -> None:
     _INV_CACHE = None
 
 
-def _invoice_dict(pending: float, due_ord: int, counterparty: str) -> dict[str, Any]:
+def _invoice_dict(pending: float, due_ord: int, counterparty: str,
+                  invoice_id: str = '') -> dict[str, Any]:
     due = date.fromordinal(int(due_ord)).isoformat() if int(due_ord) > 0 else ''
     return {
+        'invoice_id': str(invoice_id) if invoice_id else '',
         'pending_amount': float(pending),
         'due_date': due,
         'counterparty_id': str(counterparty) if counterparty else '',
     }
 
 
-def _pack_invoices(rows: list[tuple[int, float, int, str]], is_ar: bool):
+def _pack_invoices(rows: list[tuple[int, float, int, str, str]], is_ar: bool):
     if not rows:
         empty_i = np.zeros(0, dtype=np.int32)
         empty_f = np.zeros(0, dtype=np.float64)
         empty_s = np.array([], dtype='<U1')
         empty_b = np.zeros(0, dtype=bool)
-        return empty_i, empty_b, empty_f, empty_i, empty_s
+        return empty_i, empty_b, empty_f, empty_i, empty_s, empty_s
     company_idx = np.fromiter((r[0] for r in rows), dtype=np.int32, count=len(rows))
     pending = np.fromiter((r[1] for r in rows), dtype=np.float64, count=len(rows))
     due_ord = np.fromiter((r[2] for r in rows), dtype=np.int32, count=len(rows))
     counterparties = np.array([r[3] for r in rows], dtype=object)
+    invoice_ids = np.array([r[4] for r in rows], dtype=object)
     order = np.argsort(company_idx, kind='mergesort')
     company_idx = company_idx[order]
     pending = pending[order]
     due_ord = due_ord[order]
     counterparties = np.array([str(counterparties[i]) for i in order])
+    invoice_ids = np.array([str(invoice_ids[i]) for i in order])
     side = np.full(len(rows), is_ar, dtype=bool)
-    return company_idx, side, pending, due_ord, counterparties
+    return company_idx, side, pending, due_ord, counterparties, invoice_ids
 
 
 def _concat_invoices(ar_pack, ap_pack, n_companies: int):
@@ -142,18 +148,21 @@ def _concat_invoices(ar_pack, ap_pack, n_companies: int):
         inv_pending = np.zeros(0, dtype=np.float64)
         inv_due_ord = np.zeros(0, dtype=np.int32)
         inv_counterparty = np.array([], dtype='<U1')
+        inv_invoice_id = np.array([], dtype='<U1')
     else:
         inv_company_idx = np.concatenate([p[0] for p in packs])
         inv_is_ar = np.concatenate([p[1] for p in packs])
         inv_pending = np.concatenate([p[2] for p in packs])
         inv_due_ord = np.concatenate([p[3] for p in packs])
         inv_counterparty = np.concatenate([p[4] for p in packs])
+        inv_invoice_id = np.concatenate([p[5] for p in packs])
         order = np.argsort(inv_company_idx, kind='mergesort')
         inv_company_idx = inv_company_idx[order]
         inv_is_ar = inv_is_ar[order]
         inv_pending = inv_pending[order]
         inv_due_ord = inv_due_ord[order]
         inv_counterparty = inv_counterparty[order]
+        inv_invoice_id = inv_invoice_id[order]
 
     counts = np.bincount(inv_company_idx, minlength=n_companies).astype(np.int32) if inv_company_idx.size else np.zeros(n_companies, dtype=np.int32)
     starts = np.zeros(n_companies, dtype=np.int32)
@@ -165,6 +174,7 @@ def _concat_invoices(ar_pack, ap_pack, n_companies: int):
         'inv_pending': inv_pending.astype(np.float64, copy=False),
         'inv_due_ord': inv_due_ord.astype(np.int32, copy=False),
         'inv_counterparty': np.asarray(inv_counterparty),
+        'inv_invoice_id': np.asarray(inv_invoice_id),
         'inv_start': starts,
         'inv_count': counts,
     }
@@ -188,8 +198,8 @@ def build_lever_objects(destination: Path | None = None) -> Path:
     ar_pending = np.zeros(n, dtype=np.float64)
     ap_pending = np.zeros(n, dtype=np.float64)
     ar_clients: list[set[str]] = [set() for _ in range(n)]
-    ar_rows: list[tuple[int, float, int, str]] = []
-    ap_rows: list[tuple[int, float, int, str]] = []
+    ar_rows: list[tuple[int, float, int, str, str]] = []
+    ap_rows: list[tuple[int, float, int, str, str]] = []
 
     invoices_csv = DATASET / 'invoices.csv'
     with invoices_csv.open(newline='', encoding='utf-8') as source:
@@ -203,14 +213,15 @@ def build_lever_objects(destination: Path | None = None) -> Path:
             pending = _f(row['pending_amount'])
             due_ord = _due_ord(row.get('due_date'))
             counterparty = row.get('counterparty_id') or ''
+            invoice_id = row.get('operation_id') or ''
             if amount > 0 and pending > 0:
                 ar_pending[i] += pending
                 if counterparty:
                     ar_clients[i].add(counterparty)
-                ar_rows.append((i, pending, due_ord, counterparty))
+                ar_rows.append((i, pending, due_ord, counterparty, invoice_id))
             elif amount < 0 and pending != 0:
                 ap_pending[i] += abs(pending)
-                ap_rows.append((i, abs(pending), due_ord, counterparty))
+                ap_rows.append((i, abs(pending), due_ord, counterparty, invoice_id))
 
     n_ar_clients = np.fromiter((len(s) for s in ar_clients), dtype=np.int32, count=n)
 
@@ -323,6 +334,7 @@ def build_lever_objects(destination: Path | None = None) -> Path:
         pending_amount=inv['inv_pending'],
         due_ord=inv['inv_due_ord'],
         counterparty_id=inv['inv_counterparty'],
+        invoice_id=inv['inv_invoice_id'],
         inv_start=inv['inv_start'],
         inv_count=inv['inv_count'],
         company_id=company_ids,
@@ -366,10 +378,13 @@ def _invoices_for(cache: dict[str, Any], i: int) -> tuple[tuple[dict[str, Any], 
     pending = cache['inv_pending'][start:end]
     due_ord = cache['inv_due_ord'][start:end]
     counterparties = cache['inv_counterparty'][start:end]
+    invoice_ids = cache['inv_invoice_id'][start:end] if 'inv_invoice_id' in cache else [''] * count
     ar: list[dict[str, Any]] = []
     ap: list[dict[str, Any]] = []
     for k in range(count):
-        item = _invoice_dict(float(pending[k]), int(due_ord[k]), str(counterparties[k]))
+        item = _invoice_dict(
+            float(pending[k]), int(due_ord[k]), str(counterparties[k]), str(invoice_ids[k]),
+        )
         if bool(is_ar[k]):
             ar.append(item)
         else:
@@ -434,47 +449,112 @@ def _parse_due(value: Any) -> date | None:
         return None
 
 
+def invoice_resource_key(inv: dict[str, Any]) -> str:
+    invoice_id = str(inv.get('invoice_id') or '')
+    if invoice_id:
+        return f'invoice:{invoice_id}'
+    counterparty = str(inv.get('counterparty_id') or '')
+    due = str(inv.get('due_date') or '')
+    pending = float(inv.get('pending_amount') or 0.0)
+    return f'invoice:{counterparty}:{due}:{pending:.4f}'
+
+
+def _pick_from_invoices(
+    invoices: Sequence[dict[str, Any]],
+    days: int,
+    *,
+    counterparties: Sequence[str] | None = None,
+    facturas: Sequence[str] | None = None,
+    pending_cap: float,
+    proportional_fallback: bool,
+) -> ArPick:
+    days = int(days)
+    selected = list(invoices)
+    if facturas is not None:
+        wanted = {str(fid) for fid in facturas}
+        selected = [inv for inv in selected if str(inv.get('invoice_id') or '') in wanted]
+    elif counterparties is not None:
+        allowed = set(counterparties)
+        selected = [inv for inv in selected if inv.get('counterparty_id') in allowed]
+
+    explicit = facturas is not None
+    if explicit:
+        picked = selected
+    else:
+        dated: list[tuple[date, dict[str, Any]]] = []
+        for inv in selected:
+            due = _parse_due(inv.get('due_date'))
+            if due is None:
+                continue
+            dated.append((due, inv))
+        if not selected:
+            amount = 0.0
+            if proportional_fallback and counterparties is None and facturas is None:
+                amount = pending_cap * min(1.0, days / 30.0)
+            amount = min(max(0.0, amount), pending_cap)
+            return ArPick(days=days, amount_eur=amount, n_invoices=0)
+        if not dated:
+            base = sum(float(inv['pending_amount']) for inv in selected)
+            amount = min(max(0.0, base * min(1.0, days / 30.0)), pending_cap)
+            keys = tuple(invoice_resource_key(inv) for inv in selected)
+            ids = tuple(str(inv.get('invoice_id') or '') for inv in selected if inv.get('invoice_id'))
+            return ArPick(days=days, amount_eur=amount, n_invoices=0, invoice_ids=ids, resource_keys=keys)
+        end = CUTOFF.toordinal() + days
+        picked = [inv for due, inv in dated if due.toordinal() <= end]
+
+    seen: list[str] = []
+    seen_set: set[str] = set()
+    total = 0.0
+    ids: list[str] = []
+    keys: list[str] = []
+    for inv in picked:
+        total += float(inv['pending_amount'])
+        cp = str(inv.get('counterparty_id') or '')
+        if cp and cp not in seen_set:
+            seen_set.add(cp)
+            seen.append(cp)
+        iid = str(inv.get('invoice_id') or '')
+        if iid:
+            ids.append(iid)
+        keys.append(invoice_resource_key(inv))
+    amount = min(max(0.0, total), pending_cap)
+    return ArPick(
+        days=days,
+        amount_eur=amount,
+        n_invoices=len(picked),
+        clients=tuple(seen),
+        invoice_ids=tuple(ids),
+        resource_keys=tuple(keys),
+    )
+
+
 def select_ar_advance(
     obj: CompanyObjects,
     days: int,
     clients: Sequence[str] | None = None,
+    facturas: Sequence[str] | None = None,
 ) -> ArPick:
-    days = int(days)
-    invoices = obj.ar_invoices
-    if clients is not None:
-        allowed = set(clients)
-        invoices = tuple(inv for inv in invoices if inv.get('counterparty_id') in allowed)
+    return _pick_from_invoices(
+        obj.ar_invoices,
+        days,
+        counterparties=clients,
+        facturas=facturas,
+        pending_cap=obj.ar_pending_eur,
+        proportional_fallback=True,
+    )
 
-    dated = []
-    for inv in invoices:
-        due = _parse_due(inv.get('due_date'))
-        if due is None:
-            continue
-        dated.append((due, inv))
 
-    if not invoices:
-        amount = 0.0 if clients is not None else obj.ar_pending_eur * min(1.0, days / 30.0)
-        amount = min(max(0.0, amount), obj.ar_pending_eur)
-        return ArPick(days=days, amount_eur=amount, n_invoices=0, clients=())
-
-    if not dated:
-        base = sum(float(inv['pending_amount']) for inv in invoices)
-        amount = min(max(0.0, base * min(1.0, days / 30.0)), obj.ar_pending_eur)
-        return ArPick(days=days, amount_eur=amount, n_invoices=0, clients=())
-
-    end = CUTOFF.toordinal() + days
-    picked: list[dict[str, Any]] = []
-    seen: list[str] = []
-    seen_set: set[str] = set()
-    total = 0.0
-    for due, inv in dated:
-        if due.toordinal() <= end:
-            picked.append(inv)
-            total += float(inv['pending_amount'])
-            cp = str(inv.get('counterparty_id') or '')
-            if cp and cp not in seen_set:
-                seen_set.add(cp)
-                seen.append(cp)
-
-    amount = min(max(0.0, total), obj.ar_pending_eur)
-    return ArPick(days=days, amount_eur=amount, n_invoices=len(picked), clients=tuple(seen))
+def select_ap_advance(
+    obj: CompanyObjects,
+    days: int,
+    proveedores: Sequence[str] | None = None,
+    facturas: Sequence[str] | None = None,
+) -> ArPick:
+    return _pick_from_invoices(
+        obj.ap_invoices,
+        days,
+        counterparties=proveedores,
+        facturas=facturas,
+        pending_cap=obj.ap_pending_eur,
+        proportional_fallback=True,
+    )

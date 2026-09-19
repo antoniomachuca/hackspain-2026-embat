@@ -32,7 +32,7 @@ def is_applicable(company: str | CompanyObjects, lever_id: str) -> tuple[bool, s
     if obj.is_prior:
         return False, 'sin_evidencia_score'
 
-    if lid in ('adelantar_cobros', 'descuento_pronto_pago'):
+    if lid == 'adelantar_cobros':
         if obj.ar_pending_eur <= 0:
             return False, 'sin_ar_pendiente'
         return True, None

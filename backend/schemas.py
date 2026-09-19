@@ -3,7 +3,7 @@ Modelos Pydantic v2 para validación y serialización de la API REST de X-Ray.
 """
 
 from typing import Any, Dict, List, Optional
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, model_validator
 
 
 # -------------------------------------------------------------
@@ -285,6 +285,25 @@ class HealthResponse(BaseModel):
 # 7. Simulador de palancas (rescoring honesto · capa intermedia)
 # -------------------------------------------------------------
 
+class SimulateLeverLine(BaseModel):
+    facturas: Optional[List[str]] = Field(None, description="Ids de factura (operation_id)")
+    clientes: Optional[List[str]] = Field(None, description="Contrapartes AR")
+    proveedores: Optional[List[str]] = Field(None, description="Contrapartes AP")
+    dias: Optional[int] = None
+    days: Optional[int] = None
+    tasa_descuento: Optional[float] = Field(None, description="Haircut 0..1; 0 = sin descuento")
+    tasa: Optional[float] = None
+    haircut: Optional[float] = None
+    proposed_cost_pct: Optional[float] = None
+
+    @model_validator(mode='after')
+    def facturas_xor_clientes(self):
+        n = sum(bool(value) for value in (self.facturas, self.clientes, self.proveedores))
+        if n > 1:
+            raise ValueError('una línea admite facturas o clientes, no ambos')
+        return self
+
+
 class SimulateLeverItem(BaseModel):
     id: str = Field(..., description="Id de palanca del catálogo", json_schema_extra={"example": "adelantar_cobros"})
     amount_eur: Optional[float] = Field(None, description="Euros a adelantar / liberar")
@@ -305,7 +324,19 @@ class SimulateLeverItem(BaseModel):
     days: Optional[int] = Field(None, description="Días de adelanto 7/15/30")
     dias: Optional[int] = None
     clientes: Optional[List[str]] = None
+    facturas: Optional[List[str]] = None
+    proveedores: Optional[List[str]] = None
     tasa_descuento: Optional[float] = None
+    lineas: Optional[List[SimulateLeverLine]] = None
+
+    @model_validator(mode='after')
+    def top_level_targets_xor(self):
+        if self.lineas:
+            return self
+        n = sum(bool(value) for value in (self.facturas, self.clientes, self.proveedores))
+        if n > 1:
+            raise ValueError('una línea admite facturas o clientes, no ambos')
+        return self
 
 
 class SimulateRequest(BaseModel):

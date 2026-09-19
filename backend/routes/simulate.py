@@ -59,6 +59,7 @@ def run_simulate(req: SimulateRequest):
             code = 404
         elif err == "inaplicable" or err.startswith("mutuamente") or err in (
             "sin_evidencia_score", "missing_agreement_type", "invalid_agreement_type",
+            "doble_conteo", "linea_facturas_o_clientes", "factura_desconocida",
         ):
             code = 422
         else:

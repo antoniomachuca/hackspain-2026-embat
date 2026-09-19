@@ -77,3 +77,5 @@ def test_build_lever_objects_roundtrip(tmp_path):
     assert path.exists()
     obj = get_company_objects('COMP_0010', path=dest)
     assert isinstance(obj, CompanyObjects)
+    if obj.ar_invoices:
+        assert any(inv.get('invoice_id') for inv in obj.ar_invoices)
