@@ -31,9 +31,11 @@ export function Desglose({ drivers, score }: { drivers: Driver[]; score: number 
           return (
             <div key={d.feature} className="border-b border-[var(--color-line)] last:border-0">
               <button
+                type="button"
                 onClick={() => setAbierto(on ? null : d.feature)}
                 className="group flex w-full items-center gap-2 py-3 text-left sm:gap-4"
                 aria-expanded={on}
+                aria-controls={detalle ? `desglose-${d.feature}` : undefined}
               >
                 <span className="w-[84px] flex-none text-[12.5px] font-medium sm:w-[104px]">{d.etiqueta}</span>
 
@@ -69,7 +71,7 @@ export function Desglose({ drivers, score }: { drivers: Driver[]; score: number 
               </button>
 
               {on && detalle && (
-                <p className="pb-3 pl-[84px] pr-4 text-[11.5px] leading-relaxed text-[var(--color-ink-2)] sm:pl-[104px]">
+                <p id={`desglose-${d.feature}`} className="pb-3 pl-[84px] pr-4 text-[11.5px] leading-relaxed text-[var(--color-ink-2)] sm:pl-[104px]">
                   {detalle}
                   {d.rango && <span className="text-[var(--color-ink-4)]"> · rango {d.rango}</span>}
                 </p>

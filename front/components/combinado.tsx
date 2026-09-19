@@ -119,7 +119,9 @@ export function Combinado({ empresa: e, aplicables, palancas, inicial }:
   // ── Gráfico
   const g = useMemo(() => {
     const MESES = 12;
-    const hist = e.trayectoria.slice(-12);
+    const hist = e.trayectoria.length
+      ? e.trayectoria.slice(-12)
+      : [{ mes: "2026-09", score: e.score, nivel: e.nivelBase }];
     const hoy = hist[hist.length - 1].score;
     const vol = volatilidad(hist.map((p) => p.score));
     const sinActuar = acota(hoy + e.momentum * 14);
