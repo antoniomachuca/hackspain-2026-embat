@@ -75,7 +75,11 @@ export type ApiEpisodio = {
 };
 
 export type ApiCamino = {
-  as_of: string; score_proyectado: number;
+  as_of: string;
+  outlook?: string;
+  score_observado?: number;
+  score_proyectado: number;
+  familia?: string;
 };
 
 export type ApiTrayectoriaMarcas = {

@@ -3,7 +3,8 @@ from dataclasses import dataclass
 
 import numpy as np
 
-from algorythm.score_monitor import POINTS, directional_event_matrix
+from algorythm.score_monitor import directional_event_matrix
+from algorythm.score_outlook import associate_outlook, expired_unassociated, familia_de, texto_familia
 from algorythm.score_states import NEGATIVE_STATES, POSITIVE_STATES, PENDING, StateConfig
 
 MESES = ('ene', 'feb', 'mar', 'abr', 'may', 'jun', 'jul', 'ago', 'sep', 'oct', 'nov', 'dic')
@@ -78,20 +79,10 @@ def _signals(panels, company, month, direction):
     return kept[:2]
 
 
-def _text(direction, deteccion, senales, estado_confirmacion, meses_anticipacion):
+def _text(direction, deteccion, senales, perspectiva):
     frases = ', '.join(PHRASES[direction][s['senal']] for s in senales) or 'sin un bloque dominante'
-    first = f'Detectamos señales de {direction} en {_mes(deteccion)}: {frases}.'
-    if estado_confirmacion == 'confirmado':
-        n = meses_anticipacion
-        meses = lambda k: f'{k} mes' if k == 1 else f'{k} meses'
-        second = (f'El cambio material se confirmó {meses(n)} después.' if n > 0 else
-                  'El cambio material se confirmó el mismo mes.' if n == 0 else
-                  f'El cambio material se había producido {meses(-n)} antes: detección tardía.')
-    elif estado_confirmacion == 'pendiente':
-        second = 'Cambio material pendiente de confirmación.'
-    else:
-        second = 'No se confirmó un cambio material antes de cerrarse el episodio.'
-    return f'{first} {second}'
+    mejora = f'Detectamos señales de {direction} en {_mes(deteccion)}: {frases}.'
+    return texto_familia(direction, deteccion, senales, perspectiva, mejora)
 
 
 def _company_episodes(panels, c, events, state_config, config):
@@ -122,6 +113,9 @@ def _company_episodes(panels, c, events, state_config, config):
                 if SEVERITY.get(str(states[t]), 0) > SEVERITY.get(open_ep['_ultimo_estado'], 0):
                     open_ep['escaladas'].append({'as_of': str(as_of[t]), 'estado': str(states[t])})
                 open_ep['_ultimo_estado'] = str(states[t])
+            elif str(states[t]) == 'BACHE':
+                # El pulso no cuenta para cerrar: no incrementa el contador ni lo reinicia.
+                pass
             else:
                 neutral += 1
                 if neutral >= state_config.neutral_persistence_months:
@@ -172,13 +166,43 @@ def _company_episodes(panels, c, events, state_config, config):
             'perspectiva': None,
             'senales': senales,
             'familia': 'salud',
-            'texto': _text(ep['direccion'], ep['deteccion'], senales, confirmacion, anticipacion),
+            'texto': _text(ep['direccion'], ep['deteccion'], senales, None),
         })
         result.append((ep, t))
     return result
 
 
-def build_episodes(panels, state_config=None, config=None):
+def _attach_outlook(built, panels, c, outlook, persistence_months):
+    associated = []
+    as_of = panels['as_of']
+    outlook_row = outlook['outlook'][c]
+    score_row = panels['score'][c]
+    projected_row = outlook['outlook_score'][c]
+    for ep, t in built:
+        perspectiva, streak = associate_outlook(
+            ep, t, outlook_row, score_row, projected_row, as_of, persistence_months)
+        ep['perspectiva'] = perspectiva
+        if perspectiva:
+            ep['familia'] = familia_de(perspectiva)
+            associated.append(streak)
+        ep['texto'] = _text(ep['direccion'], ep['deteccion'], ep['senales'], perspectiva)
+    return expired_unassociated(outlook_row, as_of, associated)
+
+
+def _camino_marca(ep):
+    p = ep.get('perspectiva')
+    if not p or ep.get('direccion') != 'deterioro':
+        return None
+    return {
+        'as_of': p['as_of'],
+        'outlook': p['outlook'],
+        'score_observado': p['score_observado'],
+        'score_proyectado': p['score_proyectado'],
+        'familia': ep.get('familia', 'salud'),
+    }
+
+
+def build_episodes(panels, state_config=None, config=None, bank=None, ap_pending=None, outlook=None):
     """dict[company_id -> contrato de episodios] a partir de los paneles de score + estados."""
     state_config = state_config or StateConfig()
     config = config or EpisodeConfig()
@@ -188,9 +212,15 @@ def build_episodes(panels, state_config=None, config=None):
                   'material_delta': config.material_delta,
                   'material_persistence': config.material_persistence,
                   'bands': list(config.bands)}
+    if outlook is None and bank is not None:
+        from algorythm.score_outlook import compute_outlook
+        outlook = compute_outlook(bank, panels, ap_pending=ap_pending)
     out = {}
     for c, company_id in enumerate(panels['company_id']):
         built = _company_episodes(panels, c, events, state_config, config)
+        sin_aviso = []
+        if outlook is not None:
+            sin_aviso = _attach_outlook(built, panels, c, outlook, state_config.persistence_months)
         episodios = [ep for ep, _ in built]
         destacado = next((i for i, e in enumerate(episodios) if e['estado'] == 'activo'),
                          len(episodios) - 1 if episodios else None)
@@ -200,9 +230,75 @@ def build_episodes(panels, state_config=None, config=None):
             ep = episodios[destacado]
             marcas = {'deteccion': {'as_of': ep['deteccion'], 'state': ep['estado_deteccion'],
                                     'score': ep['score_deteccion'], 'direccion': ep['direccion']},
-                      'camino': None, 'texto': ep['texto']}
+                      'camino': _camino_marca(ep), 'texto': ep['texto']}
         out[str(company_id)] = {'episodios': episodios, 'episodio_destacado': destacado,
-                                'perspectivas_sin_aviso': [],
+                                'perspectivas_sin_aviso': sin_aviso,
                                 'trayectoria_marcas': marcas,
                                 'parametros': parametros}
     return out
+
+
+def empty_company_episodes(state_config=None, config=None):
+    state_config = state_config or StateConfig()
+    config = config or EpisodeConfig()
+    return {'episodios': [], 'episodio_destacado': None, 'perspectivas_sin_aviso': [],
+            'trayectoria_marcas': {'deteccion': None, 'camino': None, 'texto': ''},
+            'parametros': {'persistence_months': state_config.persistence_months,
+                           'neutral_persistence_months': state_config.neutral_persistence_months,
+                           'material_delta': config.material_delta,
+                           'material_persistence': config.material_persistence,
+                           'bands': list(config.bands)}}
+
+
+def slice_company_panels(panels, company_id):
+    """Recorte (1, meses) de una empresa. `(None, None)` si no está."""
+    ids = np.asarray(panels['company_id']).astype(str)
+    hits = np.flatnonzero(ids == str(company_id))
+    if hits.size == 0:
+        return None, None
+    i = int(hits[0])
+    n = int(np.asarray(panels['score']).shape[0])
+    out = {}
+    for key, value in panels.items():
+        arr = np.asarray(value)
+        if arr.ndim == 2 and arr.shape[0] == n:
+            out[key] = arr[i:i + 1]
+        elif arr.ndim == 1 and arr.shape[0] == n:
+            out[key] = arr[i:i + 1]
+        else:
+            out[key] = arr
+    return out, i
+
+
+def _slice_aligned_bank(bank, i, n):
+    out = {}
+    for key, value in bank.items():
+        arr = np.asarray(value)
+        if arr.ndim == 2 and arr.shape[0] == n:
+            out[key] = arr[i:i + 1]
+        elif arr.ndim == 1 and arr.shape[0] == n:
+            out[key] = arr[i:i + 1]
+        else:
+            out[key] = arr
+    return out
+
+
+def episodes_for_company(company_id, panels, bank=None, ap_pending=None, state_config=None, config=None, outlook=None):
+    """Contrato de una empresa. El API llama esto; no hay snapshot JSON."""
+    sliced, i = slice_company_panels(panels, company_id)
+    if sliced is None:
+        return empty_company_episodes(state_config, config)
+    n = int(np.asarray(panels['score']).shape[0])
+    bank_s = None
+    if bank is not None:
+        receipts = np.asarray(bank['receipts'])
+        bank_s = bank if receipts.ndim == 2 and receipts.shape[0] == 1 else _slice_aligned_bank(bank, i, n)
+    ap_s = None
+    if ap_pending is not None:
+        ap = np.asarray(ap_pending, dtype=float).reshape(-1)
+        if ap.size == 1:
+            ap_s = ap
+        elif ap.size == n:
+            ap_s = ap[i:i + 1]
+    return build_episodes(sliced, state_config=state_config, config=config,
+                          bank=bank_s, ap_pending=ap_s, outlook=outlook)[str(company_id)]

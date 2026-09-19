@@ -104,15 +104,32 @@ const COLOR_DETECCION = { deterioro: "var(--color-warm)", mejora: "var(--color-s
 export type CaminoMarca = {
   mes: string;                       // "YYYY-MM" dentro de la serie (origen)
   scoreProyectado: number;
+  familia?: "salud" | "circulante" | string;
 };
 
-function CajaDeteccion({ deteccion, active, payload, label }: {
+const COLOR_CAMINO = { salud: "var(--color-warm)", circulante: "#dfb631" } as const;
+
+function CajaDeteccion({ deteccion, camino, active, payload, label }: {
   deteccion?: DeteccionMarca;
+  camino?: CaminoMarca;
   active?: boolean;
   payload?: { name: string; value: number; color: string }[];
   label?: string;
 }) {
   const base = <Caja active={active} payload={payload} label={label} />;
+  if (camino && label === camino.mes) {
+    return (
+      <div className="space-y-1">
+        {base}
+        <div className="glass rounded-xl px-3 py-2 max-w-[280px]">
+          <p className="text-[11px] font-semibold text-[var(--color-warm)]">Si no hacías nada</p>
+          <p className="mt-0.5 tnum text-[11px] text-[var(--color-ink-2)]">
+            proyectado a 6 m, no es un hecho: {num(camino.scoreProyectado)}
+          </p>
+        </div>
+      </div>
+    );
+  }
   if (!deteccion || label !== deteccion.mes) return base;
   const color = COLOR_DETECCION[deteccion.direccion as keyof typeof COLOR_DETECCION] ?? "#e59f5e";
   return (
@@ -122,9 +139,6 @@ function CajaDeteccion({ deteccion, active, payload, label }: {
         <p className="text-[11px] font-semibold" style={{ color }}>
           Detección de {deteccion.direccion}
         </p>
-        {deteccion.texto && (
-          <p className="mt-0.5 text-[11px] leading-snug text-[var(--color-ink-2)]">{deteccion.texto}</p>
-        )}
         {deteccion.senales?.map((s: EpisodioSenal) => (
           <p key={s.senal} className="tnum text-[11px] text-[var(--color-ink-3)]">
             {s.senal}: {num(s.antes)} → {num(s.en_deteccion)}
@@ -148,9 +162,11 @@ export function Trayectoria({ datos, deteccion, camino, comparador, altura = 220
     ...(comparador ? { otro: comparador.datos[i]?.score } : {}),
   }));
   const detPunto = deteccion ? datos.find((d) => d.mes === deteccion.mes) : undefined;
+  const camPunto = camino ? datos.find((d) => d.mes === camino.mes) : undefined;
   const colorDet = deteccion
     ? COLOR_DETECCION[deteccion.direccion] ?? "var(--color-warm)"
     : "var(--color-warm)";
+  const colorCam = COLOR_CAMINO[(camino?.familia === "circulante" ? "circulante" : "salud")];
   return (
     <ResponsiveContainer width="100%" height={altura}>
       <AreaChart data={merged} margin={{ top: 20, right: 12, bottom: 0, left: -18 }}>
@@ -163,26 +179,22 @@ export function Trayectoria({ datos, deteccion, camino, comparador, altura = 220
         <CartesianGrid stroke="rgba(255,255,255,.07)" vertical={false} />
         <XAxis dataKey="mes" tickFormatter={mesCorto} tick={EJE} tickLine={false} axisLine={{ stroke: "rgba(255,255,255,.12)" }} interval={3} />
         <YAxis domain={[0, 100]} ticks={[0, 25, 50, 75, 100]} tick={EJE} tickLine={false} axisLine={false} width={44} />
-        <Tooltip content={<CajaDeteccion deteccion={deteccion} />} />
+        <Tooltip content={<CajaDeteccion deteccion={deteccion} camino={camino} />} />
         <ReferenceLine y={60} stroke="rgba(255,255,255,.14)" strokeDasharray="3 3" />
         <Area type="monotone" dataKey="score" name="Score" stroke="#b083e8" strokeWidth={2.2} fill="url(#grad)" dot={false} />
         {comparador && (
           <Line type="monotone" dataKey="otro" name={comparador.nombre} stroke="#e59f5e" strokeWidth={2.2} strokeDasharray="4 3" dot={false} />
         )}
         {deteccion && (
-          <ReferenceLine x={deteccion.mes} stroke={colorDet} strokeDasharray="4 3"
-            label={{
-              value: `Aquí detectamos señales de ${deteccion.direccion}`,
-              position: "insideTopLeft", fontSize: 10, fill: colorDet,
-            }} />
+          <ReferenceLine x={deteccion.mes} stroke={colorDet} strokeDasharray="4 3" />
         )}
         {detPunto && (
           <ReferenceDot x={detPunto.mes} y={detPunto.score} r={5}
             fill={colorDet} stroke="#0a0810" strokeWidth={2} />
         )}
-        {camino && (
-          <ReferenceDot x={camino.mes} y={camino.scoreProyectado} r={5.5}
-            fill="rgba(10,8,16,0)" stroke="var(--color-warm)" strokeWidth={2} />
+        {camPunto && (
+          <ReferenceDot x={camPunto.mes} y={camPunto.score} r={5.5}
+            fill="rgba(10,8,16,0)" stroke={colorCam} strokeWidth={2} />
         )}
       </AreaChart>
     </ResponsiveContainer>

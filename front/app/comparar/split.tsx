@@ -147,9 +147,17 @@ export default function SplitScreen({
                   <div className="px-3 py-4">
                     <Trayectoria
                       datos={e.trayectoria}
-                      deteccion={ep ? { mes: ep.deteccion.slice(0, 7), direccion: ep.direccion, texto: ep.texto, senales: ep.senales } : undefined}
+                      deteccion={ep ? { mes: ep.deteccion.slice(0, 7), direccion: ep.direccion, senales: ep.senales } : undefined}
+                      camino={ep?.perspectiva ? {
+                        mes: ep.perspectiva.as_of.slice(0, 7),
+                        scoreProyectado: ep.perspectiva.score_proyectado,
+                        familia: ep.familia,
+                      } : undefined}
                       altura={200}
                     />
+                    {ep?.texto && (
+                      <p className="px-3 pt-1 text-center text-[12px] leading-relaxed text-[var(--color-ink-2)]">{ep.texto}</p>
+                    )}
                     <div className="flex items-center justify-between px-3 pt-2 text-[12px]">
                       <span className="tnum text-[var(--color-ink-3)]">
                         mes 1: {num(primerScore)} → mes 24: {num(e.score)}
