@@ -22,7 +22,7 @@ from algorythm.telegram_notifier import (
 from algorythm.score_monitor import monitor_once
 from algorythm.telegram_charts import generate_company_chart
 from algorythm.score_whatif import simulate_whatif
-from algorythm.telegram_levers import apply_recommended, palancas_message, rankings_message
+from algorythm.telegram_levers import palancas_message, rankings_message
 
 
 def load_latest_scores():
@@ -458,7 +458,20 @@ def handle_chart_query(chat_id, company_id):
             f"💡 <i>¿Simular rescate contrafactual con Embat? Toca el botón abajo:</i>"
         )
         markup = build_alert_keyboard(cid)
-        return send_telegram_photo(chat_id, photo_bytes, caption=caption, reply_markup=markup)
+        res = send_telegram_photo(chat_id, photo_bytes, caption=caption, reply_markup=markup)
+        if res and res.get('ok'):
+            return res
+        # Retry once without keyboard (smaller multipart) before surfacing error
+        res_plain = send_telegram_photo(chat_id, photo_bytes, caption=caption, reply_markup=None)
+        if res_plain and res_plain.get('ok'):
+            send_telegram_message(chat_id, "⌨️ Usa <code>/score " + cid + "</code> para recuperar los botones.", reply_markup=markup)
+            return res_plain
+        err = (res or {}).get('error') or (res or {}).get('description') or (res_plain or {}).get('error') or 'timeout de red'
+        return send_telegram_message(
+            chat_id,
+            f"⚠️ La gráfica de <code>{cid}</code> se generó, pero Telegram no la recibió ({err}). "
+            f"Reintenta con <code>/grafica {cid}</code>."
+        )
     except ValueError:
         return send_telegram_message(chat_id, f"❌ Empresa <code>{cid}</code> no encontrada en el catálogo.")
     except Exception as err:
@@ -475,6 +488,21 @@ def handle_whatif_query(chat_id, company_id, amount=None):
     return send_telegram_message(chat_id, res['summary_html'], reply_markup=markup)
 
 
+def _deliver_or_explain(chat_id, text, markup=None, label="respuesta"):
+    res = send_telegram_message(chat_id, text, reply_markup=markup)
+    if res and res.get('ok'):
+        return res
+    err = (res or {}).get('error') or (res or {}).get('description') or 'timeout de red'
+    # Plain fallback without keyboard / HTML-heavy content often goes through when SSL flakes
+    plain = send_telegram_message(
+        chat_id,
+        f"⚠️ Generé la {label}, pero Telegram no la entregó ({err}). Reintenta el botón o el comando.",
+        parse_mode=None,
+        reply_markup=None,
+    )
+    return plain if plain and plain.get('ok') else res
+
+
 def handle_palancas_query(chat_id, company_id):
     send_chat_action(chat_id, action="typing")
     cid = company_id.strip().upper()
@@ -482,7 +510,9 @@ def handle_palancas_query(chat_id, company_id):
         text, markup = palancas_message(cid)
     except KeyError:
         return send_telegram_message(chat_id, f"❌ Empresa <code>{cid}</code> no encontrada en el catálogo.")
-    return send_telegram_message(chat_id, text, reply_markup=markup)
+    except Exception as err:
+        return send_telegram_message(chat_id, f"⚠️ Error en palancas de <code>{cid}</code>: {err}")
+    return _deliver_or_explain(chat_id, text, markup, label="lista de palancas")
 
 
 def handle_levers_rankings(chat_id, company_id):
@@ -492,17 +522,9 @@ def handle_levers_rankings(chat_id, company_id):
         text, markup = rankings_message(cid)
     except KeyError:
         return send_telegram_message(chat_id, f"❌ Empresa <code>{cid}</code> no encontrada en el catálogo.")
-    return send_telegram_message(chat_id, text, reply_markup=markup)
-
-
-def handle_apply_recommended(chat_id, company_id):
-    send_chat_action(chat_id, action="typing")
-    cid = company_id.strip().upper()
-    try:
-        text, markup = apply_recommended(cid)
-    except KeyError:
-        return send_telegram_message(chat_id, f"❌ Empresa <code>{cid}</code> no encontrada en el catálogo.")
-    return send_telegram_message(chat_id, text, reply_markup=markup)
+    except Exception as err:
+        return send_telegram_message(chat_id, f"⚠️ Error rankeando <code>{cid}</code>: {err}")
+    return _deliver_or_explain(chat_id, text, markup, label="rankings")
 
 
 def handle_callback_query(callback_query):
@@ -532,9 +554,6 @@ def handle_callback_query(callback_query):
     elif action == 'cb_rank':
         toast = f"⏳ Rankeando palancas de {cid}..."
         chat_action = "typing"
-    elif action == 'cb_rec':
-        toast = f"⏳ Aplicando palanca recomendada de {cid}..."
-        chat_action = "typing"
     elif action == 'cb_drivers':
         toast = f"⏳ Extrayendo desglose Waterfall de {cid}..."
         chat_action = "typing"
@@ -560,8 +579,6 @@ def handle_callback_query(callback_query):
         handle_palancas_query(chat_id, cid)
     elif action == 'cb_rank' and cid:
         handle_levers_rankings(chat_id, cid)
-    elif action == 'cb_rec' and cid:
-        handle_apply_recommended(chat_id, cid)
     else:
         send_telegram_message(chat_id, f"Acción interactiva no reconocida: <code>{action}</code>")
 
@@ -685,6 +702,7 @@ def run_bot_polling(poll_interval=2.0, auto_monitor=True):
             print("\nBot stopped by user.")
             break
         except Exception as error:
+            print(f"[bot] poll loop error: {error}", flush=True)
             time.sleep(poll_interval)
 
 

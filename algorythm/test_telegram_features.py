@@ -43,10 +43,15 @@ class TestTelegramFeatures(unittest.TestCase):
         self.assertIn('cb_chart:COMP_0010', callbacks)
         self.assertIn('cb_drivers:COMP_0010', callbacks)
         self.assertIn('cb_whatif:COMP_0010', callbacks)
+        self.assertIn('cb_pal:COMP_0010', callbacks)
+        self.assertIn('cb_rank:COMP_0010', callbacks)
+        self.assertNotIn('cb_rec:COMP_0010', callbacks)
 
         self.assertTrue(any('Gráfica' in t for t in texts))
         self.assertTrue(any('CFO' in t or 'Desglose' in t for t in texts))
         self.assertTrue(any('What-If' in t for t in texts))
+        self.assertTrue(any('Rankings' in t for t in texts))
+        self.assertFalse(any('recomendada' in t for t in texts))
 
     @patch('urllib.request.urlopen')
     def test_send_telegram_message_with_reply_markup(self, mock_urlopen):

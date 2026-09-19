@@ -3,6 +3,8 @@ import json
 import os
 import ssl
 import sys
+import time
+import urllib.error
 import urllib.parse
 import urllib.request
 from pathlib import Path
@@ -19,6 +21,40 @@ def get_ssl_context():
         return ssl.create_default_context(cafile=certifi.where())
     except Exception:
         return ssl._create_unverified_context()
+
+
+def _is_transient_telegram_error(error):
+    msg = str(error).lower()
+    transient_markers = (
+        'timed out',
+        'timeout',
+        'temporarily unavailable',
+        'connection reset',
+        'connection aborted',
+        'broken pipe',
+        'handshake',
+        'eof occurred',
+        'network is unreachable',
+        'name or service not known',
+        '503',
+        '502',
+        '429',
+    )
+    return any(marker in msg for marker in transient_markers)
+
+
+def urlopen_with_retries(req, timeout=15, retries=3, backoff_sec=0.8):
+    """Open a Telegram API request with retries for flaky SSL/network."""
+    last_error = None
+    for attempt in range(retries):
+        try:
+            return urllib.request.urlopen(req, timeout=timeout, context=get_ssl_context())
+        except Exception as error:
+            last_error = error
+            if attempt >= retries - 1 or not _is_transient_telegram_error(error):
+                raise
+            time.sleep(backoff_sec * (attempt + 1))
+    raise last_error
 
 
 def load_config():
@@ -84,14 +120,17 @@ def build_alert_keyboard(company_id):
                 {"text": "🔍 Desglose CFO", "callback_data": f"cb_drivers:{cid}"}
             ],
             [
-                {"text": "💡 Simular What-If", "callback_data": f"cb_whatif:{cid}"},
-                {"text": "⚙️ Palancas", "callback_data": f"cb_pal:{cid}"}
+                {"text": "⚙️ Palancas", "callback_data": f"cb_pal:{cid}"},
+                {"text": "🧪 Rankings", "callback_data": f"cb_rank:{cid}"}
+            ],
+            [
+                {"text": "💡 What-If", "callback_data": f"cb_whatif:{cid}"}
             ]
         ]
     }
 
 
-def send_telegram_message(chat_id, text, parse_mode='HTML', bot_token=None, reply_markup=None):
+def send_telegram_message(chat_id, text, parse_mode='HTML', bot_token=None, reply_markup=None, retries=3):
     token = bot_token or load_config().get('bot_token')
     if not token:
         return {'ok': False, 'error': 'No bot token configured'}
@@ -100,20 +139,28 @@ def send_telegram_message(chat_id, text, parse_mode='HTML', bot_token=None, repl
     payload = {
         'chat_id': chat_id,
         'text': text,
-        'parse_mode': parse_mode,
         'disable_web_page_preview': True
     }
+    if parse_mode:
+        payload['parse_mode'] = parse_mode
     if reply_markup is not None:
         payload['reply_markup'] = reply_markup
 
     data = json.dumps(payload).encode('utf-8')
-    req = urllib.request.Request(url, data=data, headers={'Content-Type': 'application/json'})
-    try:
-        with urllib.request.urlopen(req, timeout=10, context=get_ssl_context()) as response:
-            res_data = response.read().decode('utf-8')
-            return json.loads(res_data)
-    except Exception as error:
-        return {'ok': False, 'error': str(error)}
+    last_error = None
+    for attempt in range(max(1, int(retries))):
+        req = urllib.request.Request(url, data=data, headers={'Content-Type': 'application/json'})
+        try:
+            with urllib.request.urlopen(req, timeout=30, context=get_ssl_context()) as response:
+                res_data = response.read().decode('utf-8')
+                return json.loads(res_data)
+        except Exception as error:
+            last_error = error
+            if attempt + 1 < max(1, int(retries)):
+                time.sleep(0.6 * (attempt + 1))
+                continue
+            return {'ok': False, 'error': str(last_error)}
+    return {'ok': False, 'error': str(last_error) if last_error else 'Unknown sendMessage error'}
 
 
 def encode_multipart_formdata(fields, files):
@@ -144,7 +191,7 @@ def encode_multipart_formdata(fields, files):
     return body, content_type_header
 
 
-def send_telegram_photo(chat_id, photo_bytes, caption=None, parse_mode='HTML', reply_markup=None, bot_token=None):
+def send_telegram_photo(chat_id, photo_bytes, caption=None, parse_mode='HTML', reply_markup=None, bot_token=None, retries=3):
     token = bot_token or load_config().get('bot_token')
     if not token:
         return {'ok': False, 'error': 'No bot token configured'}
@@ -165,21 +212,28 @@ def send_telegram_photo(chat_id, photo_bytes, caption=None, parse_mode='HTML', r
         'photo': ('chart.png', photo_bytes, 'image/png')
     }
     body, content_type = encode_multipart_formdata(fields, files)
-    req = urllib.request.Request(
-        url,
-        data=body,
-        headers={
-            'Content-Type': content_type,
-            'Content-Length': str(len(body)),
-            'User-Agent': 'XRayBot/1.0'
-        }
-    )
-    try:
-        with urllib.request.urlopen(req, timeout=15, context=get_ssl_context()) as response:
-            res_data = response.read().decode('utf-8')
-            return json.loads(res_data)
-    except Exception as error:
-        return {'ok': False, 'error': str(error)}
+    last_error = None
+    for attempt in range(max(1, int(retries))):
+        req = urllib.request.Request(
+            url,
+            data=body,
+            headers={
+                'Content-Type': content_type,
+                'Content-Length': str(len(body)),
+                'User-Agent': 'XRayBot/1.0'
+            }
+        )
+        try:
+            with urllib.request.urlopen(req, timeout=45, context=get_ssl_context()) as response:
+                res_data = response.read().decode('utf-8')
+                return json.loads(res_data)
+        except Exception as error:
+            last_error = error
+            if attempt + 1 < max(1, int(retries)):
+                time.sleep(0.6 * (attempt + 1))
+                continue
+            return {'ok': False, 'error': str(last_error)}
+    return {'ok': False, 'error': str(last_error) if last_error else 'Unknown sendPhoto error'}
 
 
 def answer_callback_query(callback_query_id, text=None, show_alert=False, bot_token=None):

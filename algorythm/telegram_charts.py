@@ -29,8 +29,10 @@ def generate_company_chart(
     """
     DB_PATH = HERE.parent / 'xray.duckdb'
     cid = str(company_id).strip().upper()
-    if not cid.startswith("COMP_") and cid.startswith("COMP") and cid[4:].isdigit():
-        cid = f"COMP_{cid[4:]}"
+    if cid.startswith("COMP_") and cid[5:].isdigit():
+        cid = f"COMP_{cid[5:].zfill(4)}"
+    elif cid.startswith("COMP") and cid[4:].isdigit():
+        cid = f"COMP_{cid[4:].zfill(4)}"
     elif cid.isdigit():
         cid = f"COMP_{cid.zfill(4)}"
 

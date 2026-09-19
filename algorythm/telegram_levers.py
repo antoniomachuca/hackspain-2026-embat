@@ -4,7 +4,6 @@ from __future__ import annotations
 
 from typing import Any
 
-from algorythm.levers import simulate_levers
 from algorythm.levers_gates import evaluate_catalog
 from algorythm.levers_search import recommend_levers
 
@@ -18,7 +17,6 @@ def palancas_keyboard(company_id: str) -> dict[str, Any]:
                 {"text": "🧪 Rankings", "callback_data": f"cb_rank:{cid}"},
             ],
             [
-                {"text": "✅ Aplicar recomendada", "callback_data": f"cb_rec:{cid}"},
                 {"text": "💡 What-If clásico", "callback_data": f"cb_whatif:{cid}"},
             ],
         ]
@@ -101,28 +99,6 @@ def format_rankings_html(result: dict[str, Any]) -> str:
     return "\n".join(lines)
 
 
-def format_simulate_html(result: dict[str, Any]) -> str:
-    cid = result.get("company_id", "")
-    base = result.get("baseline") or {}
-    proj = result.get("projected") or {}
-    delta = result.get("delta_score")
-    lines = [
-        f"🧪 <b>Simulación · {cid}</b>",
-        "━━━━━━━━━━━━━━━━━━━━━━━━━",
-        f"Score {base.get('score', 0):.1f} → <b>{proj.get('score', 0):.1f}</b>  "
-        f"(ΔS {_fmt_delta(delta)})",
-        f"Estado {base.get('state')} → {proj.get('state')}",
-        f"Caja liberada: <code>{result.get('caja_liberada_eur', 0):,.0f} €</code>",
-    ]
-    if result.get("eur_año"):
-        lines.append(f"Impacto anual (extrap.): <code>{result['eur_año']:,.0f} €</code>")
-    for effect in result.get("effects") or []:
-        lines.append(f"• <code>{effect.get('lever_id')}</code> · {effect.get('family')}")
-    lines.append(f"<code>model_version {str(result.get('model_version', ''))[:12]}…</code>")
-    lines.append("<i>Contrafactual de corte · ERP/caja off.</i>")
-    return "\n".join(lines)
-
-
 def palancas_message(company_id: str) -> tuple[str, dict[str, Any]]:
     cid = company_id.strip().upper()
     rows = evaluate_catalog(cid)
@@ -135,22 +111,3 @@ def rankings_message(company_id: str) -> tuple[str, dict[str, Any]]:
     if not result.get("ok"):
         return f"❌ No pude rankear <code>{cid}</code>: {result.get('error')}", palancas_keyboard(cid)
     return format_rankings_html(result), palancas_keyboard(cid)
-
-
-def apply_recommended(company_id: str) -> tuple[str, dict[str, Any]]:
-    cid = company_id.strip().upper()
-    ranked = recommend_levers(cid)
-    rec = ranked.get("recomendado") if ranked.get("ok") else None
-    if not rec:
-        return (
-            f"ℹ️ {cid}: no hay recomendación de salud. Mira circulante con /simulate.",
-            palancas_keyboard(cid),
-        )
-    payload = {"id": rec["id"]}
-    for key in ("days", "pct", "haircut", "agreement_type", "proposed_cost_pct", "amount_eur"):
-        if rec.get(key) is not None:
-            payload[key] = rec[key]
-    sim = simulate_levers(cid, [payload])
-    if not sim.get("ok"):
-        return f"❌ Simulación rechazada: {sim.get('error')}", palancas_keyboard(cid)
-    return format_simulate_html(sim), palancas_keyboard(cid)

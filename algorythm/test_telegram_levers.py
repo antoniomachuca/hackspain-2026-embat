@@ -12,6 +12,8 @@ def test_alert_keyboard_includes_palancas():
     callbacks = [btn['callback_data'] for row in markup['inline_keyboard'] for btn in row]
     assert 'cb_whatif:COMP_0010' in callbacks
     assert 'cb_pal:COMP_0010' in callbacks
+    assert 'cb_rank:COMP_0010' in callbacks
+    assert 'cb_rec:COMP_0010' not in callbacks
 
 
 def test_palancas_keyboard_bytes():
