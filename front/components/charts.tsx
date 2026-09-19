@@ -1,8 +1,9 @@
 "use client";
 import {
-  LineChart, Line, XAxis, YAxis, ResponsiveContainer, Tooltip,
+  Line, XAxis, YAxis, ResponsiveContainer, Tooltip,
   ReferenceLine, ReferenceDot, BarChart, Bar, Cell, CartesianGrid, Area, AreaChart,
 } from "recharts";
+import { useId } from "react";
 import { mesCorto, num, banda } from "@/lib/format";
 import type { Punto, Driver, EpisodioSenal } from "@/lib/data";
 
@@ -143,6 +144,7 @@ export function Trayectoria({ datos, deteccion, camino, comparador, altura = 220
   comparador?: { nombre: string; datos: Punto[] };
   altura?: number;
 }) {
+  const gradientId = `grad-${useId().replace(/:/g, "")}`;
   const merged = datos.map((d, i) => ({
     mes: d.mes, score: d.score,
     ...(comparador ? { otro: comparador.datos[i]?.score } : {}),
@@ -155,7 +157,7 @@ export function Trayectoria({ datos, deteccion, camino, comparador, altura = 220
     <ResponsiveContainer width="100%" height={altura}>
       <AreaChart data={merged} margin={{ top: 20, right: 12, bottom: 0, left: -18 }}>
         <defs>
-          <linearGradient id="grad" x1="0" y1="0" x2="0" y2="1">
+          <linearGradient id={gradientId} x1="0" y1="0" x2="0" y2="1">
             <stop offset="0%" stopColor="#b083e8" stopOpacity={0.30} />
             <stop offset="100%" stopColor="#b083e8" stopOpacity={0} />
           </linearGradient>
@@ -165,9 +167,9 @@ export function Trayectoria({ datos, deteccion, camino, comparador, altura = 220
         <YAxis domain={[0, 100]} ticks={[0, 25, 50, 75, 100]} tick={EJE} tickLine={false} axisLine={false} width={44} />
         <Tooltip content={<CajaDeteccion deteccion={deteccion} />} />
         <ReferenceLine y={60} stroke="rgba(255,255,255,.14)" strokeDasharray="3 3" />
-        <Area type="monotone" dataKey="score" name="Score" stroke="#b083e8" strokeWidth={2.2} fill="url(#grad)" dot={false} />
+        <Area type="monotone" dataKey="score" name="Score" stroke="#b083e8" strokeWidth={2.2} fill={`url(#${gradientId})`} dot={false} isAnimationActive={false} />
         {comparador && (
-          <Line type="monotone" dataKey="otro" name={comparador.nombre} stroke="#e59f5e" strokeWidth={2.2} strokeDasharray="4 3" dot={false} />
+          <Line type="monotone" dataKey="otro" name={comparador.nombre} stroke="#e59f5e" strokeWidth={2.2} strokeDasharray="4 3" dot={false} isAnimationActive={false} />
         )}
         {deteccion && (
           <ReferenceLine x={deteccion.mes} stroke={colorDet} strokeDasharray="4 3"
@@ -207,7 +209,7 @@ export function Waterfall({ drivers, altura = 240 }: { drivers: Driver[]; altura
         <XAxis type="number" hide />
         <YAxis type="category" dataKey="etiqueta" tick={{ ...EJE, fontSize: 12 }} width={168} tickLine={false} axisLine={false} />
         <Tooltip content={<CajaWaterfall />} cursor={{ fill: "rgba(255,255,255,.05)" }} />
-        <Bar dataKey="v" name="Puntos" radius={[0, 4, 4, 0]} barSize={18}>
+        <Bar dataKey="v" name="Puntos" radius={[0, 4, 4, 0]} barSize={18} isAnimationActive={false}>
           {datos.map((d, i) => (
             <Cell key={i} fill={d.p >= 50 ? "#b083e8" : "#e59f5e"} />
           ))}
@@ -242,7 +244,7 @@ export function Histograma({ datos, altura = 180 }: { datos: Array<{ bucket: num
         <XAxis dataKey="tramo" tick={EJE} tickLine={false} axisLine={{ stroke: "rgba(255,255,255,.12)" }} interval={0} />
         <YAxis tick={EJE} tickLine={false} axisLine={false} width={44} allowDecimals={false} />
         <Tooltip content={<Caja />} cursor={{ fill: "rgba(255,255,255,.05)" }} />
-        <Bar dataKey="n" name="Empresas" radius={[4, 4, 0, 0]} barSize={26}>
+        <Bar dataKey="n" name="Empresas" radius={[4, 4, 0, 0]} barSize={26} isAnimationActive={false}>
           {filas.map((f, i) => <Cell key={i} fill={f.color} />)}
         </Bar>
       </BarChart>

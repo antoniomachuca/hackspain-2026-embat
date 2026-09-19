@@ -37,8 +37,8 @@ export function combinar(e: Empresa, ajustes: Ajuste[]) {
       if (!p) return null;
       // `simular` ya devuelve palanca y valor; se sobreescriben a propósito
       // con los del ajuste para que el desglose hable del que se está viendo.
-      const { palanca: _p, valor: _v, ...s } = simular(e, a.id, a.valor);
-      return { palanca: p, valor: a.valor, ...s, esfuerzo: esfuerzo(p, a.valor) };
+      const s = simular(e, a.id, a.valor);
+      return { ...s, palanca: p, valor: a.valor, esfuerzo: esfuerzo(p, a.valor) };
     })
     .filter((x): x is NonNullable<typeof x> => x !== null);
 

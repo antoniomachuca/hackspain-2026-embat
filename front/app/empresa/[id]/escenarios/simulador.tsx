@@ -6,7 +6,7 @@ import { simularPalanca, type ResultadoSimulacion } from "@/lib/motor";
 import type { ApiSugerencia, ApiPalanca } from "@/lib/api";
 import { eur, num, banda } from "@/lib/format";
 import { Cabecera } from "@/components/shell";
-import { Card, CardHead, ScoreBadge, Delta, Boton, BandaChip } from "@/components/ui";
+import { Card, CardHead, ScoreBadge, Delta, Boton } from "@/components/ui";
 
 export default function Simulador({
   empresa: e,
