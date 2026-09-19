@@ -157,6 +157,30 @@ class ScoreEngineContractTests(unittest.TestCase):
         with self.assertRaises(ValueError):
             calculate_scores(bank, {'quality': np.ones((1, 24)), 'conversion': np.full((1, 24), 1.1)})
 
+    def test_momentum_does_not_compare_mature_base_against_warmup_priors(self):
+        bank = bank_fixture([120, 118, 119, 125, 126, 127, 128, 129, 130, 131, 132, 133])
+        output = calculate_scores(bank)
+        np.testing.assert_allclose(output['momentum'][:, :8], 0)
+
+    def test_history_readiness_counts_observed_months_not_calendar_positions(self):
+        bank = bank_fixture([0] * 18 + [120] * 6, expenses=0, debt=0)
+        bank['quality'][:, :18] = 0
+        bank['expenses'][:, 18:] = 100
+        output = calculate_scores(bank)
+        self.assertFalse(output['history_ready'][0, :23].any())
+        self.assertTrue(output['history_ready'][0, 23])
+        self.assertFalse(output['momentum_ready'][0, 23])
+        self.assertEqual(output['observed_months'][0, 23], 6)
+
+    def test_company_batch_permutation_and_unseen_companies_do_not_change_scores(self):
+        bank = bank_fixture(np.array([np.linspace(90, 150, 24), np.linspace(160, 90, 24)]))
+        together = calculate_scores(bank)
+        alone = calculate_scores({key: value[:1] for key, value in bank.items()})
+        reversed_batch = calculate_scores({key: value[::-1] for key, value in bank.items()})
+        for key in together:
+            np.testing.assert_allclose(together[key][:1], alone[key], err_msg=key)
+            np.testing.assert_allclose(together[key][::-1], reversed_batch[key], err_msg=key)
+
     def test_invalid_coefficient_weights_are_rejected(self):
         with self.assertRaises(ValueError):
             ScoreConfig(base_weights=(.5, .5, .5))

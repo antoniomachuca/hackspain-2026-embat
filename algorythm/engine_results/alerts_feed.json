@@ -1,0 +1,5504 @@
+{
+  "alerts": [
+    {
+      "company_id": "COMP_0059",
+      "as_of": "2026-09-01",
+      "state": "DETERIORO",
+      "model_version": "6434117ba83603d8d3905ba84d9e679e313df031a4b3adad9b4fa701b252b129",
+      "alert_id": "152f224ca6e43cfde863713c186a7ae6717c590c355da16234627443c221129a",
+      "group_id": "GROUP_0101",
+      "severity": "ALTA",
+      "direction": "deterioration",
+      "score": 28.308686902623542,
+      "base_health": 36.82205301999329,
+      "momentum": -0.9642738655603578,
+      "delta_score": -52.8124216817772,
+      "comparison_as_of": "2026-06-01",
+      "drivers": [
+        {
+          "field": "liquidity_points",
+          "delta_points": -43.93478971159129,
+          "unit": "score_points"
+        },
+        {
+          "field": "momentum_points",
+          "delta_points": -8.698045482425623,
+          "unit": "score_points"
+        }
+      ],
+      "contribution_deltas": {
+        "liquidity_points": -43.93478971159129,
+        "collections_points": 0.5047388845275229,
+        "debt_points": -0.016951874824904678,
+        "momentum_points": -8.698045482425623,
+        "growth_points": -5.058878431476483,
+        "fragility_points": 4.391504934013576,
+        "clipping_points": 0.0
+      },
+      "state_quality": 1.0,
+      "evidence_changed": false,
+      "seasonality_available": true,
+      "annual_pattern_match": false,
+      "trajectory_basis": "observed_bank_core",
+      "lead_months": null,
+      "reference_event_as_of": null,
+      "delivery_mode": "initial_snapshot"
+    },
+    {
+      "company_id": "COMP_0075",
+      "as_of": "2026-09-01",
+      "state": "DETERIORO",
+      "model_version": "6434117ba83603d8d3905ba84d9e679e313df031a4b3adad9b4fa701b252b129",
+      "alert_id": "5d048acff358541f2d5642df52f5bc27f7c6fefd6b93a5ac0fc06bc245f89274",
+      "group_id": "GROUP_0115",
+      "severity": "ALTA",
+      "direction": "deterioration",
+      "score": 51.14587629897484,
+      "base_health": 52.35010505902319,
+      "momentum": -0.5907953194754251,
+      "delta_score": -8.071134397498213,
+      "comparison_as_of": "2026-06-01",
+      "drivers": [
+        {
+          "field": "momentum_points",
+          "delta_points": -4.726362555803401,
+          "unit": "score_points"
+        },
+        {
+          "field": "collections_points",
+          "delta_points": -4.160177987918878,
+          "unit": "score_points"
+        }
+      ],
+      "contribution_deltas": {
+        "liquidity_points": -1.4116353597831939,
+        "collections_points": -4.160177987918878,
+        "debt_points": -2.6726544201742257,
+        "momentum_points": -4.726362555803401,
+        "growth_points": 3.0313818844649294,
+        "fragility_points": 1.8683140417165527,
+        "clipping_points": 0.0
+      },
+      "state_quality": 0.99244078975545,
+      "evidence_changed": false,
+      "seasonality_available": true,
+      "annual_pattern_match": false,
+      "trajectory_basis": "observed_bank_core",
+      "lead_months": null,
+      "reference_event_as_of": null,
+      "delivery_mode": "initial_snapshot"
+    },
+    {
+      "company_id": "COMP_0077",
+      "as_of": "2026-09-01",
+      "state": "RECUPERACION",
+      "model_version": "6434117ba83603d8d3905ba84d9e679e313df031a4b3adad9b4fa701b252b129",
+      "alert_id": "273af15e996ed2f9bb3c329993605c848d2bd63cb0b7f13907653ef4eb44253b",
+      "group_id": "GROUP_0213",
+      "severity": "INFORMATIVA",
+      "direction": "improvement",
+      "score": 66.24106782870925,
+      "base_health": 60.718509389661264,
+      "momentum": 0.6789440502095334,
+      "delta_score": 21.838282810730156,
+      "comparison_as_of": "2026-06-01",
+      "drivers": [
+        {
+          "field": "liquidity_points",
+          "delta_points": 10.961396472671549,
+          "unit": "score_points"
+        },
+        {
+          "field": "momentum_points",
+          "delta_points": 7.280689042276199,
+          "unit": "score_points"
+        }
+      ],
+      "contribution_deltas": {
+        "liquidity_points": 10.961396472671549,
+        "collections_points": 0.23287681087112233,
+        "debt_points": 0.0,
+        "momentum_points": 7.280689042276199,
+        "growth_points": 3.8916492903016207,
+        "fragility_points": -0.5283288053903274,
+        "clipping_points": 0.0
+      },
+      "state_quality": 1.0,
+      "evidence_changed": false,
+      "seasonality_available": true,
+      "annual_pattern_match": false,
+      "trajectory_basis": "observed_bank_core",
+      "lead_months": null,
+      "reference_event_as_of": null,
+      "delivery_mode": "initial_snapshot"
+    },
+    {
+      "company_id": "COMP_0091",
+      "as_of": "2026-09-01",
+      "state": "RECUPERACION",
+      "model_version": "6434117ba83603d8d3905ba84d9e679e313df031a4b3adad9b4fa701b252b129",
+      "alert_id": "bcbebe48c36dbff35d90a8232de2c0ce912cc6cf979134acfb9e57d8d0ac8fba",
+      "group_id": "GROUP_0237",
+      "severity": "INFORMATIVA",
+      "direction": "improvement",
+      "score": 62.15725233895842,
+      "base_health": 63.08125037334034,
+      "momentum": -0.002111666123667765,
+      "delta_score": -3.16943172732757,
+      "comparison_as_of": "2026-06-01",
+      "drivers": [
+        {
+          "field": "momentum_points",
+          "delta_points": -3.23870599427386,
+          "unit": "score_points"
+        },
+        {
+          "field": "liquidity_points",
+          "delta_points": -1.8240424129728439,
+          "unit": "score_points"
+        }
+      ],
+      "contribution_deltas": {
+        "liquidity_points": -1.8240424129728439,
+        "collections_points": 1.1264158123214507,
+        "debt_points": 0.0,
+        "momentum_points": -3.23870599427386,
+        "growth_points": 0.48931182203739193,
+        "fragility_points": 0.27758904556028163,
+        "clipping_points": 0.0
+      },
+      "state_quality": 1.0,
+      "evidence_changed": false,
+      "seasonality_available": false,
+      "annual_pattern_match": false,
+      "trajectory_basis": "observed_bank_core",
+      "lead_months": null,
+      "reference_event_as_of": null,
+      "delivery_mode": "initial_snapshot"
+    },
+    {
+      "company_id": "COMP_0094",
+      "as_of": "2026-09-01",
+      "state": "TORCIENDOSE",
+      "model_version": "6434117ba83603d8d3905ba84d9e679e313df031a4b3adad9b4fa701b252b129",
+      "alert_id": "dd47a77220ab6f949f052f346b2be2573ef5d58f51436cab735081cb1a484b7c",
+      "group_id": "GROUP_0021",
+      "severity": "MEDIA",
+      "direction": "deterioration",
+      "score": 60.64573067810304,
+      "base_health": 61.88161062693405,
+      "momentum": -0.11794133804752417,
+      "delta_score": -2.616588946240867,
+      "comparison_as_of": "2026-06-01",
+      "drivers": [
+        {
+          "field": "liquidity_points",
+          "delta_points": -3.285169739210751,
+          "unit": "score_points"
+        },
+        {
+          "field": "momentum_points",
+          "delta_points": -0.9435307043801934,
+          "unit": "score_points"
+        }
+      ],
+      "contribution_deltas": {
+        "liquidity_points": -3.285169739210751,
+        "collections_points": 0.4756342121492452,
+        "debt_points": 0.709190508928252,
+        "momentum_points": -0.9435307043801934,
+        "growth_points": 0.5441142511070604,
+        "fragility_points": -0.11682747483447553,
+        "clipping_points": 0.0
+      },
+      "state_quality": 1.0,
+      "evidence_changed": false,
+      "seasonality_available": true,
+      "annual_pattern_match": false,
+      "trajectory_basis": "observed_bank_core",
+      "lead_months": null,
+      "reference_event_as_of": null,
+      "delivery_mode": "initial_snapshot"
+    },
+    {
+      "company_id": "COMP_0107",
+      "as_of": "2026-09-01",
+      "state": "RECUPERACION",
+      "model_version": "6434117ba83603d8d3905ba84d9e679e313df031a4b3adad9b4fa701b252b129",
+      "alert_id": "939a5700873c00485e17903fdc96d14b5990fdafcfcb17aeaca0eb20818d286a",
+      "group_id": "GROUP_0094",
+      "severity": "INFORMATIVA",
+      "direction": "improvement",
+      "score": 75.89651662894025,
+      "base_health": 72.66926669483517,
+      "momentum": 0.5509260203347387,
+      "delta_score": 37.688894526995476,
+      "comparison_as_of": "2026-06-01",
+      "drivers": [
+        {
+          "field": "liquidity_points",
+          "delta_points": 29.833355449703554,
+          "unit": "score_points"
+        },
+        {
+          "field": "momentum_points",
+          "delta_points": 8.329716871554014,
+          "unit": "score_points"
+        }
+      ],
+      "contribution_deltas": {
+        "liquidity_points": 29.833355449703554,
+        "collections_points": 0.6108481060920319,
+        "debt_points": 0.0,
+        "momentum_points": 8.329716871554014,
+        "growth_points": 3.072654493114121,
+        "fragility_points": -4.157680393468228,
+        "clipping_points": 0.0
+      },
+      "state_quality": 0.656800563777308,
+      "evidence_changed": false,
+      "seasonality_available": true,
+      "annual_pattern_match": false,
+      "trajectory_basis": "observed_bank_core",
+      "lead_months": null,
+      "reference_event_as_of": null,
+      "delivery_mode": "initial_snapshot"
+    },
+    {
+      "company_id": "COMP_0108",
+      "as_of": "2026-09-01",
+      "state": "TORCIENDOSE",
+      "model_version": "6434117ba83603d8d3905ba84d9e679e313df031a4b3adad9b4fa701b252b129",
+      "alert_id": "92110e2ab9b50e84acdb0606414578b6303c108b98beed5a581e94d2df070851",
+      "group_id": "GROUP_0179",
+      "severity": "MEDIA",
+      "direction": "deterioration",
+      "score": 63.99899657414343,
+      "base_health": 65.029929285566,
+      "momentum": 0.0678967352293314,
+      "delta_score": 6.834308460120276,
+      "comparison_as_of": "2026-06-01",
+      "drivers": [
+        {
+          "field": "momentum_points",
+          "delta_points": 4.287757754726348,
+          "unit": "score_points"
+        },
+        {
+          "field": "growth_points",
+          "delta_points": 1.5679015424717027,
+          "unit": "score_points"
+        }
+      ],
+      "contribution_deltas": {
+        "liquidity_points": 1.3975107498865746,
+        "collections_points": 0.8742485337732226,
+        "debt_points": 0.0,
+        "momentum_points": 4.287757754726348,
+        "growth_points": 1.5679015424717027,
+        "fragility_points": -1.2931101207375697,
+        "clipping_points": 0.0
+      },
+      "state_quality": 1.0,
+      "evidence_changed": false,
+      "seasonality_available": true,
+      "annual_pattern_match": false,
+      "trajectory_basis": "observed_bank_core",
+      "lead_months": null,
+      "reference_event_as_of": null,
+      "delivery_mode": "initial_snapshot"
+    },
+    {
+      "company_id": "COMP_0112",
+      "as_of": "2026-09-01",
+      "state": "TORCIENDOSE",
+      "model_version": "6434117ba83603d8d3905ba84d9e679e313df031a4b3adad9b4fa701b252b129",
+      "alert_id": "f08cbac8409007a15294220c388adcd6984097230d92758f61d1cf6841004f97",
+      "group_id": "GROUP_0222",
+      "severity": "MEDIA",
+      "direction": "deterioration",
+      "score": 64.84284468935417,
+      "base_health": 66.01141010657871,
+      "momentum": -0.08866262768442931,
+      "delta_score": 2.72068952103065,
+      "comparison_as_of": "2026-06-01",
+      "drivers": [
+        {
+          "field": "fragility_points",
+          "delta_points": 1.80921351904301,
+          "unit": "score_points"
+        },
+        {
+          "field": "momentum_points",
+          "delta_points": 1.462542290225292,
+          "unit": "score_points"
+        }
+      ],
+      "contribution_deltas": {
+        "liquidity_points": -0.11739175095829424,
+        "collections_points": -0.43367453727935157,
+        "debt_points": 0.0,
+        "momentum_points": 1.462542290225292,
+        "growth_points": 0.0,
+        "fragility_points": 1.80921351904301,
+        "clipping_points": 0.0
+      },
+      "state_quality": 1.0,
+      "evidence_changed": false,
+      "seasonality_available": true,
+      "annual_pattern_match": false,
+      "trajectory_basis": "observed_bank_core",
+      "lead_months": null,
+      "reference_event_as_of": null,
+      "delivery_mode": "initial_snapshot"
+    },
+    {
+      "company_id": "COMP_0116",
+      "as_of": "2026-09-01",
+      "state": "DETERIORO",
+      "model_version": "6434117ba83603d8d3905ba84d9e679e313df031a4b3adad9b4fa701b252b129",
+      "alert_id": "24647956bffcf021f751d0cdaa66d6acdc16908c03a65a83f354061606c394ac",
+      "group_id": "GROUP_0195",
+      "severity": "ALTA",
+      "direction": "deterioration",
+      "score": 59.30104122535258,
+      "base_health": 58.32953392368528,
+      "momentum": 0.0,
+      "delta_score": 19.277008553309265,
+      "comparison_as_of": "2026-06-01",
+      "drivers": [
+        {
+          "field": "liquidity_points",
+          "delta_points": 11.529746127377656,
+          "unit": "score_points"
+        },
+        {
+          "field": "momentum_points",
+          "delta_points": 3.5133852862786927,
+          "unit": "score_points"
+        }
+      ],
+      "contribution_deltas": {
+        "liquidity_points": 11.529746127377656,
+        "collections_points": 0.5292003450375873,
+        "debt_points": 0.08848686660954463,
+        "momentum_points": 3.5133852862786927,
+        "growth_points": 0.9715073016672955,
+        "fragility_points": 2.6446826263384957,
+        "clipping_points": 0.0
+      },
+      "state_quality": 1.0,
+      "evidence_changed": false,
+      "seasonality_available": false,
+      "annual_pattern_match": false,
+      "trajectory_basis": "observed_bank_core",
+      "lead_months": null,
+      "reference_event_as_of": null,
+      "delivery_mode": "initial_snapshot"
+    },
+    {
+      "company_id": "COMP_0122",
+      "as_of": "2026-09-01",
+      "state": "TORCIENDOSE",
+      "model_version": "6434117ba83603d8d3905ba84d9e679e313df031a4b3adad9b4fa701b252b129",
+      "alert_id": "cf3a25349aa3a8b7a6d206f07a992f431d0824328c23f2b788bf29c86f7d3c4f",
+      "group_id": "GROUP_0086",
+      "severity": "MEDIA",
+      "direction": "deterioration",
+      "score": 57.387421674545934,
+      "base_health": 62.76326757644554,
+      "momentum": -0.6143970360067263,
+      "delta_score": -18.65736425010185,
+      "comparison_as_of": "2026-06-01",
+      "drivers": [
+        {
+          "field": "liquidity_points",
+          "delta_points": -8.161353194290076,
+          "unit": "score_points"
+        },
+        {
+          "field": "momentum_points",
+          "delta_points": -5.864511596108582,
+          "unit": "score_points"
+        }
+      ],
+      "contribution_deltas": {
+        "liquidity_points": -8.161353194290076,
+        "collections_points": -0.6589603680545864,
+        "debt_points": 0.0,
+        "momentum_points": -5.864511596108582,
+        "growth_points": -3.844004584365596,
+        "fragility_points": -0.12853450728300864,
+        "clipping_points": 0.0
+      },
+      "state_quality": 1.0,
+      "evidence_changed": false,
+      "seasonality_available": true,
+      "annual_pattern_match": false,
+      "trajectory_basis": "observed_bank_core",
+      "lead_months": null,
+      "reference_event_as_of": null,
+      "delivery_mode": "initial_snapshot"
+    },
+    {
+      "company_id": "COMP_0123",
+      "as_of": "2026-09-01",
+      "state": "RECUPERACION",
+      "model_version": "6434117ba83603d8d3905ba84d9e679e313df031a4b3adad9b4fa701b252b129",
+      "alert_id": "3c0dbedd6287b61e4eafec3c2dcd0e66098d65f9bd81587d887bf8d8f1048e41",
+      "group_id": "GROUP_0153",
+      "severity": "INFORMATIVA",
+      "direction": "improvement",
+      "score": 59.99296107855629,
+      "base_health": 60.761933456910306,
+      "momentum": -0.09612154729425196,
+      "delta_score": -9.007819614424236,
+      "comparison_as_of": "2026-06-01",
+      "drivers": [
+        {
+          "field": "momentum_points",
+          "delta_points": -6.147104756333246,
+          "unit": "score_points"
+        },
+        {
+          "field": "liquidity_points",
+          "delta_points": -4.0362188932494405,
+          "unit": "score_points"
+        }
+      ],
+      "contribution_deltas": {
+        "liquidity_points": -4.0362188932494405,
+        "collections_points": -0.03438928526544771,
+        "debt_points": 0.0,
+        "momentum_points": -6.147104756333246,
+        "growth_points": 0.0,
+        "fragility_points": 1.209893320423908,
+        "clipping_points": 0.0
+      },
+      "state_quality": 1.0,
+      "evidence_changed": false,
+      "seasonality_available": true,
+      "annual_pattern_match": false,
+      "trajectory_basis": "observed_bank_core",
+      "lead_months": null,
+      "reference_event_as_of": null,
+      "delivery_mode": "initial_snapshot"
+    },
+    {
+      "company_id": "COMP_0140",
+      "as_of": "2026-09-01",
+      "state": "RECUPERACION",
+      "model_version": "6434117ba83603d8d3905ba84d9e679e313df031a4b3adad9b4fa701b252b129",
+      "alert_id": "d3da44c62440446b45bf9b52cc7c4274e95cb36cdb6619cc2eeafc97be8f67ab",
+      "group_id": "GROUP_0072",
+      "severity": "INFORMATIVA",
+      "direction": "improvement",
+      "score": 68.12256159957305,
+      "base_health": 67.67950662473226,
+      "momentum": 0.11145864794523469,
+      "delta_score": 1.7731646622569173,
+      "comparison_as_of": "2026-06-01",
+      "drivers": [
+        {
+          "field": "liquidity_points",
+          "delta_points": 2.183866058961481,
+          "unit": "score_points"
+        },
+        {
+          "field": "fragility_points",
+          "delta_points": 1.8316295311022026,
+          "unit": "score_points"
+        }
+      ],
+      "contribution_deltas": {
+        "liquidity_points": 2.183866058961481,
+        "collections_points": -1.2268145108081825,
+        "debt_points": 0.0011742830207381871,
+        "momentum_points": -0.9774346309297601,
+        "growth_points": -0.03925606908955593,
+        "fragility_points": 1.8316295311022026,
+        "clipping_points": 0.0
+      },
+      "state_quality": 1.0,
+      "evidence_changed": false,
+      "seasonality_available": false,
+      "annual_pattern_match": false,
+      "trajectory_basis": "observed_bank_core",
+      "lead_months": null,
+      "reference_event_as_of": null,
+      "delivery_mode": "initial_snapshot"
+    },
+    {
+      "company_id": "COMP_0151",
+      "as_of": "2026-09-01",
+      "state": "MEJORANDO",
+      "model_version": "6434117ba83603d8d3905ba84d9e679e313df031a4b3adad9b4fa701b252b129",
+      "alert_id": "2c4b20c5c423c4918a387bcf163bd801e0fb096b466b774c95a8fd7ce05ba9d7",
+      "group_id": "GROUP_0101",
+      "severity": "INFORMATIVA",
+      "direction": "improvement",
+      "score": 78.55639026845554,
+      "base_health": 74.96127939458067,
+      "momentum": 0.4952597285816072,
+      "delta_score": 43.83088151380577,
+      "comparison_as_of": "2026-06-01",
+      "drivers": [
+        {
+          "field": "liquidity_points",
+          "delta_points": 40.92002114275554,
+          "unit": "score_points"
+        },
+        {
+          "field": "fragility_points",
+          "delta_points": -5.01741624209111,
+          "unit": "score_points"
+        }
+      ],
+      "contribution_deltas": {
+        "liquidity_points": 40.92002114275554,
+        "collections_points": 1.6853934831201514,
+        "debt_points": -0.33744252532589236,
+        "momentum_points": 3.9620778286528577,
+        "growth_points": 2.618247826694256,
+        "fragility_points": -5.01741624209111,
+        "clipping_points": 0.0
+      },
+      "state_quality": 1.0,
+      "evidence_changed": false,
+      "seasonality_available": true,
+      "annual_pattern_match": false,
+      "trajectory_basis": "observed_bank_core",
+      "lead_months": null,
+      "reference_event_as_of": null,
+      "delivery_mode": "initial_snapshot"
+    },
+    {
+      "company_id": "COMP_0162",
+      "as_of": "2026-09-01",
+      "state": "RECUPERACION",
+      "model_version": "6434117ba83603d8d3905ba84d9e679e313df031a4b3adad9b4fa701b252b129",
+      "alert_id": "8d00665e1fd02507db850ec1b2dd9a91fa0531a012356545630ecfad29e160be",
+      "group_id": "GROUP_0095",
+      "severity": "INFORMATIVA",
+      "direction": "improvement",
+      "score": 71.67096081839566,
+      "base_health": 62.55438998935389,
+      "momentum": 0.7765549100957803,
+      "delta_score": 18.817812795700924,
+      "comparison_as_of": "2026-06-01",
+      "drivers": [
+        {
+          "field": "liquidity_points",
+          "delta_points": 11.548003079619736,
+          "unit": "score_points"
+        },
+        {
+          "field": "momentum_points",
+          "delta_points": 4.5377722110953,
+          "unit": "score_points"
+        }
+      ],
+      "contribution_deltas": {
+        "liquidity_points": 11.548003079619736,
+        "collections_points": -0.21437958710900062,
+        "debt_points": 0.04228554381935368,
+        "momentum_points": 4.5377722110953,
+        "growth_points": 3.7494805260556476,
+        "fragility_points": -0.8453489777801382,
+        "clipping_points": 0.0
+      },
+      "state_quality": 1.0,
+      "evidence_changed": false,
+      "seasonality_available": true,
+      "annual_pattern_match": false,
+      "trajectory_basis": "observed_bank_core",
+      "lead_months": null,
+      "reference_event_as_of": null,
+      "delivery_mode": "initial_snapshot"
+    },
+    {
+      "company_id": "COMP_0163",
+      "as_of": "2026-09-01",
+      "state": "DETERIORO",
+      "model_version": "6434117ba83603d8d3905ba84d9e679e313df031a4b3adad9b4fa701b252b129",
+      "alert_id": "3e609a90d87f8d904f9a2e15d815d79184114e5c3b817486dd727c21412e9bff",
+      "group_id": "GROUP_0094",
+      "severity": "ALTA",
+      "direction": "deterioration",
+      "score": 58.652012625598026,
+      "base_health": 56.70085389081581,
+      "momentum": 0.13428752427586155,
+      "delta_score": 15.833681317291202,
+      "comparison_as_of": "2026-06-01",
+      "drivers": [
+        {
+          "field": "momentum_points",
+          "delta_points": 6.109609782990851,
+          "unit": "score_points"
+        },
+        {
+          "field": "liquidity_points",
+          "delta_points": 3.4091679555509167,
+          "unit": "score_points"
+        }
+      ],
+      "contribution_deltas": {
+        "liquidity_points": 3.4091679555509167,
+        "collections_points": 2.8545830348409353,
+        "debt_points": 0.0,
+        "momentum_points": 6.109609782990851,
+        "growth_points": 2.033375853461745,
+        "fragility_points": 1.42694469044676,
+        "clipping_points": 0.0
+      },
+      "state_quality": 0.9383405483405484,
+      "evidence_changed": false,
+      "seasonality_available": true,
+      "annual_pattern_match": true,
+      "trajectory_basis": "observed_bank_core",
+      "lead_months": null,
+      "reference_event_as_of": null,
+      "delivery_mode": "initial_snapshot"
+    },
+    {
+      "company_id": "COMP_0169",
+      "as_of": "2026-09-01",
+      "state": "RECUPERACION",
+      "model_version": "6434117ba83603d8d3905ba84d9e679e313df031a4b3adad9b4fa701b252b129",
+      "alert_id": "c1494dd5af19907beb9556fd7d02921131558830d85e484a89ea17b0f2daec86",
+      "group_id": "GROUP_0090",
+      "severity": "INFORMATIVA",
+      "direction": "improvement",
+      "score": 70.44658550045517,
+      "base_health": 63.11646137499334,
+      "momentum": 0.4884209515410392,
+      "delta_score": 6.032099169298931,
+      "comparison_as_of": "2026-06-01",
+      "drivers": [
+        {
+          "field": "liquidity_points",
+          "delta_points": 1.729321832336904,
+          "unit": "score_points"
+        },
+        {
+          "field": "debt_points",
+          "delta_points": 1.6911058331602717,
+          "unit": "score_points"
+        }
+      ],
+      "contribution_deltas": {
+        "liquidity_points": 1.729321832336904,
+        "collections_points": 1.2513875970643404,
+        "debt_points": 1.6911058331602717,
+        "momentum_points": 1.401164190503688,
+        "growth_points": 0.1981276960933691,
+        "fragility_points": -0.23900797985963607,
+        "clipping_points": 0.0
+      },
+      "state_quality": 1.0,
+      "evidence_changed": false,
+      "seasonality_available": true,
+      "annual_pattern_match": false,
+      "trajectory_basis": "observed_bank_core",
+      "lead_months": null,
+      "reference_event_as_of": null,
+      "delivery_mode": "initial_snapshot"
+    },
+    {
+      "company_id": "COMP_0172",
+      "as_of": "2026-09-01",
+      "state": "RECUPERACION",
+      "model_version": "6434117ba83603d8d3905ba84d9e679e313df031a4b3adad9b4fa701b252b129",
+      "alert_id": "be803dfb1428782d43d209cb20a117d7d2303aca191e7638969424fe0656cdfd",
+      "group_id": "GROUP_0212",
+      "severity": "INFORMATIVA",
+      "direction": "improvement",
+      "score": 78.21926583728558,
+      "base_health": 75.7483910225341,
+      "momentum": 0.4624438449998147,
+      "delta_score": 36.197013838594096,
+      "comparison_as_of": "2026-06-01",
+      "drivers": [
+        {
+          "field": "liquidity_points",
+          "delta_points": 29.22906153267792,
+          "unit": "score_points"
+        },
+        {
+          "field": "momentum_points",
+          "delta_points": 9.524131425223395,
+          "unit": "score_points"
+        }
+      ],
+      "contribution_deltas": {
+        "liquidity_points": 29.22906153267792,
+        "collections_points": -0.01594798147615961,
+        "debt_points": -0.07876059158506976,
+        "momentum_points": 9.524131425223395,
+        "growth_points": -1.3512480786258603,
+        "fragility_points": -1.1102224676201313,
+        "clipping_points": 0.0
+      },
+      "state_quality": 1.0,
+      "evidence_changed": false,
+      "seasonality_available": true,
+      "annual_pattern_match": false,
+      "trajectory_basis": "observed_bank_core",
+      "lead_months": null,
+      "reference_event_as_of": null,
+      "delivery_mode": "initial_snapshot"
+    },
+    {
+      "company_id": "COMP_0176",
+      "as_of": "2026-09-01",
+      "state": "DETERIORO",
+      "model_version": "6434117ba83603d8d3905ba84d9e679e313df031a4b3adad9b4fa701b252b129",
+      "alert_id": "4c49dc2cc5711268db43676a35331634d14f0fc37db3a2b45d286e1885cab99e",
+      "group_id": "GROUP_0225",
+      "severity": "ALTA",
+      "direction": "deterioration",
+      "score": 5.136091366543672,
+      "base_health": 13.080917355286045,
+      "momentum": -0.9931032485927966,
+      "delta_score": -77.74101259602925,
+      "comparison_as_of": "2026-06-01",
+      "drivers": [
+        {
+          "field": "liquidity_points",
+          "delta_points": -44.989749607157144,
+          "unit": "score_points"
+        },
+        {
+          "field": "momentum_points",
+          "delta_points": -11.48880721902652,
+          "unit": "score_points"
+        }
+      ],
+      "contribution_deltas": {
+        "liquidity_points": -44.989749607157144,
+        "collections_points": -9.259002951334969,
+        "debt_points": -9.978214958489055,
+        "momentum_points": -11.48880721902652,
+        "growth_points": -4.3238532723994805,
+        "fragility_points": 2.2986154123779174,
+        "clipping_points": 0.0
+      },
+      "state_quality": 1.0,
+      "evidence_changed": false,
+      "seasonality_available": true,
+      "annual_pattern_match": false,
+      "trajectory_basis": "observed_bank_core",
+      "lead_months": null,
+      "reference_event_as_of": null,
+      "delivery_mode": "initial_snapshot"
+    },
+    {
+      "company_id": "COMP_0183",
+      "as_of": "2026-09-01",
+      "state": "RECUPERACION",
+      "model_version": "6434117ba83603d8d3905ba84d9e679e313df031a4b3adad9b4fa701b252b129",
+      "alert_id": "c59fa8f7271c515544d04a00662a089af6df9626d6e7984fe6151c8b4f2fb13e",
+      "group_id": "GROUP_0232",
+      "severity": "INFORMATIVA",
+      "direction": "improvement",
+      "score": 60.598037263818924,
+      "base_health": 56.005760888265335,
+      "momentum": 0.1723307528361751,
+      "delta_score": 9.06155008659642,
+      "comparison_as_of": "2026-06-01",
+      "drivers": [
+        {
+          "field": "growth_points",
+          "delta_points": 3.2136303528641896,
+          "unit": "score_points"
+        },
+        {
+          "field": "momentum_points",
+          "delta_points": 2.85294712805708,
+          "unit": "score_points"
+        }
+      ],
+      "contribution_deltas": {
+        "liquidity_points": 1.859079857147652,
+        "collections_points": 1.1337151196622273,
+        "debt_points": 0.0021776288652670672,
+        "momentum_points": 2.85294712805708,
+        "growth_points": 3.2136303528641896,
+        "fragility_points": 0.0,
+        "clipping_points": 0.0
+      },
+      "state_quality": 1.0,
+      "evidence_changed": false,
+      "seasonality_available": false,
+      "annual_pattern_match": false,
+      "trajectory_basis": "observed_bank_core",
+      "lead_months": null,
+      "reference_event_as_of": null,
+      "delivery_mode": "initial_snapshot"
+    },
+    {
+      "company_id": "COMP_0194",
+      "as_of": "2026-09-01",
+      "state": "MEJORANDO",
+      "model_version": "6434117ba83603d8d3905ba84d9e679e313df031a4b3adad9b4fa701b252b129",
+      "alert_id": "b9498cf34e872cd27e1f031b0148faee143fd43da825825d6b8ec9fc430fa6c0",
+      "group_id": "GROUP_0035",
+      "severity": "INFORMATIVA",
+      "direction": "improvement",
+      "score": 88.81786581764041,
+      "base_health": 76.42269937139535,
+      "momentum": 0.9515609723573151,
+      "delta_score": 56.31638180833185,
+      "comparison_as_of": "2026-06-01",
+      "drivers": [
+        {
+          "field": "liquidity_points",
+          "delta_points": 32.17540021522808,
+          "unit": "score_points"
+        },
+        {
+          "field": "momentum_points",
+          "delta_points": 9.423557695827403,
+          "unit": "score_points"
+        }
+      ],
+      "contribution_deltas": {
+        "liquidity_points": 32.17540021522808,
+        "collections_points": -1.3948288856839852,
+        "debt_points": 8.04810051001043,
+        "momentum_points": 9.423557695827403,
+        "growth_points": 4.820235143290152,
+        "fragility_points": 3.2439171296597635,
+        "clipping_points": 0.0
+      },
+      "state_quality": 1.0,
+      "evidence_changed": false,
+      "seasonality_available": true,
+      "annual_pattern_match": false,
+      "trajectory_basis": "observed_bank_core",
+      "lead_months": null,
+      "reference_event_as_of": null,
+      "delivery_mode": "initial_snapshot"
+    },
+    {
+      "company_id": "COMP_0195",
+      "as_of": "2026-09-01",
+      "state": "RECUPERACION",
+      "model_version": "6434117ba83603d8d3905ba84d9e679e313df031a4b3adad9b4fa701b252b129",
+      "alert_id": "b89b1513f6dd3754c0f8dfc5a5661a0a687b280802f5fc69100e03e6303762a9",
+      "group_id": "GROUP_0065",
+      "severity": "INFORMATIVA",
+      "direction": "improvement",
+      "score": 60.014045016956516,
+      "base_health": 55.58001620078938,
+      "momentum": 0.20428161480083207,
+      "delta_score": 11.3358997593931,
+      "comparison_as_of": "2026-06-01",
+      "drivers": [
+        {
+          "field": "liquidity_points",
+          "delta_points": 6.224024656857516,
+          "unit": "score_points"
+        },
+        {
+          "field": "growth_points",
+          "delta_points": 2.9001931491726807,
+          "unit": "score_points"
+        }
+      ],
+      "contribution_deltas": {
+        "liquidity_points": 6.224024656857516,
+        "collections_points": -0.5316832116522896,
+        "debt_points": -0.5165909066817012,
+        "momentum_points": 1.7238471317243993,
+        "growth_points": 2.9001931491726807,
+        "fragility_points": 1.5361089399724905,
+        "clipping_points": 0.0
+      },
+      "state_quality": 1.0,
+      "evidence_changed": false,
+      "seasonality_available": true,
+      "annual_pattern_match": false,
+      "trajectory_basis": "observed_bank_core",
+      "lead_months": null,
+      "reference_event_as_of": null,
+      "delivery_mode": "initial_snapshot"
+    },
+    {
+      "company_id": "COMP_0201",
+      "as_of": "2026-09-01",
+      "state": "RECUPERACION",
+      "model_version": "6434117ba83603d8d3905ba84d9e679e313df031a4b3adad9b4fa701b252b129",
+      "alert_id": "82ccc55dde0e91d1dfd785162b1b720ad6ebeafff8bab991b207fd2fe3d160cf",
+      "group_id": "GROUP_0101",
+      "severity": "INFORMATIVA",
+      "direction": "improvement",
+      "score": 70.30597616865,
+      "base_health": 62.360231095773166,
+      "momentum": 0.8144848875684996,
+      "delta_score": 12.91801965017138,
+      "comparison_as_of": "2026-06-01",
+      "drivers": [
+        {
+          "field": "momentum_points",
+          "delta_points": 6.515879100547997,
+          "unit": "score_points"
+        },
+        {
+          "field": "liquidity_points",
+          "delta_points": 5.1747900247484715,
+          "unit": "score_points"
+        }
+      ],
+      "contribution_deltas": {
+        "liquidity_points": 5.1747900247484715,
+        "collections_points": 2.975472693053959,
+        "debt_points": 0.031834974865576626,
+        "momentum_points": 6.515879100547997,
+        "growth_points": -1.7667279095950343,
+        "fragility_points": -0.013229233449601807,
+        "clipping_points": 0.0
+      },
+      "state_quality": 1.0,
+      "evidence_changed": false,
+      "seasonality_available": true,
+      "annual_pattern_match": false,
+      "trajectory_basis": "observed_bank_core",
+      "lead_months": null,
+      "reference_event_as_of": null,
+      "delivery_mode": "initial_snapshot"
+    },
+    {
+      "company_id": "COMP_0213",
+      "as_of": "2026-09-01",
+      "state": "DETERIORO",
+      "model_version": "6434117ba83603d8d3905ba84d9e679e313df031a4b3adad9b4fa701b252b129",
+      "alert_id": "7e221599403c15dd54751fe694513a2d7412ab57ae9594f98167eed5be18204c",
+      "group_id": "GROUP_0170",
+      "severity": "ALTA",
+      "direction": "deterioration",
+      "score": 55.08230088324628,
+      "base_health": 57.86337884241844,
+      "momentum": -0.2231999623553471,
+      "delta_score": -5.711402254883851,
+      "comparison_as_of": "2026-06-01",
+      "drivers": [
+        {
+          "field": "liquidity_points",
+          "delta_points": -2.90291282050341,
+          "unit": "score_points"
+        },
+        {
+          "field": "collections_points",
+          "delta_points": -2.1175599389335993,
+          "unit": "score_points"
+        }
+      ],
+      "contribution_deltas": {
+        "liquidity_points": -2.90291282050341,
+        "collections_points": -2.1175599389335993,
+        "debt_points": 0.0,
+        "momentum_points": -1.7855996988427767,
+        "growth_points": 0.0,
+        "fragility_points": 1.0946702033959363,
+        "clipping_points": 0.0
+      },
+      "state_quality": 1.0,
+      "evidence_changed": false,
+      "seasonality_available": false,
+      "annual_pattern_match": false,
+      "trajectory_basis": "observed_bank_core",
+      "lead_months": null,
+      "reference_event_as_of": null,
+      "delivery_mode": "initial_snapshot"
+    },
+    {
+      "company_id": "COMP_0215",
+      "as_of": "2026-09-01",
+      "state": "DETERIORO",
+      "model_version": "6434117ba83603d8d3905ba84d9e679e313df031a4b3adad9b4fa701b252b129",
+      "alert_id": "0ef258a8c34710c6be43796b00b7a380a5c170c381d2f814e36f8103ce7adcb4",
+      "group_id": "GROUP_0070",
+      "severity": "ALTA",
+      "direction": "deterioration",
+      "score": 39.22224514188828,
+      "base_health": 43.499683813158484,
+      "momentum": -0.43871587437378085,
+      "delta_score": -18.602444891280925,
+      "comparison_as_of": "2026-06-01",
+      "drivers": [
+        {
+          "field": "liquidity_points",
+          "delta_points": -13.645336644392646,
+          "unit": "score_points"
+        },
+        {
+          "field": "growth_points",
+          "delta_points": -3.5411639839214355,
+          "unit": "score_points"
+        }
+      ],
+      "contribution_deltas": {
+        "liquidity_points": -13.645336644392646,
+        "collections_points": 1.5250779048198275,
+        "debt_points": 1.2570453372149455,
+        "momentum_points": -3.5097269949902468,
+        "growth_points": -3.5411639839214355,
+        "fragility_points": -0.6883405100113738,
+        "clipping_points": 0.0
+      },
+      "state_quality": 1.0,
+      "evidence_changed": false,
+      "seasonality_available": false,
+      "annual_pattern_match": false,
+      "trajectory_basis": "observed_bank_core",
+      "lead_months": null,
+      "reference_event_as_of": null,
+      "delivery_mode": "initial_snapshot"
+    },
+    {
+      "company_id": "COMP_0217",
+      "as_of": "2026-09-01",
+      "state": "RECUPERACION",
+      "model_version": "6434117ba83603d8d3905ba84d9e679e313df031a4b3adad9b4fa701b252b129",
+      "alert_id": "c971c05625f945b62034ea5e32cc8185eaa7af7c4a21bfc0c886cf851d130716",
+      "group_id": "GROUP_0087",
+      "severity": "INFORMATIVA",
+      "direction": "improvement",
+      "score": 64.82196583055475,
+      "base_health": 62.03180596509237,
+      "momentum": 0.34876998318279795,
+      "delta_score": -3.941438245515357,
+      "comparison_as_of": "2026-06-01",
+      "drivers": [
+        {
+          "field": "momentum_points",
+          "delta_points": -4.702314169668648,
+          "unit": "score_points"
+        },
+        {
+          "field": "collections_points",
+          "delta_points": 4.447398213357744,
+          "unit": "score_points"
+        }
+      ],
+      "contribution_deltas": {
+        "liquidity_points": -0.01370900861463653,
+        "collections_points": 4.447398213357744,
+        "debt_points": 0.0,
+        "momentum_points": -4.702314169668648,
+        "growth_points": -3.781805143325455,
+        "fragility_points": 0.10899186273564876,
+        "clipping_points": 0.0
+      },
+      "state_quality": 1.0,
+      "evidence_changed": false,
+      "seasonality_available": false,
+      "annual_pattern_match": false,
+      "trajectory_basis": "observed_bank_core",
+      "lead_months": null,
+      "reference_event_as_of": null,
+      "delivery_mode": "initial_snapshot"
+    },
+    {
+      "company_id": "COMP_0232",
+      "as_of": "2026-09-01",
+      "state": "DETERIORO",
+      "model_version": "6434117ba83603d8d3905ba84d9e679e313df031a4b3adad9b4fa701b252b129",
+      "alert_id": "4d3949a38f2626122919cb164bbe384dadb00d81b25343533419b2a8c599a7f7",
+      "group_id": "GROUP_0038",
+      "severity": "ALTA",
+      "direction": "deterioration",
+      "score": 49.704905626812106,
+      "base_health": 49.122540116158746,
+      "momentum": 0.07279568883167002,
+      "delta_score": 11.720425588233788,
+      "comparison_as_of": "2026-06-01",
+      "drivers": [
+        {
+          "field": "momentum_points",
+          "delta_points": 6.765608780616144,
+          "unit": "score_points"
+        },
+        {
+          "field": "liquidity_points",
+          "delta_points": 6.145833800811513,
+          "unit": "score_points"
+        }
+      ],
+      "contribution_deltas": {
+        "liquidity_points": 6.145833800811513,
+        "collections_points": -1.2413124484772133,
+        "debt_points": -0.0036467232765513558,
+        "momentum_points": 6.765608780616144,
+        "growth_points": 0.0,
+        "fragility_points": 0.05394217855988348,
+        "clipping_points": 0.0
+      },
+      "state_quality": 1.0,
+      "evidence_changed": false,
+      "seasonality_available": false,
+      "annual_pattern_match": false,
+      "trajectory_basis": "observed_bank_core",
+      "lead_months": null,
+      "reference_event_as_of": null,
+      "delivery_mode": "initial_snapshot"
+    },
+    {
+      "company_id": "COMP_0235",
+      "as_of": "2026-09-01",
+      "state": "MEJORANDO",
+      "model_version": "6434117ba83603d8d3905ba84d9e679e313df031a4b3adad9b4fa701b252b129",
+      "alert_id": "18f0bda71346790944cb3551eff82352a0144c097c4f152ffa46a17dabf8c67d",
+      "group_id": "GROUP_0028",
+      "severity": "INFORMATIVA",
+      "direction": "improvement",
+      "score": 69.0293908698034,
+      "base_health": 65.8232706444202,
+      "momentum": 0.14719084690078,
+      "delta_score": 3.225748488756949,
+      "comparison_as_of": "2026-06-01",
+      "drivers": [
+        {
+          "field": "growth_points",
+          "delta_points": 2.408913789550101,
+          "unit": "score_points"
+        },
+        {
+          "field": "momentum_points",
+          "delta_points": -1.579945002199794,
+          "unit": "score_points"
+        }
+      ],
+      "contribution_deltas": {
+        "liquidity_points": 1.2336186431684588,
+        "collections_points": 0.8195605845648863,
+        "debt_points": 0.0,
+        "momentum_points": -1.579945002199794,
+        "growth_points": 2.408913789550101,
+        "fragility_points": 0.34360047367330804,
+        "clipping_points": 0.0
+      },
+      "state_quality": 0.9979164442166556,
+      "evidence_changed": false,
+      "seasonality_available": true,
+      "annual_pattern_match": true,
+      "trajectory_basis": "observed_bank_core",
+      "lead_months": null,
+      "reference_event_as_of": null,
+      "delivery_mode": "initial_snapshot"
+    },
+    {
+      "company_id": "COMP_0239",
+      "as_of": "2026-09-01",
+      "state": "RECUPERACION",
+      "model_version": "6434117ba83603d8d3905ba84d9e679e313df031a4b3adad9b4fa701b252b129",
+      "alert_id": "409a0f8c60ed1159aefafed510fb623eecae19e1eb82611a78b85d451b34873f",
+      "group_id": "GROUP_0202",
+      "severity": "INFORMATIVA",
+      "direction": "improvement",
+      "score": 60.87334835379786,
+      "base_health": 58.3543438438155,
+      "momentum": 0.20918895906076157,
+      "delta_score": 12.568888694089203,
+      "comparison_as_of": "2026-06-01",
+      "drivers": [
+        {
+          "field": "growth_points",
+          "delta_points": 3.7889059685669984,
+          "unit": "score_points"
+        },
+        {
+          "field": "momentum_points",
+          "delta_points": 3.083024390225431,
+          "unit": "score_points"
+        }
+      ],
+      "contribution_deltas": {
+        "liquidity_points": 2.6407086042524526,
+        "collections_points": 1.9506363034689116,
+        "debt_points": 0.0,
+        "momentum_points": 3.083024390225431,
+        "growth_points": 3.7889059685669984,
+        "fragility_points": 1.105613427575411,
+        "clipping_points": 0.0
+      },
+      "state_quality": 1.0,
+      "evidence_changed": false,
+      "seasonality_available": true,
+      "annual_pattern_match": false,
+      "trajectory_basis": "observed_bank_core",
+      "lead_months": null,
+      "reference_event_as_of": null,
+      "delivery_mode": "initial_snapshot"
+    },
+    {
+      "company_id": "COMP_0249",
+      "as_of": "2026-09-01",
+      "state": "DETERIORO",
+      "model_version": "6434117ba83603d8d3905ba84d9e679e313df031a4b3adad9b4fa701b252b129",
+      "alert_id": "012263f7f03ce6b8c290cd7b12013b8adbea4d2212e4301c686481f8d08369b0",
+      "group_id": "GROUP_0194",
+      "severity": "ALTA",
+      "direction": "deterioration",
+      "score": 49.73162418872153,
+      "base_health": 54.265567304057996,
+      "momentum": -0.864797747419839,
+      "delta_score": -35.0062509019458,
+      "comparison_as_of": "2026-06-01",
+      "drivers": [
+        {
+          "field": "liquidity_points",
+          "delta_points": -26.42754064438153,
+          "unit": "score_points"
+        },
+        {
+          "field": "momentum_points",
+          "delta_points": -8.753808112530782,
+          "unit": "score_points"
+        }
+      ],
+      "contribution_deltas": {
+        "liquidity_points": -26.42754064438153,
+        "collections_points": -0.08354562380236885,
+        "debt_points": 0.0,
+        "momentum_points": -8.753808112530782,
+        "growth_points": -1.4954958061542034,
+        "fragility_points": 1.7541392849231023,
+        "clipping_points": 0.0
+      },
+      "state_quality": 0.9874213836477987,
+      "evidence_changed": false,
+      "seasonality_available": true,
+      "annual_pattern_match": false,
+      "trajectory_basis": "observed_bank_core",
+      "lead_months": null,
+      "reference_event_as_of": null,
+      "delivery_mode": "initial_snapshot"
+    },
+    {
+      "company_id": "COMP_0250",
+      "as_of": "2026-09-01",
+      "state": "TORCIENDOSE",
+      "model_version": "6434117ba83603d8d3905ba84d9e679e313df031a4b3adad9b4fa701b252b129",
+      "alert_id": "7db9154026a5f55bc132f54104f2dc9fa242b15cd4458273b81cd647cae1b955",
+      "group_id": "GROUP_0065",
+      "severity": "MEDIA",
+      "direction": "deterioration",
+      "score": 60.621939427657196,
+      "base_health": 62.74984033181687,
+      "momentum": -0.2471236814372229,
+      "delta_score": -1.423594271244724,
+      "comparison_as_of": "2026-06-01",
+      "drivers": [
+        {
+          "field": "liquidity_points",
+          "delta_points": -1.7854197277388337,
+          "unit": "score_points"
+        },
+        {
+          "field": "growth_points",
+          "delta_points": 1.2123120838582475,
+          "unit": "score_points"
+        }
+      ],
+      "contribution_deltas": {
+        "liquidity_points": -1.7854197277388337,
+        "collections_points": -0.2967004096858652,
+        "debt_points": 0.3898632997201834,
+        "momentum_points": -0.6515479787102711,
+        "growth_points": 1.2123120838582475,
+        "fragility_points": -0.29210153868817823,
+        "clipping_points": 0.0
+      },
+      "state_quality": 1.0,
+      "evidence_changed": false,
+      "seasonality_available": true,
+      "annual_pattern_match": false,
+      "trajectory_basis": "observed_bank_core",
+      "lead_months": null,
+      "reference_event_as_of": null,
+      "delivery_mode": "initial_snapshot"
+    },
+    {
+      "company_id": "COMP_0256",
+      "as_of": "2026-09-01",
+      "state": "MEJORANDO",
+      "model_version": "6434117ba83603d8d3905ba84d9e679e313df031a4b3adad9b4fa701b252b129",
+      "alert_id": "becc51929d6d1cea9116ad462cba9f6682745333cdb7534d37309e41bb728f13",
+      "group_id": "GROUP_0170",
+      "severity": "INFORMATIVA",
+      "direction": "improvement",
+      "score": 81.5785166697241,
+      "base_health": 80.78672624245388,
+      "momentum": 0.0989738034087775,
+      "delta_score": 0.9258126974456076,
+      "comparison_as_of": "2026-06-01",
+      "drivers": [
+        {
+          "field": "liquidity_points",
+          "delta_points": 1.4960951745681825,
+          "unit": "score_points"
+        },
+        {
+          "field": "collections_points",
+          "delta_points": -0.48387746497536455,
+          "unit": "score_points"
+        }
+      ],
+      "contribution_deltas": {
+        "liquidity_points": 1.4960951745681825,
+        "collections_points": -0.48387746497536455,
+        "debt_points": 0.0,
+        "momentum_points": -0.21623413266922797,
+        "growth_points": 0.0,
+        "fragility_points": 0.12982912052202522,
+        "clipping_points": 0.0
+      },
+      "state_quality": 1.0,
+      "evidence_changed": false,
+      "seasonality_available": true,
+      "annual_pattern_match": false,
+      "trajectory_basis": "observed_bank_core",
+      "lead_months": null,
+      "reference_event_as_of": null,
+      "delivery_mode": "initial_snapshot"
+    },
+    {
+      "company_id": "COMP_0262",
+      "as_of": "2026-09-01",
+      "state": "DETERIORO",
+      "model_version": "6434117ba83603d8d3905ba84d9e679e313df031a4b3adad9b4fa701b252b129",
+      "alert_id": "dcb8fc8b41629b93aab252a759920ae51962a2729e44d1c835cb8f75347351ba",
+      "group_id": "GROUP_0211",
+      "severity": "ALTA",
+      "direction": "deterioration",
+      "score": 49.99446045606189,
+      "base_health": 51.50201846258521,
+      "momentum": -0.2175228668263643,
+      "delta_score": -2.98550207097572,
+      "comparison_as_of": "2026-06-01",
+      "drivers": [
+        {
+          "field": "liquidity_points",
+          "delta_points": -6.0713127973835626,
+          "unit": "score_points"
+        },
+        {
+          "field": "growth_points",
+          "delta_points": 1.396458392866429,
+          "unit": "score_points"
+        }
+      ],
+      "contribution_deltas": {
+        "liquidity_points": -6.0713127973835626,
+        "collections_points": 0.7222249208104401,
+        "debt_points": 0.0,
+        "momentum_points": 0.26434855425425985,
+        "growth_points": 1.396458392866429,
+        "fragility_points": 0.7027788584767114,
+        "clipping_points": 0.0
+      },
+      "state_quality": 0.8090950624856438,
+      "evidence_changed": false,
+      "seasonality_available": false,
+      "annual_pattern_match": false,
+      "trajectory_basis": "observed_bank_core",
+      "lead_months": null,
+      "reference_event_as_of": null,
+      "delivery_mode": "initial_snapshot"
+    },
+    {
+      "company_id": "COMP_0265",
+      "as_of": "2026-09-01",
+      "state": "RECUPERACION",
+      "model_version": "6434117ba83603d8d3905ba84d9e679e313df031a4b3adad9b4fa701b252b129",
+      "alert_id": "e51046404300950fe4c9e45b7862558f29916c20d5ce0a4e2d466614aec7e9a0",
+      "group_id": "GROUP_0033",
+      "severity": "INFORMATIVA",
+      "direction": "improvement",
+      "score": 69.90811130512448,
+      "base_health": 63.41049823776555,
+      "momentum": 0.6209949971263561,
+      "delta_score": 16.05110912428229,
+      "comparison_as_of": "2026-06-01",
+      "drivers": [
+        {
+          "field": "liquidity_points",
+          "delta_points": 7.401928790373912,
+          "unit": "score_points"
+        },
+        {
+          "field": "momentum_points",
+          "delta_points": 6.60322781310567,
+          "unit": "score_points"
+        }
+      ],
+      "contribution_deltas": {
+        "liquidity_points": 7.401928790373912,
+        "collections_points": 0.08434018630178741,
+        "debt_points": 0.0,
+        "momentum_points": 6.60322781310567,
+        "growth_points": 2.8113083264054115,
+        "fragility_points": -0.8496959919044818,
+        "clipping_points": 0.0
+      },
+      "state_quality": 0.975,
+      "evidence_changed": false,
+      "seasonality_available": true,
+      "annual_pattern_match": false,
+      "trajectory_basis": "observed_bank_core",
+      "lead_months": null,
+      "reference_event_as_of": null,
+      "delivery_mode": "initial_snapshot"
+    },
+    {
+      "company_id": "COMP_0278",
+      "as_of": "2026-09-01",
+      "state": "DETERIORO",
+      "model_version": "6434117ba83603d8d3905ba84d9e679e313df031a4b3adad9b4fa701b252b129",
+      "alert_id": "a394307f5eaf99ca51e577ff33b11d663f52bbabe025ca11accc6ec5e9380926",
+      "group_id": "GROUP_0162",
+      "severity": "ALTA",
+      "direction": "deterioration",
+      "score": 56.91311156967182,
+      "base_health": 59.24762081875704,
+      "momentum": -0.1847317347155322,
+      "delta_score": -5.06964887527252,
+      "comparison_as_of": "2026-06-01",
+      "drivers": [
+        {
+          "field": "liquidity_points",
+          "delta_points": -3.563155646148747,
+          "unit": "score_points"
+        },
+        {
+          "field": "growth_points",
+          "delta_points": -1.1685350353528254,
+          "unit": "score_points"
+        }
+      ],
+      "contribution_deltas": {
+        "liquidity_points": -3.563155646148747,
+        "collections_points": -0.18902902210902184,
+        "debt_points": 0.0,
+        "momentum_points": -1.1598263552778398,
+        "growth_points": -1.1685350353528254,
+        "fragility_points": 1.0108971836159117,
+        "clipping_points": 0.0
+      },
+      "state_quality": 1.0,
+      "evidence_changed": false,
+      "seasonality_available": true,
+      "annual_pattern_match": false,
+      "trajectory_basis": "observed_bank_core",
+      "lead_months": null,
+      "reference_event_as_of": null,
+      "delivery_mode": "initial_snapshot"
+    },
+    {
+      "company_id": "COMP_0281",
+      "as_of": "2026-09-01",
+      "state": "MEJORANDO",
+      "model_version": "6434117ba83603d8d3905ba84d9e679e313df031a4b3adad9b4fa701b252b129",
+      "alert_id": "cb1b6023dd7003d66debe2309e1558e6167df0c57c68651d55dff609886696f4",
+      "group_id": "GROUP_0127",
+      "severity": "INFORMATIVA",
+      "direction": "improvement",
+      "score": 66.08608499669882,
+      "base_health": 64.20926628431724,
+      "momentum": 0.21063324401010786,
+      "delta_score": 3.984386930939827,
+      "comparison_as_of": "2026-06-01",
+      "drivers": [
+        {
+          "field": "liquidity_points",
+          "delta_points": 3.220152241942543,
+          "unit": "score_points"
+        },
+        {
+          "field": "collections_points",
+          "delta_points": -2.3327563725160623,
+          "unit": "score_points"
+        }
+      ],
+      "contribution_deltas": {
+        "liquidity_points": 3.220152241942543,
+        "collections_points": -2.3327563725160623,
+        "debt_points": 0.9867044248403598,
+        "momentum_points": 1.6850659520808628,
+        "growth_points": 0.9978803778936354,
+        "fragility_points": -0.5726596933015156,
+        "clipping_points": 0.0
+      },
+      "state_quality": 1.0,
+      "evidence_changed": false,
+      "seasonality_available": false,
+      "annual_pattern_match": false,
+      "trajectory_basis": "observed_bank_core",
+      "lead_months": null,
+      "reference_event_as_of": null,
+      "delivery_mode": "initial_snapshot"
+    },
+    {
+      "company_id": "COMP_0290",
+      "as_of": "2026-09-01",
+      "state": "DETERIORO",
+      "model_version": "6434117ba83603d8d3905ba84d9e679e313df031a4b3adad9b4fa701b252b129",
+      "alert_id": "d23a7184c54d32cd97f609721f01dcbd7e32adf0110fe61aad14094182bd3e22",
+      "group_id": "GROUP_0053",
+      "severity": "ALTA",
+      "direction": "deterioration",
+      "score": 33.459731671731305,
+      "base_health": 37.34733921299158,
+      "momentum": -0.4827687279458267,
+      "delta_score": -22.49194443860268,
+      "comparison_as_of": "2026-06-01",
+      "drivers": [
+        {
+          "field": "collections_points",
+          "delta_points": -15.13614496016862,
+          "unit": "score_points"
+        },
+        {
+          "field": "liquidity_points",
+          "delta_points": -6.678895931171674,
+          "unit": "score_points"
+        }
+      ],
+      "contribution_deltas": {
+        "liquidity_points": -6.678895931171674,
+        "collections_points": -15.13614496016862,
+        "debt_points": 0.0,
+        "momentum_points": -0.9433817461199401,
+        "growth_points": 0.0,
+        "fragility_points": 0.26647819885755375,
+        "clipping_points": 0.0
+      },
+      "state_quality": 1.0,
+      "evidence_changed": false,
+      "seasonality_available": false,
+      "annual_pattern_match": false,
+      "trajectory_basis": "observed_bank_core",
+      "lead_months": null,
+      "reference_event_as_of": null,
+      "delivery_mode": "initial_snapshot"
+    },
+    {
+      "company_id": "COMP_0313",
+      "as_of": "2026-09-01",
+      "state": "RECUPERACION",
+      "model_version": "6434117ba83603d8d3905ba84d9e679e313df031a4b3adad9b4fa701b252b129",
+      "alert_id": "4e498403f16973db222ca3939ce74cde814c9a6af46248209d53087a6e11f6f0",
+      "group_id": "GROUP_0094",
+      "severity": "INFORMATIVA",
+      "direction": "improvement",
+      "score": 60.008783313084194,
+      "base_health": 59.78821850626032,
+      "momentum": 0.13973635377509847,
+      "delta_score": 3.412612028421421,
+      "comparison_as_of": "2026-06-01",
+      "drivers": [
+        {
+          "field": "collections_points",
+          "delta_points": 3.738886472363891,
+          "unit": "score_points"
+        },
+        {
+          "field": "liquidity_points",
+          "delta_points": 1.72812453680854,
+          "unit": "score_points"
+        }
+      ],
+      "contribution_deltas": {
+        "liquidity_points": 1.72812453680854,
+        "collections_points": 3.738886472363891,
+        "debt_points": 0.006645693223045868,
+        "momentum_points": -1.723530122072626,
+        "growth_points": 0.0,
+        "fragility_points": -0.3375145519014211,
+        "clipping_points": 0.0
+      },
+      "state_quality": 0.719047619047619,
+      "evidence_changed": false,
+      "seasonality_available": true,
+      "annual_pattern_match": false,
+      "trajectory_basis": "observed_bank_core",
+      "lead_months": null,
+      "reference_event_as_of": null,
+      "delivery_mode": "initial_snapshot"
+    },
+    {
+      "company_id": "COMP_0321",
+      "as_of": "2026-09-01",
+      "state": "RECUPERACION",
+      "model_version": "6434117ba83603d8d3905ba84d9e679e313df031a4b3adad9b4fa701b252b129",
+      "alert_id": "5ff38e00a375f84484e1c6ec2ba147c152e74712815158cf5674baaa13bbf79f",
+      "group_id": "GROUP_0159",
+      "severity": "INFORMATIVA",
+      "direction": "improvement",
+      "score": 65.58214001637397,
+      "base_health": 63.24215537221279,
+      "momentum": 0.4882274731145791,
+      "delta_score": 13.373024502402743,
+      "comparison_as_of": "2026-06-01",
+      "drivers": [
+        {
+          "field": "momentum_points",
+          "delta_points": 6.296837053199214,
+          "unit": "score_points"
+        },
+        {
+          "field": "collections_points",
+          "delta_points": 4.322552315151473,
+          "unit": "score_points"
+        }
+      ],
+      "contribution_deltas": {
+        "liquidity_points": 2.639810911113212,
+        "collections_points": 4.322552315151473,
+        "debt_points": 0.0,
+        "momentum_points": 6.296837053199214,
+        "growth_points": 0.7435662582120756,
+        "fragility_points": -0.6297420352732246,
+        "clipping_points": 0.0
+      },
+      "state_quality": 1.0,
+      "evidence_changed": false,
+      "seasonality_available": true,
+      "annual_pattern_match": false,
+      "trajectory_basis": "observed_bank_core",
+      "lead_months": null,
+      "reference_event_as_of": null,
+      "delivery_mode": "initial_snapshot"
+    },
+    {
+      "company_id": "COMP_0335",
+      "as_of": "2026-09-01",
+      "state": "MEJORANDO",
+      "model_version": "6434117ba83603d8d3905ba84d9e679e313df031a4b3adad9b4fa701b252b129",
+      "alert_id": "b5b50e0d5bac7ddd51dd99a4b81e979e73f04820c2ec19d619862b682c98b583",
+      "group_id": "GROUP_0214",
+      "severity": "INFORMATIVA",
+      "direction": "improvement",
+      "score": 68.60354453227232,
+      "base_health": 66.68251464062894,
+      "momentum": 0.35168479805951824,
+      "delta_score": 12.448599852397216,
+      "comparison_as_of": "2026-06-01",
+      "drivers": [
+        {
+          "field": "liquidity_points",
+          "delta_points": 9.776732006502172,
+          "unit": "score_points"
+        },
+        {
+          "field": "momentum_points",
+          "delta_points": 3.632112430705764,
+          "unit": "score_points"
+        }
+      ],
+      "contribution_deltas": {
+        "liquidity_points": 9.776732006502172,
+        "collections_points": 0.46354721571582047,
+        "debt_points": 0.0048398307428119125,
+        "momentum_points": 3.632112430705764,
+        "growth_points": 0.293907510799189,
+        "fragility_points": -1.7225391420685332,
+        "clipping_points": 0.0
+      },
+      "state_quality": 1.0,
+      "evidence_changed": false,
+      "seasonality_available": false,
+      "annual_pattern_match": false,
+      "trajectory_basis": "observed_bank_core",
+      "lead_months": null,
+      "reference_event_as_of": null,
+      "delivery_mode": "initial_snapshot"
+    },
+    {
+      "company_id": "COMP_0340",
+      "as_of": "2026-09-01",
+      "state": "MEJORANDO",
+      "model_version": "6434117ba83603d8d3905ba84d9e679e313df031a4b3adad9b4fa701b252b129",
+      "alert_id": "87a4848544863d379fdbc579996c7d9061df4c21e5edfee3d86476cae49b3430",
+      "group_id": "GROUP_0116",
+      "severity": "INFORMATIVA",
+      "direction": "improvement",
+      "score": 86.49014547710723,
+      "base_health": 75.15430650723648,
+      "momentum": 0.8575765844626415,
+      "delta_score": 26.685358664248646,
+      "comparison_as_of": "2026-06-01",
+      "drivers": [
+        {
+          "field": "liquidity_points",
+          "delta_points": 15.344684181403917,
+          "unit": "score_points"
+        },
+        {
+          "field": "momentum_points",
+          "delta_points": 6.860612675701132,
+          "unit": "score_points"
+        }
+      ],
+      "contribution_deltas": {
+        "liquidity_points": 15.344684181403917,
+        "collections_points": -0.17987076631493437,
+        "debt_points": 0.0,
+        "momentum_points": 6.860612675701132,
+        "growth_points": 4.784867620555585,
+        "fragility_points": -0.12493504709706915,
+        "clipping_points": 0.0
+      },
+      "state_quality": 1.0,
+      "evidence_changed": false,
+      "seasonality_available": true,
+      "annual_pattern_match": false,
+      "trajectory_basis": "observed_bank_core",
+      "lead_months": null,
+      "reference_event_as_of": null,
+      "delivery_mode": "initial_snapshot"
+    },
+    {
+      "company_id": "COMP_0362",
+      "as_of": "2026-09-01",
+      "state": "DETERIORO",
+      "model_version": "6434117ba83603d8d3905ba84d9e679e313df031a4b3adad9b4fa701b252b129",
+      "alert_id": "498e5cb35c9637c5e6dc7e83f495896d7b5bdcaa400678ca1dbb50a6c41e5faa",
+      "group_id": "GROUP_0142",
+      "severity": "ALTA",
+      "direction": "deterioration",
+      "score": 37.35680384662169,
+      "base_health": 44.24557314348024,
+      "momentum": -0.8576355370266279,
+      "delta_score": -39.293938341286534,
+      "comparison_as_of": "2026-06-01",
+      "drivers": [
+        {
+          "field": "liquidity_points",
+          "delta_points": -22.64821169254047,
+          "unit": "score_points"
+        },
+        {
+          "field": "momentum_points",
+          "delta_points": -12.108053318492214,
+          "unit": "score_points"
+        }
+      ],
+      "contribution_deltas": {
+        "liquidity_points": -22.64821169254047,
+        "collections_points": 0.3837816316903435,
+        "debt_points": -0.7395548041883089,
+        "momentum_points": -12.108053318492214,
+        "growth_points": -4.203112348216315,
+        "fragility_points": 0.021212190460416558,
+        "clipping_points": 0.0
+      },
+      "state_quality": 1.0,
+      "evidence_changed": false,
+      "seasonality_available": true,
+      "annual_pattern_match": false,
+      "trajectory_basis": "observed_bank_core",
+      "lead_months": null,
+      "reference_event_as_of": null,
+      "delivery_mode": "initial_snapshot"
+    },
+    {
+      "company_id": "COMP_0364",
+      "as_of": "2026-09-01",
+      "state": "RECUPERACION",
+      "model_version": "6434117ba83603d8d3905ba84d9e679e313df031a4b3adad9b4fa701b252b129",
+      "alert_id": "290504075e62717c4a941c35dda11033a37820c271fb97b10efb2a592ae8b75a",
+      "group_id": "GROUP_0195",
+      "severity": "INFORMATIVA",
+      "direction": "improvement",
+      "score": 82.20754856027324,
+      "base_health": 71.1143622051674,
+      "momentum": 0.9438419868488077,
+      "delta_score": 24.487160225161134,
+      "comparison_as_of": "2026-06-01",
+      "drivers": [
+        {
+          "field": "liquidity_points",
+          "delta_points": 19.713324074557306,
+          "unit": "score_points"
+        },
+        {
+          "field": "collections_points",
+          "delta_points": 2.809195517204099,
+          "unit": "score_points"
+        }
+      ],
+      "contribution_deltas": {
+        "liquidity_points": 19.713324074557306,
+        "collections_points": 2.809195517204099,
+        "debt_points": 0.0,
+        "momentum_points": 0.8109013412174857,
+        "growth_points": 1.3920998099038635,
+        "fragility_points": -0.2383605177216337,
+        "clipping_points": 0.0
+      },
+      "state_quality": 1.0,
+      "evidence_changed": false,
+      "seasonality_available": false,
+      "annual_pattern_match": false,
+      "trajectory_basis": "observed_bank_core",
+      "lead_months": null,
+      "reference_event_as_of": null,
+      "delivery_mode": "initial_snapshot"
+    },
+    {
+      "company_id": "COMP_0368",
+      "as_of": "2026-09-01",
+      "state": "DETERIORO",
+      "model_version": "6434117ba83603d8d3905ba84d9e679e313df031a4b3adad9b4fa701b252b129",
+      "alert_id": "accfbd26a3587fdbe76ec03d87e84bf9859c64da7d1df4e4e80222d4b77bf5d1",
+      "group_id": "GROUP_0016",
+      "severity": "ALTA",
+      "direction": "deterioration",
+      "score": 56.41188959988618,
+      "base_health": 57.40460190739178,
+      "momentum": -0.12274779582676912,
+      "delta_score": -3.062769475885432,
+      "comparison_as_of": "2026-06-01",
+      "drivers": [
+        {
+          "field": "liquidity_points",
+          "delta_points": -3.0561957979316503,
+          "unit": "score_points"
+        },
+        {
+          "field": "momentum_points",
+          "delta_points": -1.3888050883060576,
+          "unit": "score_points"
+        }
+      ],
+      "contribution_deltas": {
+        "liquidity_points": -3.0561957979316503,
+        "collections_points": 0.5702241846396952,
+        "debt_points": 0.0,
+        "momentum_points": -1.3888050883060576,
+        "growth_points": 0.0,
+        "fragility_points": 0.8120072257125868,
+        "clipping_points": 0.0
+      },
+      "state_quality": 1.0,
+      "evidence_changed": false,
+      "seasonality_available": true,
+      "annual_pattern_match": false,
+      "trajectory_basis": "observed_bank_core",
+      "lead_months": null,
+      "reference_event_as_of": null,
+      "delivery_mode": "initial_snapshot"
+    },
+    {
+      "company_id": "COMP_0387",
+      "as_of": "2026-09-01",
+      "state": "RECUPERACION",
+      "model_version": "6434117ba83603d8d3905ba84d9e679e313df031a4b3adad9b4fa701b252b129",
+      "alert_id": "c179d71d78dd0abb0227448c41575ab5e0fac7fece862c96fcbe714032a3d957",
+      "group_id": "GROUP_0097",
+      "severity": "INFORMATIVA",
+      "direction": "improvement",
+      "score": 50.52078923520036,
+      "base_health": 49.734965842376816,
+      "momentum": 0.19092533259369357,
+      "delta_score": 10.27449438132389,
+      "comparison_as_of": "2026-06-01",
+      "drivers": [
+        {
+          "field": "momentum_points",
+          "delta_points": 4.992836157315199,
+          "unit": "score_points"
+        },
+        {
+          "field": "liquidity_points",
+          "delta_points": 4.5799697612127925,
+          "unit": "score_points"
+        }
+      ],
+      "contribution_deltas": {
+        "liquidity_points": 4.5799697612127925,
+        "collections_points": 1.2673173130525086,
+        "debt_points": -0.0004895814348362393,
+        "momentum_points": 4.992836157315199,
+        "growth_points": 0.0,
+        "fragility_points": -0.5651392688217793,
+        "clipping_points": 0.0
+      },
+      "state_quality": 1.0,
+      "evidence_changed": false,
+      "seasonality_available": true,
+      "annual_pattern_match": false,
+      "trajectory_basis": "observed_bank_core",
+      "lead_months": null,
+      "reference_event_as_of": null,
+      "delivery_mode": "initial_snapshot"
+    },
+    {
+      "company_id": "COMP_0404",
+      "as_of": "2026-09-01",
+      "state": "DETERIORO",
+      "model_version": "6434117ba83603d8d3905ba84d9e679e313df031a4b3adad9b4fa701b252b129",
+      "alert_id": "07383f4240f94ec896e70d68baff943adca02e1c54a75c08e35b1f0875c0ac92",
+      "group_id": "GROUP_0094",
+      "severity": "ALTA",
+      "direction": "deterioration",
+      "score": 46.15423493138719,
+      "base_health": 49.781403615134806,
+      "momentum": -0.405530087862879,
+      "delta_score": -36.45380781058159,
+      "comparison_as_of": "2026-06-01",
+      "drivers": [
+        {
+          "field": "liquidity_points",
+          "delta_points": -26.718988247135314,
+          "unit": "score_points"
+        },
+        {
+          "field": "momentum_points",
+          "delta_points": -9.633619425859965,
+          "unit": "score_points"
+        }
+      ],
+      "contribution_deltas": {
+        "liquidity_points": -26.718988247135314,
+        "collections_points": 0.148118675924092,
+        "debt_points": 0.0,
+        "momentum_points": -9.633619425859965,
+        "growth_points": 0.0,
+        "fragility_points": -0.24931881351040186,
+        "clipping_points": 0.0
+      },
+      "state_quality": 1.0,
+      "evidence_changed": false,
+      "seasonality_available": true,
+      "annual_pattern_match": false,
+      "trajectory_basis": "observed_bank_core",
+      "lead_months": null,
+      "reference_event_as_of": null,
+      "delivery_mode": "initial_snapshot"
+    },
+    {
+      "company_id": "COMP_0417",
+      "as_of": "2026-09-01",
+      "state": "MEJORANDO",
+      "model_version": "6434117ba83603d8d3905ba84d9e679e313df031a4b3adad9b4fa701b252b129",
+      "alert_id": "cce452336c188331fc234c7d7f894f9956ac7230509d3d4e6741599c489aaa51",
+      "group_id": "GROUP_0092",
+      "severity": "INFORMATIVA",
+      "direction": "improvement",
+      "score": 66.78859123325678,
+      "base_health": 65.58380519286588,
+      "momentum": 0.05483748932469748,
+      "delta_score": -3.365855481427843,
+      "comparison_as_of": "2026-06-01",
+      "drivers": [
+        {
+          "field": "momentum_points",
+          "delta_points": -2.0265498174806815,
+          "unit": "score_points"
+        },
+        {
+          "field": "collections_points",
+          "delta_points": -0.8137845698094033,
+          "unit": "score_points"
+        }
+      ],
+      "contribution_deltas": {
+        "liquidity_points": 0.4132434392701896,
+        "collections_points": -0.8137845698094033,
+        "debt_points": 0.0,
+        "momentum_points": -2.0265498174806815,
+        "growth_points": -0.7726928315155472,
+        "fragility_points": -0.1660717018923954,
+        "clipping_points": 0.0
+      },
+      "state_quality": 1.0,
+      "evidence_changed": false,
+      "seasonality_available": true,
+      "annual_pattern_match": false,
+      "trajectory_basis": "observed_bank_core",
+      "lead_months": null,
+      "reference_event_as_of": null,
+      "delivery_mode": "initial_snapshot"
+    },
+    {
+      "company_id": "COMP_0422",
+      "as_of": "2026-09-01",
+      "state": "MEJORANDO",
+      "model_version": "6434117ba83603d8d3905ba84d9e679e313df031a4b3adad9b4fa701b252b129",
+      "alert_id": "dca04037525e5672dcbc8317ceb39d2b5685b26a7af42ef72409d82d1432bae5",
+      "group_id": "GROUP_0018",
+      "severity": "INFORMATIVA",
+      "direction": "improvement",
+      "score": 64.68395804514961,
+      "base_health": 62.60130741855121,
+      "momentum": 0.2619324899308084,
+      "delta_score": 6.034747656881422,
+      "comparison_as_of": "2026-06-01",
+      "drivers": [
+        {
+          "field": "collections_points",
+          "delta_points": 5.806028304173051,
+          "unit": "score_points"
+        },
+        {
+          "field": "growth_points",
+          "delta_points": -2.858541309836223,
+          "unit": "score_points"
+        }
+      ],
+      "contribution_deltas": {
+        "liquidity_points": 0.40829574547664294,
+        "collections_points": 5.806028304173051,
+        "debt_points": -0.03317590591897179,
+        "momentum_points": 2.4459939363234464,
+        "growth_points": -2.858541309836223,
+        "fragility_points": 0.2661468866634964,
+        "clipping_points": 0.0
+      },
+      "state_quality": 1.0,
+      "evidence_changed": false,
+      "seasonality_available": false,
+      "annual_pattern_match": false,
+      "trajectory_basis": "observed_bank_core",
+      "lead_months": null,
+      "reference_event_as_of": null,
+      "delivery_mode": "initial_snapshot"
+    },
+    {
+      "company_id": "COMP_0428",
+      "as_of": "2026-09-01",
+      "state": "MEJORANDO",
+      "model_version": "6434117ba83603d8d3905ba84d9e679e313df031a4b3adad9b4fa701b252b129",
+      "alert_id": "7f87234cc1caf9282be5466c029d1a947aac877ce28cd4bed026c6cb22d977e1",
+      "group_id": "GROUP_0213",
+      "severity": "INFORMATIVA",
+      "direction": "improvement",
+      "score": 69.16091135059379,
+      "base_health": 61.10076203432631,
+      "momentum": 0.7899234302526958,
+      "delta_score": 31.62012820512257,
+      "comparison_as_of": "2026-06-01",
+      "drivers": [
+        {
+          "field": "liquidity_points",
+          "delta_points": 18.534349622406083,
+          "unit": "score_points"
+        },
+        {
+          "field": "momentum_points",
+          "delta_points": 8.239289048021593,
+          "unit": "score_points"
+        }
+      ],
+      "contribution_deltas": {
+        "liquidity_points": 18.534349622406083,
+        "collections_points": -0.6818788686568134,
+        "debt_points": 0.0,
+        "momentum_points": 8.239289048021593,
+        "growth_points": 3.9032725937800263,
+        "fragility_points": 1.6250958095716728,
+        "clipping_points": 0.0
+      },
+      "state_quality": 1.0,
+      "evidence_changed": false,
+      "seasonality_available": true,
+      "annual_pattern_match": false,
+      "trajectory_basis": "observed_bank_core",
+      "lead_months": null,
+      "reference_event_as_of": null,
+      "delivery_mode": "initial_snapshot"
+    },
+    {
+      "company_id": "COMP_0455",
+      "as_of": "2026-09-01",
+      "state": "DETERIORO",
+      "model_version": "6434117ba83603d8d3905ba84d9e679e313df031a4b3adad9b4fa701b252b129",
+      "alert_id": "0cbaeb244f8637429b805d1e246d8d146a015d6ae608c0863e7e231b15b69f1a",
+      "group_id": "GROUP_0222",
+      "severity": "ALTA",
+      "direction": "deterioration",
+      "score": 34.641110600371185,
+      "base_health": 43.831424701396855,
+      "momentum": -0.904409891213514,
+      "delta_score": -44.23002855088746,
+      "comparison_as_of": "2026-06-01",
+      "drivers": [
+        {
+          "field": "liquidity_points",
+          "delta_points": -21.02207339402597,
+          "unit": "score_points"
+        },
+        {
+          "field": "collections_points",
+          "delta_points": -10.361791336821273,
+          "unit": "score_points"
+        }
+      ],
+      "contribution_deltas": {
+        "liquidity_points": -21.02207339402597,
+        "collections_points": -10.361791336821273,
+        "debt_points": 0.0,
+        "momentum_points": -9.899329194864956,
+        "growth_points": -3.041449827932137,
+        "fragility_points": 0.09461520275688162,
+        "clipping_points": 0.0
+      },
+      "state_quality": 1.0,
+      "evidence_changed": false,
+      "seasonality_available": true,
+      "annual_pattern_match": false,
+      "trajectory_basis": "observed_bank_core",
+      "lead_months": null,
+      "reference_event_as_of": null,
+      "delivery_mode": "initial_snapshot"
+    },
+    {
+      "company_id": "COMP_0486",
+      "as_of": "2026-09-01",
+      "state": "RECUPERACION",
+      "model_version": "6434117ba83603d8d3905ba84d9e679e313df031a4b3adad9b4fa701b252b129",
+      "alert_id": "31d66e0bec756b0ef654a3f162b4c65238da0ba08b57d0dddff0969af214d8c1",
+      "group_id": "GROUP_0132",
+      "severity": "INFORMATIVA",
+      "direction": "improvement",
+      "score": 56.042216474756266,
+      "base_health": 51.477999531230886,
+      "momentum": 0.2609928978703217,
+      "delta_score": 28.305425732243812,
+      "comparison_as_of": "2026-06-01",
+      "drivers": [
+        {
+          "field": "liquidity_points",
+          "delta_points": 19.03187163566078,
+          "unit": "score_points"
+        },
+        {
+          "field": "momentum_points",
+          "delta_points": 5.931004225510955,
+          "unit": "score_points"
+        }
+      ],
+      "contribution_deltas": {
+        "liquidity_points": 19.03187163566078,
+        "collections_points": 0.20300071126032648,
+        "debt_points": 0.0,
+        "momentum_points": 5.931004225510955,
+        "growth_points": 3.0950955782903664,
+        "fragility_points": 0.04445358152137935,
+        "clipping_points": 0.0
+      },
+      "state_quality": 0.9413702239789196,
+      "evidence_changed": false,
+      "seasonality_available": true,
+      "annual_pattern_match": false,
+      "trajectory_basis": "observed_bank_core",
+      "lead_months": null,
+      "reference_event_as_of": null,
+      "delivery_mode": "initial_snapshot"
+    },
+    {
+      "company_id": "COMP_0487",
+      "as_of": "2026-09-01",
+      "state": "DETERIORO",
+      "model_version": "6434117ba83603d8d3905ba84d9e679e313df031a4b3adad9b4fa701b252b129",
+      "alert_id": "2fe227202265717122927883022c3f5d3790b93ed834c3f149ee28bd541cc84a",
+      "group_id": "GROUP_0170",
+      "severity": "ALTA",
+      "direction": "deterioration",
+      "score": 57.43146652710932,
+      "base_health": 59.494216596977935,
+      "momentum": 0.06471082519229113,
+      "delta_score": -1.4976757412570265,
+      "comparison_as_of": "2026-06-01",
+      "drivers": [
+        {
+          "field": "growth_points",
+          "delta_points": -3.738886913778396,
+          "unit": "score_points"
+        },
+        {
+          "field": "momentum_points",
+          "delta_points": 1.648383733537931,
+          "unit": "score_points"
+        }
+      ],
+      "contribution_deltas": {
+        "liquidity_points": 1.4314645213559984,
+        "collections_points": 0.35148086572063164,
+        "debt_points": 0.0,
+        "momentum_points": 1.648383733537931,
+        "growth_points": -3.738886913778396,
+        "fragility_points": -1.1901179480931887,
+        "clipping_points": 0.0
+      },
+      "state_quality": 1.0,
+      "evidence_changed": false,
+      "seasonality_available": false,
+      "annual_pattern_match": false,
+      "trajectory_basis": "observed_bank_core",
+      "lead_months": null,
+      "reference_event_as_of": null,
+      "delivery_mode": "initial_snapshot"
+    },
+    {
+      "company_id": "COMP_0495",
+      "as_of": "2026-09-01",
+      "state": "DETERIORO",
+      "model_version": "6434117ba83603d8d3905ba84d9e679e313df031a4b3adad9b4fa701b252b129",
+      "alert_id": "4cc891889dd0d71b315457e926f3b49436aa2c51df2b8cffa1dbe1ecaa7e924d",
+      "group_id": "GROUP_0124",
+      "severity": "ALTA",
+      "direction": "deterioration",
+      "score": 52.27489456298359,
+      "base_health": 56.38393360018863,
+      "momentum": -0.2826223928730265,
+      "delta_score": -21.924342755348206,
+      "comparison_as_of": "2026-06-01",
+      "drivers": [
+        {
+          "field": "liquidity_points",
+          "delta_points": -10.30516878630517,
+          "unit": "score_points"
+        },
+        {
+          "field": "momentum_points",
+          "delta_points": -5.065539497126308,
+          "unit": "score_points"
+        }
+      ],
+      "contribution_deltas": {
+        "liquidity_points": -10.30516878630517,
+        "collections_points": 0.17195417928936862,
+        "debt_points": -1.6006702166248221,
+        "momentum_points": -5.065539497126308,
+        "growth_points": -3.8603373762155764,
+        "fragility_points": -1.2645810583656854,
+        "clipping_points": 0.0
+      },
+      "state_quality": 0.976007326007326,
+      "evidence_changed": false,
+      "seasonality_available": true,
+      "annual_pattern_match": false,
+      "trajectory_basis": "observed_bank_core",
+      "lead_months": null,
+      "reference_event_as_of": null,
+      "delivery_mode": "initial_snapshot"
+    },
+    {
+      "company_id": "COMP_0496",
+      "as_of": "2026-09-01",
+      "state": "MEJORANDO",
+      "model_version": "6434117ba83603d8d3905ba84d9e679e313df031a4b3adad9b4fa701b252b129",
+      "alert_id": "3751b7fc64c67768384737f8317fe17aa6cd5b180354f3dc1b9c852d88498e44",
+      "group_id": "GROUP_0137",
+      "severity": "INFORMATIVA",
+      "direction": "improvement",
+      "score": 62.63236361160244,
+      "base_health": 62.099268088722596,
+      "momentum": 0.06663694035998109,
+      "delta_score": -4.438723338260388,
+      "comparison_as_of": "2026-06-01",
+      "drivers": [
+        {
+          "field": "momentum_points",
+          "delta_points": -5.096985445947607,
+          "unit": "score_points"
+        },
+        {
+          "field": "fragility_points",
+          "delta_points": 2.925220724878937,
+          "unit": "score_points"
+        }
+      ],
+      "contribution_deltas": {
+        "liquidity_points": -0.8518057295238499,
+        "collections_points": 0.33527002181459764,
+        "debt_points": 0.0,
+        "momentum_points": -5.096985445947607,
+        "growth_points": -1.7504229094824642,
+        "fragility_points": 2.925220724878937,
+        "clipping_points": 0.0
+      },
+      "state_quality": 0.9607843137254902,
+      "evidence_changed": false,
+      "seasonality_available": true,
+      "annual_pattern_match": false,
+      "trajectory_basis": "observed_bank_core",
+      "lead_months": null,
+      "reference_event_as_of": null,
+      "delivery_mode": "initial_snapshot"
+    },
+    {
+      "company_id": "COMP_0504",
+      "as_of": "2026-09-01",
+      "state": "MEJORANDO",
+      "model_version": "6434117ba83603d8d3905ba84d9e679e313df031a4b3adad9b4fa701b252b129",
+      "alert_id": "c7d3b73460b546736c475494bbaacbf639e9b744776f68922d403f5e30563dcb",
+      "group_id": "GROUP_0013",
+      "severity": "INFORMATIVA",
+      "direction": "improvement",
+      "score": 67.88422857598236,
+      "base_health": 63.930361586705295,
+      "momentum": 0.3041618522657669,
+      "delta_score": 24.100364807456373,
+      "comparison_as_of": "2026-06-01",
+      "drivers": [
+        {
+          "field": "liquidity_points",
+          "delta_points": 14.521303735301375,
+          "unit": "score_points"
+        },
+        {
+          "field": "momentum_points",
+          "delta_points": 5.099882918452563,
+          "unit": "score_points"
+        }
+      ],
+      "contribution_deltas": {
+        "liquidity_points": 14.521303735301375,
+        "collections_points": 2.299118507100392,
+        "debt_points": 0.0036990831007646108,
+        "momentum_points": 5.099882918452563,
+        "growth_points": 1.9080434796058383,
+        "fragility_points": 0.2683170838954352,
+        "clipping_points": 0.0
+      },
+      "state_quality": 0.9484934015755933,
+      "evidence_changed": false,
+      "seasonality_available": true,
+      "annual_pattern_match": false,
+      "trajectory_basis": "observed_bank_core",
+      "lead_months": null,
+      "reference_event_as_of": null,
+      "delivery_mode": "initial_snapshot"
+    },
+    {
+      "company_id": "COMP_0512",
+      "as_of": "2026-09-01",
+      "state": "MEJORANDO",
+      "model_version": "6434117ba83603d8d3905ba84d9e679e313df031a4b3adad9b4fa701b252b129",
+      "alert_id": "b45ab2c9f240f8b7cde42af221f7a2c6972a6d037b02b7a9e4824dce69b3c870",
+      "group_id": "GROUP_0217",
+      "severity": "INFORMATIVA",
+      "direction": "improvement",
+      "score": 63.18783078818495,
+      "base_health": 58.90784863610668,
+      "momentum": 0.10675076474818596,
+      "delta_score": 2.452188894518585,
+      "comparison_as_of": "2026-06-01",
+      "drivers": [
+        {
+          "field": "growth_points",
+          "delta_points": 3.603119169059446,
+          "unit": "score_points"
+        },
+        {
+          "field": "momentum_points",
+          "delta_points": -2.315956382524701,
+          "unit": "score_points"
+        }
+      ],
+      "contribution_deltas": {
+        "liquidity_points": 2.1731375344602384,
+        "collections_points": -1.111268718177719,
+        "debt_points": 0.0027467809859818004,
+        "momentum_points": -2.315956382524701,
+        "growth_points": 3.603119169059446,
+        "fragility_points": 0.1004105107153439,
+        "clipping_points": 0.0
+      },
+      "state_quality": 1.0,
+      "evidence_changed": false,
+      "seasonality_available": true,
+      "annual_pattern_match": false,
+      "trajectory_basis": "observed_bank_core",
+      "lead_months": null,
+      "reference_event_as_of": null,
+      "delivery_mode": "initial_snapshot"
+    },
+    {
+      "company_id": "COMP_0515",
+      "as_of": "2026-09-01",
+      "state": "MEJORANDO",
+      "model_version": "6434117ba83603d8d3905ba84d9e679e313df031a4b3adad9b4fa701b252b129",
+      "alert_id": "060797d2aa32f6d99c2a8cff95757e3ce5d972653b932ba045d0b332549f558f",
+      "group_id": "GROUP_0117",
+      "severity": "INFORMATIVA",
+      "direction": "improvement",
+      "score": 63.28440802693272,
+      "base_health": 63.502786937282494,
+      "momentum": 0.10363127143480685,
+      "delta_score": -0.1308984754646616,
+      "comparison_as_of": "2026-06-01",
+      "drivers": [
+        {
+          "field": "collections_points",
+          "delta_points": 3.24347832903128,
+          "unit": "score_points"
+        },
+        {
+          "field": "liquidity_points",
+          "delta_points": -1.6501635251593925,
+          "unit": "score_points"
+        }
+      ],
+      "contribution_deltas": {
+        "liquidity_points": -1.6501635251593925,
+        "collections_points": 3.24347832903128,
+        "debt_points": -0.000316906352784585,
+        "momentum_points": -0.870556360885054,
+        "growth_points": 0.0,
+        "fragility_points": -0.8533400120987134,
+        "clipping_points": 0.0
+      },
+      "state_quality": 0.9378470659225497,
+      "evidence_changed": false,
+      "seasonality_available": false,
+      "annual_pattern_match": false,
+      "trajectory_basis": "observed_bank_core",
+      "lead_months": null,
+      "reference_event_as_of": null,
+      "delivery_mode": "initial_snapshot"
+    },
+    {
+      "company_id": "COMP_0516",
+      "as_of": "2026-09-01",
+      "state": "DETERIORO",
+      "model_version": "6434117ba83603d8d3905ba84d9e679e313df031a4b3adad9b4fa701b252b129",
+      "alert_id": "da592f2c3383c35325dc7935e6e7ff7be1ee98f1681e4a59b81a216c4db9d3ce",
+      "group_id": "GROUP_0192",
+      "severity": "ALTA",
+      "direction": "deterioration",
+      "score": 52.193626128474726,
+      "base_health": 53.57212105972428,
+      "momentum": -0.29851601847908016,
+      "delta_score": -2.469284602814497,
+      "comparison_as_of": "2026-06-01",
+      "drivers": [
+        {
+          "field": "liquidity_points",
+          "delta_points": -5.365069282049166,
+          "unit": "score_points"
+        },
+        {
+          "field": "growth_points",
+          "delta_points": 2.6853821524446726,
+          "unit": "score_points"
+        }
+      ],
+      "contribution_deltas": {
+        "liquidity_points": -5.365069282049166,
+        "collections_points": -1.2243338389862153,
+        "debt_points": 0.0002703195493367616,
+        "momentum_points": -0.32343511982114004,
+        "growth_points": 2.6853821524446726,
+        "fragility_points": 1.7579011660480157,
+        "clipping_points": 0.0
+      },
+      "state_quality": 1.0,
+      "evidence_changed": false,
+      "seasonality_available": false,
+      "annual_pattern_match": false,
+      "trajectory_basis": "observed_bank_core",
+      "lead_months": null,
+      "reference_event_as_of": null,
+      "delivery_mode": "initial_snapshot"
+    },
+    {
+      "company_id": "COMP_0518",
+      "as_of": "2026-09-01",
+      "state": "RECUPERACION",
+      "model_version": "6434117ba83603d8d3905ba84d9e679e313df031a4b3adad9b4fa701b252b129",
+      "alert_id": "d9f760cd6c634154585df515828eb98e3a587df99961160205c6e87c3705cc23",
+      "group_id": "GROUP_0101",
+      "severity": "INFORMATIVA",
+      "direction": "improvement",
+      "score": 68.62125969188213,
+      "base_health": 62.85424770239489,
+      "momentum": 0.35845441107407633,
+      "delta_score": 31.67854839028636,
+      "comparison_as_of": "2026-06-01",
+      "drivers": [
+        {
+          "field": "liquidity_points",
+          "delta_points": 21.372828411845852,
+          "unit": "score_points"
+        },
+        {
+          "field": "momentum_points",
+          "delta_points": 6.081688150289828,
+          "unit": "score_points"
+        }
+      ],
+      "contribution_deltas": {
+        "liquidity_points": 21.372828411845852,
+        "collections_points": 0.9203043815109773,
+        "debt_points": 0.0313675619208702,
+        "momentum_points": 6.081688150289828,
+        "growth_points": 3.6483836142287984,
+        "fragility_points": -0.37602372950997065,
+        "clipping_points": 0.0
+      },
+      "state_quality": 0.9861757326089934,
+      "evidence_changed": false,
+      "seasonality_available": true,
+      "annual_pattern_match": false,
+      "trajectory_basis": "observed_bank_core",
+      "lead_months": null,
+      "reference_event_as_of": null,
+      "delivery_mode": "initial_snapshot"
+    },
+    {
+      "company_id": "COMP_0519",
+      "as_of": "2026-09-01",
+      "state": "DETERIORO",
+      "model_version": "6434117ba83603d8d3905ba84d9e679e313df031a4b3adad9b4fa701b252b129",
+      "alert_id": "cbddbbe6629931aaf1f3f198182d196c28f5369427f7adabd41967e4db64cad1",
+      "group_id": "GROUP_0233",
+      "severity": "ALTA",
+      "direction": "deterioration",
+      "score": 40.03581300161354,
+      "base_health": 46.84624512874463,
+      "momentum": -0.8512984823929703,
+      "delta_score": -16.668138202223012,
+      "comparison_as_of": "2026-06-01",
+      "drivers": [
+        {
+          "field": "liquidity_points",
+          "delta_points": -9.5164564953689,
+          "unit": "score_points"
+        },
+        {
+          "field": "momentum_points",
+          "delta_points": -5.592007931016213,
+          "unit": "score_points"
+        }
+      ],
+      "contribution_deltas": {
+        "liquidity_points": -9.5164564953689,
+        "collections_points": -2.4353350632850663,
+        "debt_points": -1.9074726578054835,
+        "momentum_points": -5.592007931016213,
+        "growth_points": 0.0,
+        "fragility_points": 2.783133945252647,
+        "clipping_points": 0.0
+      },
+      "state_quality": 1.0,
+      "evidence_changed": false,
+      "seasonality_available": true,
+      "annual_pattern_match": false,
+      "trajectory_basis": "observed_bank_core",
+      "lead_months": null,
+      "reference_event_as_of": null,
+      "delivery_mode": "initial_snapshot"
+    },
+    {
+      "company_id": "COMP_0521",
+      "as_of": "2026-09-01",
+      "state": "MEJORANDO",
+      "model_version": "6434117ba83603d8d3905ba84d9e679e313df031a4b3adad9b4fa701b252b129",
+      "alert_id": "357f0618bf8759e7320c8b90608294f763fa2897761b163575916304aacc3e38",
+      "group_id": "GROUP_0073",
+      "severity": "INFORMATIVA",
+      "direction": "improvement",
+      "score": 57.01141334402429,
+      "base_health": 59.532202776582395,
+      "momentum": -0.07138714808102956,
+      "delta_score": -10.386192534362337,
+      "comparison_as_of": "2026-06-01",
+      "drivers": [
+        {
+          "field": "momentum_points",
+          "delta_points": -7.431752087442588,
+          "unit": "score_points"
+        },
+        {
+          "field": "liquidity_points",
+          "delta_points": -4.324901459713416,
+          "unit": "score_points"
+        }
+      ],
+      "contribution_deltas": {
+        "liquidity_points": -4.324901459713416,
+        "collections_points": -0.4389681678107955,
+        "debt_points": 0.0,
+        "momentum_points": -7.431752087442588,
+        "growth_points": 0.0,
+        "fragility_points": 1.8094291806044698,
+        "clipping_points": 0.0
+      },
+      "state_quality": 1.0,
+      "evidence_changed": false,
+      "seasonality_available": true,
+      "annual_pattern_match": false,
+      "trajectory_basis": "observed_bank_core",
+      "lead_months": null,
+      "reference_event_as_of": null,
+      "delivery_mode": "initial_snapshot"
+    },
+    {
+      "company_id": "COMP_0531",
+      "as_of": "2026-09-01",
+      "state": "RECUPERACION",
+      "model_version": "6434117ba83603d8d3905ba84d9e679e313df031a4b3adad9b4fa701b252b129",
+      "alert_id": "c25a0d7370b2276c72dddf649468c0ee9bbe4a19a5664c8388ad6547e8f2b99f",
+      "group_id": "GROUP_0214",
+      "severity": "INFORMATIVA",
+      "direction": "improvement",
+      "score": 64.35503185773257,
+      "base_health": 62.48715789655948,
+      "momentum": -0.0,
+      "delta_score": 0.8132958243455377,
+      "comparison_as_of": "2026-06-01",
+      "drivers": [
+        {
+          "field": "growth_points",
+          "delta_points": 3.9592947901639652,
+          "unit": "score_points"
+        },
+        {
+          "field": "collections_points",
+          "delta_points": -1.7270814875506595,
+          "unit": "score_points"
+        }
+      ],
+      "contribution_deltas": {
+        "liquidity_points": 0.6443550710623533,
+        "collections_points": -1.7270814875506595,
+        "debt_points": 0.014980680005333369,
+        "momentum_points": -1.5753668221286106,
+        "growth_points": 3.9592947901639652,
+        "fragility_points": -0.5028864072068329,
+        "clipping_points": 0.0
+      },
+      "state_quality": 1.0,
+      "evidence_changed": false,
+      "seasonality_available": true,
+      "annual_pattern_match": false,
+      "trajectory_basis": "observed_bank_core",
+      "lead_months": null,
+      "reference_event_as_of": null,
+      "delivery_mode": "initial_snapshot"
+    },
+    {
+      "company_id": "COMP_0543",
+      "as_of": "2026-09-01",
+      "state": "RECUPERACION",
+      "model_version": "6434117ba83603d8d3905ba84d9e679e313df031a4b3adad9b4fa701b252b129",
+      "alert_id": "63883f8c809770aef7a7a4fc12d3d7ecd8574883571b3e61bec75819a7e456f6",
+      "group_id": "GROUP_0053",
+      "severity": "INFORMATIVA",
+      "direction": "improvement",
+      "score": 58.29084773059948,
+      "base_health": 57.32094928779303,
+      "momentum": 0.23571793571299746,
+      "delta_score": 14.16817951276127,
+      "comparison_as_of": "2026-06-01",
+      "drivers": [
+        {
+          "field": "liquidity_points",
+          "delta_points": 11.76562735086649,
+          "unit": "score_points"
+        },
+        {
+          "field": "momentum_points",
+          "delta_points": 5.493308930302336,
+          "unit": "score_points"
+        }
+      ],
+      "contribution_deltas": {
+        "liquidity_points": 11.76562735086649,
+        "collections_points": -1.05439714214155,
+        "debt_points": 0.0,
+        "momentum_points": 5.493308930302336,
+        "growth_points": -1.2440705249748616,
+        "fragility_points": -0.7922891012911446,
+        "clipping_points": 0.0
+      },
+      "state_quality": 1.0,
+      "evidence_changed": false,
+      "seasonality_available": false,
+      "annual_pattern_match": false,
+      "trajectory_basis": "observed_bank_core",
+      "lead_months": null,
+      "reference_event_as_of": null,
+      "delivery_mode": "initial_snapshot"
+    },
+    {
+      "company_id": "COMP_0544",
+      "as_of": "2026-09-01",
+      "state": "RECUPERACION",
+      "model_version": "6434117ba83603d8d3905ba84d9e679e313df031a4b3adad9b4fa701b252b129",
+      "alert_id": "724ca693c4d30a30768940d01d69f0c4eeab262a30adab1f11983a22196fb7a3",
+      "group_id": "GROUP_0208",
+      "severity": "INFORMATIVA",
+      "direction": "improvement",
+      "score": 69.53075837251312,
+      "base_health": 68.09839861645624,
+      "momentum": 0.36951384978762136,
+      "delta_score": 13.520244406967223,
+      "comparison_as_of": "2026-06-01",
+      "drivers": [
+        {
+          "field": "liquidity_points",
+          "delta_points": 13.006044193067584,
+          "unit": "score_points"
+        },
+        {
+          "field": "momentum_points",
+          "delta_points": 2.5461090391679813,
+          "unit": "score_points"
+        }
+      ],
+      "contribution_deltas": {
+        "liquidity_points": 13.006044193067584,
+        "collections_points": -1.1388028679005053,
+        "debt_points": -0.08405624373581766,
+        "momentum_points": 2.5461090391679813,
+        "growth_points": 0.0,
+        "fragility_points": -0.8090497136320236,
+        "clipping_points": 0.0
+      },
+      "state_quality": 1.0,
+      "evidence_changed": false,
+      "seasonality_available": true,
+      "annual_pattern_match": false,
+      "trajectory_basis": "observed_bank_core",
+      "lead_months": null,
+      "reference_event_as_of": null,
+      "delivery_mode": "initial_snapshot"
+    },
+    {
+      "company_id": "COMP_0545",
+      "as_of": "2026-09-01",
+      "state": "DETERIORO",
+      "model_version": "6434117ba83603d8d3905ba84d9e679e313df031a4b3adad9b4fa701b252b129",
+      "alert_id": "9baa1e0564a9e0f212c2785729344255c4ba8c5e4920da35a6d213e6edf59150",
+      "group_id": "GROUP_0015",
+      "severity": "ALTA",
+      "direction": "deterioration",
+      "score": 30.43987782368131,
+      "base_health": 37.088702971217515,
+      "momentum": -0.484704504700856,
+      "delta_score": -30.494799763787714,
+      "comparison_as_of": "2026-06-01",
+      "drivers": [
+        {
+          "field": "liquidity_points",
+          "delta_points": -32.09522099785732,
+          "unit": "score_points"
+        },
+        {
+          "field": "collections_points",
+          "delta_points": 1.5305334819631788,
+          "unit": "score_points"
+        }
+      ],
+      "contribution_deltas": {
+        "liquidity_points": -32.09522099785732,
+        "collections_points": 1.5305334819631788,
+        "debt_points": 0.0,
+        "momentum_points": -1.4510644336460858,
+        "growth_points": 0.5165311864471993,
+        "fragility_points": 1.0044209993053088,
+        "clipping_points": 0.0
+      },
+      "state_quality": 1.0,
+      "evidence_changed": false,
+      "seasonality_available": true,
+      "annual_pattern_match": false,
+      "trajectory_basis": "observed_bank_core",
+      "lead_months": null,
+      "reference_event_as_of": null,
+      "delivery_mode": "initial_snapshot"
+    },
+    {
+      "company_id": "COMP_0556",
+      "as_of": "2026-09-01",
+      "state": "RECUPERACION",
+      "model_version": "6434117ba83603d8d3905ba84d9e679e313df031a4b3adad9b4fa701b252b129",
+      "alert_id": "a33d4dd9ef6a087ff218a09432b3f3885279db32fba6240e1e90126835902ae9",
+      "group_id": "GROUP_0237",
+      "severity": "INFORMATIVA",
+      "direction": "improvement",
+      "score": 61.91576552681428,
+      "base_health": 61.22042308728042,
+      "momentum": 0.11359157278510887,
+      "delta_score": -3.626294062483794,
+      "comparison_as_of": "2026-06-01",
+      "drivers": [
+        {
+          "field": "growth_points",
+          "delta_points": -3.5266998024396488,
+          "unit": "score_points"
+        },
+        {
+          "field": "momentum_points",
+          "delta_points": -1.4509994034566678,
+          "unit": "score_points"
+        }
+      ],
+      "contribution_deltas": {
+        "liquidity_points": 0.11780723500262624,
+        "collections_points": 1.0815831434922387,
+        "debt_points": 0.0,
+        "momentum_points": -1.4509994034566678,
+        "growth_points": -3.5266998024396488,
+        "fragility_points": 0.1520147649176593,
+        "clipping_points": 0.0
+      },
+      "state_quality": 1.0,
+      "evidence_changed": false,
+      "seasonality_available": true,
+      "annual_pattern_match": false,
+      "trajectory_basis": "observed_bank_core",
+      "lead_months": null,
+      "reference_event_as_of": null,
+      "delivery_mode": "initial_snapshot"
+    },
+    {
+      "company_id": "COMP_0564",
+      "as_of": "2026-09-01",
+      "state": "RECUPERACION",
+      "model_version": "6434117ba83603d8d3905ba84d9e679e313df031a4b3adad9b4fa701b252b129",
+      "alert_id": "500537aec3e0a3d3e9d6cec3789fdcfc326b46ddc81674d515845233edb2cf5c",
+      "group_id": "GROUP_0212",
+      "severity": "INFORMATIVA",
+      "direction": "improvement",
+      "score": 60.26175552133588,
+      "base_health": 61.2838118795989,
+      "momentum": -0.12417965828648783,
+      "delta_score": -11.305908126385255,
+      "comparison_as_of": "2026-06-01",
+      "drivers": [
+        {
+          "field": "momentum_points",
+          "delta_points": -6.067313680439215,
+          "unit": "score_points"
+        },
+        {
+          "field": "liquidity_points",
+          "delta_points": -4.357309772506728,
+          "unit": "score_points"
+        }
+      ],
+      "contribution_deltas": {
+        "liquidity_points": -4.357309772506728,
+        "collections_points": 0.14848506624144875,
+        "debt_points": 0.0,
+        "momentum_points": -6.067313680439215,
+        "growth_points": -1.9901092838878198,
+        "fragility_points": 0.9603395442070513,
+        "clipping_points": 0.0
+      },
+      "state_quality": 1.0,
+      "evidence_changed": false,
+      "seasonality_available": true,
+      "annual_pattern_match": true,
+      "trajectory_basis": "observed_bank_core",
+      "lead_months": null,
+      "reference_event_as_of": null,
+      "delivery_mode": "initial_snapshot"
+    },
+    {
+      "company_id": "COMP_0567",
+      "as_of": "2026-09-01",
+      "state": "RECUPERACION",
+      "model_version": "6434117ba83603d8d3905ba84d9e679e313df031a4b3adad9b4fa701b252b129",
+      "alert_id": "3c4af483455c641c5311fb41c59c6a6afa4b8179a6a2f5309be744b099ae94ef",
+      "group_id": "GROUP_0194",
+      "severity": "INFORMATIVA",
+      "direction": "improvement",
+      "score": 61.03756135254483,
+      "base_health": 61.186763072788565,
+      "momentum": 0.0,
+      "delta_score": 1.5384544586475428,
+      "comparison_as_of": "2026-06-01",
+      "drivers": [
+        {
+          "field": "collections_points",
+          "delta_points": 4.844998438046947,
+          "unit": "score_points"
+        },
+        {
+          "field": "growth_points",
+          "delta_points": -3.683414609505082,
+          "unit": "score_points"
+        }
+      ],
+      "contribution_deltas": {
+        "liquidity_points": 1.0937668952061443,
+        "collections_points": 4.844998438046947,
+        "debt_points": -0.007005775508709178,
+        "momentum_points": -1.0034409020466333,
+        "growth_points": -3.683414609505082,
+        "fragility_points": 0.29355041245488245,
+        "clipping_points": 0.0
+      },
+      "state_quality": 1.0,
+      "evidence_changed": false,
+      "seasonality_available": false,
+      "annual_pattern_match": false,
+      "trajectory_basis": "observed_bank_core",
+      "lead_months": null,
+      "reference_event_as_of": null,
+      "delivery_mode": "initial_snapshot"
+    },
+    {
+      "company_id": "COMP_0604",
+      "as_of": "2026-09-01",
+      "state": "MEJORANDO",
+      "model_version": "6434117ba83603d8d3905ba84d9e679e313df031a4b3adad9b4fa701b252b129",
+      "alert_id": "8d362ed84b728ff8bd5a5f7306dc3cbb9072ff5033a504b088c555a0d27c6347",
+      "group_id": "GROUP_0065",
+      "severity": "INFORMATIVA",
+      "direction": "improvement",
+      "score": 65.95611650001578,
+      "base_health": 60.36245952544281,
+      "momentum": 0.24188214889267518,
+      "delta_score": 14.34672259148163,
+      "comparison_as_of": "2026-06-01",
+      "drivers": [
+        {
+          "field": "liquidity_points",
+          "delta_points": 9.521139063534825,
+          "unit": "score_points"
+        },
+        {
+          "field": "growth_points",
+          "delta_points": 3.7917688010064916,
+          "unit": "score_points"
+        }
+      ],
+      "contribution_deltas": {
+        "liquidity_points": 9.521139063534825,
+        "collections_points": -1.6501387933984297,
+        "debt_points": -0.4268001843582123,
+        "momentum_points": 2.2538392834905125,
+        "growth_points": 3.7917688010064916,
+        "fragility_points": 0.8569144212064348,
+        "clipping_points": 0.0
+      },
+      "state_quality": 1.0,
+      "evidence_changed": false,
+      "seasonality_available": true,
+      "annual_pattern_match": false,
+      "trajectory_basis": "observed_bank_core",
+      "lead_months": null,
+      "reference_event_as_of": null,
+      "delivery_mode": "initial_snapshot"
+    },
+    {
+      "company_id": "COMP_0605",
+      "as_of": "2026-09-01",
+      "state": "MEJORANDO",
+      "model_version": "6434117ba83603d8d3905ba84d9e679e313df031a4b3adad9b4fa701b252b129",
+      "alert_id": "81a17e023d68e084fbb21d62814e388f3160ef595dd4ff0f9e6aa3bd1d66d517",
+      "group_id": "GROUP_0051",
+      "severity": "INFORMATIVA",
+      "direction": "improvement",
+      "score": 65.03935687195191,
+      "base_health": 61.48163152658052,
+      "momentum": 0.12653663847102173,
+      "delta_score": 7.949483195523982,
+      "comparison_as_of": "2026-06-01",
+      "drivers": [
+        {
+          "field": "growth_points",
+          "delta_points": 3.531638845887307,
+          "unit": "score_points"
+        },
+        {
+          "field": "liquidity_points",
+          "delta_points": 2.3759206597113014,
+          "unit": "score_points"
+        }
+      ],
+      "contribution_deltas": {
+        "liquidity_points": 2.3759206597113014,
+        "collections_points": -0.5092654996119812,
+        "debt_points": 0.5980365809751547,
+        "momentum_points": 1.813949234414918,
+        "growth_points": 3.531638845887307,
+        "fragility_points": 0.13920337414728579,
+        "clipping_points": 0.0
+      },
+      "state_quality": 1.0,
+      "evidence_changed": false,
+      "seasonality_available": false,
+      "annual_pattern_match": false,
+      "trajectory_basis": "observed_bank_core",
+      "lead_months": null,
+      "reference_event_as_of": null,
+      "delivery_mode": "initial_snapshot"
+    },
+    {
+      "company_id": "COMP_0614",
+      "as_of": "2026-09-01",
+      "state": "RECUPERACION",
+      "model_version": "6434117ba83603d8d3905ba84d9e679e313df031a4b3adad9b4fa701b252b129",
+      "alert_id": "d645e175eaa3c6ec0f54bd959f69dc0527514d0d7d7527385539b699e11c6c90",
+      "group_id": "GROUP_0218",
+      "severity": "INFORMATIVA",
+      "direction": "improvement",
+      "score": 76.90621632916542,
+      "base_health": 78.72748246060736,
+      "momentum": 0.17519995923920872,
+      "delta_score": 2.0014124741159094,
+      "comparison_as_of": "2026-06-01",
+      "drivers": [
+        {
+          "field": "liquidity_points",
+          "delta_points": 6.4994894521842,
+          "unit": "score_points"
+        },
+        {
+          "field": "fragility_points",
+          "delta_points": -2.998585976938976,
+          "unit": "score_points"
+        }
+      ],
+      "contribution_deltas": {
+        "liquidity_points": 6.4994894521842,
+        "collections_points": -0.42280797273862447,
+        "debt_points": 0.0,
+        "momentum_points": -1.0766830283906947,
+        "growth_points": 0.0,
+        "fragility_points": -2.998585976938976,
+        "clipping_points": 0.0
+      },
+      "state_quality": 0.6521164021164021,
+      "evidence_changed": false,
+      "seasonality_available": true,
+      "annual_pattern_match": false,
+      "trajectory_basis": "observed_bank_core",
+      "lead_months": null,
+      "reference_event_as_of": null,
+      "delivery_mode": "initial_snapshot"
+    },
+    {
+      "company_id": "COMP_0615",
+      "as_of": "2026-09-01",
+      "state": "DETERIORO",
+      "model_version": "6434117ba83603d8d3905ba84d9e679e313df031a4b3adad9b4fa701b252b129",
+      "alert_id": "875b3023424d6a546bea1d88dbe7f859268558fd047f4640c4b4a118af343153",
+      "group_id": "GROUP_0079",
+      "severity": "ALTA",
+      "direction": "deterioration",
+      "score": 43.63764144109652,
+      "base_health": 46.82845962156611,
+      "momentum": -0.38624275244207523,
+      "delta_score": -8.399976951095645,
+      "comparison_as_of": "2026-06-01",
+      "drivers": [
+        {
+          "field": "liquidity_points",
+          "delta_points": -12.272514096231546,
+          "unit": "score_points"
+        },
+        {
+          "field": "collections_points",
+          "delta_points": 2.051716210077128,
+          "unit": "score_points"
+        }
+      ],
+      "contribution_deltas": {
+        "liquidity_points": -12.272514096231546,
+        "collections_points": 2.051716210077128,
+        "debt_points": 0.0,
+        "momentum_points": 1.776394328520086,
+        "growth_points": 0.0,
+        "fragility_points": 0.04442660653867758,
+        "clipping_points": 0.0
+      },
+      "state_quality": 1.0,
+      "evidence_changed": false,
+      "seasonality_available": true,
+      "annual_pattern_match": false,
+      "trajectory_basis": "observed_bank_core",
+      "lead_months": null,
+      "reference_event_as_of": null,
+      "delivery_mode": "initial_snapshot"
+    },
+    {
+      "company_id": "COMP_0640",
+      "as_of": "2026-09-01",
+      "state": "DETERIORO",
+      "model_version": "6434117ba83603d8d3905ba84d9e679e313df031a4b3adad9b4fa701b252b129",
+      "alert_id": "137161ee684993fd73884f58f3c2eb215f94d3ccf566b4139aa6807508d1a93f",
+      "group_id": "GROUP_0022",
+      "severity": "ALTA",
+      "direction": "deterioration",
+      "score": 41.58463595045485,
+      "base_health": 44.98703752286642,
+      "momentum": -0.425300196551446,
+      "delta_score": -8.272215266969383,
+      "comparison_as_of": "2026-06-01",
+      "drivers": [
+        {
+          "field": "liquidity_points",
+          "delta_points": -15.941843692625099,
+          "unit": "score_points"
+        },
+        {
+          "field": "collections_points",
+          "delta_points": 12.060159197645731,
+          "unit": "score_points"
+        }
+      ],
+      "contribution_deltas": {
+        "liquidity_points": -15.941843692625099,
+        "collections_points": 12.060159197645731,
+        "debt_points": -6.519957240349706,
+        "momentum_points": -0.2796149691692089,
+        "growth_points": 0.0,
+        "fragility_points": 2.409041437528895,
+        "clipping_points": 0.0
+      },
+      "state_quality": 1.0,
+      "evidence_changed": false,
+      "seasonality_available": true,
+      "annual_pattern_match": false,
+      "trajectory_basis": "observed_bank_core",
+      "lead_months": null,
+      "reference_event_as_of": null,
+      "delivery_mode": "initial_snapshot"
+    },
+    {
+      "company_id": "COMP_0646",
+      "as_of": "2026-09-01",
+      "state": "MEJORANDO",
+      "model_version": "6434117ba83603d8d3905ba84d9e679e313df031a4b3adad9b4fa701b252b129",
+      "alert_id": "720dbfa0f07b8b0599fc3b2aec6e63aa4be6920c2e8f7a2631b9ecee9f7429df",
+      "group_id": "GROUP_0118",
+      "severity": "INFORMATIVA",
+      "direction": "improvement",
+      "score": 67.1882011507704,
+      "base_health": 65.93131010071852,
+      "momentum": 0.0,
+      "delta_score": 4.650272826801249,
+      "comparison_as_of": "2026-06-01",
+      "drivers": [
+        {
+          "field": "liquidity_points",
+          "delta_points": 6.34015622386109,
+          "unit": "score_points"
+        },
+        {
+          "field": "collections_points",
+          "delta_points": -1.977711331137641,
+          "unit": "score_points"
+        }
+      ],
+      "contribution_deltas": {
+        "liquidity_points": 6.34015622386109,
+        "collections_points": -1.977711331137641,
+        "debt_points": -0.006410540488504424,
+        "momentum_points": -1.1784034085304897,
+        "growth_points": 1.598873867519886,
+        "fragility_points": -0.12623198442310457,
+        "clipping_points": 0.0
+      },
+      "state_quality": 1.0,
+      "evidence_changed": false,
+      "seasonality_available": true,
+      "annual_pattern_match": false,
+      "trajectory_basis": "observed_bank_core",
+      "lead_months": null,
+      "reference_event_as_of": null,
+      "delivery_mode": "initial_snapshot"
+    },
+    {
+      "company_id": "COMP_0648",
+      "as_of": "2026-09-01",
+      "state": "DETERIORO",
+      "model_version": "6434117ba83603d8d3905ba84d9e679e313df031a4b3adad9b4fa701b252b129",
+      "alert_id": "fc2f3679524f132764197738f01bfaae14379a6046664971567841777a420281",
+      "group_id": "GROUP_0053",
+      "severity": "ALTA",
+      "direction": "deterioration",
+      "score": 60.073874532765686,
+      "base_health": 59.9332165919449,
+      "momentum": -0.12111589166151503,
+      "delta_score": 4.582250334199223,
+      "comparison_as_of": "2026-06-01",
+      "drivers": [
+        {
+          "field": "momentum_points",
+          "delta_points": 2.1656094343019396,
+          "unit": "score_points"
+        },
+        {
+          "field": "growth_points",
+          "delta_points": 1.1095850741129094,
+          "unit": "score_points"
+        }
+      ],
+      "contribution_deltas": {
+        "liquidity_points": 0.5279991379685107,
+        "collections_points": -0.019652005272657647,
+        "debt_points": 0.0,
+        "momentum_points": 2.1656094343019396,
+        "growth_points": 1.1095850741129094,
+        "fragility_points": 0.7987086930885141,
+        "clipping_points": 0.0
+      },
+      "state_quality": 1.0,
+      "evidence_changed": false,
+      "seasonality_available": false,
+      "annual_pattern_match": false,
+      "trajectory_basis": "observed_bank_core",
+      "lead_months": null,
+      "reference_event_as_of": null,
+      "delivery_mode": "initial_snapshot"
+    },
+    {
+      "company_id": "COMP_0654",
+      "as_of": "2026-09-01",
+      "state": "RECUPERACION",
+      "model_version": "6434117ba83603d8d3905ba84d9e679e313df031a4b3adad9b4fa701b252b129",
+      "alert_id": "333987a1785de918edf94a936dbc831c697473fe821ccb1d98b440bbf8ed947a",
+      "group_id": "GROUP_0053",
+      "severity": "INFORMATIVA",
+      "direction": "improvement",
+      "score": 64.38422889327643,
+      "base_health": 57.16854663241453,
+      "momentum": 0.6627265848449964,
+      "delta_score": 9.356677558513965,
+      "comparison_as_of": "2026-06-01",
+      "drivers": [
+        {
+          "field": "momentum_points",
+          "delta_points": 5.301812678759971,
+          "unit": "score_points"
+        },
+        {
+          "field": "liquidity_points",
+          "delta_points": 5.263082722308997,
+          "unit": "score_points"
+        }
+      ],
+      "contribution_deltas": {
+        "liquidity_points": 5.263082722308997,
+        "collections_points": 0.22022485671315195,
+        "debt_points": -0.0008260554160859357,
+        "momentum_points": 5.301812678759971,
+        "growth_points": -1.471268905975983,
+        "fragility_points": 0.04365226212390372,
+        "clipping_points": 0.0
+      },
+      "state_quality": 1.0,
+      "evidence_changed": false,
+      "seasonality_available": false,
+      "annual_pattern_match": false,
+      "trajectory_basis": "observed_bank_core",
+      "lead_months": null,
+      "reference_event_as_of": null,
+      "delivery_mode": "initial_snapshot"
+    },
+    {
+      "company_id": "COMP_0667",
+      "as_of": "2026-09-01",
+      "state": "RECUPERACION",
+      "model_version": "6434117ba83603d8d3905ba84d9e679e313df031a4b3adad9b4fa701b252b129",
+      "alert_id": "d6559e72b989a6fdce60ab619497eff3878f81f76d409dc9e82e1d48e9e0f2fb",
+      "group_id": "GROUP_0068",
+      "severity": "INFORMATIVA",
+      "direction": "improvement",
+      "score": 56.989875835853404,
+      "base_health": 59.91657553968962,
+      "momentum": 0.0005112181761376677,
+      "delta_score": -11.186101195143756,
+      "comparison_as_of": "2026-06-01",
+      "drivers": [
+        {
+          "field": "momentum_points",
+          "delta_points": -6.015919559893482,
+          "unit": "score_points"
+        },
+        {
+          "field": "liquidity_points",
+          "delta_points": -4.011424102810896,
+          "unit": "score_points"
+        }
+      ],
+      "contribution_deltas": {
+        "liquidity_points": -4.011424102810896,
+        "collections_points": 1.4236300379882962,
+        "debt_points": 0.0021039536402920334,
+        "momentum_points": -6.015919559893482,
+        "growth_points": -3.038140079992454,
+        "fragility_points": 0.4536485559244938,
+        "clipping_points": 0.0
+      },
+      "state_quality": 1.0,
+      "evidence_changed": false,
+      "seasonality_available": true,
+      "annual_pattern_match": false,
+      "trajectory_basis": "observed_bank_core",
+      "lead_months": null,
+      "reference_event_as_of": null,
+      "delivery_mode": "initial_snapshot"
+    },
+    {
+      "company_id": "COMP_0706",
+      "as_of": "2026-09-01",
+      "state": "MEJORANDO",
+      "model_version": "6434117ba83603d8d3905ba84d9e679e313df031a4b3adad9b4fa701b252b129",
+      "alert_id": "2cc8f452e8778d94d042f34c512adb81771b695d25e9201a5848551e4d504de8",
+      "group_id": "GROUP_0212",
+      "severity": "INFORMATIVA",
+      "direction": "improvement",
+      "score": 64.47678303403235,
+      "base_health": 64.83691447334613,
+      "momentum": 0.2578630147642851,
+      "delta_score": 7.429709990831263,
+      "comparison_as_of": "2026-06-01",
+      "drivers": [
+        {
+          "field": "liquidity_points",
+          "delta_points": 5.724969409835243,
+          "unit": "score_points"
+        },
+        {
+          "field": "momentum_points",
+          "delta_points": 3.5248271273940466,
+          "unit": "score_points"
+        }
+      ],
+      "contribution_deltas": {
+        "liquidity_points": 5.724969409835243,
+        "collections_points": 0.24295129681363292,
+        "debt_points": 0.0,
+        "momentum_points": 3.5248271273940466,
+        "growth_points": -0.8198637457068074,
+        "fragility_points": -1.2431740975048546,
+        "clipping_points": 0.0
+      },
+      "state_quality": 1.0,
+      "evidence_changed": false,
+      "seasonality_available": true,
+      "annual_pattern_match": false,
+      "trajectory_basis": "observed_bank_core",
+      "lead_months": null,
+      "reference_event_as_of": null,
+      "delivery_mode": "initial_snapshot"
+    },
+    {
+      "company_id": "COMP_0725",
+      "as_of": "2026-09-01",
+      "state": "TORCIENDOSE",
+      "model_version": "6434117ba83603d8d3905ba84d9e679e313df031a4b3adad9b4fa701b252b129",
+      "alert_id": "09b62c450372da6e7b1f39c8d0fb662f063200a821ba8b543c5af125aa3c57f6",
+      "group_id": "GROUP_0222",
+      "severity": "MEDIA",
+      "direction": "deterioration",
+      "score": 57.17578680175806,
+      "base_health": 62.85008958886899,
+      "momentum": -0.6485018345734846,
+      "delta_score": -15.639337142449044,
+      "comparison_as_of": "2026-06-01",
+      "drivers": [
+        {
+          "field": "liquidity_points",
+          "delta_points": -8.9786741311937,
+          "unit": "score_points"
+        },
+        {
+          "field": "momentum_points",
+          "delta_points": -5.188014676587877,
+          "unit": "score_points"
+        }
+      ],
+      "contribution_deltas": {
+        "liquidity_points": -8.9786741311937,
+        "collections_points": -0.551039626846876,
+        "debt_points": 0.0,
+        "momentum_points": -5.188014676587877,
+        "growth_points": -1.1114306183844078,
+        "fragility_points": 0.18982191056381215,
+        "clipping_points": 0.0
+      },
+      "state_quality": 1.0,
+      "evidence_changed": false,
+      "seasonality_available": true,
+      "annual_pattern_match": false,
+      "trajectory_basis": "observed_bank_core",
+      "lead_months": null,
+      "reference_event_as_of": null,
+      "delivery_mode": "initial_snapshot"
+    },
+    {
+      "company_id": "COMP_0753",
+      "as_of": "2026-09-01",
+      "state": "RECUPERACION",
+      "model_version": "6434117ba83603d8d3905ba84d9e679e313df031a4b3adad9b4fa701b252b129",
+      "alert_id": "5ab8de5f92a987f1838105dfd3b15a556f5937d10b13e250769d04eb2e9447b9",
+      "group_id": "GROUP_0170",
+      "severity": "INFORMATIVA",
+      "direction": "improvement",
+      "score": 71.9910829963494,
+      "base_health": 64.7832569108711,
+      "momentum": 0.41446873156200104,
+      "delta_score": 18.8453867988271,
+      "comparison_as_of": "2026-06-01",
+      "drivers": [
+        {
+          "field": "collections_points",
+          "delta_points": 12.213133712921529,
+          "unit": "score_points"
+        },
+        {
+          "field": "growth_points",
+          "delta_points": 3.9940146736428117,
+          "unit": "score_points"
+        }
+      ],
+      "contribution_deltas": {
+        "liquidity_points": 0.8775159522310361,
+        "collections_points": 12.213133712921529,
+        "debt_points": 0.0,
+        "momentum_points": 1.2988584510804446,
+        "growth_points": 3.9940146736428117,
+        "fragility_points": 0.46186400895126845,
+        "clipping_points": 0.0
+      },
+      "state_quality": 1.0,
+      "evidence_changed": false,
+      "seasonality_available": true,
+      "annual_pattern_match": false,
+      "trajectory_basis": "observed_bank_core",
+      "lead_months": null,
+      "reference_event_as_of": null,
+      "delivery_mode": "initial_snapshot"
+    },
+    {
+      "company_id": "COMP_0754",
+      "as_of": "2026-09-01",
+      "state": "DETERIORO",
+      "model_version": "6434117ba83603d8d3905ba84d9e679e313df031a4b3adad9b4fa701b252b129",
+      "alert_id": "74f1cf564b66bfd82dbe33490bd1653f729324ae5cf8984c5b3bc7a5aeecacff",
+      "group_id": "GROUP_0211",
+      "severity": "ALTA",
+      "direction": "deterioration",
+      "score": 54.918179932671684,
+      "base_health": 54.97683567855297,
+      "momentum": -0.40689944124529653,
+      "delta_score": -3.2848473567261323,
+      "comparison_as_of": "2026-06-01",
+      "drivers": [
+        {
+          "field": "collections_points",
+          "delta_points": -5.556210700831247,
+          "unit": "score_points"
+        },
+        {
+          "field": "momentum_points",
+          "delta_points": -3.5104735969987515,
+          "unit": "score_points"
+        }
+      ],
+      "contribution_deltas": {
+        "liquidity_points": 0.8552594985693496,
+        "collections_points": -5.556210700831247,
+        "debt_points": 0.0,
+        "momentum_points": -3.5104735969987515,
+        "growth_points": 3.0592311069322475,
+        "fragility_points": 1.8673463356022753,
+        "clipping_points": 0.0
+      },
+      "state_quality": 0.9306656128893603,
+      "evidence_changed": false,
+      "seasonality_available": false,
+      "annual_pattern_match": false,
+      "trajectory_basis": "observed_bank_core",
+      "lead_months": null,
+      "reference_event_as_of": null,
+      "delivery_mode": "initial_snapshot"
+    },
+    {
+      "company_id": "COMP_0758",
+      "as_of": "2026-09-01",
+      "state": "DETERIORO",
+      "model_version": "6434117ba83603d8d3905ba84d9e679e313df031a4b3adad9b4fa701b252b129",
+      "alert_id": "6a23000284e966ec395de28ddd7bf4720be159ddd3a4fe0b2e9d2ba196e3390b",
+      "group_id": "GROUP_0169",
+      "severity": "ALTA",
+      "direction": "deterioration",
+      "score": 36.08520355122082,
+      "base_health": 37.73726493492414,
+      "momentum": -0.2065076729629146,
+      "delta_score": 8.701008037758221,
+      "comparison_as_of": "2026-06-01",
+      "drivers": [
+        {
+          "field": "momentum_points",
+          "delta_points": 6.167862600206191,
+          "unit": "score_points"
+        },
+        {
+          "field": "fragility_points",
+          "delta_points": 2.345277748825202,
+          "unit": "score_points"
+        }
+      ],
+      "contribution_deltas": {
+        "liquidity_points": -0.34560179035292826,
+        "collections_points": 0.5334694790797627,
+        "debt_points": 0.0,
+        "momentum_points": 6.167862600206191,
+        "growth_points": 0.0,
+        "fragility_points": 2.345277748825202,
+        "clipping_points": 0.0
+      },
+      "state_quality": 1.0,
+      "evidence_changed": false,
+      "seasonality_available": false,
+      "annual_pattern_match": false,
+      "trajectory_basis": "observed_bank_core",
+      "lead_months": null,
+      "reference_event_as_of": null,
+      "delivery_mode": "initial_snapshot"
+    },
+    {
+      "company_id": "COMP_0779",
+      "as_of": "2026-09-01",
+      "state": "DETERIORO",
+      "model_version": "6434117ba83603d8d3905ba84d9e679e313df031a4b3adad9b4fa701b252b129",
+      "alert_id": "b085c70abf4a95dfee6fed0238c872a1ed6fb13370b7e101c56b3a706d503c3c",
+      "group_id": "GROUP_0108",
+      "severity": "ALTA",
+      "direction": "deterioration",
+      "score": 16.279129713513434,
+      "base_health": 24.00448431560698,
+      "momentum": -0.9656693252616935,
+      "delta_score": -30.03458264453966,
+      "comparison_as_of": "2026-06-01",
+      "drivers": [
+        {
+          "field": "liquidity_points",
+          "delta_points": -17.348079045025813,
+          "unit": "score_points"
+        },
+        {
+          "field": "collections_points",
+          "delta_points": -9.938841622226295,
+          "unit": "score_points"
+        }
+      ],
+      "contribution_deltas": {
+        "liquidity_points": -17.348079045025813,
+        "collections_points": -9.938841622226295,
+        "debt_points": 0.0,
+        "momentum_points": -5.477795986651911,
+        "growth_points": -0.8002532103216671,
+        "fragility_points": 3.5303872196860127,
+        "clipping_points": 0.0
+      },
+      "state_quality": 1.0,
+      "evidence_changed": false,
+      "seasonality_available": true,
+      "annual_pattern_match": false,
+      "trajectory_basis": "observed_bank_core",
+      "lead_months": null,
+      "reference_event_as_of": null,
+      "delivery_mode": "initial_snapshot"
+    },
+    {
+      "company_id": "COMP_0801",
+      "as_of": "2026-09-01",
+      "state": "DETERIORO",
+      "model_version": "6434117ba83603d8d3905ba84d9e679e313df031a4b3adad9b4fa701b252b129",
+      "alert_id": "a56284edf6c01f767a05e73d0ec758a26e8a68d4c108ac73ff6050584af69ef1",
+      "group_id": "GROUP_0023",
+      "severity": "ALTA",
+      "direction": "deterioration",
+      "score": 41.72996420830715,
+      "base_health": 45.17284168966621,
+      "momentum": -0.42355661053072374,
+      "delta_score": -24.283776452492376,
+      "comparison_as_of": "2026-06-01",
+      "drivers": [
+        {
+          "field": "liquidity_points",
+          "delta_points": -17.744116655285268,
+          "unit": "score_points"
+        },
+        {
+          "field": "growth_points",
+          "delta_points": -4.066143765684721,
+          "unit": "score_points"
+        }
+      ],
+      "contribution_deltas": {
+        "liquidity_points": -17.744116655285268,
+        "collections_points": 0.16836176609522724,
+        "debt_points": 0.0,
+        "momentum_points": -2.68352440314636,
+        "growth_points": -4.066143765684721,
+        "fragility_points": 0.04164660552874011,
+        "clipping_points": 0.0
+      },
+      "state_quality": 1.0,
+      "evidence_changed": false,
+      "seasonality_available": true,
+      "annual_pattern_match": false,
+      "trajectory_basis": "observed_bank_core",
+      "lead_months": null,
+      "reference_event_as_of": null,
+      "delivery_mode": "initial_snapshot"
+    },
+    {
+      "company_id": "COMP_0802",
+      "as_of": "2026-09-01",
+      "state": "DETERIORO",
+      "model_version": "6434117ba83603d8d3905ba84d9e679e313df031a4b3adad9b4fa701b252b129",
+      "alert_id": "e2c05ab802424129b34f0126149af1ff53319372b9b73a3aa1ddad2f9595a9c6",
+      "group_id": "GROUP_0117",
+      "severity": "ALTA",
+      "direction": "deterioration",
+      "score": 44.464970536397765,
+      "base_health": 46.161707496151415,
+      "momentum": -0.16307427467052724,
+      "delta_score": 2.3206393707077666,
+      "comparison_as_of": "2026-06-01",
+      "drivers": [
+        {
+          "field": "liquidity_points",
+          "delta_points": -3.439848749798447,
+          "unit": "score_points"
+        },
+        {
+          "field": "collections_points",
+          "delta_points": 3.0053407448772482,
+          "unit": "score_points"
+        }
+      ],
+      "contribution_deltas": {
+        "liquidity_points": -3.439848749798447,
+        "collections_points": 3.0053407448772482,
+        "debt_points": -0.2039853705160155,
+        "momentum_points": 1.9137788100301762,
+        "growth_points": 0.0,
+        "fragility_points": 1.0453539361148083,
+        "clipping_points": 0.0
+      },
+      "state_quality": 1.0,
+      "evidence_changed": false,
+      "seasonality_available": false,
+      "annual_pattern_match": false,
+      "trajectory_basis": "observed_bank_core",
+      "lead_months": null,
+      "reference_event_as_of": null,
+      "delivery_mode": "initial_snapshot"
+    },
+    {
+      "company_id": "COMP_0805",
+      "as_of": "2026-09-01",
+      "state": "RECUPERACION",
+      "model_version": "6434117ba83603d8d3905ba84d9e679e313df031a4b3adad9b4fa701b252b129",
+      "alert_id": "f6862ea5778adfb890969041e8288909ffab522cf52e546538e052699fad957b",
+      "group_id": "GROUP_0213",
+      "severity": "INFORMATIVA",
+      "direction": "improvement",
+      "score": 67.49005371876211,
+      "base_health": 64.24258946998593,
+      "momentum": 0.38735043759354537,
+      "delta_score": 44.90479370561214,
+      "comparison_as_of": "2026-06-01",
+      "drivers": [
+        {
+          "field": "liquidity_points",
+          "delta_points": 30.67826053348529,
+          "unit": "score_points"
+        },
+        {
+          "field": "momentum_points",
+          "delta_points": 10.92418244808363,
+          "unit": "score_points"
+        }
+      ],
+      "contribution_deltas": {
+        "liquidity_points": 30.67826053348529,
+        "collections_points": -0.020122890168629226,
+        "debt_points": 0.0,
+        "momentum_points": 10.92418244808363,
+        "growth_points": 3.353908902656941,
+        "fragility_points": -0.03143528844508303,
+        "clipping_points": 0.0
+      },
+      "state_quality": 1.0,
+      "evidence_changed": false,
+      "seasonality_available": false,
+      "annual_pattern_match": false,
+      "trajectory_basis": "observed_bank_core",
+      "lead_months": null,
+      "reference_event_as_of": null,
+      "delivery_mode": "initial_snapshot"
+    },
+    {
+      "company_id": "COMP_0807",
+      "as_of": "2026-09-01",
+      "state": "DETERIORO",
+      "model_version": "6434117ba83603d8d3905ba84d9e679e313df031a4b3adad9b4fa701b252b129",
+      "alert_id": "5b9f710de4b6e83e6739cabaf16ccaf7d67ffd66b183250fc00de6483ff3818f",
+      "group_id": "GROUP_0101",
+      "severity": "ALTA",
+      "direction": "deterioration",
+      "score": 16.28695659785072,
+      "base_health": 24.004730343565768,
+      "momentum": -0.9647217182143815,
+      "delta_score": -38.76249586528198,
+      "comparison_as_of": "2026-06-01",
+      "drivers": [
+        {
+          "field": "liquidity_points",
+          "delta_points": -23.787481280116545,
+          "unit": "score_points"
+        },
+        {
+          "field": "momentum_points",
+          "delta_points": -7.717773745715052,
+          "unit": "score_points"
+        }
+      ],
+      "contribution_deltas": {
+        "liquidity_points": -23.787481280116545,
+        "collections_points": -7.215233152898598,
+        "debt_points": -0.042007686551782664,
+        "momentum_points": -7.717773745715052,
+        "growth_points": 0.0,
+        "fragility_points": 0.0,
+        "clipping_points": 0.0
+      },
+      "state_quality": 1.0,
+      "evidence_changed": false,
+      "seasonality_available": true,
+      "annual_pattern_match": false,
+      "trajectory_basis": "observed_bank_core",
+      "lead_months": null,
+      "reference_event_as_of": null,
+      "delivery_mode": "initial_snapshot"
+    },
+    {
+      "company_id": "COMP_0841",
+      "as_of": "2026-09-01",
+      "state": "RECUPERACION",
+      "model_version": "6434117ba83603d8d3905ba84d9e679e313df031a4b3adad9b4fa701b252b129",
+      "alert_id": "b9b31a7141196d7f401019a1c0fb93725520790cfc90e8d108cc37532f4d1c3d",
+      "group_id": "GROUP_0005",
+      "severity": "INFORMATIVA",
+      "direction": "improvement",
+      "score": 67.45073412317977,
+      "base_health": 60.57584724471954,
+      "momentum": 0.6951389975239809,
+      "delta_score": 20.618531504915268,
+      "comparison_as_of": "2026-06-01",
+      "drivers": [
+        {
+          "field": "liquidity_points",
+          "delta_points": 8.497003106201444,
+          "unit": "score_points"
+        },
+        {
+          "field": "momentum_points",
+          "delta_points": 7.720750878865462,
+          "unit": "score_points"
+        }
+      ],
+      "contribution_deltas": {
+        "liquidity_points": 8.497003106201444,
+        "collections_points": 2.260187380562069,
+        "debt_points": 0.11007696490669616,
+        "momentum_points": 7.720750878865462,
+        "growth_points": 2.447332563255821,
+        "fragility_points": -0.4168193888762355,
+        "clipping_points": 0.0
+      },
+      "state_quality": 1.0,
+      "evidence_changed": false,
+      "seasonality_available": true,
+      "annual_pattern_match": false,
+      "trajectory_basis": "observed_bank_core",
+      "lead_months": null,
+      "reference_event_as_of": null,
+      "delivery_mode": "initial_snapshot"
+    },
+    {
+      "company_id": "COMP_0847",
+      "as_of": "2026-09-01",
+      "state": "RECUPERACION",
+      "model_version": "6434117ba83603d8d3905ba84d9e679e313df031a4b3adad9b4fa701b252b129",
+      "alert_id": "063a7f38856432a816b3a9ae526a778f79952922b8024d5323ac237668371b22",
+      "group_id": "GROUP_0037",
+      "severity": "INFORMATIVA",
+      "direction": "improvement",
+      "score": 68.02239258546705,
+      "base_health": 58.52155090460205,
+      "momentum": 0.8973150124522724,
+      "delta_score": 27.857909604763456,
+      "comparison_as_of": "2026-06-01",
+      "drivers": [
+        {
+          "field": "liquidity_points",
+          "delta_points": 18.996470317150948,
+          "unit": "score_points"
+        },
+        {
+          "field": "momentum_points",
+          "delta_points": 5.324933626590746,
+          "unit": "score_points"
+        }
+      ],
+      "contribution_deltas": {
+        "liquidity_points": 18.996470317150948,
+        "collections_points": 2.703307163552207,
+        "debt_points": 0.0,
+        "momentum_points": 5.324933626590746,
+        "growth_points": 1.3829543897879817,
+        "fragility_points": -0.5497558923184425,
+        "clipping_points": 0.0
+      },
+      "state_quality": 1.0,
+      "evidence_changed": false,
+      "seasonality_available": true,
+      "annual_pattern_match": false,
+      "trajectory_basis": "observed_bank_core",
+      "lead_months": null,
+      "reference_event_as_of": null,
+      "delivery_mode": "initial_snapshot"
+    },
+    {
+      "company_id": "COMP_0852",
+      "as_of": "2026-09-01",
+      "state": "RECUPERACION",
+      "model_version": "6434117ba83603d8d3905ba84d9e679e313df031a4b3adad9b4fa701b252b129",
+      "alert_id": "795cb5d4aa023353402ff9836c7ff29ab3d805831021d21dbb72b3542cbd4957",
+      "group_id": "GROUP_0090",
+      "severity": "INFORMATIVA",
+      "direction": "improvement",
+      "score": 67.63648276476538,
+      "base_health": 63.72770007085555,
+      "momentum": 0.0,
+      "delta_score": -3.898229061657304,
+      "comparison_as_of": "2026-06-01",
+      "drivers": [
+        {
+          "field": "momentum_points",
+          "delta_points": -3.2152639863515087,
+          "unit": "score_points"
+        },
+        {
+          "field": "liquidity_points",
+          "delta_points": -2.6249495286521167,
+          "unit": "score_points"
+        }
+      ],
+      "contribution_deltas": {
+        "liquidity_points": -2.6249495286521167,
+        "collections_points": 2.161999266376373,
+        "debt_points": 0.0,
+        "momentum_points": -3.2152639863515087,
+        "growth_points": -0.016716332667971123,
+        "fragility_points": -0.20329848036209341,
+        "clipping_points": 0.0
+      },
+      "state_quality": 1.0,
+      "evidence_changed": false,
+      "seasonality_available": true,
+      "annual_pattern_match": false,
+      "trajectory_basis": "observed_bank_core",
+      "lead_months": null,
+      "reference_event_as_of": null,
+      "delivery_mode": "initial_snapshot"
+    },
+    {
+      "company_id": "COMP_0865",
+      "as_of": "2026-09-01",
+      "state": "DETERIORO",
+      "model_version": "6434117ba83603d8d3905ba84d9e679e313df031a4b3adad9b4fa701b252b129",
+      "alert_id": "0bfacc5a4ce2ed7ae46732cf8ca0cf3d80d3909f61d7995feb5d6999c205ff12",
+      "group_id": "GROUP_0230",
+      "severity": "ALTA",
+      "direction": "deterioration",
+      "score": 36.82229200191844,
+      "base_health": 39.72204336286712,
+      "momentum": -0.3585894847815424,
+      "delta_score": -12.101982709638577,
+      "comparison_as_of": "2026-06-01",
+      "drivers": [
+        {
+          "field": "liquidity_points",
+          "delta_points": -8.751265105690095,
+          "unit": "score_points"
+        },
+        {
+          "field": "growth_points",
+          "delta_points": -2.9529214262128067,
+          "unit": "score_points"
+        }
+      ],
+      "contribution_deltas": {
+        "liquidity_points": -8.751265105690095,
+        "collections_points": 0.7092196877050618,
+        "debt_points": 0.0,
+        "momentum_points": -1.0759803827444023,
+        "growth_points": -2.9529214262128067,
+        "fragility_points": -0.031035482696335492,
+        "clipping_points": 0.0
+      },
+      "state_quality": 1.0,
+      "evidence_changed": false,
+      "seasonality_available": false,
+      "annual_pattern_match": false,
+      "trajectory_basis": "observed_bank_core",
+      "lead_months": null,
+      "reference_event_as_of": null,
+      "delivery_mode": "initial_snapshot"
+    },
+    {
+      "company_id": "COMP_0888",
+      "as_of": "2026-09-01",
+      "state": "MEJORANDO",
+      "model_version": "6434117ba83603d8d3905ba84d9e679e313df031a4b3adad9b4fa701b252b129",
+      "alert_id": "05eabcf274ea223d6b4895c032f33e2d20262a6fdc1fd53e2abbfa507f17e106",
+      "group_id": "GROUP_0142",
+      "severity": "INFORMATIVA",
+      "direction": "improvement",
+      "score": 59.7219962020891,
+      "base_health": 58.89061951772578,
+      "momentum": -0.014145334624893244,
+      "delta_score": -3.9103553057672187,
+      "comparison_as_of": "2026-06-01",
+      "drivers": [
+        {
+          "field": "momentum_points",
+          "delta_points": -3.62458269027061,
+          "unit": "score_points"
+        },
+        {
+          "field": "growth_points",
+          "delta_points": 3.5478325215223454,
+          "unit": "score_points"
+        }
+      ],
+      "contribution_deltas": {
+        "liquidity_points": -2.488489253064518,
+        "collections_points": 3.5461255817400925,
+        "debt_points": -2.7242511373191025,
+        "momentum_points": -3.62458269027061,
+        "growth_points": 3.5478325215223454,
+        "fragility_points": -2.1669903283754266,
+        "clipping_points": 0.0
+      },
+      "state_quality": 1.0,
+      "evidence_changed": false,
+      "seasonality_available": true,
+      "annual_pattern_match": false,
+      "trajectory_basis": "observed_bank_core",
+      "lead_months": null,
+      "reference_event_as_of": null,
+      "delivery_mode": "initial_snapshot"
+    },
+    {
+      "company_id": "COMP_0891",
+      "as_of": "2026-09-01",
+      "state": "MEJORANDO",
+      "model_version": "6434117ba83603d8d3905ba84d9e679e313df031a4b3adad9b4fa701b252b129",
+      "alert_id": "74627b1fb13e9f5a71ca06c7fc6e0892eff3c249f686db3552d7c14aea304d2d",
+      "group_id": "GROUP_0081",
+      "severity": "INFORMATIVA",
+      "direction": "improvement",
+      "score": 56.36867599311705,
+      "base_health": 61.182275434721205,
+      "momentum": 0.014774611105635455,
+      "delta_score": -4.9393984544500995,
+      "comparison_as_of": "2026-06-01",
+      "drivers": [
+        {
+          "field": "liquidity_points",
+          "delta_points": -3.8250501158817016,
+          "unit": "score_points"
+        },
+        {
+          "field": "growth_points",
+          "delta_points": -3.432931610338673,
+          "unit": "score_points"
+        }
+      ],
+      "contribution_deltas": {
+        "liquidity_points": -3.8250501158817016,
+        "collections_points": 3.2659760627393233,
+        "debt_points": 0.0,
+        "momentum_points": -0.8675755115983551,
+        "growth_points": -3.432931610338673,
+        "fragility_points": -0.07981727937068861,
+        "clipping_points": 0.0
+      },
+      "state_quality": 1.0,
+      "evidence_changed": false,
+      "seasonality_available": false,
+      "annual_pattern_match": false,
+      "trajectory_basis": "observed_bank_core",
+      "lead_months": null,
+      "reference_event_as_of": null,
+      "delivery_mode": "initial_snapshot"
+    },
+    {
+      "company_id": "COMP_0908",
+      "as_of": "2026-09-01",
+      "state": "RECUPERACION",
+      "model_version": "6434117ba83603d8d3905ba84d9e679e313df031a4b3adad9b4fa701b252b129",
+      "alert_id": "5ba1d62e3f80c8192760db46fc4447820d6dfd001bb19d833db18f24ceb07894",
+      "group_id": "GROUP_0022",
+      "severity": "INFORMATIVA",
+      "direction": "improvement",
+      "score": 73.16214556096483,
+      "base_health": 67.05849920794257,
+      "momentum": 0.34162926210194955,
+      "delta_score": 20.682971130766937,
+      "comparison_as_of": "2026-06-01",
+      "drivers": [
+        {
+          "field": "liquidity_points",
+          "delta_points": 14.152328028060904,
+          "unit": "score_points"
+        },
+        {
+          "field": "momentum_points",
+          "delta_points": 5.006514921618935,
+          "unit": "score_points"
+        }
+      ],
+      "contribution_deltas": {
+        "liquidity_points": 14.152328028060904,
+        "collections_points": 1.4189007367531303,
+        "debt_points": -3.874933127278214,
+        "momentum_points": 5.006514921618935,
+        "growth_points": 4.1080115105769375,
+        "fragility_points": -0.12785093896475086,
+        "clipping_points": 0.0
+      },
+      "state_quality": 1.0,
+      "evidence_changed": false,
+      "seasonality_available": true,
+      "annual_pattern_match": false,
+      "trajectory_basis": "observed_bank_core",
+      "lead_months": null,
+      "reference_event_as_of": null,
+      "delivery_mode": "initial_snapshot"
+    },
+    {
+      "company_id": "COMP_0931",
+      "as_of": "2026-09-01",
+      "state": "RECUPERACION",
+      "model_version": "6434117ba83603d8d3905ba84d9e679e313df031a4b3adad9b4fa701b252b129",
+      "alert_id": "d403f66e885409b572ef9090a31fd7ead39648bcbb2414d70b3a4bd7dbf97b9c",
+      "group_id": "GROUP_0084",
+      "severity": "INFORMATIVA",
+      "direction": "improvement",
+      "score": 72.58897441348978,
+      "base_health": 65.65390550294805,
+      "momentum": 0.6144172203562832,
+      "delta_score": 20.748876726061056,
+      "comparison_as_of": "2026-06-01",
+      "drivers": [
+        {
+          "field": "momentum_points",
+          "delta_points": 9.57447339481485,
+          "unit": "score_points"
+        },
+        {
+          "field": "liquidity_points",
+          "delta_points": 7.681309832059448,
+          "unit": "score_points"
+        }
+      ],
+      "contribution_deltas": {
+        "liquidity_points": 7.681309832059448,
+        "collections_points": 1.1231429561576363,
+        "debt_points": 0.0,
+        "momentum_points": 9.57447339481485,
+        "growth_points": 3.6149420594643003,
+        "fragility_points": -1.2449915164351708,
+        "clipping_points": 0.0
+      },
+      "state_quality": 1.0,
+      "evidence_changed": false,
+      "seasonality_available": true,
+      "annual_pattern_match": false,
+      "trajectory_basis": "observed_bank_core",
+      "lead_months": null,
+      "reference_event_as_of": null,
+      "delivery_mode": "initial_snapshot"
+    },
+    {
+      "company_id": "COMP_0940",
+      "as_of": "2026-09-01",
+      "state": "DETERIORO",
+      "model_version": "6434117ba83603d8d3905ba84d9e679e313df031a4b3adad9b4fa701b252b129",
+      "alert_id": "b571f3220dfb239824ae55113dd2be9119ad416be0491caddf48ba3f3800329c",
+      "group_id": "GROUP_0217",
+      "severity": "ALTA",
+      "direction": "deterioration",
+      "score": 41.81475267348811,
+      "base_health": 51.106709266839644,
+      "momentum": -0.7329920548124329,
+      "delta_score": -33.50188622299584,
+      "comparison_as_of": "2026-06-01",
+      "drivers": [
+        {
+          "field": "liquidity_points",
+          "delta_points": -13.43640447003305,
+          "unit": "score_points"
+        },
+        {
+          "field": "momentum_points",
+          "delta_points": -9.10294579391507,
+          "unit": "score_points"
+        }
+      ],
+      "contribution_deltas": {
+        "liquidity_points": -13.43640447003305,
+        "collections_points": -6.726903005334741,
+        "debt_points": 0.0,
+        "momentum_points": -9.10294579391507,
+        "growth_points": -3.534546968001087,
+        "fragility_points": -0.7010859857118965,
+        "clipping_points": 0.0
+      },
+      "state_quality": 1.0,
+      "evidence_changed": false,
+      "seasonality_available": true,
+      "annual_pattern_match": false,
+      "trajectory_basis": "observed_bank_core",
+      "lead_months": null,
+      "reference_event_as_of": null,
+      "delivery_mode": "initial_snapshot"
+    },
+    {
+      "company_id": "COMP_0974",
+      "as_of": "2026-09-01",
+      "state": "DETERIORO",
+      "model_version": "6434117ba83603d8d3905ba84d9e679e313df031a4b3adad9b4fa701b252b129",
+      "alert_id": "73ff98f688d5774e26e74e107355fd1e9adef5031526e40d31f708dc68428213",
+      "group_id": "GROUP_0195",
+      "severity": "ALTA",
+      "direction": "deterioration",
+      "score": 51.110678438377406,
+      "base_health": 47.939262102257146,
+      "momentum": 0.09331193239043603,
+      "delta_score": 17.471450435833255,
+      "comparison_as_of": "2026-06-01",
+      "drivers": [
+        {
+          "field": "liquidity_points",
+          "delta_points": 10.925042951759771,
+          "unit": "score_points"
+        },
+        {
+          "field": "momentum_points",
+          "delta_points": 4.036717850481203,
+          "unit": "score_points"
+        }
+      ],
+      "contribution_deltas": {
+        "liquidity_points": 10.925042951759771,
+        "collections_points": -0.044749268794511465,
+        "debt_points": 0.0020031398163116165,
+        "momentum_points": 4.036717850481203,
+        "growth_points": 2.6235666839495675,
+        "fragility_points": -0.07113092137908339,
+        "clipping_points": 0.0
+      },
+      "state_quality": 1.0,
+      "evidence_changed": false,
+      "seasonality_available": false,
+      "annual_pattern_match": false,
+      "trajectory_basis": "observed_bank_core",
+      "lead_months": null,
+      "reference_event_as_of": null,
+      "delivery_mode": "initial_snapshot"
+    },
+    {
+      "company_id": "COMP_0978",
+      "as_of": "2026-09-01",
+      "state": "DETERIORO",
+      "model_version": "6434117ba83603d8d3905ba84d9e679e313df031a4b3adad9b4fa701b252b129",
+      "alert_id": "1944fa4baf50382144d6f52e4251e539e6f3b7af1c3ffb248cfca0d5779d565a",
+      "group_id": "GROUP_0142",
+      "severity": "ALTA",
+      "direction": "deterioration",
+      "score": 53.11757629474227,
+      "base_health": 57.84837771328111,
+      "momentum": -0.31836313486517015,
+      "delta_score": -24.82107681975497,
+      "comparison_as_of": "2026-06-01",
+      "drivers": [
+        {
+          "field": "liquidity_points",
+          "delta_points": -13.971702887196798,
+          "unit": "score_points"
+        },
+        {
+          "field": "momentum_points",
+          "delta_points": -7.887406585968627,
+          "unit": "score_points"
+        }
+      ],
+      "contribution_deltas": {
+        "liquidity_points": -13.971702887196798,
+        "collections_points": 1.967889547481633,
+        "debt_points": 4.2125055969677305e-05,
+        "momentum_points": -7.887406585968627,
+        "growth_points": -4.100095496268335,
+        "fragility_points": -0.8298035228588132,
+        "clipping_points": 0.0
+      },
+      "state_quality": 1.0,
+      "evidence_changed": false,
+      "seasonality_available": true,
+      "annual_pattern_match": false,
+      "trajectory_basis": "observed_bank_core",
+      "lead_months": null,
+      "reference_event_as_of": null,
+      "delivery_mode": "initial_snapshot"
+    },
+    {
+      "company_id": "COMP_0993",
+      "as_of": "2026-09-01",
+      "state": "RECUPERACION",
+      "model_version": "6434117ba83603d8d3905ba84d9e679e313df031a4b3adad9b4fa701b252b129",
+      "alert_id": "29b72d27523fdc57ff86f0fa7381ad84f45b035e9f1f8c3e32e1af9585162734",
+      "group_id": "GROUP_0226",
+      "severity": "INFORMATIVA",
+      "direction": "improvement",
+      "score": 65.09414816690595,
+      "base_health": 59.731824921295974,
+      "momentum": 0.29485432799786704,
+      "delta_score": 4.47252211673306,
+      "comparison_as_of": "2026-06-01",
+      "drivers": [
+        {
+          "field": "collections_points",
+          "delta_points": 7.272858511622452,
+          "unit": "score_points"
+        },
+        {
+          "field": "liquidity_points",
+          "delta_points": -2.5265020447285593,
+          "unit": "score_points"
+        }
+      ],
+      "contribution_deltas": {
+        "liquidity_points": -2.5265020447285593,
+        "collections_points": 7.272858511622452,
+        "debt_points": 0.3114305879066439,
+        "momentum_points": -1.0479940001570007,
+        "growth_points": 0.45182577724687567,
+        "fragility_points": 0.010903284842634697,
+        "clipping_points": 0.0
+      },
+      "state_quality": 1.0,
+      "evidence_changed": false,
+      "seasonality_available": true,
+      "annual_pattern_match": false,
+      "trajectory_basis": "observed_bank_core",
+      "lead_months": null,
+      "reference_event_as_of": null,
+      "delivery_mode": "initial_snapshot"
+    },
+    {
+      "company_id": "COMP_0998",
+      "as_of": "2026-09-01",
+      "state": "DETERIORO",
+      "model_version": "6434117ba83603d8d3905ba84d9e679e313df031a4b3adad9b4fa701b252b129",
+      "alert_id": "2a3e98ec9c713d1edb0ce1d4268023d641ca625348b2088833fbb566021c4285",
+      "group_id": "GROUP_0192",
+      "severity": "ALTA",
+      "direction": "deterioration",
+      "score": 40.98273560441869,
+      "base_health": 47.490163986574544,
+      "momentum": -0.8013117470160951,
+      "delta_score": -38.36819984511541,
+      "comparison_as_of": "2026-06-01",
+      "drivers": [
+        {
+          "field": "liquidity_points",
+          "delta_points": -25.995035052323907,
+          "unit": "score_points"
+        },
+        {
+          "field": "momentum_points",
+          "delta_points": -13.5480321981463,
+          "unit": "score_points"
+        }
+      ],
+      "contribution_deltas": {
+        "liquidity_points": -25.995035052323907,
+        "collections_points": -2.0399679879719024,
+        "debt_points": 0.00019044131019541055,
+        "momentum_points": -13.5480321981463,
+        "growth_points": 1.7169453068240021,
+        "fragility_points": 1.497699645192501,
+        "clipping_points": 0.0
+      },
+      "state_quality": 1.0,
+      "evidence_changed": false,
+      "seasonality_available": false,
+      "annual_pattern_match": false,
+      "trajectory_basis": "observed_bank_core",
+      "lead_months": null,
+      "reference_event_as_of": null,
+      "delivery_mode": "initial_snapshot"
+    },
+    {
+      "company_id": "COMP_1014",
+      "as_of": "2026-09-01",
+      "state": "DETERIORO",
+      "model_version": "6434117ba83603d8d3905ba84d9e679e313df031a4b3adad9b4fa701b252b129",
+      "alert_id": "f9aff08804f2a3ea31f0b462c9901938767c73a3b2efeb04a0f8d87f02669afe",
+      "group_id": "GROUP_0132",
+      "severity": "ALTA",
+      "direction": "deterioration",
+      "score": 50.90935374197631,
+      "base_health": 52.10241496477613,
+      "momentum": 0.09625553281401045,
+      "delta_score": 16.038388060049073,
+      "comparison_as_of": "2026-06-01",
+      "drivers": [
+        {
+          "field": "liquidity_points",
+          "delta_points": 8.619006220026332,
+          "unit": "score_points"
+        },
+        {
+          "field": "momentum_points",
+          "delta_points": 7.7637628530272735,
+          "unit": "score_points"
+        }
+      ],
+      "contribution_deltas": {
+        "liquidity_points": 8.619006220026332,
+        "collections_points": 0.1867980677258707,
+        "debt_points": 0.0,
+        "momentum_points": 7.7637628530272735,
+        "growth_points": 0.0,
+        "fragility_points": -0.531179080730408,
+        "clipping_points": 0.0
+      },
+      "state_quality": 1.0,
+      "evidence_changed": false,
+      "seasonality_available": true,
+      "annual_pattern_match": false,
+      "trajectory_basis": "observed_bank_core",
+      "lead_months": null,
+      "reference_event_as_of": null,
+      "delivery_mode": "initial_snapshot"
+    },
+    {
+      "company_id": "COMP_1019",
+      "as_of": "2026-09-01",
+      "state": "RECUPERACION",
+      "model_version": "6434117ba83603d8d3905ba84d9e679e313df031a4b3adad9b4fa701b252b129",
+      "alert_id": "52543ee077f11ddf1d66df1bc5f86b64db802cee45a2d9a6ab32f4bf8ac997a1",
+      "group_id": "GROUP_0118",
+      "severity": "INFORMATIVA",
+      "direction": "improvement",
+      "score": 56.822379274417756,
+      "base_health": 57.3119957439027,
+      "momentum": -0.0,
+      "delta_score": -9.276494087364213,
+      "comparison_as_of": "2026-06-01",
+      "drivers": [
+        {
+          "field": "momentum_points",
+          "delta_points": -4.840695819038261,
+          "unit": "score_points"
+        },
+        {
+          "field": "growth_points",
+          "delta_points": -3.3804716686990828,
+          "unit": "score_points"
+        }
+      ],
+      "contribution_deltas": {
+        "liquidity_points": -0.15112402185427953,
+        "collections_points": -1.2015019244741119,
+        "debt_points": 0.0,
+        "momentum_points": -4.840695819038261,
+        "growth_points": -3.3804716686990828,
+        "fragility_points": 0.2972993467015197,
+        "clipping_points": 0.0
+      },
+      "state_quality": 1.0,
+      "evidence_changed": false,
+      "seasonality_available": true,
+      "annual_pattern_match": false,
+      "trajectory_basis": "observed_bank_core",
+      "lead_months": null,
+      "reference_event_as_of": null,
+      "delivery_mode": "initial_snapshot"
+    },
+    {
+      "company_id": "COMP_1030",
+      "as_of": "2026-09-01",
+      "state": "MEJORANDO",
+      "model_version": "6434117ba83603d8d3905ba84d9e679e313df031a4b3adad9b4fa701b252b129",
+      "alert_id": "a4b7d68744a3c689293d375742bb932ddd4c63b0004d287e2b7a5894bbfb2e3c",
+      "group_id": "GROUP_0108",
+      "severity": "INFORMATIVA",
+      "direction": "improvement",
+      "score": 60.71408545003336,
+      "base_health": 59.21957092936469,
+      "momentum": 0.24522742040749207,
+      "delta_score": 4.804785764610081,
+      "comparison_as_of": "2026-06-01",
+      "drivers": [
+        {
+          "field": "liquidity_points",
+          "delta_points": 2.76338621176399,
+          "unit": "score_points"
+        },
+        {
+          "field": "momentum_points",
+          "delta_points": 1.7407353356527957,
+          "unit": "score_points"
+        }
+      ],
+      "contribution_deltas": {
+        "liquidity_points": 2.76338621176399,
+        "collections_points": 0.5879438544857507,
+        "debt_points": 0.0,
+        "momentum_points": 1.7407353356527957,
+        "growth_points": 0.7402902257754689,
+        "fragility_points": -1.0275698630679164,
+        "clipping_points": 0.0
+      },
+      "state_quality": 1.0,
+      "evidence_changed": false,
+      "seasonality_available": false,
+      "annual_pattern_match": false,
+      "trajectory_basis": "observed_bank_core",
+      "lead_months": null,
+      "reference_event_as_of": null,
+      "delivery_mode": "initial_snapshot"
+    },
+    {
+      "company_id": "COMP_1039",
+      "as_of": "2026-09-01",
+      "state": "DETERIORO",
+      "model_version": "6434117ba83603d8d3905ba84d9e679e313df031a4b3adad9b4fa701b252b129",
+      "alert_id": "9f967583124932ecd1a34ea674c5c7da2d0596fee529671ac991b9cff006aef1",
+      "group_id": "GROUP_0146",
+      "severity": "ALTA",
+      "direction": "deterioration",
+      "score": 52.88511199877928,
+      "base_health": 55.1660393973607,
+      "momentum": -0.23350654875823817,
+      "delta_score": -5.609066931018006,
+      "comparison_as_of": "2026-06-01",
+      "drivers": [
+        {
+          "field": "liquidity_points",
+          "delta_points": -7.297599514808674,
+          "unit": "score_points"
+        },
+        {
+          "field": "debt_points",
+          "delta_points": 2.7437060775394038,
+          "unit": "score_points"
+        }
+      ],
+      "contribution_deltas": {
+        "liquidity_points": -7.297599514808674,
+        "collections_points": -0.37209264575356826,
+        "debt_points": 2.7437060775394038,
+        "momentum_points": -0.806354227378727,
+        "growth_points": 0.0,
+        "fragility_points": 0.12327337938357008,
+        "clipping_points": 0.0
+      },
+      "state_quality": 1.0,
+      "evidence_changed": false,
+      "seasonality_available": true,
+      "annual_pattern_match": false,
+      "trajectory_basis": "observed_bank_core",
+      "lead_months": null,
+      "reference_event_as_of": null,
+      "delivery_mode": "initial_snapshot"
+    },
+    {
+      "company_id": "COMP_1048",
+      "as_of": "2026-09-01",
+      "state": "RECUPERACION",
+      "model_version": "6434117ba83603d8d3905ba84d9e679e313df031a4b3adad9b4fa701b252b129",
+      "alert_id": "9511a94fb39708aea1fe5a5580c9471065bce5335376d701c3ed26342dd68d8d",
+      "group_id": "GROUP_0067",
+      "severity": "INFORMATIVA",
+      "direction": "improvement",
+      "score": 82.5684000643773,
+      "base_health": 71.85836822057281,
+      "momentum": 0.7870547257062803,
+      "delta_score": 21.606348573261258,
+      "comparison_as_of": "2026-06-01",
+      "drivers": [
+        {
+          "field": "liquidity_points",
+          "delta_points": 12.910858087475443,
+          "unit": "score_points"
+        },
+        {
+          "field": "growth_points",
+          "delta_points": 4.413594038154238,
+          "unit": "score_points"
+        }
+      ],
+      "contribution_deltas": {
+        "liquidity_points": 12.910858087475443,
+        "collections_points": 0.0793105798365481,
+        "debt_points": 0.1314116984656355,
+        "momentum_points": 4.058428268505338,
+        "growth_points": 4.413594038154238,
+        "fragility_points": 0.012745900824053358,
+        "clipping_points": 0.0
+      },
+      "state_quality": 1.0,
+      "evidence_changed": false,
+      "seasonality_available": true,
+      "annual_pattern_match": false,
+      "trajectory_basis": "observed_bank_core",
+      "lead_months": null,
+      "reference_event_as_of": null,
+      "delivery_mode": "initial_snapshot"
+    },
+    {
+      "company_id": "COMP_1055",
+      "as_of": "2026-09-01",
+      "state": "MEJORANDO",
+      "model_version": "6434117ba83603d8d3905ba84d9e679e313df031a4b3adad9b4fa701b252b129",
+      "alert_id": "30534af2e93fdcb805e0ece0a34cd24cf2d91d51ca851543d51b76aa5c7fb021",
+      "group_id": "GROUP_0087",
+      "severity": "INFORMATIVA",
+      "direction": "improvement",
+      "score": 62.27103819043562,
+      "base_health": 61.61025298788154,
+      "momentum": 0.14438063428539227,
+      "delta_score": 0.4771361550824196,
+      "comparison_as_of": "2026-06-01",
+      "drivers": [
+        {
+          "field": "collections_points",
+          "delta_points": 1.5368298709829453,
+          "unit": "score_points"
+        },
+        {
+          "field": "momentum_points",
+          "delta_points": -1.3296027054623658,
+          "unit": "score_points"
+        }
+      ],
+      "contribution_deltas": {
+        "liquidity_points": 0.7613656730355203,
+        "collections_points": 1.5368298709829453,
+        "debt_points": 0.0,
+        "momentum_points": -1.3296027054623658,
+        "growth_points": 0.0,
+        "fragility_points": -0.491456683473686,
+        "clipping_points": 0.0
+      },
+      "state_quality": 1.0,
+      "evidence_changed": false,
+      "seasonality_available": false,
+      "annual_pattern_match": false,
+      "trajectory_basis": "observed_bank_core",
+      "lead_months": null,
+      "reference_event_as_of": null,
+      "delivery_mode": "initial_snapshot"
+    },
+    {
+      "company_id": "COMP_1066",
+      "as_of": "2026-09-01",
+      "state": "MEJORANDO",
+      "model_version": "6434117ba83603d8d3905ba84d9e679e313df031a4b3adad9b4fa701b252b129",
+      "alert_id": "ca57a923ff15cb726bfe80e1733c87a7b706858284c6506dce20fb65c34a09f0",
+      "group_id": "GROUP_0051",
+      "severity": "INFORMATIVA",
+      "direction": "improvement",
+      "score": 71.55043172559195,
+      "base_health": 64.27420934264782,
+      "momentum": 0.6337107018170482,
+      "delta_score": 13.714119966482478,
+      "comparison_as_of": "2026-06-01",
+      "drivers": [
+        {
+          "field": "liquidity_points",
+          "delta_points": 4.537102939761375,
+          "unit": "score_points"
+        },
+        {
+          "field": "momentum_points",
+          "delta_points": 4.062386903643513,
+          "unit": "score_points"
+        }
+      ],
+      "contribution_deltas": {
+        "liquidity_points": 4.537102939761375,
+        "collections_points": 0.7891564632672967,
+        "debt_points": 2.071992983387039,
+        "momentum_points": 4.062386903643513,
+        "growth_points": 2.4773583287743133,
+        "fragility_points": -0.22387765235105928,
+        "clipping_points": 0.0
+      },
+      "state_quality": 1.0,
+      "evidence_changed": false,
+      "seasonality_available": false,
+      "annual_pattern_match": false,
+      "trajectory_basis": "observed_bank_core",
+      "lead_months": null,
+      "reference_event_as_of": null,
+      "delivery_mode": "initial_snapshot"
+    },
+    {
+      "company_id": "COMP_1078",
+      "as_of": "2026-09-01",
+      "state": "DETERIORO",
+      "model_version": "6434117ba83603d8d3905ba84d9e679e313df031a4b3adad9b4fa701b252b129",
+      "alert_id": "24832eb77630918db6ee002bc8d62985bce706434ad44a301d8cd94db84df747",
+      "group_id": "GROUP_0013",
+      "severity": "ALTA",
+      "direction": "deterioration",
+      "score": 55.84453489526148,
+      "base_health": 55.8664660532239,
+      "momentum": -0.01748112508531599,
+      "delta_score": 4.643890490887216,
+      "comparison_as_of": "2026-06-01",
+      "drivers": [
+        {
+          "field": "growth_points",
+          "delta_points": 2.5392723922255427,
+          "unit": "score_points"
+        },
+        {
+          "field": "collections_points",
+          "delta_points": 1.3856085917575243,
+          "unit": "score_points"
+        }
+      ],
+      "contribution_deltas": {
+        "liquidity_points": -0.4891984467386017,
+        "collections_points": 1.3856085917575243,
+        "debt_points": 0.0,
+        "momentum_points": 1.1376500176801942,
+        "growth_points": 2.5392723922255427,
+        "fragility_points": 0.07055793596255633,
+        "clipping_points": 0.0
+      },
+      "state_quality": 1.0,
+      "evidence_changed": false,
+      "seasonality_available": true,
+      "annual_pattern_match": false,
+      "trajectory_basis": "observed_bank_core",
+      "lead_months": null,
+      "reference_event_as_of": null,
+      "delivery_mode": "initial_snapshot"
+    },
+    {
+      "company_id": "COMP_1079",
+      "as_of": "2026-09-01",
+      "state": "RECUPERACION",
+      "model_version": "6434117ba83603d8d3905ba84d9e679e313df031a4b3adad9b4fa701b252b129",
+      "alert_id": "14fca0dd7fb4334f21a5992012d77161b7441dbc690360d05932fe4a15ccdda9",
+      "group_id": "GROUP_0141",
+      "severity": "INFORMATIVA",
+      "direction": "improvement",
+      "score": 73.08057569825675,
+      "base_health": 67.46186628486015,
+      "momentum": 0.26579284967614725,
+      "delta_score": -0.03321332868624438,
+      "comparison_as_of": "2026-06-01",
+      "drivers": [
+        {
+          "field": "liquidity_points",
+          "delta_points": 4.628915252325875,
+          "unit": "score_points"
+        },
+        {
+          "field": "momentum_points",
+          "delta_points": -4.145846944583699,
+          "unit": "score_points"
+        }
+      ],
+      "contribution_deltas": {
+        "liquidity_points": 4.628915252325875,
+        "collections_points": -2.769049886719305,
+        "debt_points": 1.3027390945222148,
+        "momentum_points": -4.145846944583699,
+        "growth_points": -0.38065647416248094,
+        "fragility_points": 1.330685629931172,
+        "clipping_points": 0.0
+      },
+      "state_quality": 1.0,
+      "evidence_changed": false,
+      "seasonality_available": true,
+      "annual_pattern_match": false,
+      "trajectory_basis": "observed_bank_core",
+      "lead_months": null,
+      "reference_event_as_of": null,
+      "delivery_mode": "initial_snapshot"
+    },
+    {
+      "company_id": "COMP_1089",
+      "as_of": "2026-09-01",
+      "state": "DETERIORO",
+      "model_version": "6434117ba83603d8d3905ba84d9e679e313df031a4b3adad9b4fa701b252b129",
+      "alert_id": "a3c4af6f8d7bebc391942b5cbf6f088faffef2f1745740bcf619229fa95377cc",
+      "group_id": "GROUP_0108",
+      "severity": "ALTA",
+      "direction": "deterioration",
+      "score": 42.27232421539677,
+      "base_health": 45.98744292135057,
+      "momentum": -0.41683152006901436,
+      "delta_score": -11.933520014843488,
+      "comparison_as_of": "2026-06-01",
+      "drivers": [
+        {
+          "field": "liquidity_points",
+          "delta_points": -13.190365155736467,
+          "unit": "score_points"
+        },
+        {
+          "field": "fragility_points",
+          "delta_points": 4.132982916923533,
+          "unit": "score_points"
+        }
+      ],
+      "contribution_deltas": {
+        "liquidity_points": -13.190365155736467,
+        "collections_points": 0.43444105359800034,
+        "debt_points": 0.0,
+        "momentum_points": -0.8552094567249768,
+        "growth_points": -2.4553693729035775,
+        "fragility_points": 4.132982916923533,
+        "clipping_points": 0.0
+      },
+      "state_quality": 1.0,
+      "evidence_changed": false,
+      "seasonality_available": true,
+      "annual_pattern_match": false,
+      "trajectory_basis": "observed_bank_core",
+      "lead_months": null,
+      "reference_event_as_of": null,
+      "delivery_mode": "initial_snapshot"
+    },
+    {
+      "company_id": "COMP_1102",
+      "as_of": "2026-09-01",
+      "state": "RECUPERACION",
+      "model_version": "6434117ba83603d8d3905ba84d9e679e313df031a4b3adad9b4fa701b252b129",
+      "alert_id": "68ae7f187f1513846988647699c2eebb9a78ace1291b8cc94ed20f926da4771f",
+      "group_id": "GROUP_0087",
+      "severity": "INFORMATIVA",
+      "direction": "improvement",
+      "score": 70.1399117786816,
+      "base_health": 61.60402511878217,
+      "momentum": 0.8531734227969177,
+      "delta_score": 20.950055863552116,
+      "comparison_as_of": "2026-06-01",
+      "drivers": [
+        {
+          "field": "liquidity_points",
+          "delta_points": 11.461740697860149,
+          "unit": "score_points"
+        },
+        {
+          "field": "momentum_points",
+          "delta_points": 5.036154639591859,
+          "unit": "score_points"
+        }
+      ],
+      "contribution_deltas": {
+        "liquidity_points": 11.461740697860149,
+        "collections_points": 2.1203858349829012,
+        "debt_points": 0.3988187395071314,
+        "momentum_points": 5.036154639591859,
+        "growth_points": 3.198352615735771,
+        "fragility_points": -1.2653966641257028,
+        "clipping_points": 0.0
+      },
+      "state_quality": 1.0,
+      "evidence_changed": false,
+      "seasonality_available": false,
+      "annual_pattern_match": false,
+      "trajectory_basis": "observed_bank_core",
+      "lead_months": null,
+      "reference_event_as_of": null,
+      "delivery_mode": "initial_snapshot"
+    },
+    {
+      "company_id": "COMP_1107",
+      "as_of": "2026-09-01",
+      "state": "RECUPERACION",
+      "model_version": "6434117ba83603d8d3905ba84d9e679e313df031a4b3adad9b4fa701b252b129",
+      "alert_id": "749181843a3d5385da225578970264d917448a1868603dba4e046aa6a0dbf45a",
+      "group_id": "GROUP_0103",
+      "severity": "INFORMATIVA",
+      "direction": "improvement",
+      "score": 68.8242789254525,
+      "base_health": 66.01780659252718,
+      "momentum": 0.291776900134996,
+      "delta_score": 11.863487264952248,
+      "comparison_as_of": "2026-06-01",
+      "drivers": [
+        {
+          "field": "liquidity_points",
+          "delta_points": 9.010314824039927,
+          "unit": "score_points"
+        },
+        {
+          "field": "momentum_points",
+          "delta_points": 3.2344909953047374,
+          "unit": "score_points"
+        }
+      ],
+      "contribution_deltas": {
+        "liquidity_points": 9.010314824039927,
+        "collections_points": -0.8776510085804397,
+        "debt_points": 0.18156105020834978,
+        "momentum_points": 3.2344909953047374,
+        "growth_points": 0.5413530054832187,
+        "fragility_points": -0.22658160150354067,
+        "clipping_points": 0.0
+      },
+      "state_quality": 1.0,
+      "evidence_changed": false,
+      "seasonality_available": true,
+      "annual_pattern_match": false,
+      "trajectory_basis": "observed_bank_core",
+      "lead_months": null,
+      "reference_event_as_of": null,
+      "delivery_mode": "initial_snapshot"
+    },
+    {
+      "company_id": "COMP_1119",
+      "as_of": "2026-09-01",
+      "state": "RECUPERACION",
+      "model_version": "6434117ba83603d8d3905ba84d9e679e313df031a4b3adad9b4fa701b252b129",
+      "alert_id": "4c36ca822e63313ce0fa4a0d7def05b5d282d6df6a83a8f8d55b2189d9e9d647",
+      "group_id": "GROUP_0187",
+      "severity": "INFORMATIVA",
+      "direction": "improvement",
+      "score": 65.64572083884136,
+      "base_health": 61.799153347649906,
+      "momentum": 0.4005887304298462,
+      "delta_score": 11.259940330537752,
+      "comparison_as_of": "2026-06-01",
+      "drivers": [
+        {
+          "field": "liquidity_points",
+          "delta_points": 7.35629326201056,
+          "unit": "score_points"
+        },
+        {
+          "field": "growth_points",
+          "delta_points": 3.307279854684242,
+          "unit": "score_points"
+        }
+      ],
+      "contribution_deltas": {
+        "liquidity_points": 7.35629326201056,
+        "collections_points": 2.1267883676832504,
+        "debt_points": 0.0,
+        "momentum_points": 0.8742199498414598,
+        "growth_points": 3.307279854684242,
+        "fragility_points": -2.4046411036817537,
+        "clipping_points": 0.0
+      },
+      "state_quality": 1.0,
+      "evidence_changed": false,
+      "seasonality_available": true,
+      "annual_pattern_match": false,
+      "trajectory_basis": "observed_bank_core",
+      "lead_months": null,
+      "reference_event_as_of": null,
+      "delivery_mode": "initial_snapshot"
+    },
+    {
+      "company_id": "COMP_1128",
+      "as_of": "2026-09-01",
+      "state": "RECUPERACION",
+      "model_version": "6434117ba83603d8d3905ba84d9e679e313df031a4b3adad9b4fa701b252b129",
+      "alert_id": "322876295290dd345009b95cf76f99ac5abb89b491e97974c1fa38dbc42d81c6",
+      "group_id": "GROUP_0085",
+      "severity": "INFORMATIVA",
+      "direction": "improvement",
+      "score": 63.100941134681214,
+      "base_health": 62.87524606965318,
+      "momentum": -0.036839440066264065,
+      "delta_score": -3.9703107897598144,
+      "comparison_as_of": "2026-06-01",
+      "drivers": [
+        {
+          "field": "liquidity_points",
+          "delta_points": -4.608188008402191,
+          "unit": "score_points"
+        },
+        {
+          "field": "growth_points",
+          "delta_points": 2.884850168410594,
+          "unit": "score_points"
+        }
+      ],
+      "contribution_deltas": {
+        "liquidity_points": -4.608188008402191,
+        "collections_points": 1.9340760540946889,
+        "debt_points": -0.008968895244937158,
+        "momentum_points": -1.8076405257655344,
+        "growth_points": 2.884850168410594,
+        "fragility_points": -2.364439582852447,
+        "clipping_points": 0.0
+      },
+      "state_quality": 1.0,
+      "evidence_changed": false,
+      "seasonality_available": true,
+      "annual_pattern_match": true,
+      "trajectory_basis": "observed_bank_core",
+      "lead_months": null,
+      "reference_event_as_of": null,
+      "delivery_mode": "initial_snapshot"
+    },
+    {
+      "company_id": "COMP_1147",
+      "as_of": "2026-09-01",
+      "state": "DETERIORO",
+      "model_version": "6434117ba83603d8d3905ba84d9e679e313df031a4b3adad9b4fa701b252b129",
+      "alert_id": "31fa0ad5a59a221d18f404974134e49e2b5991bb2817923da35cdb81f4d73a3a",
+      "group_id": "GROUP_0181",
+      "severity": "ALTA",
+      "direction": "deterioration",
+      "score": 36.412297583262344,
+      "base_health": 39.800902503325986,
+      "momentum": -0.4215714128793273,
+      "delta_score": -14.237128076645831,
+      "comparison_as_of": "2026-06-01",
+      "drivers": [
+        {
+          "field": "liquidity_points",
+          "delta_points": -14.919195065947804,
+          "unit": "score_points"
+        },
+        {
+          "field": "momentum_points",
+          "delta_points": -1.9972868195808087,
+          "unit": "score_points"
+        }
+      ],
+      "contribution_deltas": {
+        "liquidity_points": -14.919195065947804,
+        "collections_points": 0.7029326287789672,
+        "debt_points": 0.0,
+        "momentum_points": -1.9972868195808087,
+        "growth_points": 0.0,
+        "fragility_points": 1.9764211801038165,
+        "clipping_points": 0.0
+      },
+      "state_quality": 1.0,
+      "evidence_changed": false,
+      "seasonality_available": true,
+      "annual_pattern_match": false,
+      "trajectory_basis": "observed_bank_core",
+      "lead_months": null,
+      "reference_event_as_of": null,
+      "delivery_mode": "initial_snapshot"
+    },
+    {
+      "company_id": "COMP_1149",
+      "as_of": "2026-09-01",
+      "state": "RECUPERACION",
+      "model_version": "6434117ba83603d8d3905ba84d9e679e313df031a4b3adad9b4fa701b252b129",
+      "alert_id": "5e75db4118d980103510bb3a6c27440bcdff39e5f90fa81aee7e2c697791c59b",
+      "group_id": "GROUP_0057",
+      "severity": "INFORMATIVA",
+      "direction": "improvement",
+      "score": 58.89239885676486,
+      "base_health": 61.992480898754565,
+      "momentum": 0.06344586097342508,
+      "delta_score": -4.020148175175983,
+      "comparison_as_of": "2026-06-01",
+      "drivers": [
+        {
+          "field": "collections_points",
+          "delta_points": 3.4204409189367055,
+          "unit": "score_points"
+        },
+        {
+          "field": "liquidity_points",
+          "delta_points": -2.4902954826646564,
+          "unit": "score_points"
+        }
+      ],
+      "contribution_deltas": {
+        "liquidity_points": -2.4902954826646564,
+        "collections_points": 3.4204409189367055,
+        "debt_points": -0.7044315901791682,
+        "momentum_points": -1.3582064420589148,
+        "growth_points": -2.4320131529010967,
+        "fragility_points": -0.4556424263088408,
+        "clipping_points": 0.0
+      },
+      "state_quality": 1.0,
+      "evidence_changed": false,
+      "seasonality_available": true,
+      "annual_pattern_match": false,
+      "trajectory_basis": "observed_bank_core",
+      "lead_months": null,
+      "reference_event_as_of": null,
+      "delivery_mode": "initial_snapshot"
+    },
+    {
+      "company_id": "COMP_1158",
+      "as_of": "2026-09-01",
+      "state": "RECUPERACION",
+      "model_version": "6434117ba83603d8d3905ba84d9e679e313df031a4b3adad9b4fa701b252b129",
+      "alert_id": "b6065fe742b5a13df78bee24f63c7829419d8bb55c8d3875556314f42d3a1e01",
+      "group_id": "GROUP_0222",
+      "severity": "INFORMATIVA",
+      "direction": "improvement",
+      "score": 56.47241823219233,
+      "base_health": 54.337112179809424,
+      "momentum": 0.26691325654786363,
+      "delta_score": 8.10289495542046,
+      "comparison_as_of": "2026-06-01",
+      "drivers": [
+        {
+          "field": "momentum_points",
+          "delta_points": 5.571688109687444,
+          "unit": "score_points"
+        },
+        {
+          "field": "liquidity_points",
+          "delta_points": 3.681844353991579,
+          "unit": "score_points"
+        }
+      ],
+      "contribution_deltas": {
+        "liquidity_points": 3.681844353991579,
+        "collections_points": 2.0835122032397777,
+        "debt_points": 0.0,
+        "momentum_points": 5.571688109687444,
+        "growth_points": -3.2341497114983415,
+        "fragility_points": 0.0,
+        "clipping_points": 0.0
+      },
+      "state_quality": 1.0,
+      "evidence_changed": false,
+      "seasonality_available": true,
+      "annual_pattern_match": false,
+      "trajectory_basis": "observed_bank_core",
+      "lead_months": null,
+      "reference_event_as_of": null,
+      "delivery_mode": "initial_snapshot"
+    },
+    {
+      "company_id": "COMP_1170",
+      "as_of": "2026-09-01",
+      "state": "DETERIORO",
+      "model_version": "6434117ba83603d8d3905ba84d9e679e313df031a4b3adad9b4fa701b252b129",
+      "alert_id": "5b03940c9415b304d962b997e6f84c1715595afb81625a6eb8d280a111d70a36",
+      "group_id": "GROUP_0090",
+      "severity": "ALTA",
+      "direction": "deterioration",
+      "score": 58.43745256784336,
+      "base_health": 56.242308770817644,
+      "momentum": -0.1465107017386057,
+      "delta_score": -3.5101058899281625,
+      "comparison_as_of": "2026-06-01",
+      "drivers": [
+        {
+          "field": "growth_points",
+          "delta_points": 3.41132142246661,
+          "unit": "score_points"
+        },
+        {
+          "field": "momentum_points",
+          "delta_points": -2.4529568607051604,
+          "unit": "score_points"
+        }
+      ],
+      "contribution_deltas": {
+        "liquidity_points": -2.391388704676988,
+        "collections_points": -2.0905115596879007,
+        "debt_points": 0.0,
+        "momentum_points": -2.4529568607051604,
+        "growth_points": 3.41132142246661,
+        "fragility_points": 0.013429812675286534,
+        "clipping_points": 0.0
+      },
+      "state_quality": 1.0,
+      "evidence_changed": false,
+      "seasonality_available": true,
+      "annual_pattern_match": false,
+      "trajectory_basis": "observed_bank_core",
+      "lead_months": null,
+      "reference_event_as_of": null,
+      "delivery_mode": "initial_snapshot"
+    },
+    {
+      "company_id": "COMP_1180",
+      "as_of": "2026-09-01",
+      "state": "RECUPERACION",
+      "model_version": "6434117ba83603d8d3905ba84d9e679e313df031a4b3adad9b4fa701b252b129",
+      "alert_id": "6bdc01e992b219e21f8b8d2e037965f530bba1a114ebb7076380131cae3943e3",
+      "group_id": "GROUP_0103",
+      "severity": "INFORMATIVA",
+      "direction": "improvement",
+      "score": 65.35527547672937,
+      "base_health": 64.21901132424954,
+      "momentum": 0.2359640359314469,
+      "delta_score": 1.562695707166526,
+      "comparison_as_of": "2026-06-01",
+      "drivers": [
+        {
+          "field": "collections_points",
+          "delta_points": 2.2812189884142384,
+          "unit": "score_points"
+        },
+        {
+          "field": "liquidity_points",
+          "delta_points": 2.0950683428394505,
+          "unit": "score_points"
+        }
+      ],
+      "contribution_deltas": {
+        "liquidity_points": 2.0950683428394505,
+        "collections_points": 2.2812189884142384,
+        "debt_points": 0.0,
+        "momentum_points": -1.9807991750031178,
+        "growth_points": -1.1724305008482234,
+        "fragility_points": 0.3396380517641866,
+        "clipping_points": 0.0
+      },
+      "state_quality": 1.0,
+      "evidence_changed": false,
+      "seasonality_available": true,
+      "annual_pattern_match": false,
+      "trajectory_basis": "observed_bank_core",
+      "lead_months": null,
+      "reference_event_as_of": null,
+      "delivery_mode": "initial_snapshot"
+    },
+    {
+      "company_id": "COMP_1189",
+      "as_of": "2026-09-01",
+      "state": "RECUPERACION",
+      "model_version": "6434117ba83603d8d3905ba84d9e679e313df031a4b3adad9b4fa701b252b129",
+      "alert_id": "7f8c7096e54bf00beacffae06f405007d0c58f9fecc9c0ccce24497a35f8124e",
+      "group_id": "GROUP_0159",
+      "severity": "INFORMATIVA",
+      "direction": "improvement",
+      "score": 84.47937055480885,
+      "base_health": 77.82910046799859,
+      "momentum": 0.4262412300652188,
+      "delta_score": 40.151709260950156,
+      "comparison_as_of": "2026-06-01",
+      "drivers": [
+        {
+          "field": "liquidity_points",
+          "delta_points": 18.62623353610135,
+          "unit": "score_points"
+        },
+        {
+          "field": "collections_points",
+          "delta_points": 8.154796301397937,
+          "unit": "score_points"
+        }
+      ],
+      "contribution_deltas": {
+        "liquidity_points": 18.62623353610135,
+        "collections_points": 8.154796301397937,
+        "debt_points": 0.0,
+        "momentum_points": 6.830132608305966,
+        "growth_points": 4.843426273029088,
+        "fragility_points": 1.6971205421158064,
+        "clipping_points": 0.0
+      },
+      "state_quality": 1.0,
+      "evidence_changed": false,
+      "seasonality_available": true,
+      "annual_pattern_match": false,
+      "trajectory_basis": "observed_bank_core",
+      "lead_months": null,
+      "reference_event_as_of": null,
+      "delivery_mode": "initial_snapshot"
+    },
+    {
+      "company_id": "COMP_1196",
+      "as_of": "2026-09-01",
+      "state": "MEJORANDO",
+      "model_version": "6434117ba83603d8d3905ba84d9e679e313df031a4b3adad9b4fa701b252b129",
+      "alert_id": "5696951eca0ca6197d9f5d29c693cf33575e6c4c9cf044c7a84a2106adc7db18",
+      "group_id": "GROUP_0222",
+      "severity": "INFORMATIVA",
+      "direction": "improvement",
+      "score": 75.7365253708564,
+      "base_health": 72.75238884373576,
+      "momentum": 0.27949150855583543,
+      "delta_score": 9.828796447974767,
+      "comparison_as_of": "2026-06-01",
+      "drivers": [
+        {
+          "field": "liquidity_points",
+          "delta_points": 5.191891024782709,
+          "unit": "score_points"
+        },
+        {
+          "field": "momentum_points",
+          "delta_points": 1.3793591841274755,
+          "unit": "score_points"
+        }
+      ],
+      "contribution_deltas": {
+        "liquidity_points": 5.191891024782709,
+        "collections_points": 1.2671543065220092,
+        "debt_points": 0.0,
+        "momentum_points": 1.3793591841274755,
+        "growth_points": 1.0390998393473034,
+        "fragility_points": 0.9512920931952609,
+        "clipping_points": 0.0
+      },
+      "state_quality": 1.0,
+      "evidence_changed": false,
+      "seasonality_available": true,
+      "annual_pattern_match": false,
+      "trajectory_basis": "observed_bank_core",
+      "lead_months": null,
+      "reference_event_as_of": null,
+      "delivery_mode": "initial_snapshot"
+    },
+    {
+      "company_id": "COMP_1206",
+      "as_of": "2026-09-01",
+      "state": "MEJORANDO",
+      "model_version": "6434117ba83603d8d3905ba84d9e679e313df031a4b3adad9b4fa701b252b129",
+      "alert_id": "461f57fe51ff8670461f5fa32a798a7b9faff2d949e5c97b5e6d4b0424b52cb6",
+      "group_id": "GROUP_0084",
+      "severity": "INFORMATIVA",
+      "direction": "improvement",
+      "score": 66.3958142524733,
+      "base_health": 66.26587455687527,
+      "momentum": 0.0,
+      "delta_score": -1.2130077860320228,
+      "comparison_as_of": "2026-06-01",
+      "drivers": [
+        {
+          "field": "momentum_points",
+          "delta_points": -1.9042834247070517,
+          "unit": "score_points"
+        },
+        {
+          "field": "growth_points",
+          "delta_points": 1.0543150352819106,
+          "unit": "score_points"
+        }
+      ],
+      "contribution_deltas": {
+        "liquidity_points": 0.6267465478488567,
+        "collections_points": -0.3825764762122219,
+        "debt_points": 0.0,
+        "momentum_points": -1.9042834247070517,
+        "growth_points": 1.0543150352819106,
+        "fragility_points": -0.607209468243517,
+        "clipping_points": 0.0
+      },
+      "state_quality": 1.0,
+      "evidence_changed": false,
+      "seasonality_available": true,
+      "annual_pattern_match": false,
+      "trajectory_basis": "observed_bank_core",
+      "lead_months": null,
+      "reference_event_as_of": null,
+      "delivery_mode": "initial_snapshot"
+    },
+    {
+      "company_id": "COMP_1221",
+      "as_of": "2026-09-01",
+      "state": "DETERIORO",
+      "model_version": "6434117ba83603d8d3905ba84d9e679e313df031a4b3adad9b4fa701b252b129",
+      "alert_id": "18da93aa3b0a51fcc64ce4539cb86dc902a66ffa232abd5be14a8f3767181d5d",
+      "group_id": "GROUP_0169",
+      "severity": "ALTA",
+      "direction": "deterioration",
+      "score": 57.30651145578705,
+      "base_health": 58.9812358606808,
+      "momentum": -0.1914783020098545,
+      "delta_score": -4.506775167949854,
+      "comparison_as_of": "2026-06-01",
+      "drivers": [
+        {
+          "field": "liquidity_points",
+          "delta_points": -2.6368705466593063,
+          "unit": "score_points"
+        },
+        {
+          "field": "growth_points",
+          "delta_points": -1.7141287655066102,
+          "unit": "score_points"
+        }
+      ],
+      "contribution_deltas": {
+        "liquidity_points": -2.6368705466593063,
+        "collections_points": -0.6363631148714646,
+        "debt_points": 0.0,
+        "momentum_points": -0.018101816700912376,
+        "growth_points": -1.7141287655066102,
+        "fragility_points": 0.498689075788433,
+        "clipping_points": 0.0
+      },
+      "state_quality": 1.0,
+      "evidence_changed": false,
+      "seasonality_available": false,
+      "annual_pattern_match": false,
+      "trajectory_basis": "observed_bank_core",
+      "lead_months": null,
+      "reference_event_as_of": null,
+      "delivery_mode": "initial_snapshot"
+    },
+    {
+      "company_id": "COMP_1250",
+      "as_of": "2026-09-01",
+      "state": "MEJORANDO",
+      "model_version": "6434117ba83603d8d3905ba84d9e679e313df031a4b3adad9b4fa701b252b129",
+      "alert_id": "7e55e6715a33c2bcb74c6990ee479515186ee4405856a61ffe0448fa5342b3fa",
+      "group_id": "GROUP_0065",
+      "severity": "INFORMATIVA",
+      "direction": "improvement",
+      "score": 65.06152687518095,
+      "base_health": 64.42114091138126,
+      "momentum": 0.07336395863478072,
+      "delta_score": -6.2846761163170015,
+      "comparison_as_of": "2026-06-01",
+      "drivers": [
+        {
+          "field": "fragility_points",
+          "delta_points": -2.792498149683728,
+          "unit": "score_points"
+        },
+        {
+          "field": "momentum_points",
+          "delta_points": -2.5016659831656183,
+          "unit": "score_points"
+        }
+      ],
+      "contribution_deltas": {
+        "liquidity_points": -1.4176826900448596,
+        "collections_points": 0.5226673686798939,
+        "debt_points": 0.028927738037141992,
+        "momentum_points": -2.5016659831656183,
+        "growth_points": -0.12442440013980871,
+        "fragility_points": -2.792498149683728,
+        "clipping_points": 0.0
+      },
+      "state_quality": 1.0,
+      "evidence_changed": false,
+      "seasonality_available": true,
+      "annual_pattern_match": false,
+      "trajectory_basis": "observed_bank_core",
+      "lead_months": null,
+      "reference_event_as_of": null,
+      "delivery_mode": "initial_snapshot"
+    },
+    {
+      "company_id": "COMP_1252",
+      "as_of": "2026-09-01",
+      "state": "MEJORANDO",
+      "model_version": "6434117ba83603d8d3905ba84d9e679e313df031a4b3adad9b4fa701b252b129",
+      "alert_id": "aea7362f25442818fda26ec3244f9153ac2c5afcf1d1e909d9c3f0031638cb88",
+      "group_id": "GROUP_0070",
+      "severity": "INFORMATIVA",
+      "direction": "improvement",
+      "score": 78.41605563867424,
+      "base_health": 73.54314697775975,
+      "momentum": 0.21649088368976316,
+      "delta_score": -0.23561474250779213,
+      "comparison_as_of": "2026-06-01",
+      "drivers": [
+        {
+          "field": "liquidity_points",
+          "delta_points": 2.3132298046491613,
+          "unit": "score_points"
+        },
+        {
+          "field": "momentum_points",
+          "delta_points": -1.6506316738681663,
+          "unit": "score_points"
+        }
+      ],
+      "contribution_deltas": {
+        "liquidity_points": 2.3132298046491613,
+        "collections_points": -1.405787335883037,
+        "debt_points": 0.4914177624046463,
+        "momentum_points": -1.6506316738681663,
+        "growth_points": -0.7529573646919747,
+        "fragility_points": 0.7691140648815642,
+        "clipping_points": 0.0
+      },
+      "state_quality": 1.0,
+      "evidence_changed": false,
+      "seasonality_available": true,
+      "annual_pattern_match": false,
+      "trajectory_basis": "observed_bank_core",
+      "lead_months": null,
+      "reference_event_as_of": null,
+      "delivery_mode": "initial_snapshot"
+    },
+    {
+      "company_id": "COMP_1263",
+      "as_of": "2026-09-01",
+      "state": "RECUPERACION",
+      "model_version": "6434117ba83603d8d3905ba84d9e679e313df031a4b3adad9b4fa701b252b129",
+      "alert_id": "00f4928551f16d4640471f5d5984c0009526af1600e61f407e6fb0fdf72b6407",
+      "group_id": "GROUP_0091",
+      "severity": "INFORMATIVA",
+      "direction": "improvement",
+      "score": 53.02738575416076,
+      "base_health": 53.823451758753926,
+      "momentum": -0.0582969220130828,
+      "delta_score": -2.2613002398693993,
+      "comparison_as_of": "2026-06-01",
+      "drivers": [
+        {
+          "field": "growth_points",
+          "delta_points": 2.1712912921955674,
+          "unit": "score_points"
+        },
+        {
+          "field": "momentum_points",
+          "delta_points": -1.8021676842607657,
+          "unit": "score_points"
+        }
+      ],
+      "contribution_deltas": {
+        "liquidity_points": -1.6202746475054575,
+        "collections_points": -0.37175145513680263,
+        "debt_points": 0.0,
+        "momentum_points": -1.8021676842607657,
+        "growth_points": 2.1712912921955674,
+        "fragility_points": -0.6383977451619387,
+        "clipping_points": 0.0
+      },
+      "state_quality": 1.0,
+      "evidence_changed": false,
+      "seasonality_available": true,
+      "annual_pattern_match": false,
+      "trajectory_basis": "observed_bank_core",
+      "lead_months": null,
+      "reference_event_as_of": null,
+      "delivery_mode": "initial_snapshot"
+    }
+  ]
+}

@@ -100,13 +100,26 @@ def rolling_cv(values, window=6):
     return result
 
 
-def bounded_momentum(base, confirmation, quality, config):
+def comparable_history(base_ready, confirmation):
+    ready = np.zeros_like(base_ready, dtype=bool)
+    for month in range(5, base_ready.shape[1]):
+        complete_bases = base_ready[:, month - 3:month + 1].all(axis=1)
+        previous = np.isfinite(confirmation[:, month - 5:month - 2]).sum(axis=1) >= 2
+        recent = np.isfinite(confirmation[:, month - 2:month + 1]).sum(axis=1) >= 2
+        ready[:, month] = complete_bases & previous & recent
+    return ready
+
+
+def bounded_momentum(base, confirmation, quality, config, base_ready=None):
+    base_ready = np.ones_like(base, dtype=bool) if base_ready is None else base_ready
+    ready = comparable_history(base_ready, confirmation)
     result = np.zeros_like(base)
-    fast = base[:, 0].copy()
+    fast = np.full(base.shape[0], np.nan)
     slow = fast.copy()
-    for month in range(1, base.shape[1]):
-        fast = .5 * base[:, month] + .5 * fast
-        slow = (2 / 7) * base[:, month] + (5 / 7) * slow
+    for month in range(base.shape[1]):
+        initialized = np.isfinite(fast)
+        fast = np.where(base_ready[:, month], np.where(initialized, .5 * base[:, month] + .5 * fast, base[:, month]), np.nan)
+        slow = np.where(base_ready[:, month], np.where(initialized, (2 / 7) * base[:, month] + (5 / 7) * slow, base[:, month]), np.nan)
         if month < 5:
             continue
         previous = confirmation[:, month - 5:month - 2]
@@ -117,8 +130,9 @@ def bounded_momentum(base, confirmation, quality, config):
         persistence = np.clip((agreeing - 1) / 2, 0, 1)
         persistence *= np.min(quality[:, month - 5:month + 1], axis=1)
         velocity = (base[:, month] - base[:, month - 3]) / 3
-        result[:, month] = persistence * (config.momentum_mix * np.tanh(velocity / config.velocity_scale)
-                                           + (1 - config.momentum_mix) * np.tanh((fast - slow) / config.ema_scale))
+        candidate = persistence * (config.momentum_mix * np.tanh(velocity / config.velocity_scale)
+                                   + (1 - config.momentum_mix) * np.tanh((fast - slow) / config.ema_scale))
+        result[:, month] = np.where(ready[:, month], candidate, 0)
     return result
 
 
@@ -151,19 +165,24 @@ def calculate_scores(bank: Mapping[str, np.ndarray], erp: Mapping[str, np.ndarra
     q3 = np.nan_to_num(rolling_mean(quality, 3), nan=0)
     q6 = np.nan_to_num(rolling_mean(quality, 6), nan=0)
     flow_margin = divide(r3 - e3, r3 + e3)
-    liquidity_bank = observed_blend(.5 + .5 * np.tanh(flow_margin / config.liquidity_scale), q3)
+    liquidity_raw = .5 + .5 * np.tanh(flow_margin / config.liquidity_scale)
+    liquidity_bank = np.where(np.isfinite(flow_margin), liquidity_raw, 0.5)
     gross = panel(bank, 'gross_receipts', shape)
     refunds = panel(bank, 'refunds', shape)
     refund_burden = divide(rolling_sum(refunds, 3), rolling_sum(gross, 3))
     refund_score = 1 - hill(refund_burden, config.refund_scale)
     regularity_score = 1 / (1 + rolling_cv(receipts))
-    collections_bank = .5 * observed_blend(refund_score, q3) + .5 * observed_blend(regularity_score, np.minimum(q3, q6))
+    collections_bank = .5 * np.where(np.isfinite(refund_score), refund_score, 0.5) + .5 * np.where(np.isfinite(regularity_score), regularity_score, 0.5)
     debt_burden = divide(h3, r3 + h3)
-    debt_health = observed_blend(.5 - .5 * np.tanh(debt_burden / config.debt_scale), q3)
+    debt_health = np.where(np.isfinite(debt_burden), .5 - .5 * np.tanh(debt_burden / config.debt_scale), 0.5)
     w_l, w_c, w_d = config.base_weights
     base_bank = 100 * (w_l * liquidity_bank + w_c * collections_bank + w_d * debt_health)
     monthly_confirmation = divide(receipts - expenses - debt, receipts + expenses + debt)
-    momentum = bounded_momentum(base_bank, monthly_confirmation, quality, config)
+    observed = (quality > 0) & ((receipts + expenses + debt > 0) | (gross > 0) | (refunds > 0))
+    observed_months = np.cumsum(observed, axis=1)
+    history_ready = rolling_sum(observed.astype(float), 6) == 6
+    momentum_ready = comparable_history(history_ready, monthly_confirmation)
+    momentum = bounded_momentum(base_bank, monthly_confirmation, quality, config, history_ready)
 
     cash = panel(bank, 'cash_balance', shape)
     commitments = panel(bank, 'commitments_30d', shape)
@@ -173,7 +192,7 @@ def calculate_scores(bank: Mapping[str, np.ndarray], erp: Mapping[str, np.ndarra
     burn = np.maximum((e3 + h3 - r3) / 3, 0)
     runway_score = divide(cash_positive, cash_positive + 3 * burn)
     runway_score = np.where((cash_positive == 0) & np.isfinite(burn), 0, runway_score)
-    runway_score = observed_blend(runway_score, q3)
+    runway_score = np.where(np.isfinite(runway_score), runway_score, 0.5)
     obligations = np.where(commitments_known, commitments, (e3 + h3) / 3)
     coverage_score = divide(cash_positive, cash_positive + obligations)
     coverage_score = np.where((cash_positive == 0) & np.isfinite(obligations), 0, coverage_score)
@@ -202,7 +221,8 @@ def calculate_scores(bank: Mapping[str, np.ndarray], erp: Mapping[str, np.ndarra
     negative_fraction = panel(bank, 'negative_balance_fraction', shape)
     negative_fraction = np.where(np.isfinite(negative_fraction), negative_fraction, np.where(cash_known, cash < 0, np.nan))
     negative_stress = np.nan_to_num(hill(negative_fraction, .25), nan=0)
-    stress = 1 - (1 - timing_stress) * (1 - negative_stress)
+    invoice_stress = np.nan_to_num(hill(late, 0.25), nan=0) * (erp_quality > 0)
+    stress = 1 - (1 - timing_stress) * (1 - negative_stress) * (1 - invoice_stress)
     hhi = panel(bank, 'hhi', shape)
     hhi_quality = np.nan_to_num(panel(bank, 'hhi_quality', shape, 0), nan=0)
     erp_hhi = panel(erp, 'hhi', shape)
@@ -211,17 +231,18 @@ def calculate_scores(bank: Mapping[str, np.ndarray], erp: Mapping[str, np.ndarra
     hhi = np.where(use_erp_hhi, erp_hhi, hhi)
     hhi_quality = np.where(use_erp_hhi, erp_hhi_quality, hhi_quality)
     hhi_mix = .5 * np.clip(hhi_quality, 0, 1) * np.isfinite(hhi)
-    fragility = q3 * ((1 - hhi_mix) * stress + hhi_mix * np.nan_to_num(hill(hhi, config.hhi_scale), nan=0))
+    fragility = (1 - hhi_mix) * stress + hhi_mix * np.nan_to_num(hill(hhi, config.hhi_scale), nan=0)
 
     cash_growth = np.zeros(shape)
     growth_reliability = np.zeros(shape)
     if shape[1] > 3:
         cash_growth[:, 3:] = np.nan_to_num(divide(r3[:, 3:] - r3[:, :-3], r3[:, 3:] + r3[:, :-3]), nan=0)
         growth_reliability[:, 3:] = np.minimum(q3[:, 3:], q3[:, :-3])
-    growth_bank = np.tanh(np.maximum(cash_growth, 0) / config.growth_scale) * np.sqrt(liquidity_bank * collections_bank) * growth_reliability
+    growth_damping = 0.5 * (liquidity_bank + collections_bank)
+    growth_bank = np.tanh(np.maximum(cash_growth, 0) / config.growth_scale) * growth_damping * growth_reliability
     sales_growth = panel(erp, 'sales_growth', shape)
     conversion = panel(erp, 'conversion', shape)
-    growth_erp = np.tanh(np.maximum(sales_growth, 0) / config.growth_scale) * np.sqrt(liquidity_bank) * np.clip(conversion, 0, 1)
+    growth_erp = np.tanh(np.maximum(sales_growth, 0) / config.growth_scale) * (0.5 * (liquidity_bank + np.clip(conversion, 0, 1)))
     growth_mix = config.erp_weight * erp_quality * np.isfinite(growth_erp)
     growth = (1 - growth_mix) * growth_bank + growth_mix * np.nan_to_num(growth_erp, nan=0)
 
@@ -232,21 +253,28 @@ def calculate_scores(bank: Mapping[str, np.ndarray], erp: Mapping[str, np.ndarra
     growth_points = config.growth_weight * growth
     fragility_points = -config.fragility_weight * fragility
     raw_score = liquidity_points + collection_points + debt_points + momentum_points + growth_points + fragility_points
-    score = np.clip(raw_score, 0, 100)
     liquidity_available = (np.isfinite(flow_margin) & (q3 > 0)) | cash_used
     collections_available = (np.isfinite(refund_score) & (q3 > 0)) | (np.isfinite(regularity_score) & (np.minimum(q3, q6) > 0)) | (erp_mix > 0)
-    fragility_evidence = (q3 > 0) & (np.isfinite(gap_ratio) | cash_known | (hhi_mix > 0))
-    erp_used = (erp_mix > 0) | (growth_mix > 0) | (use_erp_hhi & (hhi_mix > 0) & (q3 > 0))
+    fragility_evidence = (q3 > 0) & (np.isfinite(gap_ratio) | cash_known | (hhi_mix > 0) | (invoice_stress > 0))
+    erp_used = (erp_mix > 0) | (growth_mix > 0) | (use_erp_hhi & (hhi_mix > 0) & (q3 > 0)) | ((erp_quality > 0) & np.isfinite(late) & (late > 0))
     evidence = liquidity_available | collections_available | (np.isfinite(debt_burden) & (q3 > 0)) | fragility_evidence | erp_used
+    score = np.where(evidence, np.clip(raw_score, 0, 100), 50.0)
+    clipping_points = score - raw_score
+    confidence_index = np.where(evidence, np.clip(100.0 * q3 * np.minimum(observed_months / 6.0, 1.0), 0.0, 100.0), 0.0)
+
     return {'score': score, 'base_health': liquidity_points + collection_points + debt_points,
             'L': liquidity, 'L_bank': liquidity_bank, 'C': collections, 'C_bank': collections_bank, 'D': debt_health,
             'momentum': momentum, 'growth_quality': growth, 'fragility': fragility,
             'liquidity_points': liquidity_points, 'collections_points': collection_points, 'debt_points': debt_points,
             'momentum_points': momentum_points, 'growth_points': growth_points, 'fragility_points': fragility_points,
-            'clipping_points': score - raw_score, 'raw_score': raw_score,
+            'clipping_points': clipping_points, 'raw_score': raw_score,
             'erp_collection_adjustment_points': 100 * w_c * (collections - collections_bank),
-            'bank_quality': q3, 'erp_weight_used': erp_mix, 'erp_growth_weight_used': growth_mix, 'erp_used': erp_used,
+            'bank_quality': q3, 'confidence_index': confidence_index, 'data_confidence_index': confidence_index,
+            'erp_weight_used': erp_mix, 'erp_growth_weight_used': growth_mix, 'erp_used': erp_used,
             'cash_known': cash_known, 'cash_used': cash_used, 'commitments_known': commitments_known, 'dso_change_known': dso_change_known,
             'hhi_used': hhi_mix > 0, 'liquidity_available': liquidity_available, 'collections_available': collections_available,
             'debt_service_observed': np.isfinite(h3) & (h3 > 0), 'fragility_evidence': fragility_evidence,
-            'history_ready': np.broadcast_to(np.arange(shape[1]) >= 5, shape), 'is_prior': ~evidence}
+            'history_ready': history_ready, 'momentum_ready': momentum_ready, 'observed_months': observed_months,
+            'bank_base_health': base_bank, 'monthly_flow_margin': np.nan_to_num(monthly_confirmation, nan=0),
+            'monthly_data_quality': quality,
+            'flow_margin_available': np.isfinite(monthly_confirmation), 'is_prior': ~evidence}

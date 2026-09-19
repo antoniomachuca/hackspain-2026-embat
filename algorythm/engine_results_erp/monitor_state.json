@@ -1,0 +1,5150 @@
+{
+  "model_version": "f93a85030e94cb2bb99bcc7ac8854ef29752db9dacbf7b316db37aac9550b825",
+  "snapshot_fingerprint": "516449cf7e6e78370888ddaca887a8d7882be217077385521088f64ef9bc87a2",
+  "companies": {
+    "COMP_0001": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_0002": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_0003": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_0004": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0005": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0006": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0007": {
+      "as_of": "2026-09-01",
+      "state": "BACHE"
+    },
+    "COMP_0008": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0009": {
+      "as_of": "2026-09-01",
+      "state": "BACHE"
+    },
+    "COMP_0010": {
+      "as_of": "2026-09-01",
+      "state": "BACHE"
+    },
+    "COMP_0011": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0012": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0013": {
+      "as_of": "2026-09-01",
+      "state": "BACHE"
+    },
+    "COMP_0014": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_0015": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0016": {
+      "as_of": "2026-09-01",
+      "state": "BACHE"
+    },
+    "COMP_0017": {
+      "as_of": "2026-09-01",
+      "state": "BACHE"
+    },
+    "COMP_0018": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0019": {
+      "as_of": "2026-09-01",
+      "state": "BACHE"
+    },
+    "COMP_0020": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_0021": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_0022": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0023": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0024": {
+      "as_of": "2026-09-01",
+      "state": "BACHE"
+    },
+    "COMP_0025": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0026": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_0027": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_0028": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_0029": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_0030": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_0031": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0032": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_0033": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_0034": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0035": {
+      "as_of": "2026-09-01",
+      "state": "BACHE"
+    },
+    "COMP_0036": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0037": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0038": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_0039": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0040": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_0041": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0042": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0043": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0044": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_0045": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_0046": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_0047": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_0048": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_0049": {
+      "as_of": "2026-09-01",
+      "state": "BACHE"
+    },
+    "COMP_0050": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_0051": {
+      "as_of": "2026-09-01",
+      "state": "BACHE"
+    },
+    "COMP_0052": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0053": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_0054": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0055": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_0056": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0057": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_0058": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_0059": {
+      "as_of": "2026-09-01",
+      "state": "DETERIORO"
+    },
+    "COMP_0060": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_0061": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_0062": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_0063": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_0064": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_0065": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0066": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_0067": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_0068": {
+      "as_of": "2026-09-01",
+      "state": "BACHE"
+    },
+    "COMP_0069": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0070": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_0071": {
+      "as_of": "2026-09-01",
+      "state": "BACHE"
+    },
+    "COMP_0072": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_0073": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0074": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0075": {
+      "as_of": "2026-09-01",
+      "state": "DETERIORO"
+    },
+    "COMP_0076": {
+      "as_of": "2026-09-01",
+      "state": "BACHE"
+    },
+    "COMP_0077": {
+      "as_of": "2026-09-01",
+      "state": "RECUPERACION"
+    },
+    "COMP_0078": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_0079": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0080": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_0081": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0082": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0083": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_0084": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_0085": {
+      "as_of": "2026-09-01",
+      "state": "BACHE"
+    },
+    "COMP_0086": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_0087": {
+      "as_of": "2026-09-01",
+      "state": "BACHE"
+    },
+    "COMP_0088": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0089": {
+      "as_of": "2026-09-01",
+      "state": "BACHE"
+    },
+    "COMP_0090": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_0091": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0092": {
+      "as_of": "2026-09-01",
+      "state": "BACHE"
+    },
+    "COMP_0093": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_0094": {
+      "as_of": "2026-09-01",
+      "state": "TORCIENDOSE"
+    },
+    "COMP_0095": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0096": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0097": {
+      "as_of": "2026-09-01",
+      "state": "BACHE"
+    },
+    "COMP_0098": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0099": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0100": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0101": {
+      "as_of": "2026-09-01",
+      "state": "BACHE"
+    },
+    "COMP_0102": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0103": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0104": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_0105": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0106": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0107": {
+      "as_of": "2026-09-01",
+      "state": "RECUPERACION"
+    },
+    "COMP_0108": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0109": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0110": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_0111": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_0112": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0113": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0114": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_0115": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0116": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0117": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0118": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_0119": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_0120": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_0121": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0122": {
+      "as_of": "2026-09-01",
+      "state": "TORCIENDOSE"
+    },
+    "COMP_0123": {
+      "as_of": "2026-09-01",
+      "state": "RECUPERACION"
+    },
+    "COMP_0124": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_0125": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0126": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0127": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_0128": {
+      "as_of": "2026-09-01",
+      "state": "BACHE"
+    },
+    "COMP_0129": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0130": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0131": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_0132": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_0133": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_0134": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0135": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_0136": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0137": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0138": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0139": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0140": {
+      "as_of": "2026-09-01",
+      "state": "RECUPERACION"
+    },
+    "COMP_0141": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0142": {
+      "as_of": "2026-09-01",
+      "state": "BACHE"
+    },
+    "COMP_0143": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0144": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_0145": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_0146": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0147": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_0148": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_0149": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0150": {
+      "as_of": "2026-09-01",
+      "state": "BACHE"
+    },
+    "COMP_0151": {
+      "as_of": "2026-09-01",
+      "state": "MEJORANDO"
+    },
+    "COMP_0152": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0153": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0154": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_0155": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0156": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0157": {
+      "as_of": "2026-09-01",
+      "state": "BACHE"
+    },
+    "COMP_0158": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_0159": {
+      "as_of": "2026-09-01",
+      "state": "BACHE"
+    },
+    "COMP_0160": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0161": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_0162": {
+      "as_of": "2026-09-01",
+      "state": "RECUPERACION"
+    },
+    "COMP_0163": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0164": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0165": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0166": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_0167": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0168": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_0169": {
+      "as_of": "2026-09-01",
+      "state": "RECUPERACION"
+    },
+    "COMP_0170": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_0171": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_0172": {
+      "as_of": "2026-09-01",
+      "state": "RECUPERACION"
+    },
+    "COMP_0173": {
+      "as_of": "2026-09-01",
+      "state": "BACHE"
+    },
+    "COMP_0174": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0175": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0176": {
+      "as_of": "2026-09-01",
+      "state": "DETERIORO"
+    },
+    "COMP_0177": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0178": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0179": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0180": {
+      "as_of": "2026-09-01",
+      "state": "BACHE"
+    },
+    "COMP_0181": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0182": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0183": {
+      "as_of": "2026-09-01",
+      "state": "RECUPERACION"
+    },
+    "COMP_0184": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_0185": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_0186": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0187": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_0188": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_0189": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_0190": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0191": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0192": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_0193": {
+      "as_of": "2026-09-01",
+      "state": "BACHE"
+    },
+    "COMP_0194": {
+      "as_of": "2026-09-01",
+      "state": "MEJORANDO"
+    },
+    "COMP_0195": {
+      "as_of": "2026-09-01",
+      "state": "RECUPERACION"
+    },
+    "COMP_0196": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0197": {
+      "as_of": "2026-09-01",
+      "state": "BACHE"
+    },
+    "COMP_0198": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_0199": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0200": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0201": {
+      "as_of": "2026-09-01",
+      "state": "RECUPERACION"
+    },
+    "COMP_0202": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_0203": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0204": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0205": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_0206": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_0207": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0208": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_0209": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0210": {
+      "as_of": "2026-09-01",
+      "state": "BACHE"
+    },
+    "COMP_0211": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_0212": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_0213": {
+      "as_of": "2026-09-01",
+      "state": "DETERIORO"
+    },
+    "COMP_0214": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_0215": {
+      "as_of": "2026-09-01",
+      "state": "DETERIORO"
+    },
+    "COMP_0216": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0217": {
+      "as_of": "2026-09-01",
+      "state": "RECUPERACION"
+    },
+    "COMP_0218": {
+      "as_of": "2026-09-01",
+      "state": "BACHE"
+    },
+    "COMP_0219": {
+      "as_of": "2026-09-01",
+      "state": "BACHE"
+    },
+    "COMP_0220": {
+      "as_of": "2026-09-01",
+      "state": "BACHE"
+    },
+    "COMP_0221": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_0222": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0223": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_0224": {
+      "as_of": "2026-09-01",
+      "state": "BACHE"
+    },
+    "COMP_0225": {
+      "as_of": "2026-09-01",
+      "state": "BACHE"
+    },
+    "COMP_0226": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_0227": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0228": {
+      "as_of": "2026-09-01",
+      "state": "BACHE"
+    },
+    "COMP_0229": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0230": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0231": {
+      "as_of": "2026-09-01",
+      "state": "BACHE"
+    },
+    "COMP_0232": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0233": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_0234": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0235": {
+      "as_of": "2026-09-01",
+      "state": "MEJORANDO"
+    },
+    "COMP_0236": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_0237": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_0238": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0239": {
+      "as_of": "2026-09-01",
+      "state": "RECUPERACION"
+    },
+    "COMP_0240": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_0241": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0242": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_0243": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0244": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0245": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0246": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0247": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_0248": {
+      "as_of": "2026-09-01",
+      "state": "BACHE"
+    },
+    "COMP_0249": {
+      "as_of": "2026-09-01",
+      "state": "DETERIORO"
+    },
+    "COMP_0250": {
+      "as_of": "2026-09-01",
+      "state": "DETERIORO"
+    },
+    "COMP_0251": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0252": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_0253": {
+      "as_of": "2026-09-01",
+      "state": "BACHE"
+    },
+    "COMP_0254": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0255": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_0256": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0257": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0258": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0259": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_0260": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0261": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_0262": {
+      "as_of": "2026-09-01",
+      "state": "DETERIORO"
+    },
+    "COMP_0263": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0264": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0265": {
+      "as_of": "2026-09-01",
+      "state": "RECUPERACION"
+    },
+    "COMP_0266": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0267": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0268": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0269": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_0270": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_0271": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_0272": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_0273": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0274": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_0275": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_0276": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_0277": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_0278": {
+      "as_of": "2026-09-01",
+      "state": "DETERIORO"
+    },
+    "COMP_0279": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_0280": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_0281": {
+      "as_of": "2026-09-01",
+      "state": "MEJORANDO"
+    },
+    "COMP_0282": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0283": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_0284": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_0285": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_0286": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_0287": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_0288": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_0289": {
+      "as_of": "2026-09-01",
+      "state": "BACHE"
+    },
+    "COMP_0290": {
+      "as_of": "2026-09-01",
+      "state": "DETERIORO"
+    },
+    "COMP_0291": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_0292": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_0293": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0294": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_0295": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_0296": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0297": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_0298": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0299": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0300": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0301": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_0302": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_0303": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_0304": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0305": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0306": {
+      "as_of": "2026-09-01",
+      "state": "BACHE"
+    },
+    "COMP_0307": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_0308": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0309": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0310": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0311": {
+      "as_of": "2026-09-01",
+      "state": "BACHE"
+    },
+    "COMP_0312": {
+      "as_of": "2026-09-01",
+      "state": "BACHE"
+    },
+    "COMP_0313": {
+      "as_of": "2026-09-01",
+      "state": "RECUPERACION"
+    },
+    "COMP_0314": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_0315": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0316": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0317": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0318": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0319": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_0320": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_0321": {
+      "as_of": "2026-09-01",
+      "state": "RECUPERACION"
+    },
+    "COMP_0322": {
+      "as_of": "2026-09-01",
+      "state": "BACHE"
+    },
+    "COMP_0323": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_0324": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_0325": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_0326": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0327": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_0328": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_0329": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0330": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0331": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_0332": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0333": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0334": {
+      "as_of": "2026-09-01",
+      "state": "BACHE"
+    },
+    "COMP_0335": {
+      "as_of": "2026-09-01",
+      "state": "MEJORANDO"
+    },
+    "COMP_0336": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_0337": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_0338": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0339": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_0340": {
+      "as_of": "2026-09-01",
+      "state": "MEJORANDO"
+    },
+    "COMP_0341": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_0342": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_0343": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_0344": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_0345": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_0346": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_0347": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0348": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_0349": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0350": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_0351": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_0352": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0353": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0354": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0355": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_0356": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0357": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0358": {
+      "as_of": "2026-09-01",
+      "state": "BACHE"
+    },
+    "COMP_0359": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_0360": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_0361": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0362": {
+      "as_of": "2026-09-01",
+      "state": "DETERIORO"
+    },
+    "COMP_0363": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0364": {
+      "as_of": "2026-09-01",
+      "state": "RECUPERACION"
+    },
+    "COMP_0365": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0366": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_0367": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0368": {
+      "as_of": "2026-09-01",
+      "state": "DETERIORO"
+    },
+    "COMP_0369": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_0370": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0371": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_0372": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0373": {
+      "as_of": "2026-09-01",
+      "state": "BACHE"
+    },
+    "COMP_0374": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0375": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0376": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0377": {
+      "as_of": "2026-09-01",
+      "state": "BACHE"
+    },
+    "COMP_0378": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0379": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_0380": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_0381": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0382": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0383": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0384": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0385": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0386": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_0387": {
+      "as_of": "2026-09-01",
+      "state": "RECUPERACION"
+    },
+    "COMP_0388": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0389": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0390": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_0391": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_0392": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0393": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0394": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0395": {
+      "as_of": "2026-09-01",
+      "state": "BACHE"
+    },
+    "COMP_0396": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0397": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0398": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_0399": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0400": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0401": {
+      "as_of": "2026-09-01",
+      "state": "BACHE"
+    },
+    "COMP_0402": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0403": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0404": {
+      "as_of": "2026-09-01",
+      "state": "DETERIORO"
+    },
+    "COMP_0405": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0406": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_0407": {
+      "as_of": "2026-09-01",
+      "state": "BACHE"
+    },
+    "COMP_0408": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_0409": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_0410": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0411": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0412": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0413": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_0414": {
+      "as_of": "2026-09-01",
+      "state": "BACHE"
+    },
+    "COMP_0415": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_0416": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0417": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0418": {
+      "as_of": "2026-09-01",
+      "state": "BACHE"
+    },
+    "COMP_0419": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_0420": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_0421": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_0422": {
+      "as_of": "2026-09-01",
+      "state": "RECUPERACION"
+    },
+    "COMP_0423": {
+      "as_of": "2026-09-01",
+      "state": "BACHE"
+    },
+    "COMP_0424": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0425": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0426": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_0427": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0428": {
+      "as_of": "2026-09-01",
+      "state": "MEJORANDO"
+    },
+    "COMP_0429": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0430": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0431": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0432": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0433": {
+      "as_of": "2026-09-01",
+      "state": "BACHE"
+    },
+    "COMP_0434": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_0435": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_0436": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_0437": {
+      "as_of": "2026-09-01",
+      "state": "BACHE"
+    },
+    "COMP_0438": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0439": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_0440": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_0441": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0442": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0443": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0444": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_0445": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_0446": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0447": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0448": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0449": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0450": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_0451": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_0452": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0453": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0454": {
+      "as_of": "2026-09-01",
+      "state": "BACHE"
+    },
+    "COMP_0455": {
+      "as_of": "2026-09-01",
+      "state": "DETERIORO"
+    },
+    "COMP_0456": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0457": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0458": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0459": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0460": {
+      "as_of": "2026-09-01",
+      "state": "BACHE"
+    },
+    "COMP_0461": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0462": {
+      "as_of": "2026-09-01",
+      "state": "BACHE"
+    },
+    "COMP_0463": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_0464": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_0465": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_0466": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0467": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0468": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_0469": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0470": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_0471": {
+      "as_of": "2026-09-01",
+      "state": "BACHE"
+    },
+    "COMP_0472": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_0473": {
+      "as_of": "2026-09-01",
+      "state": "BACHE"
+    },
+    "COMP_0474": {
+      "as_of": "2026-09-01",
+      "state": "BACHE"
+    },
+    "COMP_0475": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_0476": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0477": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_0478": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0479": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0480": {
+      "as_of": "2026-09-01",
+      "state": "BACHE"
+    },
+    "COMP_0481": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0482": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0483": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0484": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_0485": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0486": {
+      "as_of": "2026-09-01",
+      "state": "RECUPERACION"
+    },
+    "COMP_0487": {
+      "as_of": "2026-09-01",
+      "state": "DETERIORO"
+    },
+    "COMP_0488": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_0489": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0490": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_0491": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0492": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_0493": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_0494": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0495": {
+      "as_of": "2026-09-01",
+      "state": "DETERIORO"
+    },
+    "COMP_0496": {
+      "as_of": "2026-09-01",
+      "state": "RECUPERACION"
+    },
+    "COMP_0497": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_0498": {
+      "as_of": "2026-09-01",
+      "state": "BACHE"
+    },
+    "COMP_0499": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_0500": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0501": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_0502": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0503": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_0504": {
+      "as_of": "2026-09-01",
+      "state": "RECUPERACION"
+    },
+    "COMP_0505": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0506": {
+      "as_of": "2026-09-01",
+      "state": "BACHE"
+    },
+    "COMP_0507": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0508": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0509": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0510": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_0511": {
+      "as_of": "2026-09-01",
+      "state": "BACHE"
+    },
+    "COMP_0512": {
+      "as_of": "2026-09-01",
+      "state": "RECUPERACION"
+    },
+    "COMP_0513": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0514": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_0515": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0516": {
+      "as_of": "2026-09-01",
+      "state": "BACHE"
+    },
+    "COMP_0517": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0518": {
+      "as_of": "2026-09-01",
+      "state": "RECUPERACION"
+    },
+    "COMP_0519": {
+      "as_of": "2026-09-01",
+      "state": "DETERIORO"
+    },
+    "COMP_0520": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0521": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0522": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0523": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0524": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_0525": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0526": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0527": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_0528": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_0529": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_0530": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0531": {
+      "as_of": "2026-09-01",
+      "state": "RECUPERACION"
+    },
+    "COMP_0532": {
+      "as_of": "2026-09-01",
+      "state": "BACHE"
+    },
+    "COMP_0533": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_0534": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0535": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0536": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_0537": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0538": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0539": {
+      "as_of": "2026-09-01",
+      "state": "BACHE"
+    },
+    "COMP_0540": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_0541": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0542": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0543": {
+      "as_of": "2026-09-01",
+      "state": "RECUPERACION"
+    },
+    "COMP_0544": {
+      "as_of": "2026-09-01",
+      "state": "RECUPERACION"
+    },
+    "COMP_0545": {
+      "as_of": "2026-09-01",
+      "state": "DETERIORO"
+    },
+    "COMP_0546": {
+      "as_of": "2026-09-01",
+      "state": "BACHE"
+    },
+    "COMP_0547": {
+      "as_of": "2026-09-01",
+      "state": "BACHE"
+    },
+    "COMP_0548": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0549": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0550": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_0551": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_0552": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0553": {
+      "as_of": "2026-09-01",
+      "state": "BACHE"
+    },
+    "COMP_0554": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_0555": {
+      "as_of": "2026-09-01",
+      "state": "BACHE"
+    },
+    "COMP_0556": {
+      "as_of": "2026-09-01",
+      "state": "RECUPERACION"
+    },
+    "COMP_0557": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_0558": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_0559": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_0560": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_0561": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0562": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0563": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0564": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0565": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_0566": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_0567": {
+      "as_of": "2026-09-01",
+      "state": "RECUPERACION"
+    },
+    "COMP_0568": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0569": {
+      "as_of": "2026-09-01",
+      "state": "BACHE"
+    },
+    "COMP_0570": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_0571": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0572": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0573": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_0574": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0575": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0576": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_0577": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0578": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0579": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_0580": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_0581": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0582": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_0583": {
+      "as_of": "2026-09-01",
+      "state": "BACHE"
+    },
+    "COMP_0584": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0585": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_0586": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_0587": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0588": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0589": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_0590": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0591": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0592": {
+      "as_of": "2026-09-01",
+      "state": "BACHE"
+    },
+    "COMP_0593": {
+      "as_of": "2026-09-01",
+      "state": "BACHE"
+    },
+    "COMP_0594": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0595": {
+      "as_of": "2026-09-01",
+      "state": "BACHE"
+    },
+    "COMP_0596": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0597": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0598": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0599": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_0600": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0601": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0602": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0603": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_0604": {
+      "as_of": "2026-09-01",
+      "state": "MEJORANDO"
+    },
+    "COMP_0605": {
+      "as_of": "2026-09-01",
+      "state": "MEJORANDO"
+    },
+    "COMP_0606": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_0607": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0608": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_0609": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0610": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0611": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_0612": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_0613": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0614": {
+      "as_of": "2026-09-01",
+      "state": "MEJORANDO"
+    },
+    "COMP_0615": {
+      "as_of": "2026-09-01",
+      "state": "DETERIORO"
+    },
+    "COMP_0616": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0617": {
+      "as_of": "2026-09-01",
+      "state": "BACHE"
+    },
+    "COMP_0618": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_0619": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_0620": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0621": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0622": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_0623": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0624": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_0625": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_0626": {
+      "as_of": "2026-09-01",
+      "state": "BACHE"
+    },
+    "COMP_0627": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0628": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0629": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0630": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0631": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0632": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0633": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_0634": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_0635": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0636": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0637": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0638": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0639": {
+      "as_of": "2026-09-01",
+      "state": "BACHE"
+    },
+    "COMP_0640": {
+      "as_of": "2026-09-01",
+      "state": "DETERIORO"
+    },
+    "COMP_0641": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_0642": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0643": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_0644": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_0645": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_0646": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0647": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0648": {
+      "as_of": "2026-09-01",
+      "state": "DETERIORO"
+    },
+    "COMP_0649": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0650": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_0651": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0652": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0653": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0654": {
+      "as_of": "2026-09-01",
+      "state": "RECUPERACION"
+    },
+    "COMP_0655": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0656": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0657": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0658": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_0659": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0660": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0661": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0662": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0663": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0664": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0665": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0666": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_0667": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0668": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_0669": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_0670": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0671": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0672": {
+      "as_of": "2026-09-01",
+      "state": "BACHE"
+    },
+    "COMP_0673": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0674": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0675": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0676": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_0677": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_0678": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_0679": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0680": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0681": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_0682": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0683": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_0684": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_0685": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0686": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0687": {
+      "as_of": "2026-09-01",
+      "state": "BACHE"
+    },
+    "COMP_0688": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_0689": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0690": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0691": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_0692": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_0693": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_0694": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0695": {
+      "as_of": "2026-09-01",
+      "state": "BACHE"
+    },
+    "COMP_0696": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0697": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0698": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_0699": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0700": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0701": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0702": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_0703": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0704": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_0705": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0706": {
+      "as_of": "2026-09-01",
+      "state": "MEJORANDO"
+    },
+    "COMP_0707": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0708": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0709": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0710": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0711": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0712": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_0713": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0714": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0715": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_0716": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_0717": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0718": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_0719": {
+      "as_of": "2026-09-01",
+      "state": "BACHE"
+    },
+    "COMP_0720": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_0721": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0722": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_0723": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_0724": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_0725": {
+      "as_of": "2026-09-01",
+      "state": "TORCIENDOSE"
+    },
+    "COMP_0726": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_0727": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_0728": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_0729": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_0730": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0731": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0732": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0733": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0734": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_0735": {
+      "as_of": "2026-09-01",
+      "state": "BACHE"
+    },
+    "COMP_0736": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0737": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0738": {
+      "as_of": "2026-09-01",
+      "state": "BACHE"
+    },
+    "COMP_0739": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0740": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_0741": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0742": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_0743": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0744": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_0745": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0746": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0747": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0748": {
+      "as_of": "2026-09-01",
+      "state": "BACHE"
+    },
+    "COMP_0749": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_0750": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0751": {
+      "as_of": "2026-09-01",
+      "state": "BACHE"
+    },
+    "COMP_0752": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_0753": {
+      "as_of": "2026-09-01",
+      "state": "RECUPERACION"
+    },
+    "COMP_0754": {
+      "as_of": "2026-09-01",
+      "state": "DETERIORO"
+    },
+    "COMP_0755": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0756": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_0757": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_0758": {
+      "as_of": "2026-09-01",
+      "state": "DETERIORO"
+    },
+    "COMP_0759": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0760": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0761": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_0762": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0763": {
+      "as_of": "2026-09-01",
+      "state": "BACHE"
+    },
+    "COMP_0764": {
+      "as_of": "2026-09-01",
+      "state": "BACHE"
+    },
+    "COMP_0765": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0766": {
+      "as_of": "2026-09-01",
+      "state": "BACHE"
+    },
+    "COMP_0767": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0768": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0769": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0770": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0771": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_0772": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0773": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0774": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0775": {
+      "as_of": "2026-09-01",
+      "state": "BACHE"
+    },
+    "COMP_0776": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0777": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_0778": {
+      "as_of": "2026-09-01",
+      "state": "BACHE"
+    },
+    "COMP_0779": {
+      "as_of": "2026-09-01",
+      "state": "DETERIORO"
+    },
+    "COMP_0780": {
+      "as_of": "2026-09-01",
+      "state": "BACHE"
+    },
+    "COMP_0781": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0782": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0783": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_0784": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_0785": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0786": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0787": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_0788": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0789": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_0790": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_0791": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0792": {
+      "as_of": "2026-09-01",
+      "state": "BACHE"
+    },
+    "COMP_0793": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_0794": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0795": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_0796": {
+      "as_of": "2026-09-01",
+      "state": "BACHE"
+    },
+    "COMP_0797": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0798": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0799": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0800": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_0801": {
+      "as_of": "2026-09-01",
+      "state": "DETERIORO"
+    },
+    "COMP_0802": {
+      "as_of": "2026-09-01",
+      "state": "DETERIORO"
+    },
+    "COMP_0803": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0804": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_0805": {
+      "as_of": "2026-09-01",
+      "state": "RECUPERACION"
+    },
+    "COMP_0806": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_0807": {
+      "as_of": "2026-09-01",
+      "state": "DETERIORO"
+    },
+    "COMP_0808": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0809": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0810": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0811": {
+      "as_of": "2026-09-01",
+      "state": "BACHE"
+    },
+    "COMP_0812": {
+      "as_of": "2026-09-01",
+      "state": "BACHE"
+    },
+    "COMP_0813": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0814": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0815": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0816": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0817": {
+      "as_of": "2026-09-01",
+      "state": "BACHE"
+    },
+    "COMP_0818": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_0819": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0820": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0821": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0822": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0823": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0824": {
+      "as_of": "2026-09-01",
+      "state": "BACHE"
+    },
+    "COMP_0825": {
+      "as_of": "2026-09-01",
+      "state": "BACHE"
+    },
+    "COMP_0826": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0827": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0828": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_0829": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0830": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_0831": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_0832": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0833": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0834": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0835": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0836": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0837": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0838": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0839": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0840": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_0841": {
+      "as_of": "2026-09-01",
+      "state": "RECUPERACION"
+    },
+    "COMP_0842": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0843": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0844": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_0845": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0846": {
+      "as_of": "2026-09-01",
+      "state": "BACHE"
+    },
+    "COMP_0847": {
+      "as_of": "2026-09-01",
+      "state": "RECUPERACION"
+    },
+    "COMP_0848": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_0849": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_0850": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_0851": {
+      "as_of": "2026-09-01",
+      "state": "BACHE"
+    },
+    "COMP_0852": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0853": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_0854": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0855": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_0856": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_0857": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_0858": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_0859": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0860": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_0861": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0862": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0863": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_0864": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_0865": {
+      "as_of": "2026-09-01",
+      "state": "DETERIORO"
+    },
+    "COMP_0866": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0867": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_0868": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0869": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_0870": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_0871": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0872": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_0873": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0874": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0875": {
+      "as_of": "2026-09-01",
+      "state": "BACHE"
+    },
+    "COMP_0876": {
+      "as_of": "2026-09-01",
+      "state": "BACHE"
+    },
+    "COMP_0877": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0878": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_0879": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_0880": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0881": {
+      "as_of": "2026-09-01",
+      "state": "BACHE"
+    },
+    "COMP_0882": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0883": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_0884": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0885": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0886": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0887": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_0888": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0889": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_0890": {
+      "as_of": "2026-09-01",
+      "state": "BACHE"
+    },
+    "COMP_0891": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0892": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0893": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_0894": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0895": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0896": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_0897": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0898": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_0899": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0900": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_0901": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_0902": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0903": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_0904": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0905": {
+      "as_of": "2026-09-01",
+      "state": "BACHE"
+    },
+    "COMP_0906": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_0907": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0908": {
+      "as_of": "2026-09-01",
+      "state": "RECUPERACION"
+    },
+    "COMP_0909": {
+      "as_of": "2026-09-01",
+      "state": "BACHE"
+    },
+    "COMP_0910": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0911": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0912": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0913": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0914": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0915": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0916": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_0917": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_0918": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0919": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0920": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_0921": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_0922": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_0923": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0924": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0925": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_0926": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0927": {
+      "as_of": "2026-09-01",
+      "state": "BACHE"
+    },
+    "COMP_0928": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0929": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0930": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_0931": {
+      "as_of": "2026-09-01",
+      "state": "RECUPERACION"
+    },
+    "COMP_0932": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_0933": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_0934": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0935": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0936": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_0937": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0938": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_0939": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_0940": {
+      "as_of": "2026-09-01",
+      "state": "DETERIORO"
+    },
+    "COMP_0941": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0942": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0943": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_0944": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_0945": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0946": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0947": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0948": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0949": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_0950": {
+      "as_of": "2026-09-01",
+      "state": "BACHE"
+    },
+    "COMP_0951": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_0952": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0953": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_0954": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_0955": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0956": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_0957": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_0958": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0959": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_0960": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0961": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_0962": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_0963": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0964": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_0965": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_0966": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_0967": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0968": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_0969": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0970": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_0971": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_0972": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0973": {
+      "as_of": "2026-09-01",
+      "state": "BACHE"
+    },
+    "COMP_0974": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0975": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0976": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_0977": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0978": {
+      "as_of": "2026-09-01",
+      "state": "DETERIORO"
+    },
+    "COMP_0979": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_0980": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_0981": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_0982": {
+      "as_of": "2026-09-01",
+      "state": "BACHE"
+    },
+    "COMP_0983": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0984": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_0985": {
+      "as_of": "2026-09-01",
+      "state": "BACHE"
+    },
+    "COMP_0986": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_0987": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0988": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0989": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0990": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0991": {
+      "as_of": "2026-09-01",
+      "state": "BACHE"
+    },
+    "COMP_0992": {
+      "as_of": "2026-09-01",
+      "state": "BACHE"
+    },
+    "COMP_0993": {
+      "as_of": "2026-09-01",
+      "state": "RECUPERACION"
+    },
+    "COMP_0994": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0995": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0996": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0997": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_0998": {
+      "as_of": "2026-09-01",
+      "state": "DETERIORO"
+    },
+    "COMP_0999": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_1000": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_1001": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_1002": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_1003": {
+      "as_of": "2026-09-01",
+      "state": "BACHE"
+    },
+    "COMP_1004": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_1005": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_1006": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_1007": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_1008": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_1009": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_1010": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_1011": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_1012": {
+      "as_of": "2026-09-01",
+      "state": "BACHE"
+    },
+    "COMP_1013": {
+      "as_of": "2026-09-01",
+      "state": "BACHE"
+    },
+    "COMP_1014": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_1015": {
+      "as_of": "2026-09-01",
+      "state": "BACHE"
+    },
+    "COMP_1016": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_1017": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_1018": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_1019": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_1020": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_1021": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_1022": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_1023": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_1024": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_1025": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_1026": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_1027": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_1028": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_1029": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_1030": {
+      "as_of": "2026-09-01",
+      "state": "MEJORANDO"
+    },
+    "COMP_1031": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_1032": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_1033": {
+      "as_of": "2026-09-01",
+      "state": "BACHE"
+    },
+    "COMP_1034": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_1035": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_1036": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_1037": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_1038": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_1039": {
+      "as_of": "2026-09-01",
+      "state": "DETERIORO"
+    },
+    "COMP_1040": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_1041": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_1042": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_1043": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_1044": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_1045": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_1046": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_1047": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_1048": {
+      "as_of": "2026-09-01",
+      "state": "RECUPERACION"
+    },
+    "COMP_1049": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_1050": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_1051": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_1052": {
+      "as_of": "2026-09-01",
+      "state": "BACHE"
+    },
+    "COMP_1053": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_1054": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_1055": {
+      "as_of": "2026-09-01",
+      "state": "MEJORANDO"
+    },
+    "COMP_1056": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_1057": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_1058": {
+      "as_of": "2026-09-01",
+      "state": "BACHE"
+    },
+    "COMP_1059": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_1060": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_1061": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_1062": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_1063": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_1064": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_1065": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_1066": {
+      "as_of": "2026-09-01",
+      "state": "MEJORANDO"
+    },
+    "COMP_1067": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_1068": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_1069": {
+      "as_of": "2026-09-01",
+      "state": "BACHE"
+    },
+    "COMP_1070": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_1071": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_1072": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_1073": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_1074": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_1075": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_1076": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_1077": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_1078": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_1079": {
+      "as_of": "2026-09-01",
+      "state": "RECUPERACION"
+    },
+    "COMP_1080": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_1081": {
+      "as_of": "2026-09-01",
+      "state": "BACHE"
+    },
+    "COMP_1082": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_1083": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_1084": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_1085": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_1086": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_1087": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_1088": {
+      "as_of": "2026-09-01",
+      "state": "BACHE"
+    },
+    "COMP_1089": {
+      "as_of": "2026-09-01",
+      "state": "DETERIORO"
+    },
+    "COMP_1090": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_1091": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_1092": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_1093": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_1094": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_1095": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_1096": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_1097": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_1098": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_1099": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_1100": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_1101": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_1102": {
+      "as_of": "2026-09-01",
+      "state": "RECUPERACION"
+    },
+    "COMP_1103": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_1104": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_1105": {
+      "as_of": "2026-09-01",
+      "state": "BACHE"
+    },
+    "COMP_1106": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_1107": {
+      "as_of": "2026-09-01",
+      "state": "RECUPERACION"
+    },
+    "COMP_1108": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_1109": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_1110": {
+      "as_of": "2026-09-01",
+      "state": "BACHE"
+    },
+    "COMP_1111": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_1112": {
+      "as_of": "2026-09-01",
+      "state": "BACHE"
+    },
+    "COMP_1113": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_1114": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_1115": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_1116": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_1117": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_1118": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_1119": {
+      "as_of": "2026-09-01",
+      "state": "RECUPERACION"
+    },
+    "COMP_1120": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_1121": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_1122": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_1123": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_1124": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_1125": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_1126": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_1127": {
+      "as_of": "2026-09-01",
+      "state": "BACHE"
+    },
+    "COMP_1128": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_1129": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_1130": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_1131": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_1132": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_1133": {
+      "as_of": "2026-09-01",
+      "state": "BACHE"
+    },
+    "COMP_1134": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_1135": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_1136": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_1137": {
+      "as_of": "2026-09-01",
+      "state": "BACHE"
+    },
+    "COMP_1138": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_1139": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_1140": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_1141": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_1142": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_1143": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_1144": {
+      "as_of": "2026-09-01",
+      "state": "BACHE"
+    },
+    "COMP_1145": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_1146": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_1147": {
+      "as_of": "2026-09-01",
+      "state": "DETERIORO"
+    },
+    "COMP_1148": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_1149": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_1150": {
+      "as_of": "2026-09-01",
+      "state": "BACHE"
+    },
+    "COMP_1151": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_1152": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_1153": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_1154": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_1155": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_1156": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_1157": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_1158": {
+      "as_of": "2026-09-01",
+      "state": "RECUPERACION"
+    },
+    "COMP_1159": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_1160": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_1161": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_1162": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_1163": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_1164": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_1165": {
+      "as_of": "2026-09-01",
+      "state": "BACHE"
+    },
+    "COMP_1166": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_1167": {
+      "as_of": "2026-09-01",
+      "state": "BACHE"
+    },
+    "COMP_1168": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_1169": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_1170": {
+      "as_of": "2026-09-01",
+      "state": "DETERIORO"
+    },
+    "COMP_1171": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_1172": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_1173": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_1174": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_1175": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_1176": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_1177": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_1178": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_1179": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_1180": {
+      "as_of": "2026-09-01",
+      "state": "RECUPERACION"
+    },
+    "COMP_1181": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_1182": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_1183": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_1184": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_1185": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_1186": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_1187": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_1188": {
+      "as_of": "2026-09-01",
+      "state": "BACHE"
+    },
+    "COMP_1189": {
+      "as_of": "2026-09-01",
+      "state": "RECUPERACION"
+    },
+    "COMP_1190": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_1191": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_1192": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_1193": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_1194": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_1195": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_1196": {
+      "as_of": "2026-09-01",
+      "state": "MEJORANDO"
+    },
+    "COMP_1197": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_1198": {
+      "as_of": "2026-09-01",
+      "state": "BACHE"
+    },
+    "COMP_1199": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_1200": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_1201": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_1202": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_1203": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_1204": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_1205": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_1206": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_1207": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_1208": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_1209": {
+      "as_of": "2026-09-01",
+      "state": "BACHE"
+    },
+    "COMP_1210": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_1211": {
+      "as_of": "2026-09-01",
+      "state": "BACHE"
+    },
+    "COMP_1212": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_1213": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_1214": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_1215": {
+      "as_of": "2026-09-01",
+      "state": "BACHE"
+    },
+    "COMP_1216": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_1217": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_1218": {
+      "as_of": "2026-09-01",
+      "state": "BACHE"
+    },
+    "COMP_1219": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_1220": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_1221": {
+      "as_of": "2026-09-01",
+      "state": "DETERIORO"
+    },
+    "COMP_1222": {
+      "as_of": "2026-09-01",
+      "state": "BACHE"
+    },
+    "COMP_1223": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_1224": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_1225": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_1226": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_1227": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_1228": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_1229": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_1230": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_1231": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_1232": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_1233": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_1234": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_1235": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_1236": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_1237": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_1238": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_1239": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_1240": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_1241": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_1242": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_1243": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_1244": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_1245": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_1246": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_1247": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_1248": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_1249": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_1250": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_1251": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_1252": {
+      "as_of": "2026-09-01",
+      "state": "MEJORANDO"
+    },
+    "COMP_1253": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_1254": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_1255": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_1256": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_1257": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_1258": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_1259": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_1260": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_1261": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_1262": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_1263": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_1264": {
+      "as_of": "2026-09-01",
+      "state": "BACHE"
+    },
+    "COMP_1265": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_1266": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_1267": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_1268": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_1269": {
+      "as_of": "2026-09-01",
+      "state": "BACHE"
+    },
+    "COMP_1270": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_1271": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_1272": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_1273": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_1274": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_1275": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_1276": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_1277": {
+      "as_of": "2026-09-01",
+      "state": "BACHE"
+    },
+    "COMP_1278": {
+      "as_of": "2026-09-01",
+      "state": "BACHE"
+    },
+    "COMP_1279": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_1280": {
+      "as_of": "2026-09-01",
+      "state": "BACHE"
+    },
+    "COMP_1281": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_1282": {
+      "as_of": "2026-09-01",
+      "state": "BACHE"
+    },
+    "COMP_1283": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_1284": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    },
+    "COMP_1285": {
+      "as_of": "2026-09-01",
+      "state": "EVALUACION_PENDIENTE"
+    },
+    "COMP_1286": {
+      "as_of": "2026-09-01",
+      "state": "ESTABLE"
+    }
+  }
+}

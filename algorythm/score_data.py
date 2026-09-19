@@ -55,6 +55,10 @@ def normalize_transaction(row):
         return 'expenses', -amount
     if category in DEBT_CATEGORIES and amount < 0:
         return 'debt_service', -amount
+    if amount < 0:
+        return 'expenses', -amount
+    if amount > 0:
+        return 'receipts', amount
     return None, 0.0
 
 
@@ -161,66 +165,101 @@ def load_erp_snapshot(dataset, companies, edges, bank, snapshot_as_of='2026-09-0
     erp = {name: np.full(shape, np.nan) for name in names}
     erp.update(quality=np.zeros(shape), hhi_quality=np.zeros(shape))
     cutoffs = [day.isoformat() for day in edges[1:]]
-    if snapshot_as_of not in cutoffs:
+    if snapshot_as_of is not None and snapshot_as_of not in cutoffs:
         return erp, {'snapshot_not_in_evaluation_cutoffs': True}
-    month = cutoffs.index(snapshot_as_of)
-    if month < 5:
-        return erp, {'insufficient_window': True}
-    cutoff = parse_day(snapshot_as_of)
-    recent_start = edges[month - 2].toordinal()
-    previous_start = edges[month - 5].toordinal()
+    if snapshot_as_of is not None:
+        target_months = [cutoffs.index(snapshot_as_of)]
+        if target_months[0] < 5:
+            return erp, {'insufficient_window': True}
+    else:
+        target_months = list(range(shape[1]))
+
     index = {row['company_id']: i for i, row in enumerate(companies)}
-    sums = {name: np.zeros(shape[0]) for name in ('sales', 'previous_sales', 'pending', 'matured', 'late', 'converted', 'recent_count', 'all_count', 'valid_count', 'known_customer')}
-    customers = {}
+    cutoff_ords = np.array([parse_day(c) for c in cutoffs])
+    recent_starts = np.array([edges[max(0, m - 2)].toordinal() for m in range(shape[1])])
+    previous_starts = np.array([edges[max(0, m - 5)].toordinal() for m in range(shape[1])])
+
+    sales = np.zeros(shape)
+    previous_sales = np.zeros(shape)
+    pending = np.zeros(shape)
+    matured = np.zeros(shape)
+    late = np.zeros(shape)
+    converted = np.zeros(shape)
+    recent_count = np.zeros(shape, dtype=int)
+    all_count = np.zeros(shape, dtype=int)
+    valid_count = np.zeros(shape, dtype=int)
+    known_customer = np.zeros(shape)
+    customers = [{} for _ in range(shape[1])]
     checks = Counter()
     observed_companies = set()
+
     for row in rows(dataset / 'invoices.csv'):
-        i = index[row['company_id']]
+        i = index.get(row['company_id'])
+        if i is None:
+            continue
         observed_companies.add(i)
         amount = float(row['amount'])
         issued = parse_day(row['issuance_date'])
-        if row['document_type'] != 'invoice' or amount <= 0 or issued > cutoff or row['status'] == 'cancel':
+        if row['document_type'] != 'invoice' or amount <= 0 or row['status'] == 'cancel':
             continue
-        sums['all_count'][i] += 1
+        first_m = int(np.searchsorted(cutoff_ords, issued, side='left'))
+        if first_m >= shape[1]:
+            continue
+        for m in target_months:
+            if m >= first_m:
+                all_count[i, m] += 1
         if row['currency'] != companies[i]['currency'] or row['accounting_currency'] != companies[i]['currency'] or not row['exchange_rate'] or float(row['exchange_rate']) != 1:
             checks['excluded_currency_or_fx'] += 1
             continue
         due = parse_day(row['due_date'])
-        pending = float(row['pending_amount']) if row['pending_amount'] else np.nan
-        if due < issued or due > issued + 365 or not 0 <= pending <= amount:
+        pend = float(row['pending_amount']) if row['pending_amount'] else np.nan
+        if due < issued or due > issued + 365 or not (0 <= pend <= amount):
             checks['excluded_invalid_due_or_pending'] += 1
             continue
-        sums['valid_count'][i] += 1
-        sums['pending'][i] += pending
-        if recent_start <= due < cutoff:
-            sums['matured'][i] += amount
-            sums['late'][i] += pending
-        if recent_start <= issued < cutoff:
-            sums['sales'][i] += amount
-            sums['converted'][i] += amount - pending
-            sums['recent_count'][i] += 1
-            if row['counterparty_id']:
-                key = (i, row['counterparty_id'])
-                customers[key] = customers.get(key, 0) + amount
-                sums['known_customer'][i] += amount
-        if previous_start <= issued < recent_start:
-            sums['previous_sales'][i] += amount
-    erp['dso_days'][:, month] = divide((cutoff - recent_start) * sums['pending'], sums['sales'])
-    erp['late_fraction'][:, month] = divide(sums['late'], sums['matured'])
-    cash = bank['receipts'][:, month - 2:month + 1].sum(axis=1)
-    erp['conversion'][:, month] = np.minimum(np.clip(divide(sums['converted'], sums['sales']), 0, 1), np.clip(divide(cash, sums['sales']), 0, 1))
-    erp['sales_growth'][:, month] = divide(sums['sales'] - sums['previous_sales'], sums['sales'] + sums['previous_sales'])
-    adequate = (sums['recent_count'] >= 5) & (sums['matured'] > 0)
-    quality = np.nan_to_num(divide(sums['valid_count'], sums['all_count']), nan=0)
-    erp['quality'][:, month] = quality * adequate
-    squared = np.zeros(shape[0])
-    for (i, _), amount in customers.items():
-        squared[i] += amount ** 2
-    customer_share = divide(sums['known_customer'], sums['sales'])
-    erp['hhi'][:, month] = np.where(customer_share >= .95, divide(squared, sums['known_customer'] ** 2), np.nan)
-    erp['hhi_quality'][:, month] = np.where(np.isfinite(erp['hhi'][:, month]), customer_share, 0)
+        for m in target_months:
+            if m >= first_m:
+                valid_count[i, m] += 1
+                pending[i, m] += pend
+            cut = cutoff_ords[m]
+            rec = recent_starts[m]
+            prev = previous_starts[m]
+            if rec <= due < cut:
+                matured[i, m] += amount
+                late[i, m] += pend
+            if rec <= issued < cut:
+                sales[i, m] += amount
+                converted[i, m] += amount - pend
+                recent_count[i, m] += 1
+                if row['counterparty_id']:
+                    key = (i, row['counterparty_id'])
+                    customers[m][key] = customers[m].get(key, 0.0) + amount
+                    known_customer[i, m] += amount
+            if m >= 5 and prev <= issued < rec:
+                previous_sales[i, m] += amount
+
+    for m in target_months:
+        cut = cutoff_ords[m]
+        rec = recent_starts[m]
+        erp['dso_days'][:, m] = divide((cut - rec) * pending[:, m], sales[:, m])
+        erp['late_fraction'][:, m] = divide(late[:, m], matured[:, m])
+        cash_start = max(0, m - 2)
+        cash = bank['receipts'][:, cash_start:m + 1].sum(axis=1)
+        erp['conversion'][:, m] = np.minimum(np.clip(divide(converted[:, m], sales[:, m]), 0, 1), np.clip(divide(cash, sales[:, m]), 0, 1))
+        if m >= 5:
+            erp['sales_growth'][:, m] = divide(sales[:, m] - previous_sales[:, m], sales[:, m] + previous_sales[:, m])
+        adequate = (recent_count[:, m] >= 5) & (matured[:, m] > 0)
+        quality = np.nan_to_num(divide(valid_count[:, m], all_count[:, m]), nan=0)
+        erp['quality'][:, m] = quality * adequate
+        squared = np.zeros(shape[0])
+        for (comp_idx, _), amt in customers[m].items():
+            squared[comp_idx] += amt ** 2
+        customer_share = divide(known_customer[:, m], sales[:, m])
+        erp['hhi'][:, m] = np.where(customer_share >= .95, divide(squared, known_customer[:, m] ** 2), np.nan)
+        erp['hhi_quality'][:, m] = np.where(np.isfinite(erp['hhi'][:, m]), customer_share, 0)
+
+    last_target = target_months[-1]
     checks['companies_with_any_invoice'] = len(observed_companies)
-    checks['companies_with_usable_snapshot'] = int(np.sum(erp['quality'][:, month] > 0))
+    checks['companies_with_usable_snapshot'] = int(np.sum(erp['quality'][:, last_target] > 0))
     checks['assumes_positive_invoice_amount_is_sale'] = True
     checks['payment_date_used_to_infer_payment'] = False
     checks['snapshot_as_of'] = snapshot_as_of

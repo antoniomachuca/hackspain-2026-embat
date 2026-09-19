@@ -19,7 +19,7 @@ A partir del rastro financiero de **250 empresas durante 24 meses**, construir:
 
 ---
 
-## 👥 Equipo
+## Equipo
 - **[@antoniomachuca](https://github.com/antoniomachuca)**
 - **[@carleondel](https://github.com/carleondel)**
 - **[@HugoOlivaR](https://github.com/HugoOlivaR)**
@@ -28,7 +28,7 @@ A partir del rastro financiero de **250 empresas durante 24 meses**, construir:
 
 ---
 
-## 📂 Estructura del Proyecto
+## Estructura del Proyecto
 ```text
 .
 ├── .agents/                    # Enunciado y requerimientos del track
@@ -40,13 +40,15 @@ A partir del rastro financiero de **250 empresas durante 24 meses**, construir:
 ├── front/                      # Front de producto (Next.js) que implementa el maestro
 ├── PRODUCTO.md                 # Producto, comprador, arquitectura, reparto y pitch
 ├── REQUISITOS.md               # Requisitos por bloques de arquitectura (B0–B13) y trazabilidad
+├── diagrams/                   # Contexto, paquetes con puertos, clase general y por módulo
+├── algorythm/                  # Motor de score, validación y pipeline reproducible
 ├── README.md
 └── .gitignore
 ```
 
 ---
 
-## 📖 Por dónde empezar
+## Por dónde empezar
 - **[`PRODUCTO.md`](PRODUCTO.md)** — qué construimos encima del score, a quién se lo
   vendemos, el reparto en 3 ejes y el contrato entre ellos. Empieza por aquí.
 - **[`REQUISITOS.md`](REQUISITOS.md)** — la especificación ejecutable: qué construye cada
@@ -62,596 +64,87 @@ el algoritmo manda el brief; sobre producto, comprador o narrativa, manda `PRODU
 
 ---
 
-## 🧩 Diagrama de clases
+### Arquitectura del Sistema y Mapa Modular
 
-Modelo de dominio derivado de [`REQUISITOS.md`](REQUISITOS.md), agrupado por bloque de
-arquitectura (B0–B10). B11–B13 (front, pitch, entrega) no aparecen porque son consumidores
-de `ServicioAPI`, no dominio. Los nombres del contrato de B7 van sin acentos por
-compatibilidad con Mermaid.
+La arquitectura técnica de **X-Ray** sigue estrictamente el patrón **Hexagonal (Ports & Adapters)** y los principios **SOLID**, desacoplando el núcleo algorítmico y de dominio de los adaptadores de infraestructura y de la interfaz de usuario.
+
+### Vista de Contexto y Flujo Global (C1)
 
 ```mermaid
-classDiagram
-direction LR
+flowchart LR
+  DATA[("Dataset sintético<br>CSV/JSON · 250 grupos<br>1.286 empresas · 24 meses")]
+  EXA[("Exa API<br>Sponsor HackSpain · Macro/Sector")]
 
-%% ═══════════════ B0 · Datos (dataset sintético) ═══════════════
-namespace B0_Datos {
-  class Grupo {
-    +String group_id
-    +String erp
-    +int n_companies_in_sample
-  }
-  class Empresa {
-    +String company_id
-    +String group_id
-    +String country
-    +String currency
-    +String erp
-    +Date created_at
-  }
-  class Producto {
-    <<abstract>>
-    +String product_id
-    +String company_id
-    +String label
-    +String type
-    +String bank_name
-    +String service
-    +String currency
-    +Date created_at
-  }
-  class ProductoBancario {
-    +TipoBancario type
-  }
-  class ProductoDeuda {
-    +TipoDeuda type
-    +Decimal granted
-    +Decimal outstanding
-    +Decimal liquidity
-  }
-  class CuadroAmortizacion {
-    +String product_id
-    +String settlement_product_id
-    +String amortization_type
-    +String interest_calc_method
-    +String amortising_frequency
-    +String interest_type
-    +Decimal granted_balance
-    +Decimal outstanding_balance
-    +int total_periods
-    +Date next_payment_date
-    +Date last_payment_date
-    +Decimal annual_interest_rate_or_spread
-    +cuotaAnual() Decimal
-  }
-  class Transaccion {
-    +String transaction_id
-    +String company_id
-    +String product_id
-    +Date date
-    +Date value_date
-    +Decimal amount
-    +Decimal exchange_rate
-    +String status
-    +String accounting_status
-    +String category
-    +String description
-    +String counterparty_id
-    +esIntragrupo() bool
-    +esFinanciacion() bool
-  }
-  class Factura {
-    +String operation_id
-    +String company_id
-    +String document_type
-    +Date issuance_date
-    +Date due_date
-    +Date payment_date
-    +Decimal amount
-    +Decimal pending_amount
-    +String currency
-    +String status
-    +String counterparty_id
-    +esEmitida() bool
-    +esRecibida() bool
-    +diasRetrasoSobreVencimiento() int
-  }
-  class Saldo {
-    +String product_id
-    +String company_id
-    +Date date
-    +Decimal balance
-    +Decimal available
-    +Decimal granted
-    +Decimal liquidity
-  }
-  class Contraparte {
-    +String counterparty_id
-    +String company_id_cruzado
-  }
-  class CalendarioCanonico {
-    +Date inicio
-    +Date fin
-    +List~Mes~ meses
-    +mesesSinMovimientoACero()
-  }
-  class CargadorDataset {
-    +cargar(rutas) Tablas
-    +validarIntegridadReferencial() bool
-    +normalizarSigno()
-    +convertirAEUR()
-    +informeExploracion() InformeExploracion
-  }
-  class TipoBancario {
-    <<enumeration>>
-    checking
-    card
-    investment
-    tpv
-    saving
-    expensesPlatform
-  }
-  class TipoDeuda {
-    <<enumeration>>
-    loan
-    leasing
-    lineofcredit
-    mortgage
-    renting
-    factoring
-    confirming
-    guarantee
-  }
-}
+  subgraph CORE["X-Ray · Núcleo Algorítmico y de Dominio"]
+    B0["B0 · Ingesta y Normalización<br>Point-in-Time causal · Sin cruce 0%"]
+    B1["B1 · Features del rastro<br>Liquidez, Cobros, Deuda, Fragilidad"]
+    B2["B2 · Percentiles congelados<br>4 cuartiles tamaño · Inmutable"]
+    B3["B3 · Motor de score continuo<br>24 meses · 6 estados · Momentum"]
+    B4["B4 · Explicabilidad aditiva<br>Waterfall exacto con deltaClip"]
+    B5["B5 · Anticipación y Monitor<br>Lead time medido + CUSUM"]
+    B6["B6 · Consolidación de grupo<br>65% media + 35% peor filial"]
+    B8["B8 · Simulador contrafactual<br>Patrón Strategy · Recomputación"]
+    B9["B9 · Puente a euros<br>Caja liberada + Curva tipos"]
+    B10["B10 · Agente transaccional<br>Recomendación + Acción 1-clic"]
 
-%% ═══════════════ B1 · Features del rastro ═══════════════
-namespace B1_Features {
-  class BloqueFeature {
-    <<enumeration>>
-    LIQUIDEZ
-    PAGO
-    DEUDA
-    CONCENTRACION
-  }
-  class Direccion {
-    <<enumeration>>
-    MAYOR_MEJOR
-    MAYOR_PEOR
-  }
-  class DefinicionFeature {
-    +String nombre
-    +BloqueFeature bloque
-    +Direccion direccion
-    +float peso_interno
-    +String unidad_negocio
-  }
-  class ValorFeature {
-    +String company_id
-    +Mes mes
-    +String feature
-    +Decimal valor
-    +bool imputado
-    +int meses_ventana
-  }
-  class InsumosConfianza {
-    +float pct_conciliado
-    +int meses_historia
-    +float cobertura_productos
-    +float match_factura_banco
-  }
-  class PipelineFeatures {
-    +int ventana_meses
-    +int minimo_meses
-    +calcular(Tablas, CalendarioCanonico) List~ValorFeature~
-    +recomputar(Tablas modificadas) List~ValorFeature~
-    +eliminarIntragrupo(Tablas) Tablas
-    +imputarNulos(PeerGroup)
-    +dscrProxy(company_id, mes) Decimal
-  }
-}
+    B0 --> B1
+    B1 --> B2
+    B1 --> B3
+    B2 --> B3
+    B3 --> B4
+    B3 --> B5
+    B6 -.->|"filtro intragrupo aprox"| B0
+    B3 --> B6
+    B1 --> B8
+    B8 --> B9
+    B4 --> B10
+    B8 --> B10
+    B9 --> B10
+    B5 -.->|"notifica alertas (Observer)"| B10
+  end
 
-%% ═══════════════ B2 · Peer groups y percentiles congelados ═══════════════
-namespace B2_Peer {
-  class NivelShrinkage {
-    <<enumeration>>
-    LOCAL
-    MEZCLA
-    PEER_LIMITADO
-    GLOBAL
-  }
-  class PeerGroup {
-    +String peer_id
-    +String pais
-    +int cuartil_ingresos
-    +int n_empresas
-    +NivelShrinkage shrinkage
-    +float w
-  }
-  class TablaPercentiles {
-    +String version
-    +List~Decil~ deciles
-    +construir(features_train) TablaPercentiles
-    +percentil(feature, valor, peer) float
-    +serializar(ruta)
-    +cargar(ruta) TablaPercentiles
-  }
-  class Percentil {
-    +String company_id
-    +Mes mes
-    +String feature
-    +float p_peer
-    +bool saturado
-    +bool peer_desconocido
-  }
-}
+  subgraph API["B7 · Puertos y Adaptadores API"]
+    B7["B7 · Puertos Inbound REST y Mock<br>IScore · IGroup · ISimulator<br>IAlert · IAction · IPassport"]
+  end
 
-%% ═══════════════ B3 · Motor de score ═══════════════
-namespace B3_Score {
-  class Estado {
-    <<enumeration>>
-    MEJORANDO
-    ESTABLE
-    TORCIENDOSE
-    DETERIORO
-    BACHE
-    RECUPERACION
-  }
-  class Semaforo {
-    <<enumeration>>
-    ALTA
-    MEDIA
-    BAJA
-  }
-  class ConfiguracionScore {
-    +String version
-    +Map~BloqueFeature,float~ pesos_bloque
-    +Map~String,float~ pesos_internos
-    +float k
-    +UmbralesEstado umbrales
-    +int meses_tendencia
-    +cargar(ruta) ConfiguracionScore
-  }
-  class UmbralesEstado {
-    +float t_umbral
-    +int persistencia_meses
-    +float n_frontera
-    +float caida_bache
-    +float recuperacion_bache
-  }
-  class Confianza {
-    +float valor
-    +Semaforo semaforo
-    +bool peer_limitado
-  }
-  class ScoreMensual {
-    +String company_id
-    +Mes mes
-    +float score
-    +float nivel
-    +float tendencia
-    +Estado estado
-    +Confianza confianza
-    +Map~BloqueFeature,float~ percentil_bloque
-  }
-  class Trayectoria {
-    +String company_id
-    +List~ScoreMensual~ puntos
-    +serieNivel() List~float~
-    +serieTendencia() List~float~
-  }
-  class MotorScore {
-    +calcularNivel(percentiles) float
-    +calcularTendencia(serie_N) float
-    +clasificarEstado(historia_N, historia_T) Estado
-    +calcularScore(N, T) float
-    +calcularConfianza(InsumosConfianza) Confianza
-    +puntuar(company_id, mes) ScoreMensual
-    +trayectoria(company_id) Trayectoria
-  }
-}
+  subgraph EDGE["Borde y Presentación (Driving Adapters)"]
+    B11["B11 · Interfaz Next.js<br>Time-Machine · QR · What-If · Acción"]
+    JURADO["Jurado / Embat / CFO"]
+    SMARTPHONE["Smartphone Jurado<br>Escaneo QR Pasaporte"]
+  end
 
-%% ═══════════════ B4 · Explicabilidad ═══════════════
-namespace B4_Explicacion {
-  class CodigoRazon {
-    <<enumeration>>
-    RC_01_FLUJO_INSUFICIENTE
-    RC_02_DETERIORO_COBROS
-    RC_03_CARGA_FINANCIERA
-    RC_04_CONCENTRACION_INGRESOS
-    RC_05_CONFIANZA_LIMITADA
-  }
-  class Driver {
-    +String feature
-    +BloqueFeature bloque
-    +float contribucion
-    +Decimal valor
-    +float p_peer
-    +String unidad
-  }
-  class Explicacion {
-    +float delta_score
-    +List~Driver~ drivers
-    +List~CodigoRazon~ codigos_razon
-    +String frase
-    +sumaCuadra() bool
-  }
-  class Explicador {
-    +porQueEsteNumero(ScoreMensual) List~CodigoRazon~
-    +porQueHaCambiado(ScoreMensual t, ScoreMensual t_1) List~Driver~
-    +fraseLegible(Explicacion) String
-  }
-}
-
-%% ═══════════════ B5 · Anticipación y monitor ═══════════════
-namespace B5_Anticipacion {
-  class Severidad {
-    <<enumeration>>
-    ALTA
-    MEDIA
-    BAJA
-  }
-  class DetectorCambioRegimen {
-    +cusum(serie_cruda) Mes
-  }
-  class MetricaAnticipacion {
-    +float mediana_meses
-    +float tasa_falsas_alarmas
-    +calcular(Trayectorias, cambios_regimen) MetricaAnticipacion
-  }
-  class Alerta {
-    +String entity_id
-    +Severidad severidad
-    +Mes mes_deteccion
-    +int meses_anticipacion
-    +Estado estado_nuevo
-    +List~Driver~ drivers_movidos
-    +String frase
-  }
-  class Monitor {
-    +alertasDesde(Mes desde) List~Alerta~
-    +ordenarPorMagnitud() List~Alerta~
-  }
-}
-
-%% ═══════════════ B6 · Consolidación de grupo ═══════════════
-namespace B6_Grupo {
-  class ScoreGrupo {
-    +String group_id
-    +Mes mes
-    +float consolidado
-    +List~ScoreMensual~ filiales
-    +ScoreMensual peor_filial
-    +float penalizacion_contagio
-  }
-  class ConsolidadorGrupo {
-    +float peso_media_ponderada
-    +float peso_peor_filial
-    +consolidar(group_id, mes) ScoreGrupo
-  }
-}
-
-%% ═══════════════ B7 · API (contrato congelado) ═══════════════
-namespace B7_API {
-  class RespuestaScore {
-    +float score
-    +float nivel
-    +float tendencia
-    +Estado estado
-    +Confianza confianza
-    +List~Driver~ drivers
-    +List~float~ trayectoria
-    +List~CodigoRazon~ codigos_razon
-  }
-  class ServicioAPI {
-    <<interface>>
-    +getScore(entity_id, month) RespuestaScore
-    +getGroup(group_id) ScoreGrupo
-    +postSimulate(PeticionSimulacion) ResultadoSimulacion
-    +getAlerts(desde) List~Alerta~
-  }
-  class APIReal {
-  }
-  class APIMock {
-  }
-  class FixtureOffline {
-    +grabar(peticion, respuesta)
-    +reproducir(peticion) Respuesta
-  }
-}
-
-%% ═══════════════ B8 · Simulador y palancas ═══════════════
-namespace B8_Simulador {
-  class TipoPalanca {
-    <<enumeration>>
-    REDUCIR_DSO
-    AMPLIAR_DPO
-    REFINANCIAR
-    BAJAR_UTILIZACION_LINEA
-    REDUCIR_CONCENTRACION
-    SUSTITUIR_FACTORING_POR_LINEA
-    RECORTAR_OPEX
-    DESCUENTO_PRONTO_PAGO
-  }
-  class Palanca {
-    +TipoPalanca id
-    +Map~String,Object~ parametros
-    +Rango rango_plausible
-    +esAplicable(Empresa, Tablas) bool
-    +motivoRechazo() String
-    +aplicar(Tablas) Tablas
-  }
-  class CatalogoPalancas {
-    +List~Palanca~ palancas
-    +buscar(TipoPalanca) Palanca
-  }
-  class PeticionSimulacion {
-    +String entity_id
-    +List~Palanca~ palancas
-  }
-  class ResultadoSimulacion {
-    +float score_nuevo
-    +float delta_score
-    +Decimal caja_liberada_eur
-    +float delta_bps
-    +Decimal eur_anio
-    +String motivo_rechazo
-  }
-  class Simulador {
-    +simular(PeticionSimulacion) ResultadoSimulacion
-    -contrafactual(Tablas modificadas) ScoreMensual
-  }
-}
-
-%% ═══════════════ B9 · Puente a euros ═══════════════
-namespace B9_Euros {
-  class CurvaScoreTipo {
-    +List~PuntoCurva~ puntos
-    +float dispersion
-    +float calidad_ajuste
-    +ajustar(List~ProductoDeuda~, List~CuadroAmortizacion~, List~ScoreMensual~)
-    +tipoMedio(score) float
-  }
-  class PuenteEuros {
-    +cajaLiberada(delta_dso, facturacion_diaria) Decimal
-    +deltaBps(score_antes, score_despues) float
-    +eurAnio(delta_bps, deuda_viva) Decimal
-  }
-}
-
-%% ═══════════════ B10 · Agente ═══════════════
-namespace B10_Agente {
-  class Recomendacion {
-    +Palanca palanca
-    +ResultadoSimulacion resultado
-    +Driver driver_objetivo
-    +float impacto
-    +float esfuerzo
-    +String justificacion
-  }
-  class Agente {
-    +diagnosticar(Explicacion) List~Driver~
-    +proponer(entity_id) List~Recomendacion~
-    +priorizar(List~Recomendacion~) List~Recomendacion~
-    +reaccionar(Alerta) List~Recomendacion~
-    +fallbackPrecomputado(entity_id) List~Recomendacion~
-  }
-}
-
-%% ═══════════════ Relaciones · B0 dataset ═══════════════
-Grupo "1" o-- "1..24" Empresa : group_id
-Empresa "1" *-- "*" Producto : company_id
-Producto <|-- ProductoBancario
-Producto <|-- ProductoDeuda
-ProductoDeuda "1" -- "0..1" CuadroAmortizacion : product_id
-CuadroAmortizacion --> ProductoBancario : settlement_product_id
-Empresa "1" *-- "*" Transaccion
-Empresa "1" *-- "*" Factura
-Producto "1" *-- "*" Transaccion : product_id
-Producto "1" -- "1" Saldo : balance 2026-09
-Transaccion "*" --> "0..1" Contraparte
-Factura "*" --> "0..1" Contraparte
-Contraparte ..> Empresa : cruce opcional (grafo)
-CargadorDataset ..> Grupo
-CargadorDataset ..> Empresa
-CargadorDataset ..> Transaccion
-CargadorDataset ..> Factura
-CargadorDataset ..> Saldo
-CargadorDataset --> CalendarioCanonico : construye
-
-%% ═══════════════ Relaciones · motor ═══════════════
-PipelineFeatures ..> CalendarioCanonico
-PipelineFeatures ..> Transaccion
-PipelineFeatures ..> Factura
-PipelineFeatures ..> Saldo
-PipelineFeatures ..> ProductoDeuda
-PipelineFeatures ..> CuadroAmortizacion : DSCR proxy
-PipelineFeatures --> ValorFeature : produce
-PipelineFeatures --> InsumosConfianza : produce
-ValorFeature --> DefinicionFeature : feature
-DefinicionFeature --> BloqueFeature
-DefinicionFeature --> Direccion
-Empresa --> PeerGroup : pais x cuartil ingresos
-PeerGroup --> NivelShrinkage
-TablaPercentiles ..> ValorFeature : solo train
-TablaPercentiles --> Percentil : percentil()
-Percentil --> PeerGroup
-MotorScore --> ConfiguracionScore : lee
-ConfiguracionScore *-- UmbralesEstado
-MotorScore ..> Percentil : entrada
-MotorScore ..> InsumosConfianza : confianza
-MotorScore --> ScoreMensual : produce
-MotorScore --> Trayectoria : produce
-Trayectoria "1" *-- "24" ScoreMensual
-ScoreMensual --> Estado
-ScoreMensual *-- Confianza
-Confianza --> Semaforo
-Explicador ..> ScoreMensual : t y t-1
-Explicador ..> Percentil
-Explicador --> Explicacion : produce
-Explicacion "1" *-- "*" Driver
-Explicacion --> CodigoRazon
-Driver --> BloqueFeature
-
-%% ═══════════════ Relaciones · anticipación y grupo ═══════════════
-DetectorCambioRegimen ..> ValorFeature : series crudas
-MetricaAnticipacion ..> DetectorCambioRegimen
-MetricaAnticipacion ..> Trayectoria
-Monitor ..> Trayectoria : cambios de estado
-Monitor ..> Explicador : frase adjunta
-Monitor --> Alerta : produce
-Alerta --> Severidad
-Alerta "1" *-- "*" Driver : drivers_movidos
-ConsolidadorGrupo ..> PipelineFeatures : sin intragrupo
-ConsolidadorGrupo ..> ScoreMensual : filiales
-ConsolidadorGrupo --> ScoreGrupo : produce
-ScoreGrupo --> Grupo
-
-%% ═══════════════ Relaciones · API, simulador, euros, agente ═══════════════
-ServicioAPI <|.. APIReal
-ServicioAPI <|.. APIMock
-APIReal --> MotorScore
-APIReal --> Explicador
-APIReal --> ConsolidadorGrupo
-APIReal --> Simulador
-APIReal --> Monitor
-APIMock --> FixtureOffline
-ServicioAPI --> RespuestaScore : GET /score
-ServicioAPI --> ScoreGrupo : GET /group
-ServicioAPI --> ResultadoSimulacion : POST /simulate
-ServicioAPI --> Alerta : GET /alerts
-RespuestaScore *-- Driver
-Simulador --> CatalogoPalancas : valida contra
-CatalogoPalancas "1" *-- "8" Palanca
-Palanca --> TipoPalanca
-PeticionSimulacion "1" *-- "1..*" Palanca
-Simulador ..> PeticionSimulacion : entrada
-Simulador --> PipelineFeatures : recomputar()
-Simulador --> TablaPercentiles : congelada
-Simulador --> MotorScore : re-puntuar
-Simulador --> PuenteEuros : traduce
-Simulador --> ResultadoSimulacion : produce
-PuenteEuros --> CurvaScoreTipo : score a tipo
-CurvaScoreTipo ..> ProductoDeuda : tipos reales
-CurvaScoreTipo ..> CuadroAmortizacion : tipos reales
-Agente ..> Explicacion : ancla al driver
-Agente ..> Alerta : proactivo
-Agente --> CatalogoPalancas : elige y parametriza
-Agente --> ServicioAPI : POST /simulate
-Agente --> Recomendacion : produce
-Recomendacion --> Palanca
-Recomendacion --> ResultadoSimulacion : cifras del motor
-Recomendacion --> Driver : driver_objetivo
-
-note for Simulador "RF-B8.2: contrafactual real. Aplica palanca al input, recomputa B1 a B2 a B3 y vuelve a puntuar. Nunca gradiente."
-note for TablaPercentiles "CA-B2: tablas congeladas con train. Puntuar una empresa sola o con otras 50 da identico resultado."
-note for Agente "RF-B10.1: el agente no opina, simula. Ninguna cifra sale de texto generado."
-note for ConfiguracionScore "RNF-4: pesos, umbrales y k en fichero versionado, no en codigo. k=0 en el primer envio."
+  %% Invocaciones entre capas
+  DATA --> B0
+  EXA -.->|"contexto peer set"| B5
+  JURADO -->|"navega en proyector"| B11
+  B11 -.->|"proyecta QR en vivo"| SMARTPHONE
+  B11 -->|"consume puertos"| B7
+  SMARTPHONE -->|"GET /passport/{token}"| B7
+  B7 -->|"orquesta invocación"| CORE
 ```
 
-**Claves de lectura:**
-- `ServicioAPI` es una interfaz con dos realizaciones, `APIReal` y `APIMock`: es la regla
-  de desbloqueo (RNF-5) hecha clase. Todos consumen la interfaz, nadie el núcleo.
-- `Simulador` depende de `PipelineFeatures.recomputar()`, `TablaPercentiles` y `MotorScore`:
-  el contrafactual real de RF-B8.2, nunca gradiente.
-- `Confianza` va como composición separada de `ScoreMensual` y no entra en la fórmula (RF-B3.8).
-- `Contraparte.company_id_cruzado` es opcional: el grafo de contrapartes (RF-B5.7) solo
-  existe si B0 confirma cruce suficiente.
+---
+
+### Especificación Detallada por Módulos ([`diagrams/`](diagrams/))
+
+Para garantizar modularidad, legibilidad y rendimiento en los renderizadores, el modelo de clases detallado se encuentra desglosado en diagramas individuales dentro de la carpeta [`diagrams/`](diagrams/):
+
+| Módulo / Vista | Archivo | Responsabilidad / Patrón | Requisitos Clave y Factor WOW |
+| :--- | :--- | :--- | :--- |
+| **C1 · Contexto** | [`01-contexto.md`](diagrams/01-contexto.md) | Vista global de paquetes, dependencias entrantes y actores | Arquitectura general, integración Exa API |
+| **Cx · Puertos API** | [`02-paquetes-puertos.md`](diagrams/02-paquetes-puertos.md) | Mapa operativo de Puertos y Adaptadores (ISP + DIP) | Desacoplamiento REST / Mock determinista |
+| **C2 · Clases General** | [`03-diagrama-de-clases-general.md`](diagrams/03-diagrama-de-clases-general.md) | Modelo de dominio completo unificado (B0 a B11) | Fuente de verdad de tipos, métodos y contratos |
+| **B0 · Datos e Ingesta** | [`modulo-b0.md`](diagrams/modulo-b0.md) | Ingesta Point-in-Time, saneado de fechas y filtro intragrupo | Cruce 0,0 %, sin lookahead bias en caja |
+| **B1 · Features** | [`modulo-b1.md`](diagrams/modulo-b1.md) | Extracción de variables financieras por pilares (`IPilar`) | OCP, DSCR proxy, HHI interno sin grafo |
+| **B2 · Percentiles** | [`modulo-b2.md`](diagrams/modulo-b2.md) | Peer groups por cuartil de tamaño y persistencia DIP (`IPercentilStore`) | Inmutabilidad de distribución de train congelada |
+| **B3 · Motor de Score** | [`modulo-b3.md`](diagrams/modulo-b3.md) | Puntuación aditiva (24 meses), momentum simétrico y clasificación | 6 estados, Paradoja Northbrook ($45 \to 65$) vs Velasco ($82 \to 68$) |
+| **B4 · Explicabilidad** | [`modulo-b4.md`](diagrams/modulo-b4.md) | Descomposición aditiva exacta con residuo de recorte (`deltaClip`) | `sumaCuadra() == 0`, códigos estandarizados `RC_01`–`RC_05` |
+| **B5 · Anticipación** | [`modulo-b5.md`](diagrams/modulo-b5.md) | Monitor proactivo (Observer), detector CUSUM y métrica de lead time | Control de falsas alarmas (1 alerta/año), Exa Grounding |
+| **B6 · Consolidación** | [`modulo-b6.md`](diagrams/modulo-b6.md) | Agregación holding ($65\%$ media $+ 35\%$ peor filial) | Penalización por contagio ($S_t < 40$), filtro transfer |
+| **B7 · Puertos API** | [`modulo-b7.md`](diagrams/modulo-b7.md) | 6 puertos segregados (`IScore`, `IGroup`, `ISimulator`, etc.) | ISP, `APIRestAdapter` (FastAPI), `FixtureOffline` |
+| **B8 · Simulador** | [`modulo-b8.md`](diagrams/modulo-b8.md) | Catálogo de 8 palancas financieras (`IPalanca` Strategy) | Contrafactual real (recomputación completa, cero gradientes) |
+| **B9 · Puente a Euros** | [`modulo-b9.md`](diagrams/modulo-b9.md) | Caja liberada indiscutible y curva econométrica de tipos | Dos patas separadas y etiquetadas (Aritmética vs Estadística) |
+| **B10 · Agente** | [`modulo-b10.md`](diagrams/modulo-b10.md) | Agente transaccional ("el agente no opina, simula") | **Momento WOW 2:** Acción autónoma en 1-clic (`POST /action/generate`) |
+| **B11 · Frontend & QR** | [`modulo-b11.md`](diagrams/modulo-b11.md) | Interfaz Next.js: Time-Machine split-screen y Pasaporte Móvil QR | **Momentos WOW 1 y 3:** Split-Screen interactivo y QR móvil en vivo |
+
+---

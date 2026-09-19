@@ -1,0 +1,195 @@
+import io
+from pathlib import Path
+from typing import Optional, Union
+
+import matplotlib
+matplotlib.use('Agg')
+import matplotlib.pyplot as plt
+import numpy as np
+
+HERE = Path(__file__).resolve().parent
+PANELS_PATH = HERE / 'engine_results' / 'score_panels.npz'
+
+
+def generate_company_chart(
+    company_id: str,
+    panels_path: Optional[Union[str, Path]] = None
+) -> bytes:
+    """
+    Renders a 24-month financial health trajectory chart for a given company.
+    
+    Styling:
+    - Corporate dark mode (#050B2C background, #081138 plot area)
+    - X-Ray score line in vibrant teal (#00A896) with soft fill under curve
+    - Base solvency threshold at 60.0 (#FFD166 dashed line)
+    - Prominent status indicator at latest cut (Red for DETERIORO, Yellow for TORCIENDOSE, Green for Solvente)
+    
+    Returns:
+        PNG image bytes in memory (io.BytesIO).
+    """
+    target_path = Path(panels_path) if panels_path else PANELS_PATH
+    if not target_path.exists():
+        raise FileNotFoundError(f"Score panels file not found at {target_path}")
+
+    with np.load(target_path, allow_pickle=False) as data:
+        cids = [str(c) for c in data['company_id']]
+        cid = str(company_id).strip().upper()
+        if not cid.startswith("COMP_") and cid.startswith("COMP") and cid[4:].isdigit():
+            cid = f"COMP_{cid[4:]}"
+        if cid not in cids:
+            raise ValueError(f"Company {cid} not found in score panels catalogue")
+
+        idx = cids.index(cid)
+        scores = np.asarray(data['score'][idx], dtype=float)
+        as_of_raw = [str(d) for d in data['as_of']]
+        states = [str(s) for s in data['state'][idx]]
+        group_id = str(data['group_id'][idx]) if 'group_id' in data else 'N/D'
+
+    latest_score = float(scores[-1])
+    latest_state = states[-1]
+    latest_date = as_of_raw[-1]
+    first_score = float(scores[0])
+    delta_total = latest_score - first_score
+
+    # Format x-axis dates: '2024-10-01' -> '10/24'
+    labels = []
+    for d in as_of_raw:
+        parts = d.split('-')
+        if len(parts) >= 2:
+            labels.append(f"{parts[1]}/{parts[0][2:]}")
+        else:
+            labels.append(d)
+
+    # Matplotlib styling
+    plt.style.use('dark_background')
+    fig, ax = plt.subplots(figsize=(10, 5), dpi=160)
+    try:
+        fig.patch.set_facecolor('#050B2C')
+        ax.set_facecolor('#081138')
+
+        # Main score curve
+        line_color = '#00A896'
+        marker_color = '#00E5C8'
+        ax.plot(
+            labels, scores,
+            color=line_color,
+            linewidth=2.6,
+            marker='o',
+            markersize=4.5,
+            markerfacecolor=marker_color,
+            markeredgecolor='#050B2C',
+            markeredgewidth=1.0,
+            label='Score X-Ray (0-100)',
+            zorder=3
+        )
+
+        # Shaded area under the curve
+        ax.fill_between(
+            labels, scores,
+            color=line_color,
+            alpha=0.18,
+            zorder=2
+        )
+
+        # Base solvency boundary at 60.0
+        ax.axhline(
+            60.0,
+            color='#FFD166',
+            linestyle='--',
+            linewidth=1.6,
+            alpha=0.85,
+            label='Umbral Solvencia Base (60.0)',
+            zorder=2
+        )
+
+        # Terminal point coloring based on health state
+        if latest_state == 'DETERIORO':
+            status_color = '#EF476F'  # Crimson Red
+            status_label = '[DETERIORO CRITICO]'
+        elif latest_state == 'TORCIENDOSE':
+            status_color = '#FFD166'  # Amber Yellow
+            status_label = '[TRAYECTORIA DESCENDENTE]'
+        elif latest_state in ('RECUPERACION', 'MEJORANDO'):
+            status_color = '#06D6A0'  # Emerald Green
+            status_label = f'[{latest_state}]'
+        elif latest_state == 'BACHE':
+            status_color = '#118AB2'  # Cyan Blue
+            status_label = '[BACHE TRANSITORIO]'
+        else:
+            status_color = '#06D6A0' if latest_score >= 60.0 else '#FFD166'
+            status_label = f'[{latest_state}]'
+
+        # Terminal point marker
+        ax.plot(
+            labels[-1], latest_score,
+            marker='o',
+            markersize=9.5,
+            color=status_color,
+            markeredgecolor='white',
+            markeredgewidth=1.8,
+            zorder=5
+        )
+
+        # Annotation callout on latest score
+        delta_sign = '+' if delta_total > 0 else ''
+        ax.annotate(
+            f"{latest_score:.1f} pts ({latest_state})",
+            xy=(labels[-1], latest_score),
+            xytext=(-20, 14 if latest_score < 80 else -20),
+            textcoords='offset points',
+            color='white',
+            fontsize=8.5,
+            fontweight='bold',
+            bbox=dict(boxstyle='round,pad=0.3', facecolor=status_color, edgecolor='none', alpha=0.9),
+            arrowprops=dict(arrowstyle='->', connectionstyle='arc3,rad=0.1', color='white', lw=1.0),
+            zorder=6
+        )
+
+        # Axes titles and labels
+        ax.set_title(
+            f"Trayectoria Score X-Ray · {cid} ({group_id})\n"
+            f"Corte: {latest_date} | Estado: {status_label} | Score: {latest_score:.2f} / 100",
+            color='white',
+            fontsize=11.5,
+            fontweight='bold',
+            pad=12,
+            loc='left'
+        )
+        ax.set_ylabel('Score Financiero (0 - 100)', color='#A0AEC0', fontsize=9.5, labelpad=8)
+        ax.set_ylim(0, 100)
+
+        # Ticks and Grid
+        ax.tick_params(colors='#A0AEC0', labelsize=8)
+        plt.xticks(rotation=45, ha='right')
+        ax.grid(True, linestyle=':', alpha=0.18, color='#A0AEC0')
+
+        # Spines border styling
+        for spine in ax.spines.values():
+            spine.set_edgecolor('#1E2958')
+            spine.set_linewidth(1.2)
+
+        # Legend
+        ax.legend(
+            facecolor='#050B2C',
+            edgecolor='#1E2958',
+            labelcolor='white',
+            loc='lower left',
+            fontsize=8.5,
+            framealpha=0.9
+        )
+
+        plt.tight_layout()
+
+        # Save to memory buffer
+        buffer = io.BytesIO()
+        plt.savefig(
+            buffer,
+            format='png',
+            facecolor=fig.get_facecolor(),
+            edgecolor='none',
+            bbox_inches='tight'
+        )
+        buffer.seek(0)
+        return buffer.getvalue()
+    finally:
+        plt.close(fig)

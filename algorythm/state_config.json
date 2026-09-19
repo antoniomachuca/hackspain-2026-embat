@@ -1,0 +1,10 @@
+{
+  "persistence_months": 3,
+  "momentum_threshold": 0.1,
+  "base_boundary": 60.0,
+  "minimum_quality": 0.5,
+  "minimum_observed_months": 6,
+  "neutral_persistence_months": 2,
+  "pulse_margin_drop": 0.12,
+  "year_over_year_deadband": 0.06
+}

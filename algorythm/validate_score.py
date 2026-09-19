@@ -11,6 +11,7 @@ if not __package__:
 
 from algorythm.score_data import sha256
 from algorythm.score_engine import ScoreConfig, bounded_momentum, calculate_scores
+from algorythm.score_states import PENDING, StateConfig, classify_states
 
 
 POINTS = ('liquidity_points', 'collections_points', 'debt_points', 'momentum_points', 'growth_points', 'fragility_points', 'clipping_points')
@@ -101,7 +102,7 @@ def monthly_diagnostics(panels):
     return result
 
 
-def validate_outputs(panels, config=None):
+def validate_outputs(panels, config=None, state_config=None):
     score = panels['score']
     numeric = [values for values in panels.values() if values.dtype.kind in 'fiu']
     all_finite = all(np.isfinite(values).all() for values in numeric)
@@ -123,7 +124,16 @@ def validate_outputs(panels, config=None):
              'synthetic_monotone_and_three_month_lead': stress_pass,
              'mature_month_correlations_below_065': bool(monthly) and all(row['correlation_pass'] for row in monthly),
              'mature_month_saturation_below_2pct': bool(monthly) and all(row['saturation_observed'] < .02 for row in monthly)}
-    return {'gates': gates, 'all_gates_pass': all(gates.values()),
+    state_summary = {}
+    if 'state' in panels:
+        expected_states = classify_states(panels, state_config)
+        gates['reproducible_state_classification'] = all(np.array_equal(panels[key], value) for key, value in expected_states.items())
+        gates['priors_remain_unrated'] = bool(np.all(panels['state'][panels['is_prior']] == PENDING) and np.all(panels['health_band'][panels['is_prior']] == 'SIN_EVIDENCIA'))
+        labels, counts = np.unique(panels['state'][:, -1], return_counts=True)
+        state_summary = {'endpoint_counts': dict(zip(labels.tolist(), counts.tolist())),
+                         'endpoint_eligible': int(panels['state_eligible'][:, -1].sum()),
+                         'endpoint_seasonality_available': int(panels['seasonality_available'][:, -1].sum())}
+    return {'gates': gates, 'all_gates_pass': all(gates.values()), 'trajectory_states': state_summary,
             'coverage': {'companies': score.shape[0], 'months': score.shape[1], 'endpoint_observed': int(observed.sum()),
                          'endpoint_prior': int(panels['is_prior'][:, -1].sum()), 'high_quality': int(high_quality.sum()),
                          'cash_known': int(panels['cash_known'][:, -1].sum()), 'erp_used': int(panels['erp_used'][:, -1].sum()),
@@ -144,12 +154,17 @@ def main():
     args = parser.parse_args()
     with (args.results / 'score_manifest.json').open(encoding='utf-8') as source:
         manifest = json.load(source)
-    for key, name in (('engine_sha256', 'score_engine.py'), ('data_adapter_sha256', 'score_data.py')):
+    for key, name in (('engine_sha256', 'score_engine.py'), ('data_adapter_sha256', 'score_data.py'),
+                      ('state_engine_sha256', 'score_states.py'), ('monitor_sha256', 'score_monitor.py')):
         if manifest.get(key) != sha256(Path(__file__).parent / name):
             raise SystemExit('Source files differ from the manifest; rerun calc_score before validation.')
+    if manifest.get('panels_sha256') != sha256(args.results / 'score_panels.npz'):
+        raise SystemExit('Panel content differs from the published manifest.')
     config = ScoreConfig(**manifest['config'])
+    state_config = StateConfig(**manifest['state_config'])
     with np.load(args.results / 'score_panels.npz', allow_pickle=False) as stored:
-        report = validate_outputs(dict(stored), config)
+        report = validate_outputs(dict(stored), config, state_config)
+    report.update(model_version=manifest['model_version'], panels_sha256=manifest['panels_sha256'])
     with (args.results / 'validation.json').open('w', encoding='utf-8') as destination:
         json.dump(report, destination, ensure_ascii=False, indent=2, allow_nan=False)
         destination.write('\n')

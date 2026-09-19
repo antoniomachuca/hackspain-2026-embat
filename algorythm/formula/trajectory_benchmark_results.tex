@@ -1,0 +1,124 @@
+\section*{9. Trayectorias, monitor y evaluación temporal}
+\subsection*{9.1. Protocolo y separación de evidencias}
+Se fijó el protocolo antes de ejecutar las nuevas pruebas: 400 trayectorias por escenario, 36 meses, cambios a partir del índice 12, ruido autocorrelacionado y siete familias. La semilla 101 es de desarrollo; 202 es validación y 303 es test. Los parámetros financieros del score no se optimizaron sobre estas etiquetas sintéticas. Solo se compararon dos o tres confirmaciones del monitor en desarrollo; se congeló la opción admisible más rápida antes de evaluar las otras semillas.
+
+El escenario gradual se distingue del abrupto. La caja de evaluación tras el cambio parte de una reserva entre 0,5 y 6 meses de pagos, fijada por el generador y nunca introducida como feature. Las trayectorias que no agotan caja se declaran censuradas. Esta construcción no convierte los escenarios propios en empresas reales ni en un test externo del leaderboard.
+
+La configuración seleccionada requiere 3 valores mensuales consecutivos de momentum fuera de $\pm 0,10$, calidad bancaria al menos 0,50 en las dos ventanas comparadas y bases maduras. Se requieren 2 meses neutros para cerrar un episodio. El nivel 60 diferencia giro temprano de deterioro con base débil; son reglas de diseño, no umbrales de impago calibrados.
+
+\subsection*{9.2. Sensibilidad en el test sintético reservado}
+Detección en seis meses significa emisión posterior al inicio del cambio y antes de que transcurran seis observaciones mensuales. El retraso se mide desde el inicio de ese cambio, sin retrotraer la fecha de alerta al primer indicio aún no confirmado.
+
+\begin{center}
+\small
+\begin{tabular}{lrr}
+\hline
+Escenario & Detectado en 6 meses & Retraso mediano \\
+\hline
+Deterioro gradual & 95,50\% & 4,0 meses \\
+Mejora & 89,25\% & 4,0 meses \\
+Recuperación & 93,75\% & 4,0 meses \\
+Deterioro abrupto & 100,00\% & 3,0 meses \\
+\hline
+\end{tabular}
+\end{center}
+
+En deterioro gradual, 99,00\% de las detecciones se produce con base todavía al menos 60. La diferencia entre sensibilidades de mejora y deterioro es 6,25 puntos porcentuales: la respuesta es bidireccional, pero no se afirma igualdad perfecta.
+
+\subsection*{9.3. Falsas alertas y límite de estacionalidad}
+Se cuentan eventos adversos emitidos, incluidas escaladas de severidad, por empresa-año elegible. No se limita artificialmente la emisión a una alerta anual para pasar el control. La fracción de series con alguna falsa alerta mide otra cosa: acumula el riesgo de error a lo largo de todo el horizonte.
+
+\begin{center}
+\small
+\begin{tabular}{lrr}
+\hline
+Serie sin deterioro estructural & Avisos adversos/año & Series con falso aviso \\
+\hline
+Estable con ruido & 0,000 & 0,00\% \\
+Bache de un mes & 0,000 & 0,00\% \\
+Ciclo anual repetitivo & 0,215 & 50,25\% \\
+\hline
+\end{tabular}
+\end{center}
+
+Con comparación anual disponible, la tasa adversa en series estacionales es 0,016 por empresa-año. La fracción acumulada de falsos avisos estacionales sigue siendo alta: no se oculta. Antes de observar un ciclo comparable no se puede identificar con certeza que una caída sea estacional. El control anual requiere dos ventanas trimestrales actuales y sus equivalentes del año anterior; exige al menos dos observaciones fiables en cada bloque y compatibilidad de ambas diferencias dentro de 0,02.
+
+\subsection*{9.4. Antelación: evento observado frente a predicción}
+La antelación solo se calcula cuando se conoce la fecha del evento de referencia. El feed operativo mantiene \texttt{lead\_months=null}; no transforma el momentum en una fecha de quiebra ni añade ocho meses a todas las alertas.
+
+En el control fijo con caja inicial 300, el monitor confirmado avisa en el mes 16 y la caja se hace no positiva en el mes 23: antelación 7 meses. Es distinto del aviso matemático de ocho meses de la sección anterior, que usa otra regla y no incorpora las tres confirmaciones operativas.
+
+\begin{center}
+\small
+\begin{tabular}{lrrr}
+\hline
+Escenario con caja de referencia & Colapsos & Censuradas & Aviso al menos 3 meses antes \\
+\hline
+Deterioro gradual & 365 & 35 & 100,00\% \\
+Deterioro abrupto & 399 & 1 & 76,19\% \\
+\hline
+\end{tabular}
+\end{center}
+
+Un shock abrupto con poca reserva puede agotar caja antes de acumular confirmaciones. No se garantiza antelación universal: el filtro intercambia rapidez por estabilidad. Las reservas y severidad prefijadas del generador condicionan estos porcentajes.
+
+\subsection*{9.5. Reserva interna por grupos sobre los CSV de Embat}
+
+Se reservaron 50 grupos, 239 sociedades, sin utilizarlos para seleccionar parámetros del monitor. Tras exigir cobertura suficiente en las ventanas comparadas y futuras quedan 365 observaciones empresa-corte de 199 sociedades y 41 grupos. La evaluación usa los cortes de marzo y junio de 2026 y los tres meses siguientes. Este dataset ya se había explorado: no es un test externo ciego.
+
+La prueba técnica de puntuar esas empresas separadas del resto del lote arroja una diferencia máxima de 0,000. Esto verifica ausencia de dependencia de las otras filas, no precisión financiera sobre empresas nuevas.
+
+\begin{center}
+\small
+\begin{tabular}{lrr}
+\hline
+Ordenación frente a cobertura futura & Spearman & Intervalo bootstrap 95\% \\
+\hline
+Score dinámico & -0,062 & [-0,206; 0,087] \\
+Cobertura persistida, 3 meses & -0,087 & [-0,277; 0,107] \\
+Cobertura persistida, 6 meses & -0,037 & [-0,235; 0,140] \\
+\hline
+\end{tabular}
+\end{center}
+
+\begin{center}
+\small
+\begin{tabular}{lrrr}
+\hline
+Señal actual frente a cambio próximo & Señales & Precisión sobre proxy & Recall sobre proxy \\
+\hline
+Deterioro & 14 & 14,29\% & 2,27\% \\
+Mejora & 30 & 3,33\% & 1,18\% \\
+\hline
+\end{tabular}
+\end{center}
+
+La asociación de momentum con el cambio del siguiente trimestre es -0,369. Los cambios consecutivos comparten el nivel actual con signos opuestos; ruido, estacionalidad y reversión a la media pueden contribuir a esa asociación. No justifica invertir el signo del momentum para maquillar el test.
+
+\textbf{Resultado no concluyente para precisión financiera.} La cobertura futura es un objetivo auxiliar de flujos, no una etiqueta de salud. Los intervalos de ranking son amplios y no demuestran superioridad frente a persistencia a seis meses. Las señales de trayectoria actual no predicen bien la dirección del trimestre siguiente en esta reserva. No se reajustaron parámetros contra ese resultado.
+
+\subsection*{9.6. Monitor implementado y cobertura operativa}
+Cada ejecución de \texttt{calc\_score.py} publica estados, manifiesto y avisos. \texttt{score\_monitor.py --watch} comprueba automáticamente nuevos snapshots sin consultas por empresa. Valida hashes de publicación, deduplica identificadores y conserva el cursor temporal. Una revisión del mismo corte se etiqueta como revisión; un cambio de modelo reinicializa la referencia sin atribuirle un cambio financiero. Los cortes antiguos del time-machine no retroceden el cursor.
+
+Se separan \texttt{alerts\_history.json} (análisis retrospectivo), \texttt{alerts\_feed.json} (avisos publicados) y \texttt{monitor\_state.json} (deduplicación y cursor). Son avisos locales; no se envían correos ni se ejecutan operaciones bancarias. Los drivers son diferencias exactas de contribuciones frente a tres meses antes. Se marca si aparece evidencia ERP o de caja nueva.
+
+El estado \texttt{ESTABLE} describe trayectoria, no solvencia. El nivel, la disponibilidad de evidencia y el estado deben mostrarse por separado. La baja cobertura y los priors no se etiquetan como empresas sanas.
+
+\begin{center}
+\small
+\begin{tabular}{lr}
+\hline
+Estado al último corte bancario & Sociedades \\
+\hline
+BACHE & 151 \\
+DETERIORO & 34 \\
+ESTABLE & 594 \\
+EVALUACION\_PENDIENTE & 443 \\
+MEJORANDO & 20 \\
+RECUPERACION & 39 \\
+TORCIENDOSE & 5 \\
+\hline
+\end{tabular}
+\end{center}
+
+\textbf{Pendiente externo:} validar acierto financiero y antelación empírica requiere la referencia o el evaluador oficial de Embat, y eventos de tesorería fechados independientemente. El código operativo, los controles sintéticos y las asociaciones descriptivas no sustituyen esa evaluación.

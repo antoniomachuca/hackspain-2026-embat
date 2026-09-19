@@ -63,183 +63,284 @@
 
 % ─── Encabezado Principal del Paper ──────────────────────────────────────────
 \begin{center}
-  {\fontsize{19}{23}\selectfont\bfseries\color{embatnavy} X-Ray: Motor de Salud Financiera Dinámica y Anticipación de Trayectorias sobre Flujo de Caja B2B}\\[0.4em]
-  {\large\color{textmuted} Especificación matemática, arquitectura axiomática y validación empírica en 1.286 sociedades (24 meses)}\\[0.8em]
+  {\fontsize{18}{22}\selectfont\bfseries\color{embatnavy} X-Ray: Motor de Scoring Continuo, Evaluación de Trayectorias Financieras\\ y Monitor Temprano de Estrés de Tesorería B2B}\\[0.4em]
+  {\large\color{textmuted} Especificación matemática, desacoplamiento de calidad documental y validación empírica en 1.286 sociedades}\\[0.8em]
   
   {\small\textbf{Antonio Machuca} \quad $\cdot$ \quad \textbf{Carlos León} \quad $\cdot$ \quad \textbf{Hugo Oliva} \quad $\cdot$ \quad \textbf{Pedro Jon} \quad $\cdot$ \quad \textbf{Agustín Muñoz}}\\[0.2em]
-  {\footnotesize\color{textmuted} HackSpain 2026 $\cdot$ Track Embat (X-Ray) $\cdot$ UPM-ETSIT, Madrid}\\[0.2em]
+  {\footnotesize\color{textmuted} HackSpain 2026 $\cdot$ Track Embat (X-Ray) $\cdot$ Escuela Técnica Superior de Ingenieros de Telecomunicación (UPM-ETSIT), Madrid}\\[0.2em]
   {\footnotesize\color{accentblue}\texttt{https://github.com/antoniomachuca/hackspain-2026-embat}}
 \end{center}
 
-\vspace{0.4em}
-
-% ─── Resumen Ejecutivo / Abstract ────────────────────────────────────────────
-\begin{tcolorbox}[paperbox, title=Resumen Ejecutivo y Declaración de Alcance]
-\small
-\textbf{El problema de mercado:} Las agencias de información y bureaus de crédito (Informa D\&B, Registro Mercantil) evalúan a las empresas con estados financieros anuales que arrastran un retraso estructural de 12 a 15 meses. En una foto fija en el mes 24, dos sociedades con trayectorias opuestas resultan indistinguibles (caso del reto: Northbrook Foods subiendo de 45 a 65 frente a Velasco Industrial cayendo de 82 a 68; ambas coinciden en 65 vs 68 al cierre).
-
-\textbf{Metodología y rigor:} El dataset sintético provisto no contiene etiquetas de quiebra ni scoring objetivo supervisado. Ajustar algoritmos de caja negra (GBDT, XGBoost o redes neuronales) sin ground truth incurre en sesgo circular y riesgo de alucinación. Se formula un \textbf{score aditivo determinista por reglas y referencias económicas explícitas}, estrictamente causal (\emph{as-of}), sin fuga de información del futuro y con priors neutrales ($50$ con \texttt{is\_prior=True}) ante falta de evidencia observable.
-
-\textbf{Resultados y entregables clave:}
-\begin{enumerate}[leftmargin=*, noitemsep, topsep=1pt]
-  \item \textbf{Ecuación maestra y balance ortogonal:} $S_t = \operatorname{clip}_{[0,100]}(B_t + \lambda M_t + \gamma G_t - \delta F_t)$. Correlaciones entre pilares controladas ($|r_s| < 0{,}65$; máx. $0{,}437$), demostrando que liquidez, cobros, endeudamiento y fragilidad no son redundantes.
-  \item \textbf{Resolución de la paradoja del mes 24:} Northbrook alcanza un score final de \textbf{67,66} (momentum positivo $+0{,}332$), superando a Velasco con \textbf{66,10} (momentum contractivo $-0{,}238$).
-  \item \textbf{Anticipación y estabilidad:} Alerta temprana emitida con \textbf{8 meses de antelación} frente a asfixia de tesorería, garantizando monotonicidad y resistencia probada ante baches transitorios de caja.
-  \item \textbf{Explicabilidad exacta y puente transaccional:} Descomposición aditiva exacta en seis contribuciones que alimenta directamente el simulador contrafactual what-if del CFO sin aproximaciones por gradiente.
-\end{enumerate}
-\end{tcolorbox}
-
 \vspace{0.3em}
 
-% ─── Correspondencia con las 6 preguntas de Embat ───────────────────────────
-\section*{1. Correspondencia con las Seis Preguntas del Reto}
+% ─── Resumen Ejecutivo / Abstract ────────────────────────────────────────────
+\begin{tcolorbox}[paperbox, title=Resumen Ejecutivo y Declaración de Alcance Metodológico]
+\small
+\textbf{Problema analítico:} La evaluación de solvencia empresarial basada exclusivamente en fotos contables fijas u agregados estáticos oculta trayectorias dinámicas contrapuestas. Una compañía con un nivel base moderado en trayectoria ascendente puede presentar menor riesgo crediticio y operativo que una sociedad históricamente sólida pero en fase de deterioro acelerado. Asimismo, la ausencia o baja densidad de registros en entornos pyme suele contaminar las estimaciones financieras, confundiéndose la falta de datos con solvencia deficiente o riesgo nulo.
 
-El sistema responde de manera unívoca a los seis interrogantes planteados en el enunciado oficial de Embat:
+\textbf{Metodología formulada:} Presentamos la especificación matemática y validación econométrica de \textbf{X-Ray}, un motor continuo y determinista acotado estrictamente en $[0, 100]$. El modelo introduce cuatro principios de diseño formal:
+\begin{enumerate}[leftmargin=*, noitemsep, topsep=1pt]
+  \item \textbf{Desacople estricto entre solvencia y gobernanza documental:} Se suprime la contracción ciega de pilares hacia valores neutrales ($0{,}5$). La calidad de datos se aísla en un indicador ortogonal independiente, el \emph{Data Confidence Index} ($\text{DCI}_t = 100 \cdot \overline{q}_t^{[3]} \cdot \min(m/6, 1{,}0)$), reduciendo la correlación espuria con calidad documental a $\rho = 0{,}107$ en el corte final (máximo histórico $\rho = 0{,}211 \ll 0{,}65$).
+  \item \textbf{Crecimiento sin estrangulación:} Sustitución del promedio geométrico por el promedio aritmético en el componente de crecimiento bancario ($G_t^b$), preservando el reconocimiento de fases tempranas de recuperación operativa.
+  \item \textbf{Estrés comercial y fragilidad desprovista de atenuación artificial:} Eliminación de factores multiplicativos de cobertura en la penalización por fragilidad ($F_t$) e integración del estrés de facturas vencidas ($\text{invoice\_stress}$).
+  \item \textbf{Monitor proactivo con corte de histéresis (*opposing momentum breaker*):} Filtro de persistencia trimestral no solapado e interrupción automática de estados positivos ante shocks adversos ($M_t < -0{,}10$ o $\Delta S_t < -3{,}0$), erradicando alertas invertidas en series reales.
+\end{enumerate}
+
+\textbf{Evidencia experimental cuantificada:} En cohortes sintéticas estandarizadas (400 series por escenario), el recall a $\le 6$ meses alcanza el 94,0\% en deterioro gradual frente al 92,5\% en mejora y 91,5\% en recuperación (gap simétrico de 1,5--2,5 p.p.; retraso mediano idéntico de 4,0 meses). En el benchmark de agotamiento de caja, el 100\% de las series en deterioro gradual son detectadas antes de la insolvencia (antelación mediana de 14,0 meses, P10 = 8,0 meses), con el 99,0\% de las alertas emitidas con un nivel base aún alto ($B_t \ge 60$). Ante shocks puntuales (\emph{pulse}), la tasa de falsas alarmas es estrictamente 0,000 por empresa-año. La evaluación en la partición reservada del dataset real (50 grupos, 239 sociedades, 365 cortes evaluables) arroja independencia técnica exacta de lote ($\Delta_{\text{batch}} = 0{,}000$).
+\end{tcolorbox}
+
+\vspace{0.2em}
+
+% ─── Sección 1: Correspondencia con las 6 preguntas de Embat ─────────────────
+\section*{1. Correspondencia Sistemática con las Seis Preguntas del Reto}
+
+El marco analítico de X-Ray proporciona una respuesta matemática y operativa a cada uno de los seis requerimientos planteados en el reto Embat:
 
 \begin{center}
 \small
-\begin{tabularx}{\textwidth}{lp{4.2cm}p{4.6cm}X}
+\begin{tabularx}{\textwidth}{p{2.6cm}p{3.2cm}p{4.2cm}X}
 \toprule
-\textbf{Pregunta del Enunciado} & \textbf{Concepto Financiero} & \textbf{Mecanismo en el Motor} & \textbf{Evidencia Experimental} \\
+\textbf{Requerimiento} & \textbf{Concepto Econométrico} & \textbf{Mecanismo en el Motor} & \textbf{Validación Empírica y Límites} \\
 \midrule
-\textbf{1. Quién está sano} & Solvencia intrínseca y equilibrio de flujos & Nivel base $B_t = 100(w_L L_t + w_C C_t + w_D D_t)$ & Mediana de 51,78; P95 en 70,40 sin sesgo artificial. \\
-\textbf{2. Quién está mejorando} & Trayectoria ascendente y tracción real & Momentum positivo $\lambda M_t > 0$ y Crecimiento de calidad $\gamma G_t$ & Northbrook compensa su nivel inicial y gana $+2{,}66$ pts por inercia. \\
-\textbf{3. Quién empieza a torcerse} & Inflexión temprana y deterioro de margen & Momentum negativo $\lambda M_t < 0$ y Penalización de fragilidad $\delta F_t$ & Velasco sufre descuento de $-1{,}90$ pts antes de reflejar mora contable. \\
-\textbf{4. Bache vs. caída} & Separación de volatilidad puntual y fallo estructural & Filtro de confirmación $c_t$ en 6 meses no solapados con medianas & Un shock de 1 mes da $c_t=0$; no penaliza el momentum. \\
-\textbf{5. Por qué ha cambiado} & Transparencia y auditabilidad ante comités & Waterfall aditivo exacto: $S_t = \sum \text{contrib}_j + \Delta_t^{\text{clip}}$ & Variación $\Delta S_t$ descompuesta al céntimo en factores causales. \\
-\textbf{6. Cuándo se vio venir} & Tiempo de reacción para mitigar el riesgo & Detección de quiebra técnica sobre serie de tesorería & Alerta emitida con 8 meses de antelación al agotamiento de caja. \\
+\textbf{1. Quién está sano} & Solvencia de flujo y cobertura corriente & Nivel base ponderado $B_t$ y bandas de salud (\texttt{SOLIDA}, \texttt{INTERMEDIA}, \texttt{DEBIL}) & Score acotado en $[0, 100]$. Desacoplado de la cobertura documental. No presupone inferencia de default externo sin etiquetas de supervisión. \\
+\textbf{2. Quién mejora} & Expansión sostenida y trayectoria positiva & Momentum $M_t > 0{,}10$, crecimiento $G_t$ y estados \texttt{MEJORANDO} y \texttt{RECUPERACION} & Recall sintético $\le 6$ meses del 92,5\% en mejora y 91,5\% en recuperación. Retraso mediano de 4,0 meses sin retrotraer fechas. \\
+\textbf{3. Quién se tuerce} & Deterioro temprano con base aún sólida & Momentum negativo confirmado ($M_t < -0{,}10$) sobre base $B_t \ge 60$ (\texttt{TORCIENDOSE}) & 99,0\% de las alertas de deterioro gradual se emiten con base $B_t \ge 60$. Alerta antes de que el daño patrimonial sea irreversible. \\
+\textbf{4. Bache vs. caída} & Shock estocástico transitorio frente a tendencia & Medianas móviles trimestrales, 3 meses de persistencia y estado \texttt{BACHE} & Tasa de falsas alertas de 0,000 por empresa-año en shocks de un mes (\emph{pulse}). Mitigación del 96\% en ciclos estacionales con contexto interanual. \\
+\textbf{5. Por qué cambia} & Atribución aditiva exacta de variaciones & Descomposición lineal término a término (Waterfall) con corrección de clipping & Identidad aritmética exacta: $\Delta S_t = \sum_k \Delta \text{Points}_k + \Delta_t^{\mathrm{clip}}$. Residuo algebraico nulo ($\|\epsilon\| < 10^{-13}$). \\
+\textbf{6. Cuándo se avisó} & Antelación temporal a la insolvencia de caja & Demonio proactivo \texttt{score\_monitor.py} con cursor temporal inmutable & Antelación mediana de 14,0 meses al agotamiento de caja en deterioro gradual (7 a 8 meses en control determinista). Lead nulo en feed si no hay evento fechado. \\
 \bottomrule
 \end{tabularx}
 \end{center}
 
-% ─── Ecuación Global y Parámetros ───────────────────────────────────────────
-\section*{2. Ecuación Global y Arquitectura Paramétrica}
+% ─── Sección 2: Arquitectura Matemática y Ecuaciones Actualizadas ───────────
+\section*{2. Arquitectura Matemática y Ecuación Global del Score}
 
-El índice se acota estrictamente en el intervalo $[0, 100]$ mediante un recorte explícito (\emph{clipping}):
+El índice sintético de salud financiera $S_t$ se define para cada corte temporal $t$ mediante una combinación linealmente separable acotada mediante el operador de recorte (\emph{clipping}):
 
 \begin{tcolorbox}[formulabox]
-\vspace{-0.3em}
+\vspace{-0.2em}
 \[
 \boxed{S_t = \operatorname{clip}_{[0,100]}\left( B_t + \lambda M_t + \gamma G_t - \delta F_t \right)}
 \]
 \[
-B_t = 100\left( w_L L_t + w_C C_t + w_D D_t \right), \qquad w_L + w_C + w_D = 1, \quad w_L, w_C, w_D \geq 0
+B_t = 100 \left( w_L L_t + w_C C_t + w_D D_t \right), \qquad \sum_{k \in \{L, C, D\}} w_k = 1, \quad w_k \geq 0
 \]
-\vspace{-0.3em}
+\vspace{-0.4em}
 \end{tcolorbox}
 
-Donde $L_t, C_t, D_t, G_t, F_t \in [0, 1]$, el nivel base $B_t \in [0, 100]$ y el vector de momentum $M_t \in [-1, 1]$. Bajo la política conservadora actual, la dimensión de deuda se restringe a $D_t \in [0, 0{,}5]$: la ausencia de desembolsos registrados no acredita ausencia de pasivo.
+Donde $L_t, C_t, D_t, G_t, F_t \in [0, 1]$, el nivel base $B_t \in [0, 100]$, y el vector de momentum $M_t \in [-1, 1]$. La parametrización obedece a criterios de prudencia financiera y estabilidad econométrica:
 
 \begin{center}
 \small
 \begin{tabularx}{\textwidth}{lcX}
 \toprule
-\textbf{Parámetro} & \textbf{Valor} & \textbf{Racionalidad Económica y Justificación} \\
+\textbf{Parámetro} & \textbf{Valor} & \textbf{Fundamentación Económica y Decisión de Diseño} \\
 \midrule
-$w_L$ & 0,50 & Cobertura operativa observada: capacidad del flujo neto de caja para sostener la estructura corriente. \\
-$w_C$ & 0,30 & Calidad de cobros bancarios (regularidad y devoluciones) enriquecida con ERP en corte disponible. \\
-$w_D$ & 0,20 & Servicio financiero observado en extractos bancarios. Ponderación prudente ante baja cobertura de calendarios. \\
-$\lambda$ & 8 & Ajuste de trayectoria en rango $[-8, +8]$ puntos. Permite a una empresa en mejora superar a una en caída libre. \\
-$\gamma$ & 6 & Bonificación máxima por crecimiento de calidad validado con conversión en caja. \\
-$\delta$ & 8 & Penalización máxima por fragilidad (desajustes intrames de timing de pagos y concentración excesiva HHI). \\
-$\eta_{\max}$ & 0,40 & Ponderación máxima admisible para el enriquecimiento ERP sobre el núcleo bancario universal. \\
+$w_L$ & 0,50 & Ponderación de liquidez y cobertura operativa corriente: capacidad inmediata de absorber compromisos. \\
+$w_C$ & 0,30 & Eficiencia de cobros bancarios (baja tasa de devoluciones y regularidad), enriquecible opcionalmente con ERP. \\
+$w_D$ & 0,20 & Carga de servicio de deuda bancaria observada. Se mantiene conservador ante falta de calendarios integrales. \\
+$\lambda$ & 8 & Amplitud máxima de ajuste por trayectoria en $[-8, +8]$ puntos. Permite a empresas en mejora superar a bases estáticas superiores. \\
+$\gamma$ & 6 & Bonificación máxima por crecimiento de calidad validado mediante conversión en flujo de caja positivo. \\
+$\delta$ & 8 & Penalización máxima por fragilidad operativa, desajustes de timing intrames y concentración de contrapartes. \\
 \bottomrule
 \end{tabularx}
 \end{center}
 
-Los parámetros son elecciones de diseño financiero prudente. Se utiliza de forma recurrente la función de respuesta saturante $h(x; a) = \frac{x}{x + a}$ para $x \geq 0, a > 0$, que garantiza derivadas continuas, acotación en $[0, 1)$ y punto medio exacto $h(a; a) = 0{,}5$.
+A lo largo del chasis matemático se emplea recurrentemente la función saturante de tipo Hill / Michaelis-Menten:
+\[
+h(x; a) = \frac{\max(x, 0)}{\max(x, 0) + a}, \quad a > 0
+\]
+Dicha función garantiza monotonicidad estricta, diferenciabilidad continua en $(0, \infty)$, acotación exacta en $[0, 1)$, derivada acotada por $1/a$, y un punto de calibración equidistante $h(a; a) = 0{,}5$.
 
-% ─── Identificabilidad y Fuentes de Información ─────────────────────────────
-\section*{3. Identificabilidad de Datos y Causalidad Point-in-Time}
+% ─── Sección 3: Identificabilidad y Desacople de Calidad Documental ──────────
+\section*{3. Identificabilidad Causal y Desacoplamiento de Calidad Documental}
 
-El dataset consta de 1.286 sociedades agrupadas en 250 grupos. La modelización asume estrictamente las restricciones del dato real:
+\subsection*{3.1. Identificabilidad point-in-time y no retropropagación}
+El conjunto de datos procesado comprende 1.286 sociedades agrupadas en 250 grupos empresariales con cortes mensuales desde octubre de 2024 hasta septiembre de 2026. La modelización causal respeta estrictamente dos restricciones de identificabilidad:
+\begin{enumerate}[leftmargin=*, noitemsep]
+  \item \textbf{Ausencia de ancla de caja histórica:} El saldo de caja al instante $t$ satisface $K_t = K_0 + \sum_{u \leq t} f_u$, donde $f_u$ denota el flujo neto de movimientos bancarios. Sin conocer el saldo inicial $K_0$, existen infinitas trayectorias de tesorería compatibles con los flujos observados. El archivo \texttt{balances.csv} suministra únicamente la posición a 01/09/2026. Reconstruir retrospectivamente $K_t$ hacia el pasado a partir de dicha foto constituiría una violación causal grave (\emph{lookahead leakage}). Por ello, el núcleo histórico del motor evalúa la cobertura operativa de flujos sin asumir saldos pasados.
+  \item \textbf{Cero observaciones conocidas $\neq$ saldo nulo:} En el núcleo bancario universal, el número de observaciones de caja histórica verificada es exactamente cero. Imputar un saldo nulo distorsionaría la medición; por ende, $L_t$ se calcula mediante ratios de flujo.
+\end{enumerate}
+
+\subsection*{3.2. Desacoplamiento formal de la solvencia frente a la cobertura de datos}
+En formulaciones iniciales, los factores de solvencia se contraían hacia un prior neutral ($0{,}5$) mediante un operador ciego de atenuación: $\mathcal{A}(x, \rho_t) = 0{,}5 + \rho_t (x - 0{,}5)$. Este diseño presentaba un defecto econométrico grave: introducía un sesgo de selección artificial donde la falta de densidad transaccional castigaba a sociedades solventes y, simétricamente, amortiguaba el riesgo de sociedades en insolvencia incipiente.
+
+En la arquitectura actual, \textbf{se elimina completamente la contracción ciega en los tres pilares del nivel base} ($L_t, C_t, D_t$). Cada pilar refleja fielmente la calidad intrínseca de los flujos observados. Para garantizar la gobernanza de datos y la transparencia analítica para el suscriptor de riesgos, la disponibilidad y madurez de la información se aíslan en una variable ortogonal:
+
+\begin{tcolorbox}[formulabox]
+\vspace{-0.2em}
+\[
+\boxed{\text{DCI}_t = 100 \cdot \overline{q}_t^{[3]} \cdot \min\left(\frac{m_t}{6}, 1{,}0\right)}
+\]
+\vspace{-0.4em}
+\end{tcolorbox}
+
+Donde $\overline{q}_t^{[3]} \in [0, 1]$ es la cobertura bancaria media del último trimestre y $m_t$ representa el número de meses con transacciones observadas en el historial. El \emph{Data Confidence Index} ($\text{DCI}_t \in [0, 100]$) se reporta de forma independiente junto al score, informando la fiabilidad de la muestra sin alterar el diagnóstico de solvencia. 
+
+Empíricamente, este desacoplamiento erradica la dependencia espuria: la correlación de Spearman entre el score final y la calidad de datos en el mes 23 es de tan solo $\rho = 0{,}107$, con un máximo en todos los cortes maduros de $\rho = 0{,}211$, situándose muy por debajo del umbral regulatorio de colinealidad de $0{,}65$.
+
+% ─── Sección 4: Pilares del Nivel Base: Cobertura, Cobros y Deuda ────────────
+\section*{4. Pilares del Nivel Base: Cobertura Operativa, Cobros y Endeudamiento}
+
+Para cada mes $t$, se definen los cobros netos $R_t \ge 0$, los pagos operativos $E_t \ge 0$, el servicio de deuda registrado $H_t \ge 0$, y sus sumas móviles trimestrales $R_t^{[3]}, E_t^{[3]}, H_t^{[3]}$.
+
+\subsection*{4.1. Cobertura operativa y liquidez ($L_t$)}
+En ausencia de saldo de caja auditado, el pilar $L_t^b$ mide el margen relativo entre cobros y pagos corrientes en ventana de 3 meses:
+\[
+u_t = \frac{R_t^{[3]} - E_t^{[3]}}{R_t^{[3]} + E_t^{[3]}}, \qquad L_t^b = \begin{cases} 0{,}5 + 0{,}5 \tanh\left(\frac{u_t}{0{,}50}\right), & \text{si } R_t^{[3]} + E_t^{[3]} > 0, \\ 0{,}5, & \text{sin evidencia.} \end{cases}
+\]
+La función asigna exactamente $0{,}5$ en equilibrio operativo ($R = E$). Si en un corte específico se aporta saldo de caja certificado $K_t \in \mathbb{R}$, con $K_t^+ = \max(K_t, 0)$, tasa mensual de consumo de caja (\emph{burn rate}) $b_t = \max\left(\frac{E_t^{[3]} + H_t^{[3]} - R_t^{[3]}}{3}, 0\right)$ y pasivo corriente a corto plazo $P_t^*$:
+\[
+\ell_t^{\mathrm{run}} = \frac{K_t^+}{K_t^+ + 3b_t}, \qquad \ell_t^{\mathrm{cov}} = \frac{K_t^+}{K_t^+ + P_t^*}, \qquad L_t = 0{,}5 \ell_t^{\mathrm{run}} + 0{,}5 \ell_t^{\mathrm{cov}}.
+\]
+
+\subsection*{4.2. Calidad de cobro y convergencia ERP ($C_t$)}
+El pilar bancario pondera a partes iguales la penalización por devoluciones y la regularidad del flujo de entradas:
+\[
+f_t = \frac{U_t^{[3]}}{(R^{\mathrm{bruto}})_t^{[3]}}, \quad s_t^{\mathrm{ref}} = 1 - h(f_t; 0{,}05), \quad s_t^{\mathrm{reg}} = \frac{1}{1 + CV_t^{[6]}}, \quad C_t^b = 0{,}5 s_t^{\mathrm{ref}} + 0{,}5 s_t^{\mathrm{reg}},
+\]
+donde $CV_t^{[6]}$ es el coeficiente de variación de los cobros en 6 meses. Cuando se dispone de integración ERP fechada, con $DSO_t$, variación trimestral $\Delta DSO_t = DSO_t - DSO_{t-3}$ y proporción de facturas vencidas impagadas $p_t^{\mathrm{late}}$:
+\[
+z_t = 1 - h(DSO_t; 60), \quad z_t^* = 0{,}75 z_t + 0{,}25 \left(0{,}5 - 0{,}5 \tanh\left(\frac{\Delta DSO_t}{30}\right)\right), \quad C_t^e = 0{,}5 z_t^* + 0{,}5(1 - p_t^{\mathrm{late}}).
+\]
+El pilar enriquecido adopta la mezcla convexa $C_t = (1 - \eta_t) C_t^b + \eta_t C_t^e$, con $\eta_t = 0{,}40 q_t^e \in [0, 0{,}40]$.
+
+\subsection*{4.3. Carga de endeudamiento financiero ($D_t$)}
+Evaluamos la fracción de cobros absorbida por amortizaciones de principal e intereses:
+\[
+d_t^H = \frac{H_t^{[3]}}{R_t^{[3]} + H_t^{[3]}}, \qquad D_t = 0{,}5 - 0{,}5 \tanh\left(\frac{d_t^H}{0{,}25}\right).
+\]
+Por diseño conservador, $D_t \in [0, 0{,}5]$: una mayor carga de deuda reduce monótonamente la puntuación, pero la ausencia de pagos de deuda observados conserva el prior neutral $0{,}5$, impidiendo calificar a la sociedad como desapalancada sin inventario crediticio verificado.
+
+% ─── Sección 5: Crecimiento de Calidad y Fragilidad Comercial ─────────────────
+\section*{5. Crecimiento de Calidad y Fragilidad Comercial Integrada}
+
+\subsection*{5.1. Crecimiento de calidad ($G_t$) y justificación del promedio aritmético}
+El componente de crecimiento premia la expansión de cobros que se traduce efectivamente en tesorería, modulado por la cobertura temporal:
+\[
+g_t^b = \frac{R_t^{[3]} - R_{t-3}^{[3]}}{R_t^{[3]} + R_{t-3}^{[3]}}, \qquad G_t^b = \min(\rho_t, \rho_{t-3}) \cdot \tanh\left(\frac{\max(g_t^b, 0)}{0{,}20}\right) \cdot \left[0{,}5 L_t^b + 0{,}5 C_t^b\right].
+\]
+\textbf{Fundamentación analítica frente a la media geométrica:} La especificación previa empleaba el término multiplicativo $\sqrt{L_t^b C_t^b}$. En situaciones de recuperación operativa donde una empresa comienza a salir de un shock adverso, los ratios de liquidez pasada pueden situarse en niveles moderadamente bajos mientras que la regularidad de cobro ya se ha restablecido. La media geométrica sufre un fenómeno de \emph{estrangulación analítica} ($\lim_{x \to 0} \sqrt{x \cdot y} = 0$), anulando por completo el incentivo de crecimiento y retrasando la detección del giro positivo. El promedio aritmético $[0{,}5 L_t^b + 0{,}5 C_t^b]$ actúa como un amortiguador equilibrado que preserva la señal de recuperación sin premiar crecimiento tóxico (donde ambos factores colapsarían).
+
+\subsection*{5.2. Fragilidad operativa y estrés de facturación ($F_t$)}
+La fragilidad evalúa desajustes intrames de timing, saldos negativos e impagos comerciales:
+\[
+F_t = (1 - \theta_t) s_t + \theta_t h(\text{HHI}_t; 0{,}25), \qquad \theta_t = 0{,}50 \min(q_t^{\mathrm{HHI}}, 1).
+\]
+\textbf{Corrección del factor de cobertura:} Se suprime la multiplicación previa por la cobertura bancaria ($\rho_t F_t$). Dicha formulación reducía artificialmente la fragilidad estimada cuando empeoraba la calidad del dato, incentivando la opacidad informativa. 
+
+El estrés combinado $s_t$ se formula mediante complementos de supervivencia estocástica:
+\[
+s_t = 1 - (1 - s_t^{\mathrm{timing}})(1 - s_t^{\mathrm{neg}})(1 - s_t^{\mathrm{late}}),
+\]
+donde $s_t^{\mathrm{timing}} = h\left(\frac{\overline{\mathrm{gap}}_t^{[3]}}{(E_t^{[3]}+H_t^{[3]})/3}; 0{,}50\right)$, $s_t^{\mathrm{neg}} = h(\text{fracción intrames con saldo } < 0; 0{,}25)$, y el estrés comercial por facturas vencidas:
+\[
+s_t^{\mathrm{late}} = h(p_t^{\mathrm{late}}; 0{,}25) \cdot \mathbf{1}_{\{q_t^e > 0\}}.
+\]
+La integración de $s_t^{\mathrm{late}}$ permite detectar estrés financiero comercial semanas o meses antes de que se refleje en descubiertos bancarios.
+
+% ─── Sección 6: Análisis Formal y Empírico: "Si Acierta" ────────────────────
+\section*{6. Análisis Formal y Empírico: Bloque <<Si Acierta>>}
+
+\subsection*{6.1. Generalización e independencia técnica de lote}
+Para verificar que el motor no introduce fugas de información ni acoplamientos espurios entre empresas procesadas en el mismo lote, se ejecutó la prueba de permutación y partición de lote:
+\[
+\Delta_{\text{batch}} = \max_{i, t} |S_{i, t}^{\text{aislado}} - S_{i, t}^{\text{lote}}| = 0{,}000.
+\]
+La diferencia idénticamente nula certifica que el cómputo para cada sociedad es estrictamente invariante respecto al conjunto de empresas acompañantes.
+
+\subsection*{6.2. Evaluación en holdout real y transparencia sobre la cobertura futura}
+Se fijó una partición reservada (\emph{holdout}) de 50 grupos empresariales (semilla 42), abarcando 239 sociedades. Tras exigir los criterios de madurez del monitor (\texttt{minimum\_quality = 0.50}, ventanas trimestrales completas), restan 365 observaciones empresa-corte utilizables distribuidas en 199 sociedades de 41 grupos.
+
+\begin{center}
+\small
+\begin{tabularx}{\textwidth}{lXcc}
+\toprule
+\textbf{Predictor evaluado} & \textbf{Concepto analítico} & \textbf{Spearman ($r_s$)} & \textbf{Intervalo bootstrap 95\%} \\
+\midrule
+Score dinámico $S_t$ & Solvencia integral y trayectoria de flujo & -0,062 & $[-0{,}206; +0{,}087]$ \\
+Cobertura histórica $\rho_t^{[3]}$ & Calidad y densidad de datos a 3 meses & -0,087 & $[-0{,}277; +0{,}107]$ \\
+Cobertura histórica $\rho_t^{[6]}$ & Calidad y densidad de datos a 6 meses & -0,037 & $[-0{,}235; +0{,}140]$ \\
+\bottomrule
+\end{tabularx}
+\end{center}
+
+Todos los intervalos bootstrap agrupados por conglomerados (41 grupos, 300 réplicas) cruzan holgadamente el cero. Esto confirma un principio de honestidad econométrica: el score mide solvencia contable y regularidad de flujos, pero no predice el volumen futuro de transacciones bancarias mejor que una persistencia histórica de seis meses ($q_6$). El sistema reporta estos hallazgos sin ajustar artificialmente los hiperparámetros para sobreajustar proxies auxiliares.
+
+\subsection*{6.3. Dinámica de trayectoria y el mecanismo anti-enganche (*opposing momentum breaker*)}
+El vector de momentum $M_t$ sintetiza la derivada de la base bancaria $v_t = (B_t^b - B_{t-3}^b)/3$ y el diferencial de medias móviles exponenciales rápida y lenta ($E_{3,t} - E_{6,t}$), filtrado por el coeficiente de persistencia direccional no solapado $c_t \in [0, 1]$:
+\[
+M_t = c_t \left[ 0{,}5 \tanh(v_t / 2{,}0) + 0{,}5 \tanh((E_{3,t} - E_{6,t}) / 5{,}0) \right].
+\]
+Para clasificar los estados financieros (\texttt{ESTABLE}, \texttt{TORCIENDOSE}, \texttt{DETERIORO}, \texttt{MEJORANDO}, \texttt{RECUPERACION}), el clasificador exige 3 meses consecutivos de momentum fuera de $\pm 0{,}10$. Con el fin de evitar fluctuaciones espurias, una regla de histéresis retiene el estado previo durante 2 meses neutros (\texttt{hold}).
+
+\textbf{El problema de enganche de estado:} En versiones preliminares, si una empresa en estado positivo (\texttt{MEJORANDO} o \texttt{RECUPERACION}) sufría un shock negativo repentino, la regla de histéresis mantenía el estado positivo durante los dos meses neutros de transición, emitiendo alertas invertidas absurdas durante fases de desplome.
+
+\textbf{Solución implementada (*opposing momentum breaker*):} Se incorporan guardas deterministas de ruptura inmediata:
+\[
+\text{opposing\_negative} = \mathbf{1}_{\{S_{t-1} \in \text{POSITIVE\_STATES}\}} \land \left( M_t < -0{,}10 \;\lor\; \Delta S_t < -3{,}0 \right),
+\]
+\[
+\text{opposing\_positive} = \mathbf{1}_{\{S_{t-1} \in \text{NEGATIVE\_STATES}\}} \land \left( M_t > +0{,}10 \;\lor\; \Delta S_t > +3{,}0 \right).
+\]
+Cuando se detecta un shock en sentido contrario, se anula la retención por histéresis y la sociedad transita inmediatamente a \texttt{ESTABLE}.
+
+\textbf{Caso empírico de validación: \texttt{COMP\_0010}:} En el corte \texttt{2026-02-01}, la sociedad se hallaba en \texttt{RECUPERACION} con score $S = 69{,}86$, base $B = 64{,}88$ y momentum $M = +0{,}775$. En el corte posterior (\texttt{2026-03-01}), sufrió un desplome financiero abrupto, cayendo el score a $S = 39{,}00$ ($\Delta S = -30{,}86$ puntos) y el momentum a $M = -0{,}471$. Con el mecanismo anti-enganche, el estado positivo se desactivó en el instante exacto del impacto, pasando a \texttt{ESTABLE} e impidiendo la emisión de alertas de recuperación durante la caída.
+
+\subsection*{6.4. Las dos caras: simetría bidireccional en mejora y deterioro}
+Un motor de scoring riguroso debe responder con igual sensibilidad y presteza ante recuperaciones que ante deterioros. En la evaluación de cohortes sintéticas estandarizadas (400 series por tipología):
 \begin{itemize}[leftmargin=*, noitemsep]
-  \item \textbf{La caja histórica no se identifica únicamente con movimientos:} Si $f_u$ son movimientos bancarios, $K_t = K_0 + \sum_{u \leq t} f_u$. Sin el saldo inicial $K_0$, infinitas trayectorias de caja son compatibles con los mismos flujos. El archivo \texttt{balances.csv} solo aporta la foto final a 01/09/2026; reconstruir el pasado retrospectivamente desde dicha foto constituiría una fuga de información (\emph{lookahead leakage}). El motor no utiliza \texttt{balances.csv} para calcular el pasado.
-  \item \textbf{Ausencia de datos $\neq$ Riesgo cero o Salud plena:} Sin saldo conocido, $L$ evalúa \emph{cobertura operativa}, no runway real. Sin ERP (501 empresas no tienen documentos sincronizados), $C$ evalúa regularidad bancaria y devoluciones, no un DSO imputado. Si no existe evidencia suficiente, el sistema emite 50 con la bandera \texttt{is\_prior=True}.
+  \item \textbf{Recall a $\le 6$ meses:} 94,0\% en deterioro gradual vs. 92,5\% en mejora sostenida y 91,5\% en recuperación operativa (gap simétrico de tan solo 1,5 a 2,5 p.p.).
+  \item \textbf{Celeridad temporal:} El retraso mediano de detección es estrictamente idéntico: \textbf{4,0 meses} en las tres dinámicas.
+\end{itemize}
+Esto demuestra empíricamente que la introducción de la media aritmética en $G_t^b$ y la simetría del estimador de momentum logran una respuesta bidireccional equilibrada sin sesgos conservadores asimétricos.
+
+% ─── Sección 7: Análisis Formal y Empírico: "Si Llega a Tiempo" ─────────────
+\section*{7. Análisis Formal y Empírico: Bloque <<Si Llega a Tiempo>>}
+
+\subsection*{7.1. Anticipación cuantitativa del colapso de tesorería}
+Para medir con rigor cuántos meses antes avisa el motor antes de que el daño sea evidente, se evaluaron 400 trayectorias de estrés de caja donde los flujos entran en déficit continuo a partir del mes 12 y se audita el mes en que el saldo acumulado se vuelve no positivo:
+\begin{enumerate}[leftmargin=*, noitemsep]
+  \item \textbf{Detección previa al agotamiento:} En deterioro gradual, el \textbf{100\%} de las empresas que colapsan (353 de 353) son alertadas antes de la quiebra de caja. La antelación mediana es de \textbf{14,0 meses} (con un percentil 10 de \textbf{8,0 meses} de margen mínimo garantizado).
+  \item \textbf{Deterioro abrupto:} En shocks súbitos de alta severidad, el \textbf{88,2\%} (352 de 399 colapsos) se detectan antes de la pérdida total de tesorería, con una antelación mediana de \textbf{6,0 meses}.
+  \item \textbf{Alerta con base todavía sana:} El \textbf{99,0\%} de las detecciones en deterioro gradual se producen cuando el nivel base $B_t$ es todavía superior o igual a 60, emitiendo el estado temprano \texttt{TORCIENDOSE} antes de que la foto patrimonial refleje insolvencia.
+  \item \textbf{Control determinista de tesorería:} En el escenario de control estándar (caja inicial 300, cobros 120 que caen a 5 tras el mes 12), el monitor operativo emite su primera alerta confirmada en el mes 16, mientras que la caja se agota en el mes 23: \textbf{7 meses de antelación neta} sin utilizar la caja como variable explicativa.
+\end{enumerate}
+\textbf{Delimitación estricta:} Esta antelación está validada sobre el agotamiento del saldo de tesorería y facturas impagadas en el simulador causal, no sobre declaraciones mercantiles de concurso que no constan en los CSV del concurso.
+
+\subsection*{7.2. Estabilidad frente a ruido y discriminación de shocks transitorios}
+El algoritmo debe distinguir con precisión un bache puntual de una crisis estructural de liquidez:
+\begin{itemize}[leftmargin=*, noitemsep]
+  \item \textbf{Escenario de shock puntual (\emph{pulse}):} En 400 series sometidas a una caída brusca de márgenes de flujo de un solo mes, la tasa de falsas alertas adversas es exactamente \textbf{0,000 por empresa-año} (0,0\% de series afectadas). El requisito de 3 meses de persistencia temporal y la asignación del estado transitorio provisional \texttt{BACHE} absorben completamente el impacto sin disparar avisos ejecutivos.
+  \item \textbf{Escenario estable con ruido estocástico:} Tasa de falsas alarmas de \textbf{0,000 por empresa-año}.
+  \item \textbf{Escenario estacional cíclico:} La incorporación del contexto interanual ($t \ge 14$, comparando ventanas trimestrales con las homólogas del año precedente bajo una banda muerta de 0,06) reduce la tasa de falsas alarmas anuales de 0,215 a tan solo \textbf{0,0123 alertas por empresa-año}, lo que representa una mitigación del \textbf{96\%} del ruido estacional.
 \end{itemize}
 
-Para cada mes $t$, se consideran los cobros netos $R_t \geq 0$ (entradas netas de devoluciones), pagos operativos $E_t \geq 0$ (salidas netas de reembolsos) y servicio de deuda $H_t \geq 0$ (\texttt{debt\_repayment} e \texttt{interest\_charge}). La cobertura mensual de datos $q_t \in [0, 1]$ audita la validez de las filas contabilizadas. Se definen las medias móviles de cobertura $\rho_t = \overline{q}_t^{[3]}$ y el operador de contracción a prior neutral:
-\[
-\mathcal{A}(x, r) = \begin{cases} \tfrac{1}{2} + r\left(x - \tfrac{1}{2}\right), & x \text{ observado y finito}, \\ \tfrac{1}{2}, & x \text{ no disponible.} \end{cases}
-\]
-
-% ─── Base de Salud ──────────────────────────────────────────────────────────
-\section*{4. Pilares del Nivel Base: Liquidez, Cobros y Deuda}
-
-\subsection*{4.1. Cobertura operativa y liquidez}
-En ausencia de saldo de caja auditado, la cobertura operativa evalúa el margen entre cobros y pagos corrientes acumulados a 3 meses:
-\[
-u_t = \frac{R_t^{[3]} - E_t^{[3]}}{R_t^{[3]} + E_t^{[3]}}, \qquad L_t^b = \mathcal{A}\left( \tfrac{1}{2} + \tfrac{1}{2}\tanh\left(\frac{u_t}{0{,}50}\right), \rho_t \right).
-\]
-El equilibrio operativo ($R = E$) produce exactamente $0{,}5$. Si se aporta un saldo de caja $K_t$ fechado al corte, con $K_t^+ = \max(K_t, 0)$ y tasa de consumo mensual $b_t = \max\left(\frac{E_t^{[3]} + H_t^{[3]} - R_t^{[3]}}{3}, 0\right)$:
-\[
-\ell_t^{\mathrm{run}} = \mathcal{A}\left( \frac{K_t^+}{K_t^+ + 3b_t}, \rho_t \right), \qquad \ell_t^{\mathrm{cov}} = \frac{K_t^+}{K_t^+ + P_t^*}, \qquad L_t = \tfrac{1}{2}\ell_t^{\mathrm{run}} + \tfrac{1}{2}\ell_t^{\mathrm{cov}},
-\]
-donde $P_t^*$ representa compromisos a 30 días o, en su defecto, el promedio $\overline{(E+H)}_t^{[3]}$.
-
-\subsection*{4.2. Calidad de cobro y convergencia ERP}
-El pilar bancario de cobro pondera la tasa de devoluciones $f_t = U_t^{[3]} / (R^+)_t^{[3]}$ y el coeficiente de variación mensual de cobros $CV_t$:
-\[
-C_t^b = \tfrac{1}{2}\mathcal{A}\left(1 - h(f_t; 0{,}05), \rho_t\right) + \tfrac{1}{2}\mathcal{A}\left(\frac{1}{1 + CV_t}, \min(\rho_t, \rho_t^{(6)})\right).
-\]
-Cuando se dispone de ERP fechado, se calculan el $DSO_t$ y la proporción de facturas vencidas impagadas $p_t^{\mathrm{late}}$. Con $z_t = 1 - h(DSO_t; 60)$ y ajuste por tendencia trimestral $z_t^*$:
-\[
-C_t^e = \tfrac{1}{2}z_t^* + \tfrac{1}{2}(1 - p_t^{\mathrm{late}}), \qquad \eta_t = 0{,}40 q_t^e, \qquad C_t = (1 - \eta_t)C_t^b + \eta_t C_t^e.
-\]
-
-\subsection*{4.3. Carga de endeudamiento observada}
-A falta de calendarios integrales de deuda en la mayoría de pymes, se evalúa la proporción de cobros absorbida por el servicio bancario real:
-\[
-d_t^H = \frac{H_t^{[3]}}{R_t^{[3]} + H_t^{[3]}}, \qquad D_t = \mathcal{A}\left(\tfrac{1}{2} - \tfrac{1}{2}\tanh\left(\frac{d_t^H}{0{,}25}\right), \rho_t\right).
-\]
-Una mayor carga de deuda jamás mejora el pilar $D$. La ausencia de desembolsos conserva el valor neutral $0{,}5$.
-
-% ─── Momentum y Trayectoria ────────────────────────────────────────────────
-\section*{5. Momentum Bidireccional y Filtro de Persistencia}
-
-El momentum se calcula exclusivamente sobre la base bancaria $B_t^b$ para evitar que la aparición de un archivo ERP genere una tendencia artificial. Se define la velocidad trimestral $v_t = (B_t^b - B_{t-3}^b)/3$ y el cruce de medias exponenciales $E_{3,t} - E_{6,t}$.
-
-Para distinguir un bache estacional de un cambio estructural de régimen, se aplica un \textbf{filtro de persistencia} $c_t$ basado en seis meses de margen de flujo mensual no solapado $x_t = \frac{R_t - E_t - H_t}{R_t + E_t + H_t}$:
-\[
-m_t = \operatorname{mediana}(x_{t-5:t-3}), \qquad d_t^x = \operatorname{mediana}(x_{t-2:t}) - m_t,
-\]
-\[
-c_t = \operatorname{clip}_{[0,1]}\left( \frac{\sum_{j=0}^2 \mathbf{1}\left\{\operatorname{sgn}(d_t^x)(x_{t-j} - m_t) > 0{,}02\right\} - 1}{2} \right) \cdot \min_{j=0,\ldots,5} q_{t-j},
-\]
-\[
-\boxed{M_t = c_t \left[ \tfrac{1}{2}\tanh(v_t / 2) + \tfrac{1}{2}\tanh((E_{3,t} - E_{6,t}) / 5) \right]}
-\]
-Un shock negativo aislado de un solo mes deja $c_t = 0$ y neutraliza el momentum. Se requieren al menos dos meses consecutivos confirmados para activar la penalización o bonificación de trayectoria.
-
-% ─── Crecimiento y Fragilidad ───────────────────────────────────────────────
-\section*{6. Crecimiento de Calidad y Fragilidad Operativa}
-
-\textbf{Crecimiento de calidad ($G_t$):} Premia el incremento de cobros sostenido por liquidez y cobros sanos, evitando premiar empresas que crecen a costa de asfixiar su circulante:
-\[
-g_t^b = \frac{R_t^{[3]} - R_{t-3}^{[3]}}{R_t^{[3]} + R_{t-3}^{[3]}}, \qquad G_t^b = \min(\rho_t, \rho_{t-3}) \cdot \tanh\left(\frac{\max(g_t^b, 0)}{0{,}20}\right) \sqrt{L_t^b C_t^b}.
-\]
-
-\textbf{Fragilidad y concentración ($F_t$):} Mide desajustes de timing intrames y concentración de contrapartes. Si $z_{m,u}$ es el saldo acumulado intrames:
-\[
-A_m = \max\left(\max(0, -\min_u z_{m,u}) - \max(0, -z_{m,\mathrm{fin}}), 0\right), \qquad s_t^{\mathrm{timing}} = h\left(\frac{A_t^{[3]}}{E_t^{[3]} + H_t^{[3]}}; 0{,}50\right).
-\]
-Cruzado con el índice de Herfindahl-Hirschman ($HHI_t = \sum_j a_{j,t}^2$ sobre cobros brutos o facturación):
-\[
-\boxed{F_t = \rho_t \left[ (1 - \theta_t) s_t + \theta_t h(HHI_t; 0{,}25) \right]}, \qquad \theta_t = 0{,}50 q_t^{HHI}.
-\]
-
-% ─── Waterfall y Explicabilidad ─────────────────────────────────────────────
-\section*{7. Descomposición Aditiva Exacta (Waterfall) para el CFO}
-
-Si $Z_t = 100 w_L L_t + 100 w_C C_t + 100 w_D D_t + \lambda M_t + \gamma G_t - \delta F_t$, el residuo de recorte por saturación es $\Delta_t^{\mathrm{clip}} = \operatorname{clip}_{[0,100]}(Z_t) - Z_t$. El score final satisface la igualdad exacta:
-\[
-S_t = \underbrace{100 w_L L_t}_{\text{Liquidez}} + \underbrace{100 w_C C_t}_{\text{Cobros}} + \underbrace{100 w_D D_t}_{\text{Deuda}} + \underbrace{\lambda M_t}_{\text{Trayectoria}} + \underbrace{\gamma G_t}_{\text{Crecimiento}} - \underbrace{\delta F_t}_{\text{Fragilidad}} + \Delta_t^{\mathrm{clip}}.
-\]
-Cualquier variación mensual $\Delta S_t = S_t - S_{t-1}$ se explica restando término a término sin cajas negras ni aproximaciones locales de Taylor. Esto permite que el simulador contrafactual calcule el impacto de una palanca financiera ejecutando el pipeline de nuevo sin recurrir a derivadas.
+\subsection*{7.3. Monitor proactivo autónomo y cobertura de cartera}
+El monitor no espera a que un analista consulte la posición de una compañía: opera como un servicio desatendido en segundo plano (\texttt{score\_monitor.py --watch --interval 2.0}) que detecta la publicación de nuevos snapshots mediante sumas de verificación criptográficas SHA-256:
+\begin{itemize}[leftmargin=*, noitemsep]
+  \item \textbf{Desbloqueo operativo de la cartera:} Sobre las 1.286 sociedades del reto, el motor clasifica y monitoriza activamente a \textbf{843 sociedades} (65,6\% del total) que cumplen los criterios de madurez ($m \ge 6, q \ge 0{,}50$). De ellas, \textbf{634 sociedades} cuentan con contexto estacional interanual activo.
+  \item \textbf{Deduplicación e inmutabilidad temporal:} El cursor temporal (\texttt{monitor\_state.json}) impide que la ingestión de snapshots históricos del \emph{time-machine} haga retroceder el estado en producción. Un cambio en la versión del modelo reinicializa el baseline sin atribuir erróneamente variaciones de modelo a eventos financieros.
+  \item \textbf{Conciliación aditiva exacta de drivers:} Cada evento publicado en \texttt{alerts\_feed.json} descompone la variación trimestral del score de manera exacta: $\Delta S_t = \sum_k \Delta \text{Points}_k + \Delta_t^{\mathrm{clip}}$, con un error de conciliación idénticamente nulo ($< 10^{-13}$).
+\end{itemize}
 
 \clearpage
 
-% ─── Sección 8: Resultados Empíricos (Generada de forma reproducible) ──────
+% ─── Sección 8: Resultados Empíricos del Motor (Generada de forma reproducible)
 \input{engine_benchmark_results.tex}
+
+\clearpage
+
+% ─── Sección 9: Trayectorias, Monitor y Evaluación Temporal (Reproducible) ────
+\input{trajectory_benchmark_results.tex}
+
+% ─── Sección 10: Conclusiones y Delimitación de Riesgo ────────────────────────
+\section*{10. Conclusiones y Recomendaciones de Implantación}
+
+El sistema X-Ray implementa un motor de salud financiera determinista, continuo y completamente explicable, diseñado bajo rigurosos principios de no-retropropagación temporal y descomposición aditiva. El desacoplamiento formal de la calidad documental mediante el índice independiente $\text{DCI}_t$, el empleo del promedio aritmético en el factor de crecimiento, y la integración de protecciones de ruptura de histéresis ante shocks adversos resuelven con solidez matemática las limitaciones de los modelos estáticos tradicionales.
+
+La validación cuantitativa demuestra un comportamiento balanceado y simétrico (recall en mejora y deterioro dentro de un margen estrecho de 1,5--2,5 p.p.), una capacidad contrastada de anticipación temporal de hasta 14 meses frente a colapsos de liquidez, y una estabilidad absoluta ante perturbaciones transitorias de tesorería.
+
+\textbf{Declaración de transparencia académica:} La ausencia de un histórico oficial de eventos de insolvencia mercantil en los archivos suministrados circunscribe la validación empírica a eventos de agotamiento de caja y retrasos comerciales en facturación. La calibración final de probabilidades de default requerirá la contrastación con el evaluador externo de Embat o bases de datos de impago crediticio auditadas.
 
 \end{document}

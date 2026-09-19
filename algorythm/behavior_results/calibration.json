@@ -1,0 +1,242 @@
+{
+  "candidates": [
+    {
+      "config": {
+        "persistence_months": 2,
+        "momentum_threshold": 0.1,
+        "base_boundary": 60.0,
+        "minimum_quality": 0.5,
+        "minimum_observed_months": 6,
+        "neutral_persistence_months": 2,
+        "pulse_margin_drop": 0.12,
+        "year_over_year_deadband": 0.06
+      },
+      "admissible": false,
+      "selection_loss": 3.2258333333333336,
+      "metrics": {
+        "stable": {
+          "companies": 400,
+          "eligible_company_years": 933.3333333333334,
+          "adverse_alerts_per_company_year": 0.010714285714285714,
+          "all_alerts_per_company_year": 0.011785714285714285,
+          "pre_change_alert_fraction": 0.015,
+          "false_adverse_path_fraction": 0.025,
+          "false_any_path_fraction": 0.0275
+        },
+        "pulse": {
+          "companies": 400,
+          "eligible_company_years": 933.3333333333334,
+          "adverse_alerts_per_company_year": 0.03428571428571429,
+          "all_alerts_per_company_year": 0.03642857142857143,
+          "pre_change_alert_fraction": 0.01,
+          "false_adverse_path_fraction": 0.08,
+          "false_any_path_fraction": 0.085
+        },
+        "seasonal": {
+          "companies": 400,
+          "eligible_company_years": 933.3333333333334,
+          "adverse_alerts_per_company_year": 0.2764285714285714,
+          "all_alerts_per_company_year": 0.5721428571428571,
+          "pre_change_alert_fraction": 0.96,
+          "false_adverse_path_fraction": 0.645,
+          "false_any_path_fraction": 1.0,
+          "adverse_alerts_per_year_when_annual_context_available": 0.01909090909090909
+        },
+        "deterioration": {
+          "companies": 400,
+          "eligible_company_years": 933.3333333333334,
+          "adverse_alerts_per_company_year": 0.8624999999999999,
+          "all_alerts_per_company_year": 0.8635714285714285,
+          "pre_change_alert_fraction": 0.01,
+          "false_adverse_path_fraction": null,
+          "false_any_path_fraction": null,
+          "detection_within_6_months": 0.99,
+          "detection_within_horizon": 1.0,
+          "median_delay_months": 3.0,
+          "mean_delay_capped_6": 2.975,
+          "cash_collapses": 345,
+          "cash_paths_censored": 55,
+          "detected_before_cash_loss": 345,
+          "fraction_collapses_warned_3_months": 1.0,
+          "median_lead_months_including_late": 15.0,
+          "lead_months_p10": 9.0,
+          "fraction_detected_while_base_at_least_60": 1.0
+        },
+        "improvement": {
+          "companies": 400,
+          "eligible_company_years": 933.3333333333334,
+          "adverse_alerts_per_company_year": 0.002142857142857143,
+          "all_alerts_per_company_year": 0.4382142857142857,
+          "pre_change_alert_fraction": 0.005,
+          "false_adverse_path_fraction": null,
+          "false_any_path_fraction": null,
+          "detection_within_6_months": 0.995,
+          "detection_within_horizon": 1.0,
+          "median_delay_months": 3.0,
+          "mean_delay_capped_6": 3.41
+        },
+        "recovery": {
+          "companies": 400,
+          "eligible_company_years": 933.3333333333334,
+          "adverse_alerts_per_company_year": 0.0010714285714285715,
+          "all_alerts_per_company_year": 0.4317857142857143,
+          "pre_change_alert_fraction": 0.0025,
+          "false_adverse_path_fraction": null,
+          "false_any_path_fraction": null,
+          "detection_within_6_months": 0.9975,
+          "detection_within_horizon": 1.0,
+          "median_delay_months": 3.0,
+          "mean_delay_capped_6": 3.2925
+        },
+        "abrupt_deterioration": {
+          "companies": 400,
+          "eligible_company_years": 933.3333333333334,
+          "adverse_alerts_per_company_year": 0.45964285714285713,
+          "all_alerts_per_company_year": 0.46178571428571424,
+          "pre_change_alert_fraction": 0.0075,
+          "false_adverse_path_fraction": null,
+          "false_any_path_fraction": null,
+          "detection_within_6_months": 1.0,
+          "detection_within_horizon": 1.0,
+          "median_delay_months": 2.0,
+          "mean_delay_capped_6": 1.855,
+          "cash_collapses": 397,
+          "cash_paths_censored": 3,
+          "detected_before_cash_loss": 358,
+          "fraction_collapses_warned_3_months": 0.7884130982367759,
+          "median_lead_months_including_late": 7.0,
+          "lead_months_p10": 1.0,
+          "fraction_detected_while_base_at_least_60": 0.0475
+        }
+      }
+    },
+    {
+      "config": {
+        "persistence_months": 3,
+        "momentum_threshold": 0.1,
+        "base_boundary": 60.0,
+        "minimum_quality": 0.5,
+        "minimum_observed_months": 6,
+        "neutral_persistence_months": 2,
+        "pulse_margin_drop": 0.12,
+        "year_over_year_deadband": 0.06
+      },
+      "admissible": true,
+      "selection_loss": 4.251666666666668,
+      "metrics": {
+        "stable": {
+          "companies": 400,
+          "eligible_company_years": 933.3333333333334,
+          "adverse_alerts_per_company_year": 0.0,
+          "all_alerts_per_company_year": 0.0,
+          "pre_change_alert_fraction": 0.0,
+          "false_adverse_path_fraction": 0.0,
+          "false_any_path_fraction": 0.0
+        },
+        "pulse": {
+          "companies": 400,
+          "eligible_company_years": 933.3333333333334,
+          "adverse_alerts_per_company_year": 0.0010714285714285715,
+          "all_alerts_per_company_year": 0.0010714285714285715,
+          "pre_change_alert_fraction": 0.0,
+          "false_adverse_path_fraction": 0.0025,
+          "false_any_path_fraction": 0.0025
+        },
+        "seasonal": {
+          "companies": 400,
+          "eligible_company_years": 933.3333333333334,
+          "adverse_alerts_per_company_year": 0.20357142857142857,
+          "all_alerts_per_company_year": 0.4339285714285714,
+          "pre_change_alert_fraction": 0.6375,
+          "false_adverse_path_fraction": 0.475,
+          "false_any_path_fraction": 0.9625,
+          "adverse_alerts_per_year_when_annual_context_available": 0.021818181818181816
+        },
+        "deterioration": {
+          "companies": 400,
+          "eligible_company_years": 933.3333333333334,
+          "adverse_alerts_per_company_year": 0.855,
+          "all_alerts_per_company_year": 0.855,
+          "pre_change_alert_fraction": 0.0,
+          "false_adverse_path_fraction": null,
+          "false_any_path_fraction": null,
+          "detection_within_6_months": 0.915,
+          "detection_within_horizon": 1.0,
+          "median_delay_months": 4.0,
+          "mean_delay_capped_6": 3.99,
+          "cash_collapses": 345,
+          "cash_paths_censored": 55,
+          "detected_before_cash_loss": 345,
+          "fraction_collapses_warned_3_months": 1.0,
+          "median_lead_months_including_late": 14.0,
+          "lead_months_p10": 8.0,
+          "fraction_detected_while_base_at_least_60": 0.9925
+        },
+        "improvement": {
+          "companies": 400,
+          "eligible_company_years": 933.3333333333334,
+          "adverse_alerts_per_company_year": 0.0,
+          "all_alerts_per_company_year": 0.4317857142857143,
+          "pre_change_alert_fraction": 0.0,
+          "false_adverse_path_fraction": null,
+          "false_any_path_fraction": null,
+          "detection_within_6_months": 0.9225,
+          "detection_within_horizon": 1.0,
+          "median_delay_months": 4.0,
+          "mean_delay_capped_6": 4.4225
+        },
+        "recovery": {
+          "companies": 400,
+          "eligible_company_years": 933.3333333333334,
+          "adverse_alerts_per_company_year": 0.0,
+          "all_alerts_per_company_year": 0.42857142857142855,
+          "pre_change_alert_fraction": 0.0,
+          "false_adverse_path_fraction": null,
+          "false_any_path_fraction": null,
+          "detection_within_6_months": 0.9175,
+          "detection_within_horizon": 1.0,
+          "median_delay_months": 4.0,
+          "mean_delay_capped_6": 4.3425
+        },
+        "abrupt_deterioration": {
+          "companies": 400,
+          "eligible_company_years": 933.3333333333334,
+          "adverse_alerts_per_company_year": 0.42857142857142855,
+          "all_alerts_per_company_year": 0.42857142857142855,
+          "pre_change_alert_fraction": 0.0,
+          "false_adverse_path_fraction": null,
+          "false_any_path_fraction": null,
+          "detection_within_6_months": 1.0,
+          "detection_within_horizon": 1.0,
+          "median_delay_months": 3.0,
+          "mean_delay_capped_6": 2.855,
+          "cash_collapses": 397,
+          "cash_paths_censored": 3,
+          "detected_before_cash_loss": 334,
+          "fraction_collapses_warned_3_months": 0.7128463476070529,
+          "median_lead_months_including_late": 6.0,
+          "lead_months_p10": 0.0,
+          "fraction_detected_while_base_at_least_60": 0.0
+        }
+      }
+    }
+  ],
+  "selected": {
+    "persistence_months": 3,
+    "momentum_threshold": 0.1,
+    "base_boundary": 60.0,
+    "minimum_quality": 0.5,
+    "minimum_observed_months": 6,
+    "neutral_persistence_months": 2,
+    "pulse_margin_drop": 0.12,
+    "year_over_year_deadband": 0.06
+  },
+  "selection_data": "synthetic_development_only",
+  "protocol_sha256": "3ad214475ac76ec233275b5b5fc7a1280ef2bcc946471c5a0d6e7db516b7be1c",
+  "source_sha256": {
+    "score_engine.py": "f65e2bea2acb625e667769086c470cd537702bf59c7b1e7a77d1612f733d4370",
+    "score_states.py": "94440bb14157cd65e61a5f171770918fff4d4c57d11a4b3c733c454ec16b4072",
+    "score_monitor.py": "d0e2b42e7eebd5dd620a17a5b2f17fd5fd5c95ec2b0072a25c9d42a974911641",
+    "behavior_benchmark.py": "de6819d27e483c991046249cc1466a633e6d0fae1058296eea5ab4ef6d49de84"
+  }
+}
