@@ -52,25 +52,25 @@ $$\text{Base} = 100 \cdot (0.50 \cdot L + 0.30 \cdot C + 0.20 \cdot D)$$
 
 #### A. Liquidez ($L$, peso base: 50%)
 Mide la holgura del flujo neto trimestral respecto al volumen operativo:
-$$m_3 = \frac{R_3 - E_3}{R_3 + E_3} \quad \text{donde } R_3 = \sum_{k=0}^{2} \text{receipts}_{t-k}, \; E_3 = \sum_{k=0}^{2} \text{expenses}_{t-k}$$
+$$m_3 = \frac{R_3 - E_3}{R_3 + E_3} \quad \text{con } R_3 = \sum_{k=0}^{2} R_{t-k}, \; E_3 = \sum_{k=0}^{2} E_{t-k}$$
 $$L_{\text{bank}} = 0.5 + 0.5 \cdot \tanh\left(\frac{m_3}{\sigma_L}\right), \quad \sigma_L = 0.50$$
 
-Si se dispone de saldo de caja reconstruido ($\text{cash}^+$) y compromisos exigibles a 30 días, se combina con el horizonte de supervivencia (*runway*) frente al quemado neto ($\text{burn} = \max((E_3 + H_3 - R_3)/3, 0)$):
-$$\text{runway\_score} = \frac{\text{cash}^+}{\text{cash}^+ + 3 \cdot \text{burn}}, \quad \text{coverage\_score} = \frac{\text{cash}^+}{\text{cash}^+ + \text{obligations}_{30d}}$$
-$$L = 0.5 \cdot \text{runway\_score} + 0.5 \cdot \text{coverage\_score}$$
+Si se dispone de saldo de caja reconstruido ($C_{\text{caja}}^+$) y compromisos exigibles a 30 días, se combina con el horizonte de supervivencia (*runway*) frente al quemado neto ($\text{burn} = \max((E_3 + H_3 - R_3)/3, 0)$):
+$$S_{\text{runway}} = \frac{C_{\text{caja}}^+}{C_{\text{caja}}^+ + 3 \cdot \text{burn}}, \quad S_{\text{cobertura}} = \frac{C_{\text{caja}}^+}{C_{\text{caja}}^+ + \text{obligaciones}_{30d}}$$
+$$L = 0.5 \cdot S_{\text{runway}} + 0.5 \cdot S_{\text{cobertura}}$$
 
 #### B. Cobros y Eficiencia ($C$, peso base: 30%)
 Evalúa el comportamiento de cobro bancario y la disciplina comercial del ERP:
-* **Componente bancario:** penalización por tasa de devoluciones mediante saturación de Hill ($\text{Hill}(x, k) = 1 - \frac{k}{x + k}$) sobre $\frac{\text{refunds}_3}{\text{gross}_3}$, combinada con la regularidad de cobros frente a su coeficiente de variación:
-  $$C_{\text{bank}} = 0.5 \cdot \left(1 - \text{Hill}\left(\frac{\text{refunds}_3}{\text{gross}_3}, 0.05\right)\right) + 0.5 \cdot \left(\frac{1}{1 + \text{CV}(R_{t-5:t})}\right)$$
-* **Componente ERP:** si existe integración contable, incorpora el periodo medio de cobro ($DSO$) y su tendencia trimestral, junto a la fracción de facturación en mora ($\text{late\_fraction}$):
-  $$C_{\text{erp}} = 0.5 \cdot \text{DSO\_score} + 0.5 \cdot (1 - \text{late\_fraction})$$
+* **Componente bancario:** penalización por tasa de devoluciones mediante saturación de Hill ($\text{Hill}(x, k) = 1 - \frac{k}{x + k}$) sobre la tasa de devoluciones sobre cobros brutos, combinada con la regularidad de cobros frente a su coeficiente de variación:
+  $$C_{\text{bank}} = 0.5 \cdot \left(1 - \text{Hill}\left(\frac{\text{Devoluciones}_3}{\text{CobrosBrutos}_3}, 0.05\right)\right) + 0.5 \cdot \left(\frac{1}{1 + \text{CV}(R_{t-5:t})}\right)$$
+* **Componente ERP:** si existe integración contable, incorpora el periodo medio de cobro ($DSO$) y su tendencia trimestral, junto a la fracción de facturación en mora (`late_fraction`):
+  $$C_{\text{erp}} = 0.5 \cdot S_{\text{DSO}} + 0.5 \cdot (1 - \text{mora})$$
   $$C = C_{\text{bank}} + w_{\text{erp}} \cdot (C_{\text{erp}} - C_{\text{bank}}), \quad w_{\text{erp}} \le 0.40$$
 
 #### C. Servicio de la Deuda ($D$, peso base: 20%)
 Mide la presión de las cuotas de amortización e intereses ($H_3$) respecto a los ingresos operativos:
-$$\text{debt\_burden} = \frac{H_3}{R_3 + H_3}$$
-$$D = 0.5 - 0.5 \cdot \tanh\left(\frac{\text{debt\_burden}}{\sigma_D}\right), \quad \sigma_D = 0.25$$
+$$r_{\text{deuda}} = \frac{H_3}{R_3 + H_3}$$
+$$D = 0.5 - 0.5 \cdot \tanh\left(\frac{r_{\text{deuda}}}{\sigma_D}\right), \quad \sigma_D = 0.25$$
 
 ---
 
@@ -83,21 +83,21 @@ Captura la inercia direccional en una ventana de 6 meses mediante dos componente
 1. **Velocidad:** pendiente de los últimos 3 meses: $v = \frac{\text{Base}_t - \text{Base}_{t-3}}{3}$.
 2. **Cruce de medias móviles exponenciales:** diferencia entre media rápida ($\alpha = 0.50$) y lenta ($\alpha = 2/7$): $\Delta_{\text{EMA}} = \text{EMA}_{\text{fast}} - \text{EMA}_{\text{slow}}$.
 3. **Filtro de persistencia:** exige que la dirección de cambio se confirme en la mediana de los márgenes mensuales de flujo, eliminando falsos positivos provocados por estacionalidad anual.
-$$\text{candidate} = \text{persistencia} \cdot \left(0.5 \cdot \tanh\left(\frac{v}{2.0}\right) + 0.5 \cdot \tanh\left(\frac{\Delta_{\text{EMA}}}{5.0}\right)\right)$$
-$$\text{Puntos de Momentum} = 8.0 \cdot M$$
+$$\text{candidato} = \text{persistencia} \cdot \left(0.5 \cdot \tanh\left(\frac{v}{2.0}\right) + 0.5 \cdot \tanh\left(\frac{\Delta_{\text{EMA}}}{5.0}\right)\right)$$
+$$P_{\text{momentum}} = 8.0 \cdot M$$
 
 #### 2. Crecimiento de Calidad ($G \in [0, 1]$, escala: $+6.0$ puntos)
 Bonifica el crecimiento de ingresos siempre que esté respaldado por caja real y liquidez operativa, evitando premiar crecimientos descontrolados con tensionamiento de circulante:
-$$G = \tanh\left(\frac{\max(\Delta R, 0)}{0.20}\right) \cdot \left(0.5 \cdot (L_{\text{bank}} + C_{\text{bank}})\right) \cdot \text{calidad\_dato}$$
-$$\text{Puntos de Crecimiento} = +6.0 \cdot G$$
+$$G = \tanh\left(\frac{\max(\Delta R, 0)}{0.20}\right) \cdot \left(0.5 \cdot (L_{\text{bank}} + C_{\text{bank}})\right) \cdot q_3$$
+$$P_{\text{crecimiento}} = +6.0 \cdot G$$
 
 #### 3. Fragilidad Financiera ($F \in [0, 1]$, penalización: $-8.0$ puntos)
 Evalúa vulnerabilidades estructurales ocultas:
-* Tensión por desajustes temporales de tesorería ($\text{funding\_gap}$ relativo a gastos).
+* Tensión por desajustes temporales de tesorería (`funding_gap` relativo a gastos).
 * Porcentaje del mes con saldo bancario negativo (descubierto).
 * Tensión de impagos en ERP.
 * Concentración comercial mediante el índice Herfindahl-Hirschman ($HHI$) sobre clientes o contrapartes.
-$$\text{Puntos de Fragilidad} = -8.0 \cdot F$$
+$$P_{\text{fragilidad}} = -8.0 \cdot F$$
 
 ---
 
@@ -109,7 +109,7 @@ $$S = \text{clip}(S_{\text{raw}}, 0, 100)$$
 
 #### Descomposición Aditiva Exacta (Waterfall)
 Para cualquier intervalo temporal o simulación contrafactual, el cambio en el score se descompone de forma exacta y sin residuo:
-$$\Delta S = \Delta \text{Puntos}_L + \Delta \text{Puntos}_C + \Delta \text{Puntos}_D + \Delta \text{Puntos}_M + \Delta \text{Puntos}_G + \Delta \text{Puntos}_F + \Delta \text{Clipping}$$
+$$\Delta S = \Delta P_L + \Delta P_C + \Delta P_D + \Delta P_M + \Delta P_G + \Delta P_F + \Delta P_{\text{clip}}$$
 No hay aproximaciones tipo caja negra; cada punto ganado o perdido tiene un origen contable identificable.
 
 #### Índice de Confianza del Dato
