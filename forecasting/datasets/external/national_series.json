@@ -1,0 +1,87 @@
+{
+  "startPeriod": "2024-01",
+  "endPeriod": "2026-08",
+  "series": [
+    {
+      "indicator": "policy_rate",
+      "dataset": "policy_rates.json",
+      "params": {
+        "path": "forecasting/policy_rates.json"
+      },
+      "lag_days": 0,
+      "geo": "*",
+      "sector": "*",
+      "availability_basis": "official_effective_date",
+      "source_url": "https://www.ecb.europa.eu/stats/policy_and_exchange_rates/key_ecb_interest_rates/html/index.en.html"
+    },
+    {
+      "indicator": "usd_eur",
+      "dataset": "EXR",
+      "params": {
+        "key": "M.USD.EUR.SP00.A",
+        "startPeriod": "2024-01",
+        "endPeriod": "2026-08",
+        "format": "csvdata"
+      },
+      "lag_days": 7,
+      "geo": "*",
+      "sector": "*",
+      "availability_basis": "assumed_lag",
+      "source_url": "https://data-api.ecb.europa.eu/service/data/EXR/M.USD.EUR.SP00.A?startPeriod=2024-01&endPeriod=2026-08&format=csvdata"
+    },
+    {
+      "indicator": "industrial_production",
+      "dataset": "sts_inpr_m",
+      "params": {
+        "geo": "ES",
+        "s_adj": "SCA",
+        "unit": "I21",
+        "nace_r2": "B-D",
+        "lang": "EN",
+        "sinceTimePeriod": "2024-01",
+        "untilTimePeriod": "2026-08"
+      },
+      "lag_days": 45,
+      "geo": "ES",
+      "sector": "*",
+      "availability_basis": "assumed_lag",
+      "source_url": "https://ec.europa.eu/eurostat/api/dissemination/statistics/1.0/data/sts_inpr_m?geo=ES&s_adj=SCA&unit=I21&nace_r2=B-D&lang=EN&sinceTimePeriod=2024-01&untilTimePeriod=2026-08"
+    },
+    {
+      "indicator": "hicp",
+      "dataset": "prc_hicp_midx",
+      "params": {
+        "geo": "ES",
+        "coicop": "CP00",
+        "unit": "I15",
+        "lang": "EN",
+        "sinceTimePeriod": "2024-01",
+        "untilTimePeriod": "2026-08"
+      },
+      "lag_days": 45,
+      "geo": "ES",
+      "sector": "*",
+      "availability_basis": "assumed_lag",
+      "source_url": "https://ec.europa.eu/eurostat/api/dissemination/statistics/1.0/data/prc_hicp_midx?geo=ES&coicop=CP00&unit=I15&lang=EN&sinceTimePeriod=2024-01&untilTimePeriod=2026-08"
+    },
+    {
+      "indicator": "unemployment",
+      "dataset": "une_rt_m",
+      "params": {
+        "geo": "ES",
+        "s_adj": "SA",
+        "sex": "T",
+        "age": "TOTAL",
+        "unit": "PC_ACT",
+        "lang": "EN",
+        "sinceTimePeriod": "2024-01",
+        "untilTimePeriod": "2026-08"
+      },
+      "lag_days": 45,
+      "geo": "ES",
+      "sector": "*",
+      "availability_basis": "assumed_lag",
+      "source_url": "https://ec.europa.eu/eurostat/api/dissemination/statistics/1.0/data/une_rt_m?geo=ES&s_adj=SA&sex=T&age=TOTAL&unit=PC_ACT&lang=EN&sinceTimePeriod=2024-01&untilTimePeriod=2026-08"
+    }
+  ]
+}

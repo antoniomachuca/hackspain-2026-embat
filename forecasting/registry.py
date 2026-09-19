@@ -19,8 +19,8 @@ def digest(value):
 
 def comparison_spec(protocol, inputs, mode, groups):
     # Model implementations are deliberately excluded: these are what contributors change.
-    files = ('forecasting/data.py', 'forecasting/context.py', 'forecasting/benchmark.py',
-             'algorythm/score_engine.py', 'algorythm/score_data.py')
+    files = ('forecasting/data.py', 'forecasting/context.py', 'forecasting/country.py',
+             'forecasting/benchmark.py', 'algorythm/score_engine.py', 'algorythm/score_data.py')
     definition = {'schema': 1, 'protocol': protocol, 'input_sha256': inputs, 'context_mode': mode,
                   'split_sha256': digest(groups), 'evaluation_sha256': {p: sha256(ROOT/p) for p in files}}
     return {'key': digest(definition), 'definition': definition}
@@ -43,6 +43,12 @@ def generate_leaderboard(baseline, runs, output):
             continue
         reports.append((path, report))
     rows = {h: [] for h in reference['horizons']}
+    baseline_candidate = {}
+    for horizon, value in reference['horizons'].items():
+        best = min(m['macro_group_mae'] for m in value['validation'].values())
+        admissible = [n for n in CANDIDATES if n in value['validation']
+                      and value['validation'][n]['macro_group_mae'] <= best*1.02+1e-12]
+        baseline_candidate[horizon] = min(admissible, key=CANDIDATES.index)
     for path, report in reports:
         for horizon, value in report['horizons'].items():
             for name, metric in value['validation'].items():
@@ -58,12 +64,15 @@ def generate_leaderboard(baseline, runs, output):
                 rows[horizon].append({'model': name, 'run': report['run_id'], 'author': info.get('author', 'baseline'),
                     'mae': error, 'complexity': complexity, 'coverage': metric['interval_80_coverage'],
                     'direction': metric['balanced_direction_accuracy'], 'test': value.get('test', {}).get(name),
+                    'paired': value.get('paired_vs_baseline', {}).get(baseline_candidate[horizon]),
                     'source': path, 'production_ready': not info or info.get('explanation_checked', False)})
     lines = ['# Comparación común de modelos', '',
              'Generado con `python -m forecasting.registry`. Se elige por **validación**, nunca por test.',
              f'Contrato comparable: `{signature[:16]}`. Baseline: `{reference["run_id"]}`.', '',
              'Dentro del 2% del mejor MAE por grupo gana la menor complejidad declarada (revisada en PR).',
-             'La tabla propone candidatos: no cambia automáticamente el modelo de la demo.', '']
+             'La tabla propone candidatos: no cambia automáticamente el modelo de la demo.',
+             'Δ positiva = mejora frente al candidato baseline; IC del bootstrap emparejado por grupo.',
+             'La regla del 2% no cambia: el IC es contexto para juzgar si la diferencia se distingue del ruido.', '']
     winners = {}
     for h, entries in rows.items():
         eligible = [r for r in entries if r['production_ready']]
@@ -71,14 +80,22 @@ def generate_leaderboard(baseline, runs, output):
         winner = min((r for r in eligible if r['mae'] <= best*1.02+1e-12),
                      key=lambda r: (r['complexity'], r['mae'], r['model'], r['run']))
         winners[h] = {'model': winner['model'], 'run_id': winner['run'], 'validation_macro_group_mae': winner['mae']}
+        winners[h]['paired_vs_baseline'] = winner.get('paired')
         lines += [f'## {h} meses · candidato: {winner["model"]}', '',
-                  '| Modelo / ejecución | Autor | MAE validación por grupo ↓ | Dirección equilibrada ↑ | Cobertura 80% | MAE test por grupo* |',
-                  '|---|---|---:|---:|---:|---:|']
+                  f'| Modelo / ejecución | Autor | MAE validación por grupo ↓ | Δ MAE vs {baseline_candidate[h]} [IC 95%] | Dirección equilibrada ↑ | Cobertura 80% | MAE test por grupo* |',
+                  '|---|---|---:|---:|---:|---:|---:|']
         for row in sorted(entries, key=lambda r: (r['mae'], r['complexity'])):
             test = '—' if row['test'] is None else f'{row["test"]["macro_group_mae"]:.2f}'
             marker = ' **← candidato**' if row is winner else ''
             relative = Path(os.path.relpath(row['source'], Path(output).parent)).as_posix()
-            lines.append(f'| [{row["model"]} · {row["run"]}]({relative}){marker} | {row["author"]} | {row["mae"]:.2f} | {row["direction"]:.1%} | {row["coverage"]:.1%} | {test} |')
+            if row['paired'] is None:
+                delta = '—'
+            else:
+                lo, hi = row['paired']['ci95']
+                delta = f'{row["paired"]["delta_macro_group_mae"]:+.2f} [{lo:+.2f}, {hi:+.2f}]'
+                if lo > 0:
+                    delta += ' ✓'
+            lines.append(f'| [{row["model"]} · {row["run"]}]({relative}){marker} | {row["author"]} | {row["mae"]:.2f} | {delta} | {row["direction"]:.1%} | {row["coverage"]:.1%} | {test} |')
         lines.append('')
     lines += ['*Test v1 ya publicado: diagnóstico, no criterio de selección. Para una nueva afirmación de generalización necesitamos otro holdout congelado.',
               'Antes de promover: revisar explicación, recalls en ambas direcciones, cobertura, estrés y coste de inferencia.', '']

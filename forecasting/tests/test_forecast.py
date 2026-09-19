@@ -54,15 +54,15 @@ def test_group_and_time_separation(fixture, horizon):
 
 
 def test_external_vintages_unknown_geography_and_revisions():
-    companies = [{'country': 'ES', 'sector': 'construction'}, {'country': '', 'sector': ''}]
-    base = {'indicator': 'construction', 'geo': 'ES', 'sector': 'construction', 'period': '2025-01-01',
+    companies = [{'country': 'ES'}, {'country': ''}]
+    base = {'indicator': 'hicp', 'geo': 'ES', 'sector': '*', 'period': '2025-01-01',
             'available_at': '2025-03-01', 'availability_basis': 'verified_publication', 'value': 100}
     revision = dict(base, available_at='2025-06-01', value=500)
     rows = [base, revision, dict(base, indicator='usd_eur', geo='*', sector='*', availability_basis='assumed_lag')]
     x = context_features(companies, ['2025-02-01', '2025-03-01', '2025-04-01'], rows)
     assert x[0, 0, 10] == 1  # unavailable until publication
     assert x[0, 1, 9] == 100  # future revision cannot leak
-    assert x[1, 1, 10] == 1  # unknown geography / sector never inferred
+    assert x[1, 1, 10] == 1  # unknown geography never inferred
     assert x[0, 1, 4] == 1  # assumed FX unavailable in strict run
     assert context_features(companies, ['2025-04-01'], rows, True)[0, 0, 4] == 0
 

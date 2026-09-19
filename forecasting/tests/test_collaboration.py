@@ -4,7 +4,7 @@ import numpy as np
 import pytest
 
 from forecasting.data import Samples
-from forecasting.experiment import blind, evaluate, load_frozen_stress
+from forecasting.experiment import blind, evaluate, load_frozen_stress, paired_group_bootstrap
 from forecasting.registry import digest, generate_leaderboard
 
 
@@ -30,12 +30,13 @@ def test_inference_never_receives_future_labels():
     assert np.isnan(blind(samples).y).all()
 
 
-def report(mae=10, key='same', name='ridge', rank=4):
+def report(mae=10, key='same', name='ridge', rank=4, paired=None):
     return {'run_id': name, 'comparison': {'key': key}, 'contribution': {
         'author': 'team', 'complexity_rank': rank, 'explanation_checked': True},
         'horizons': {str(h): {'validation': {name: {'macro_group_mae': mae, 'samples': 10, 'groups': 2,
             'interval_80_coverage': .8, 'balanced_direction_accuracy': .5}},
             'test': {name: {'macro_group_mae': 100/mae}},
+            'paired_vs_baseline': paired or {},
             'partitions': {'validation': {'samples': 10, 'groups': 2}}} for h in (1, 3, 6)}}
 
 
@@ -54,6 +55,29 @@ def test_leaderboard_validation_only_and_incompatible_runs_excluded(tmp_path):
     winner = generate_leaderboard(baseline, runs, tmp_path/'LEADERBOARD.md')
     assert winner['3']['model'] == 'new_model'  # Despite worse test error.
     assert 'other_protocol.json' in (tmp_path/'LEADERBOARD.md').read_text()
+
+
+def test_paired_group_bootstrap_constant_improvement():
+    model = {'a': 1., 'b': 1., 'c': 1.}
+    baseline = {'a': 2., 'b': 2., 'c': 2.}
+    result = paired_group_bootstrap(model, baseline)
+    assert result['delta_macro_group_mae'] == 1.
+    assert result['ci95'] == [1., 1.]
+    assert result['probability_better'] == 1.
+    assert result['groups'] == 3
+
+
+def test_leaderboard_shows_paired_delta(tmp_path):
+    baseline = tmp_path/'baseline.json'
+    baseline.write_text(json.dumps(report()))
+    runs = tmp_path/'runs'
+    runs.mkdir()
+    paired = {'ridge': {'delta_macro_group_mae': .5, 'ci95': [.1, .9], 'probability_better': .99, 'groups': 2}}
+    write_run(runs/'new.json', report(9, name='new_model', rank=7, paired=paired))
+    generate_leaderboard(baseline, runs, tmp_path/'LEADERBOARD.md')
+    table = (tmp_path/'LEADERBOARD.md').read_text()
+    assert '+0.50 [+0.10, +0.90] ✓' in table
+    assert 'Δ MAE vs ridge [IC 95%]' in table
 
 
 def test_leaderboard_tolerance_prefers_simplicity(tmp_path):

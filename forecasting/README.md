@@ -7,16 +7,28 @@ P10 pesimista / P50 central-conservador / P90 optimista y explicación aditiva. 
 
 Probados: persistencia, media reciente, tendencia amortiguada, estacionalidad, Ridge y boosting
 con/sin contexto externo, random forest, boosting por cuantiles y **ExtraTrees** (ejemplo de contribución independiente).
+Segunda tanda (v2): Ridge con alpha por GroupKFold, lineal Huber, lineal por mediana, reversión parcial
+a la media, boosting monótono, ensemble robusto y Huber con intervalos conformales (CQR).
+Tercera tanda: **estructural** (`structural_v2`): proyecta cobros, pagos y deuda (reversión a la media
+de la empresa, estacionalidad del mismo mes del año pasado, bandas √h) y aplica `calculate_scores`.
+No reaprende la fórmula. Informe: [benchmarks/structural-v2/REPORT.md](benchmarks/structural-v2/REPORT.md).
+Es el approach de producto; el ranking de abajo sigue siendo el laboratorio reducido sobre el Δscore.
 
 | Horizonte | Candidato según la regla común | MAE validación por grupo ↓ | MAE test por grupo* |
 |---|---|---:|---:|
-| 1 mes | Ridge | 4,55 | 6,78 |
+| 1 mes | Lineal Huber | 4,17 | 6,76 |
 | 3 meses | Media reciente | 7,20 | 14,90 |
-| 6 meses | Ridge | 9,87 | 9,03 |
+| 6 meses | Lineal por mediana | 9,58 | 8,09 |
 
-**Ranking actualizado: [benchmarks/LEADERBOARD.md](benchmarks/LEADERBOARD.md)** (11 modelos × 3 horizontes).
-Boosting obtiene menor error bruto a 1M y ExtraTrees a 6M; Ridge queda dentro del 2% y gana por simplicidad.
-ExtraTrees no se ha evaluado en test. El contexto BCE/Eurostat no mejora consistentemente; faltan sectores
+**Ranking actualizado: [benchmarks/LEADERBOARD.md](benchmarks/LEADERBOARD.md)** (24 ejecuciones × 3 horizontes;
+las v2 corrigen la agregación de la CV interna y las v1 se conservan para el registro).
+La tabla incluye ahora **Δ MAE frente al candidato baseline con IC 95%** de un bootstrap emparejado por
+grupo: la regla del 2% no cambia, pero el intervalo dice si la diferencia se distingue del ruido.
+Los IC no ajustan por selección múltiple ni por la exploración previa: son **evidencia favorable en
+validación exploratoria**, no confirmación. A 1M los lineales robustos muestran evidencia favorable
+frente a Ridge; a 3M nada supera a la media reciente; a 6M los IC incluyen 0 y la cobertura es pobre,
+sin ganador claro. Candidato del ranking ≠ modelo promovido: la demo no cambia. ExtraTrees no se ha
+evaluado en test. El contexto BCE/Eurostat no mejora consistentemente; faltan sectores
 y muchos países. A 6M solo hay 59 muestras de test. *El test v1 ya es público: diagnóstico, no selección.*
 
 También hay **19 escenarios de estrés, 24.624 observaciones**: baches, estacionalidad, mejora, caída,

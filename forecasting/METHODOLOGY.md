@@ -180,6 +180,95 @@ Se generan previsiones para 1.008 empresas y abstención para 278: se requieren 
 consecutivos con actividad y calidad suficiente. Los puntos son 1/3/6 meses; entre ellos hay
 interpolación visual. API: 503 sin artefactos, 404 para identificador desconocido.
 
+## Previsión estructural (cuenta → score)
+
+En vez de aprender `Δscore`, se proyectan cobros, pagos y servicio de deuda y se aplica el motor
+congelado `calculate_scores`. El camino central revierte el run-rate a 3 meses hacia la media a 12
+de la empresa (φ=0,8); cada mes se escala por el mismo mes del año pasado si ya está observado
+(la regla `seasonal` del laboratorio, sobre flujos); las bandas crecen con √h. Reembolsos a ratio
+constante. Ejecuciones `pedro__structural-v1` (inercia amortiguada) y `pedro__structural-v2`
+(reversión + estación + abanico). A 1 mes el MAE de grupo (4,21) queda junto a Huber (4,17) con
+mejor dirección; a 3 y 6 meses el laboratorio reducido sigue mejor en MAE. El recall de deterioro
+a 3/6 meses pasa de ~10%/4% en v1 a ~46%/57% en v2. Ver `benchmarks/structural-v2/REPORT.md`.
+
+## Segunda tanda de modelos (v2)
+
+Siete contribuciones nuevas en `experiments/`, registradas como ejecuciones independientes
+(`carlos__*-v1`). Motivación: pérdidas robustas o por mediana alineadas con la métrica MAE,
+reversión parcial a la media reciente, monotonía como hipótesis y combinación robusta.
+
+**Selección de hiperparámetros solo dentro de train**: `GroupKFold(n_splits=5)` sobre los grupos
+de entrenamiento, métrica = MAE macro por grupo (media entre grupos de la media de
+|y − clip(actual+pred, 0, 100)| en el fold reservado), escalador ajustado por fold dentro de
+pipelines sklearn. Rejillas congeladas:
+
+- `ridge_groupcv`: alpha ∈ {1, 3, 10, 30, 100, 300, 1000, 3000}.
+- `huber_linear` y `huber_cqr`: alpha ∈ {1e-3, 1e-2, 0.1, 1, 10, 30, 100} × epsilon ∈ {1.35, 2.0}.
+- `median_linear`: alpha ∈ {0.001, 0.01, 0.05, 0.2, 1} (QuantileRegressor q=0.5, solver highs).
+- `partial_mean_reversion`: delta = λ·(x_k − x_0), k ∈ {media_3m, media_6m}, λ ∈ {0, 0.1, …, 1.0}.
+- `monotone_boosting`: sin tuning (test de hipótesis); monotonía −1 en score_actual, +1 en medias
+  y márgenes 3m/6m.
+- `robust_ensemble`: media de deltas de huber_linear + ridge_groupcv + media reciente; explicación
+  = media de contribuciones aditivas de los miembros.
+
+Una CV temporal dentro de train no es viable a 6M (un solo origen de entrenamiento) y queda muy
+limitada a 1M/3M, por eso la selección interna es por grupos, no por tiempo.
+
+**Bootstrap emparejado por grupo**: cada ejecución nueva reentrena los diez candidatos baseline y
+compara el MAE por grupo en validación frente a cada uno (2.000 remuestreos de grupos, semilla 419).
+El leaderboard muestra Δ frente al candidato baseline de cada horizonte: positivo = mejora; `✓`
+cuando el IC 95% excluye 0. La regla del 2% sigue eligiendo; el IC solo dice si la diferencia se
+distingue del ruido.
+
+**Los IC no están ajustados por selección múltiple** ni por la mirada exploratoria previa a
+validación: son **evidencia favorable en validación exploratoria**, no confirmación de
+generalización (sesgo de selección en comparación de modelos: Cawley & Talbot, 2010, JMLR 11).
+La confirmación necesita el nuevo holdout congelado.
+
+**v1 → v2**: las ejecuciones v1 usaban la media de los MAE de los cinco folds, que daba más peso a
+los grupos de folds pequeños. En v2 la métrica interna agrupa todas las predicciones out-of-fold
+(cada grupo sale una vez en GroupKFold) y puntúa una sola vez con MAE macro por grupo: todos los
+grupos pesan igual. Las ejecuciones v1 se conservan para el registro; la tabla de abajo usa v2.
+Los parámetros seleccionados **no cambiaron** en ningún modelo ni horizonte, así que las métricas
+de validación son idénticas entre v1 y v2.
+
+**Divulgación**: el diagnóstico exploratorio inicial miró números de validación de ridge, huber y
+media reciente antes de congelar las rejillas; validación no es un holdout fresco para estas
+hipótesis y la confirmación necesita el nuevo holdout congelado que ya pide el protocolo.
+Observación documentada, sin cambiar: el ajuste de mediana de calibración (origen 11) penaliza a
+`trailing_mean` a 3M (6,79 sin calibrar frente a 7,20 calibrado).
+
+**Resultados** (validación; Δ frente al candidato baseline con IC 95%):
+
+| Horizonte | Modelo | MAE val | Δ [IC 95%] | Cobertura | MAE test* |
+|---|---|---:|---|---:|---:|
+| 1M | huber_linear | 4,17 | +0,38 [+0,10, +0,74] ✓ | 80,9% | 6,76 |
+| 1M | huber_cqr | 4,17 | +0,38 [+0,10, +0,74] ✓ | 78,8% | 6,76 |
+| 1M | median_linear | 4,17 | +0,38 [+0,03, +0,78] ✓ | 82,0% | 6,74 |
+| 1M | ridge_groupcv | 4,34 | +0,21 [+0,06, +0,39] ✓ | 81,5% | 6,66 |
+| 3M | robust_ensemble | 7,18 | +0,03 [−1,59, +1,57] | 75,5% | 11,81 |
+| 3M | trailing_mean (baseline) | 7,20 | — | 82,4% | 14,90 |
+| 6M | median_linear | 9,58 | +0,29 [−1,07, +1,67] | 58,7% | 8,09 |
+| 6M | monotone_boosting | 9,56 | +0,30 [−1,80, +2,03] | 58,7% | 10,33 |
+
+Recomendación con incertidumbre: a **1M** los lineales robustos (huber/median) muestran evidencia
+favorable en validación exploratoria frente a ridge, con IC que excluye cero; `huber_linear` es el
+candidato por la regla común — empata a 4,17 con `median_linear` y el desempate por orden de nombre
+dentro de la regla lo favorece. La comparación de test a 1M (huber 6,76 frente a ridge 6,78) es una
+diferencia observada pequeña sobre un test ya visto: no confirma nada nuevo. El experimento de
+intervalos CQR es **inconcluyente**: no mejora la cobertura a 1M (78,8% frente a 80,9% del mismo
+centro sin CQR) y solo marginalmente a 6M (69,6% frente a 65,2%). A **3M** nada supera a la media
+reciente; `partial_mean_reversion` la reproduce exactamente (λ=1 sobre media_3m). A **6M** todos
+los IC incluyen 0 y la cobertura es pobre (`median_linear` 58,7%, ridge 63,0%, lejos del 80%
+nominal): no proclamamos ganador; `median_linear` es candidato por la regla, pendiente del nuevo
+holdout.
+
+**Candidato ≠ promoción**: la regla del ranking solo propone un candidato por horizonte; ningún
+modelo de esta tanda está aprobado para promoción (quedan por revisar explicación, recalls,
+cobertura y estrés) y los modelos de la demo no cambian. Idea descartada: boosting sobre residuos
+se descartó por presupuesto de tiempo; es una idea distinta de promediar modelos entrenados
+independientemente como hace `robust_ensemble`, y no debe leerse como equivalente.
+
 ## Criterios del reto
 
 | Criterio | Evidencia |
@@ -197,6 +286,13 @@ ciclo de desarrollo con un nuevo test reservado.
 ## Verificación de esta entrega
 
 - Suite completa tras integrar `main`: **172 tests aprobados** (`pytest forecasting/tests algorythm backend`).
+- Segunda tanda (v2): **37 tests** (`pytest forecasting/tests backend/test_forecasts.py -q`), incluidos
+  los del bootstrap emparejado, la columna Δ del leaderboard, las siete factorías nuevas
+  (fit → calibrate → predict, probabilidades y reconstrucción de explicaciones), la agregación OOF
+  agrupada de `group_cv_select` y el registro de dependencias locales.
+- Siete ejecuciones `carlos__*-v1` con `--final-test` y seis `carlos__*-v2` (CV corregida) registradas;
+  `python -m forecasting.registry` regenera `LEADERBOARD.md`/`.json` sin excluir ninguna y conserva
+  `equipo__extra-trees-v1`.
 - Front: lint y build con `npm run build -- --webpack` aprobados. Turbopack no pudo abrir
   su puerto auxiliar en este entorno; se verificó la compilación de producción con webpack.
 - Navegador Chrome: cuatro curvas, botones 1/3/6, 30 filas de comparación y abstención por falta
