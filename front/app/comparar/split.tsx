@@ -4,7 +4,8 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import type { Empresa } from "@/lib/data";
 import type { OpcionComparar } from "@/lib/motor";
-import { num, mesCorto } from "@/lib/format";
+import { LAST_CLOSED_MONTH, mesCerradoDeAsOf } from "@/lib/calendar";
+import { num, mesCorto, mesCortoCerrado } from "@/lib/format";
 import { Cabecera } from "@/components/shell";
 import { Trayectoria } from "@/components/charts";
 import { Card, ScoreBadge, BandaChip, EstadoChip, Delta } from "@/components/ui";
@@ -39,8 +40,8 @@ export default function SplitScreen({
   const epSube = ultimo(sube, "mejora");
   const frase = (ep: NonNullable<typeof epBaja>, verbo: string) =>
     ep.estado === "activo"
-      ? `lleva ${verbo} desde ${mesCorto(ep.deteccion.slice(0, 7))}, cuando detectamos las primeras señales.`
-      : `tuvo un episodio de ${ep.direccion} detectado en ${mesCorto(ep.deteccion.slice(0, 7))} y cerrado en ${mesCorto((ep.cierre ?? ep.deteccion).slice(0, 7))}.`;
+      ? `lleva ${verbo} desde ${mesCortoCerrado(ep.deteccion)}, cuando detectamos las primeras señales.`
+      : `tuvo un episodio de ${ep.direccion} detectado en ${mesCortoCerrado(ep.deteccion)} y cerrado en ${mesCortoCerrado(ep.cierre ?? ep.deteccion)}.`;
 
   return (
     <>
@@ -99,7 +100,7 @@ export default function SplitScreen({
             { emp: baja, rol: "baja" as const, opts: opcionesBaja, onSelect: cambiarBaja },
           ].map(({ emp: e, rol, opts, onSelect }) => {
             const primerScore = e.trayectoria[0]?.score ?? 50;
-            const ultimoMes = e.trayectoria[e.trayectoria.length - 1]?.mes ?? "2026-09";
+            const ultimoMes = e.trayectoria[e.trayectoria.length - 1]?.mes ?? LAST_CLOSED_MONTH.slice(0, 7);
             // El gráfico marca el mismo episodio que describe el texto: el último de la dirección del rol.
             const ep = rol === "sube" ? epSube : epBaja;
             return (
@@ -147,9 +148,9 @@ export default function SplitScreen({
                   <div className="px-3 py-4">
                     <Trayectoria
                       datos={e.trayectoria}
-                      deteccion={ep ? { mes: ep.deteccion.slice(0, 7), direccion: ep.direccion, senales: ep.senales } : undefined}
+                      deteccion={ep ? { mes: mesCerradoDeAsOf(ep.deteccion), direccion: ep.direccion, senales: ep.senales } : undefined}
                       camino={ep?.perspectiva ? {
-                        mes: ep.perspectiva.as_of.slice(0, 7),
+                        mes: mesCerradoDeAsOf(ep.perspectiva.as_of),
                         scoreProyectado: ep.perspectiva.score_proyectado,
                         familia: ep.familia,
                       } : undefined}

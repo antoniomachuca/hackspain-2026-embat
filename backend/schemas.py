@@ -5,6 +5,14 @@ Modelos Pydantic v2 para validación y serialización de la API REST de X-Ray.
 from typing import Any, Dict, List, Optional
 from pydantic import BaseModel, Field, model_validator
 
+from backend.calendar import (
+    DATA_CUTOFF,
+    LAST_CLOSED_MONTH,
+    PARTIAL_MONTH,
+    PARTIAL_MONTH_DAYS,
+    PARTIAL_MONTH_LABEL,
+)
+
 
 # -------------------------------------------------------------
 # 1. Esquemas de Empresas y Cartera CFO
@@ -147,6 +155,10 @@ class CompanyDetailResponse(BaseModel):
     perspectivas_sin_aviso: List[Dict[str, Any]] = Field([], description="Perspectivas caducadas sin episodio asociado")
     trayectoria_marcas: Optional[TrayectoriaMarcas] = Field(None, description="Marcas del episodio destacado para la trayectoria")
     parametros_episodios: Optional[EpisodiosParametros] = Field(None, description="Umbrales declarados del motor de episodios")
+    last_closed_month: str = Field(
+        default=LAST_CLOSED_MONTH.isoformat(),
+        description="Último mes con ciclo completo. El as_of es el corte; este campo es el mes de actividad.",
+    )
 
 
 # -------------------------------------------------------------
@@ -174,6 +186,11 @@ class Reparto(BaseModel):
 
 class HistoryPoint(BaseModel):
     as_of: str = Field(..., json_schema_extra={"example": "2026-09-01"})
+    closed_month: str = Field(
+        ...,
+        json_schema_extra={"example": "2026-08-01"},
+        description="Mes de transacciones que cierra este corte (as_of menos un mes).",
+    )
     score: float = Field(..., json_schema_extra={"example": 65.2})
     base_health: float = Field(..., json_schema_extra={"example": 63.8})
     state: str = Field(..., json_schema_extra={"example": "ESTABLE"})
@@ -191,6 +208,10 @@ class HistoryPoint(BaseModel):
 class CompanyHistoryResponse(BaseModel):
     company_id: str
     months: int
+    last_closed_month: str = Field(
+        default=LAST_CLOSED_MONTH.isoformat(),
+        description="Último mes con ciclo completo de transacciones.",
+    )
     history: List[HistoryPoint]
 
 
@@ -199,7 +220,8 @@ class CompanyHistoryResponse(BaseModel):
 # -------------------------------------------------------------
 
 class PeerPoint(BaseModel):
-    mes: str = Field(..., json_schema_extra={"example": "2024-10"})
+    mes: str = Field(..., json_schema_extra={"example": "2024-10"}, description="YYYY-MM del as_of (reloj de corte).")
+    closed_month: str = Field(..., json_schema_extra={"example": "2024-09-01"})
     mediana: float = Field(..., json_schema_extra={"example": 57.3})
 
 
@@ -208,6 +230,7 @@ class CompanyPeersResponse(BaseModel):
     quartile: int = Field(..., description="Cuartil de tamaño por volumen de transacciones/facturación (1 a 4)")
     label: str = Field(..., description="Etiqueta descriptiva del cuartil de pares")
     n_companies: int = Field(..., description="Número de empresas en el cuartil")
+    last_closed_month: str = Field(default=LAST_CLOSED_MONTH.isoformat())
     history: List[PeerPoint] = Field(..., description="Serie histórica de 24 meses con la mediana del score del cuartil")
 
 
@@ -303,9 +326,25 @@ class AlertListResponse(BaseModel):
 # 6. Esquemas de Estadísticas Globales y Grupos
 # -------------------------------------------------------------
 
+class DataCalendar(BaseModel):
+    """Tres relojes del dataset: corte oficial, último mes cerrado y foto parcial."""
+    as_of: str = Field(default=DATA_CUTOFF.isoformat(), description="Corte oficial: snapshot ERP/saldos y último score.")
+    last_closed_month: str = Field(
+        default=LAST_CLOSED_MONTH.isoformat(),
+        description="Último mes con ciclo completo de transacciones. Usar en medias y ejes mensuales.",
+    )
+    partial_month: str = Field(
+        default=PARTIAL_MONTH.isoformat(),
+        description="Mes calendario incompleto. Si se muestra, rotularlo; no entra en medias.",
+    )
+    partial_month_label: str = Field(default=PARTIAL_MONTH_LABEL)
+    partial_month_days: int = Field(default=PARTIAL_MONTH_DAYS)
+
+
 class StatsResponse(BaseModel):
     total_companies: int
     latest_as_of: str
+    calendar: DataCalendar = Field(default_factory=DataCalendar)
     distribution_by_state: Dict[str, int]
     risk_companies_count: int
     risk_percentage: float
@@ -346,6 +385,7 @@ class PortfolioHistogramBucket(BaseModel):
 
 class PortfolioTrajectoryPoint(BaseModel):
     as_of: str
+    closed_month: str
     average_score: float
     median_score: float
     eligible_companies: int
@@ -353,6 +393,7 @@ class PortfolioTrajectoryPoint(BaseModel):
 
 class PortfolioResponse(BaseModel):
     as_of: str
+    calendar: DataCalendar = Field(default_factory=DataCalendar)
     total_companies: int
     eligible_companies: int
     average_score: float
