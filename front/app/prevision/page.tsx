@@ -6,12 +6,12 @@ export default async function Prevision({ searchParams }: { searchParams: Promis
   const { company } = await searchParams
   let result
   try { result = await getForecastPage(company) } catch {
-    return <div><h1 className="text-3xl peso-medio">Previsión de salud financiera</h1>
+    return <div><h1 className="text-3xl font-medium">Previsión de salud financiera</h1>
       <p className="mt-5 text-ink-2">Las previsiones no están disponibles en este momento. Vuelve a intentarlo cuando estén preparados los resultados.</p></div>
   }
   const { companies, forecast, benchmark } = result
   return <div>
-    <h1 className="text-3xl peso-medio">Previsión de salud financiera</h1>
+    <h1 className="text-3xl font-medium">Previsión de salud financiera</h1>
     <p className="mt-3 max-w-3xl text-sm text-ink-2">Explora cómo puede evolucionar la empresa y cuánto cambia la incertidumbre con el horizonte de predicción.</p>
     <form className="my-7 flex flex-wrap items-center gap-3" method="get">
       <label htmlFor="company" className="text-sm">Empresa</label>
@@ -23,7 +23,7 @@ export default async function Prevision({ searchParams }: { searchParams: Promis
       <p className="rounded-xl border border-line p-6 text-ink-2">Esta empresa necesita seis meses consecutivos de actividad con datos suficientes para generar una previsión.</p> :
       <ForecastChart key={forecast.company_id} forecast={forecast} />}
     <section className="mt-10">
-      <h2 className="text-lg peso-medio">Comparación de modelos</h2>
+      <h2 className="text-lg font-medium">Comparación de modelos</h2>
       <p className="mt-2 text-sm text-ink-2">Modelos seleccionados con grupos de validación. Estos resultados corresponden a otros grupos, reservados para el test.</p>
       <div className="mt-5 overflow-x-auto"><table className="w-full min-w-[600px] text-left text-sm [&_td]:pr-5 [&_th]:pr-5">
         <thead><tr className="border-b border-line"><th className="py-3">Horizonte</th><th>Modelo</th><th>Error medio por grupo</th><th>Cobertura de la banda</th></tr></thead>
@@ -32,7 +32,7 @@ export default async function Prevision({ searchParams }: { searchParams: Promis
           <td>{Math.round(row.test[row.selected].interval_80_coverage * 100)} %</td></tr>)}</tbody>
       </table></div>
       <details className="mt-5 rounded-xl border border-line p-4">
-        <summary className="cursor-pointer text-sm peso-medio">Ver los diez modelos en cada horizonte</summary>
+        <summary className="cursor-pointer text-sm font-medium">Ver los diez modelos en cada horizonte</summary>
         <div className="mt-4 overflow-x-auto"><table className="w-full min-w-[700px] text-left text-sm [&_td]:pr-5 [&_th]:pr-5">
           <thead><tr className="border-b border-line"><th className="py-2">Meses</th><th>Modelo</th><th>Error por grupo</th><th>Acierto equilibrado de dirección</th><th>Cobertura</th></tr></thead>
           <tbody>{Object.entries(benchmark.horizons).flatMap(([h, row]) => Object.entries(row.test).map(([model, m]) =>
