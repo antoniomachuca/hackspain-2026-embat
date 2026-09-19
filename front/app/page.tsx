@@ -41,7 +41,25 @@ export default async function Resumen() {
   const consolidado = Math.round((0.65 * mediaGrupo + 0.35 * peorScore) * 10) / 10;
   const penalizacion = peorScore < 40 ? Math.round((40 - peorScore) * 0.25 * 10) / 10 : 0;
 
-  const sugerencias = rk?.sugerencias ?? [];
+  const recomendada = rk?.recomendado ?? null;
+  const rawSugerencias = rk?.sugerencias ?? [];
+  const vistas = new Set<string>();
+  const palancasSalud: typeof rawSugerencias = [];
+
+  if (recomendada?.id) {
+    vistas.add(recomendada.id);
+    palancasSalud.push(recomendada);
+  }
+
+  for (const s of rawSugerencias) {
+    if (!vistas.has(s.id)) {
+      vistas.add(s.id);
+      palancasSalud.push(s);
+    }
+  }
+
+  const mejorCirculante = rk?.opcionesCirculante?.[0] ?? null;
+  const whatif = rk?.whatif ?? null;
   const recos = recomendar(empresa(MI_EMPRESA) ?? EMPRESAS_CON_SCORE[1], 3);
   const percentil = e.drivers?.[0]?.p_peer ?? 50;
 
@@ -133,41 +151,156 @@ export default async function Resumen() {
         </Card>
 
         <Card className="px-6 py-6">
-          <h2 className="text-[15px] font-semibold tracking-tight">Qué puedes hacer (Simulador What-If)</h2>
-          <p className="mt-0.5 text-[11.5px] text-[var(--color-ink-4)]">
-            Palancas de liquidez calculadas directamente sobre el balance de {e.id}.
-          </p>
+          <div className="flex items-start justify-between gap-3">
+            <div>
+              <h2 className="text-[15px] font-semibold tracking-tight">Qué puedes hacer (Simulador What-If)</h2>
+              <p className="mt-0.5 text-[11.5px] text-[var(--color-ink-4)]">
+                Diagnóstico de tesorería y palancas calculadas sobre el balance de {e.id}.
+              </p>
+            </div>
+            {rk?.nSims ? (
+              <span className="rounded-md border border-[rgba(255,255,255,.08)] bg-[rgba(255,255,255,.03)] px-2 py-0.5 text-[10.5px] text-[var(--color-ink-3)]">
+                {rk.nSims} sims evaluadas
+              </span>
+            ) : null}
+          </div>
+
+          {/* ── Recomendación Ejecutiva Embat (Directa de balance / Telegram) ── */}
+          {whatif && (
+            <div className="mt-4 rounded-xl border border-[rgba(176,131,232,.25)] bg-[rgba(176,131,232,.06)] p-4">
+              <div className="flex flex-wrap items-center justify-between gap-2">
+                <div className="flex items-center gap-2">
+                  <span className="rounded bg-[var(--color-purple)]/20 px-2 py-0.5 text-[11px] font-medium text-[var(--color-purple)]">
+                    ★ Solución Embat
+                  </span>
+                  <span className="text-[12px] font-semibold text-white">
+                    {whatif.recommended_product}
+                  </span>
+                </div>
+                <span className="rounded bg-emerald-500/15 px-2 py-0.5 text-[10.5px] font-medium text-[var(--color-emerald)]">
+                  {whatif.projected_state}
+                </span>
+              </div>
+              <p className="mt-2 text-[11.5px] leading-relaxed text-[var(--color-ink-2)]">
+                {whatif.product_rationale}
+              </p>
+              <div className="mt-3 flex flex-wrap items-center gap-x-5 gap-y-1.5 border-t border-[rgba(255,255,255,.08)] pt-2.5 text-[11.5px] text-[var(--color-ink-3)]">
+                <span>
+                  Inyección / tramo óptimo:{" "}
+                  <strong className="tnum font-semibold text-white">
+                    {eur(whatif.injection_amount)}
+                  </strong>
+                </span>
+                <span>
+                  Score proyectado:{" "}
+                  <strong className="tnum font-semibold text-[var(--color-purple)]">
+                    {num(whatif.projected_score)}
+                  </strong>{" "}
+                  <span className="text-[var(--color-emerald)] font-medium">
+                    (+{num(whatif.delta_score)} pts)
+                  </span>
+                </span>
+              </div>
+            </div>
+          )}
+
+          {/* ── Rankings de Palancas (Salud + Circulante sin humo) ── */}
           <div className="mt-4 flex flex-col gap-2.5">
-            {sugerencias.length > 0 ? (
-              sugerencias.slice(0, 3).map((s, idx) => (
-                <Link
-                  key={`${s.id}-${idx}`}
-                  href={`/empresa/${e.id}/escenarios`}
-                  className="fila px-4 py-3.5"
-                >
-                  <div className="flex items-start justify-between gap-3">
-                    <div className="min-w-0">
-                      <p className="text-[13px] font-medium text-[var(--color-ink-1)]">
-                        {s.label}
-                      </p>
-                      <p className="mt-0.5 text-[11.5px] text-[var(--color-ink-3)]">
-                        Familia: <span className="capitalize">{s.familia.replace("_", " ")}</span>
-                        {s.days ? ` · Ajuste: ${s.days} días` : ""}
-                        {s.pct ? ` · Inyección: ${s.pct}%` : ""}
-                      </p>
+            {palancasSalud.length > 0 ? (
+              <>
+                {palancasSalud.slice(0, 3).map((s, idx) => {
+                  const esRec = recomendada?.id === s.id && recomendada?.label === s.label;
+                  return (
+                    <Link
+                      key={`${s.id}-${idx}`}
+                      href={`/empresa/${e.id}/escenarios`}
+                      className={`fila px-4 py-3.5 transition-all ${
+                        esRec ? "border-l-2 border-l-[var(--color-purple)] bg-[rgba(176,131,232,.04)]" : ""
+                      }`}
+                    >
+                      <div className="flex items-start justify-between gap-3">
+                        <div className="min-w-0">
+                          <div className="flex items-center gap-2">
+                            <p className="text-[13px] font-medium text-[var(--color-ink-1)]">
+                              {s.label}
+                            </p>
+                            {esRec && (
+                              <span className="rounded bg-[var(--color-purple)]/15 px-1.5 py-0.2 text-[10px] font-medium text-[var(--color-purple)]">
+                                ★ Recomendada
+                              </span>
+                            )}
+                          </div>
+                          <p className="mt-0.5 text-[11.5px] text-[var(--color-ink-3)]">
+                            {s.agreement_type
+                              ? `Acuerdo: ${s.agreement_type.replace(/_/g, " ")}`
+                              : s.days
+                              ? `Ajuste temporal: ${s.days} días`
+                              : s.pct
+                              ? `Optimización: ${Math.round(s.pct * 100)}%`
+                              : "Palanca estructural de balance"}
+                            {s.haircut ? ` · dto ${Math.round(s.haircut * 1000) / 10}%` : ""}
+                          </p>
+                        </div>
+                        <Delta v={s.delta_score} sufijo=" pts" className="shrink-0 pt-0.5" />
+                      </div>
+                      <div className="tnum mt-2 flex flex-wrap gap-x-4 gap-y-1 text-[11.5px] text-[var(--color-ink-2)]">
+                        {s.caja_liberada_eur && s.caja_liberada_eur > 0 && (
+                          <span>
+                            Caja liberada:{" "}
+                            <strong className="font-medium text-white">
+                              {eur(s.caja_liberada_eur)}
+                            </strong>
+                          </span>
+                        )}
+                        {s.eur_año && s.eur_año > 0 && (
+                          <span>
+                            Ahorro anual:{" "}
+                            <strong className="font-medium text-white">
+                              {eur(s.eur_año)}/año
+                            </strong>
+                          </span>
+                        )}
+                      </div>
+                    </Link>
+                  );
+                })}
+
+                {/* Opción de Circulante Puro (Caja sin computar CIRBE ni alterar score) */}
+                {mejorCirculante && (
+                  <Link
+                    href={`/empresa/${e.id}/escenarios`}
+                    className="fila px-4 py-3.5 border-dashed border-[rgba(255,255,255,.12)]"
+                  >
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="min-w-0">
+                        <div className="flex items-center gap-2">
+                          <p className="text-[13px] font-medium text-[var(--color-ink-1)]">
+                            {mejorCirculante.label}
+                          </p>
+                          <span className="rounded bg-[rgba(255,255,255,.08)] px-1.5 py-0.2 text-[10px] text-[var(--color-ink-3)]">
+                            Circulante puro
+                          </span>
+                        </div>
+                        <p className="mt-0.5 text-[11.5px] text-[var(--color-ink-3)]">
+                          {mejorCirculante.agreement_type
+                            ? `Acuerdo: ${mejorCirculante.agreement_type.replace(/_/g, " ")} · `
+                            : ""}
+                          Caja inmediata a proveedores sin computar endeudamiento ni alterar CIRBE
+                        </p>
+                      </div>
+                      <span className="text-[11px] text-[var(--color-ink-4)] shrink-0 pt-0.5">
+                        ΔS nulo
+                      </span>
                     </div>
-                    <Delta v={s.delta_score} sufijo=" pts" className="shrink-0 pt-0.5" />
-                  </div>
-                  <div className="tnum mt-2 flex flex-wrap gap-x-4 gap-y-1 text-[11.5px] text-[var(--color-ink-2)]">
-                    {s.caja_liberada_eur && s.caja_liberada_eur > 0 && (
-                      <span>Caja liberada: <strong className="font-medium">{eur(s.caja_liberada_eur)}</strong></span>
-                    )}
-                    {s.eur_año && s.eur_año > 0 && (
-                      <span>Impacto anual: <strong className="font-medium">{eur(s.eur_año)}/año</strong></span>
-                    )}
-                  </div>
-                </Link>
-              ))
+                    <div className="tnum mt-2 text-[11.5px] text-[var(--color-ink-2)]">
+                      Caja liberada:{" "}
+                      <strong className="font-medium text-white">
+                        {eur(mejorCirculante.caja_liberada_eur ?? 0)}
+                      </strong>
+                    </div>
+                  </Link>
+                )}
+              </>
             ) : (
               recos.map((r) => (
                 <Link key={r.palanca.id} href={`/empresa/${e.id}/escenarios`} className="fila px-4 py-3.5">
@@ -187,6 +320,15 @@ export default async function Resumen() {
                 </Link>
               ))
             )}
+          </div>
+
+          <div className="mt-4 flex justify-end border-t border-[var(--color-line)] pt-3">
+            <Link
+              href={`/empresa/${e.id}/escenarios`}
+              className="flex items-center gap-1 text-[12px] font-medium text-[var(--color-purple)] hover:underline"
+            >
+              Abrir simulador interactivo de palancas →
+            </Link>
           </div>
         </Card>
       </div>

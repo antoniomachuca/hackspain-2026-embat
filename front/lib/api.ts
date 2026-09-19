@@ -108,6 +108,28 @@ export type ApiSugerencia = {
 export type ApiRankings = {
   ok: boolean; company_id: string; as_of: string; modo: string;
   model_version: string; n_sims: number; sugerencias: ApiSugerencia[];
+  opciones_circulante?: ApiSugerencia[];
+  recomendado?: ApiSugerencia | null;
+};
+
+export type ApiWhatIfResponse = {
+  company_id: string;
+  group_id: string;
+  as_of: string;
+  current_score: number;
+  current_state: string;
+  injection_amount: number;
+  is_optimal_computed: boolean;
+  delta_score: number;
+  projected_score: number;
+  projected_state: string;
+  liquidity_gain: number;
+  fragility_gain: number;
+  fragility_reduction: number;
+  collections_gain: number;
+  recommended_product: string;
+  product_rationale: string;
+  executive_message: string;
 };
 
 export type ApiStats = {
@@ -213,7 +235,7 @@ export type ApiSimulateResponse = {
 export const apiSimular = (id: string, levers: Array<Record<string, unknown>>) =>
   post<ApiSimulateResponse>("/api/simulate", { company_id: id, levers });
 export const apiWhatIf    = (id: string, inyeccion?: number) =>
-  post<Record<string, unknown>>("/api/whatif", { company_id: id, ...(inyeccion ? { injection_amount: inyeccion } : {}) });
+  post<ApiWhatIfResponse>("/api/whatif", { company_id: id, ...(inyeccion ? { injection_amount: inyeccion } : {}) });
 
 /** Etiquetas legibles de los seis bloques del waterfall. */
 export const BLOQUES: Array<{ campo: keyof ApiWaterfall; etiqueta: string; codigo: string }> = [

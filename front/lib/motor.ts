@@ -3,8 +3,8 @@
  * Si el motor no responde, `cargar()` devuelve null y la página cae al modo demo.
  */
 import {
-  apiEmpresa, apiHistoria, apiPeers, apiPalancas, apiRankings, apiAlertas, apiEmpresasDeGrupo, apiGrupos, apiGrupo, apiEmpresas, apiSimular,
-  BLOQUES, type ApiEmpresa, type ApiSugerencia, type ApiPalanca, type ApiSimulateResponse,
+  apiEmpresa, apiHistoria, apiPeers, apiPalancas, apiRankings, apiWhatIf, apiAlertas, apiEmpresasDeGrupo, apiGrupos, apiGrupo, apiEmpresas, apiSimular,
+  BLOQUES, type ApiEmpresa, type ApiSugerencia, type ApiPalanca, type ApiSimulateResponse, type ApiWhatIfResponse,
 } from "./api";
 import { pendiente, repartir, inflexionDe, EMPRESAS_CON_SCORE, simular } from "./data";
 import type { Driver, Empresa, Estado, Punto, Severidad } from "./data";
@@ -122,10 +122,17 @@ export async function cargarFiliales(gid: string, excluir: string) {
 }
 
 export async function cargarRecomendaciones(id: string) {
-  const [rk, pl] = await Promise.all([apiRankings(id), apiPalancas(id)]);
+  const [rk, pl, wf] = await Promise.all([
+    apiRankings(id),
+    apiPalancas(id),
+    apiWhatIf(id),
+  ]);
   return {
     sugerencias: (rk?.sugerencias ?? []) as ApiSugerencia[],
+    opcionesCirculante: (rk?.opciones_circulante ?? []) as ApiSugerencia[],
+    recomendado: (rk?.recomendado ?? null) as ApiSugerencia | null,
     palancas: (pl?.palancas ?? []) as ApiPalanca[],
+    whatif: (wf ?? null) as ApiWhatIfResponse | null,
     modelVersion: rk?.model_version ?? null,
     nSims: rk?.n_sims ?? 0,
   };
