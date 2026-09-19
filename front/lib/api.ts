@@ -168,7 +168,7 @@ export type ApiPalanca = {
 };
 
 export type ApiSugerencia = {
-  id: string; familia: string; delta_score: number;
+  id: string; familia: string; delta_score: number | null;
   caja_liberada_eur: number | null; eur_año: number | null;
   days: number | null; pct: number | null; haircut: number | null;
   agreement_type: string | null; warnings: string[]; label: string;

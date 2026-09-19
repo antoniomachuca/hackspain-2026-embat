@@ -91,25 +91,8 @@ export async function FichaEmpresa({ id, vista }: { id: string; vista: Vista }) 
   const consolidado = Math.round((0.65 * mediaGrupo + 0.35 * peorScore) * 10) / 10;
   const penalizacion = peorScore < 40 ? Math.round((40 - peorScore) * 0.25 * 10) / 10 : 0;
 
-  // Sugerencias contrafactuales del motor y What-If
   const recomendada = rk?.recomendado ?? null;
-  const rawSugerencias = rk?.sugerencias ?? [];
-  const vistas = new Set<string>();
-  const palancasSalud: typeof rawSugerencias = [];
-
-  if (recomendada?.id) {
-    vistas.add(recomendada.id);
-    palancasSalud.push(recomendada);
-  }
-
-  for (const s of rawSugerencias) {
-    if (!vistas.has(s.id)) {
-      vistas.add(s.id);
-      palancasSalud.push(s);
-    }
-  }
-
-  const whatif = rk?.whatif ?? null;
+  const circulante = rk?.opcionesCirculante ?? [];
 
   return (
     <>
@@ -178,11 +161,16 @@ export async function FichaEmpresa({ id, vista }: { id: string; vista: Vista }) 
               </div>
             </div>
           </div>
-          {whatif && (
+          {recomendada && (
             <p className="mt-3 border-t border-[var(--color-line)] pt-3 text-[12px] text-[var(--color-ink-3)]">
-              Producto Embat con más efecto sobre su score:{" "}
-              <strong className="font-medium text-[var(--color-ink)]">{whatif.recommended_product}</strong>
-              {" "}· {eur(whatif.injection_amount)} → {num(whatif.projected_score)} pts ({whatif.delta_score >= 0 ? "+" : ""}{num(whatif.delta_score)}).
+              Palanca del motor:{" "}
+              <strong className="font-medium text-[var(--color-ink)]">{recomendada.label.replace(/\s*\(.*\)$/, "")}</strong>
+              {recomendada.caja_liberada_eur != null && recomendada.caja_liberada_eur > 0 && (
+                <> · {eur(recomendada.caja_liberada_eur)} caja</>
+              )}
+              {recomendada.delta_score != null
+                ? <> · {recomendada.delta_score >= 0 ? "+" : ""}{num(recomendada.delta_score)} pts</>
+                : " · circulante, no mueve el score"}
             </p>
           )}
         </Card>
@@ -313,8 +301,8 @@ export async function FichaEmpresa({ id, vista }: { id: string; vista: Vista }) 
             <Palancas
               empresa={e}
               sugerencias={rk?.sugerencias}
+              circulante={circulante}
               palancas={rk?.palancas}
-              whatif={whatif}
               recomendado={recomendada}
             />
           </div>

@@ -652,10 +652,6 @@ export function simular(e: Empresa, palancaId: string, valor: number) {
   const techo = 97 - e.score;
   deltaScore = Math.round(Math.min(deltaScore, techo) * 10) / 10;
   const scoreNuevo = Math.round((e.score + deltaScore) * 10) / 10;
-  // Curva score → tipo implícito, calibrada sobre lo que pagan las empresas del dataset
-  const bps = Math.round(-deltaScore * 5.8);
-  const deudaViva = e.facturacionAnual * 0.22;
-  const eurAnio = Math.round((-bps / 10000) * deudaViva);
 
   return {
     palanca: p,
@@ -663,8 +659,8 @@ export function simular(e: Empresa, palancaId: string, valor: number) {
     scoreNuevo,
     deltaScore,
     cajaLiberada: Math.round(cajaLiberada),
-    deltaBps: bps,
-    eurAnio,
+    deltaBps: 0,
+    eurAnio: 0,
   };
 }
 

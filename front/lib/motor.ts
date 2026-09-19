@@ -7,8 +7,9 @@ import {
   BLOQUES, type ApiHistoria, type ApiReparto, type ApiEmpresa, type ApiSugerencia, type ApiPalanca, type ApiWhatIfResponse,
 } from "./api";
 import { LAST_CLOSED_MONTH, mesDePunto, mesCerradoDeAsOf } from "./calendar";
+import { payloadPalanca } from "./palanca-payload";
 import { eur, num } from "./format";
-import { pendiente, inflexionDe, EMPRESAS_CON_SCORE, simular } from "./data";
+import { pendiente, inflexionDe, EMPRESAS_CON_SCORE } from "./data";
 import type { Driver, DriverMes, Empresa, Estado, Punto, Reparto } from "./data";
 
 const ESTADOS: Record<string, Estado> = {
@@ -491,11 +492,10 @@ export async function cargarComparativa(subeId?: string, bajaId?: string): Promi
 }
 
 export type ResultadoSimulacion = {
-  scoreNuevo: number;
-  deltaScore: number;
+  scoreNuevo: number | null;
+  deltaScore: number | null;
   cajaLiberada: number;
-  deltaBps: number;
-  eurAnio: number;
+  eurAnio: number | null;
   inaplicable: boolean;
   motivoRechazo?: string;
   advertencias?: string[];
@@ -508,70 +508,40 @@ export async function simularPalanca(
   valor: number,
   empresaBase: Empresa
 ): Promise<ResultadoSimulacion> {
-  // Construir payload según la palanca para simulate_levers del backend
-  let leverPayload: Record<string, unknown> = { id: palancaId };
-  if (palancaId === "reducir_dso" || palancaId === "adelantar_cobros") {
-    leverPayload = { id: "reducir_dso", days: valor, agreement_type: "presion_comercial" };
-  } else if (palancaId === "pronto_pago" || palancaId === "descuento_pronto_pago") {
-    leverPayload = { id: "descuento_pronto_pago", days: 15, haircut: valor / 100, agreement_type: "descuento_pronto_pago" };
-  } else if (palancaId === "recortar_opex") {
-    leverPayload = { id: "recortar_opex", pct: valor / 100 };
-  } else if (palancaId === "refinanciar") {
-    leverPayload = { id: "refinanciar", pct: valor / 100 };
-  } else if (palancaId === "ampliar_dpo") {
-    leverPayload = { id: "ampliar_dpo", pct: valor / 100, agreement_type: "acuerdo_negociado" };
-  } else if (palancaId === "bajar_linea") {
-    leverPayload = { id: "bajar_utilizacion_linea", pct: valor / 100 };
-  } else if (palancaId === "reducir_concent") {
-    leverPayload = { id: "reducir_concentracion", pct: valor / 100 };
-  } else if (palancaId === "sustituir_fact") {
-    leverPayload = { id: "sustituir_factoring", pct: valor / 100 };
-  }
-
-  const res = await apiSimular(cid, [leverPayload]);
+  const res = await apiSimular(cid, [payloadPalanca(palancaId, valor)]);
 
   if (res?.detail && !res.projected) {
-    const motivo = res.detail.motivo_rechazo ?? res.detail.error ?? "Inaplicable para el perfil actual";
     return {
-      scoreNuevo: empresaBase.score,
-      deltaScore: 0,
+      scoreNuevo: null,
+      deltaScore: null,
       cajaLiberada: 0,
-      deltaBps: 0,
-      eurAnio: 0,
+      eurAnio: null,
       inaplicable: true,
-      motivoRechazo: motivo,
+      motivoRechazo: res.detail.motivo_rechazo ?? res.detail.error ?? "Inaplicable para el perfil actual",
       esReal: true,
     };
   }
 
-  if (res && res.projected) {
-    const rawDelta =
-      res.delta_score ??
-      res.efecto_score_informativo ??
-      (res.projected.score - (res.baseline?.score ?? empresaBase.score));
-    const deltaScore = Math.round(rawDelta * 10) / 10;
-    const scoreNuevo = Math.round(res.projected.score * 10) / 10;
-    const cajaLiberada = Math.round(res.caja_liberada_eur ?? 0);
-    const eurAnio = Math.round(res.eur_año ?? (res.effects?.[0]?.eur_año ?? 0));
-    const deltaBps = Math.round(res.delta_bps ?? (deltaScore * 7.5));
-
+  if (res?.projected) {
+    const delta = res.delta_score;
     return {
-      scoreNuevo,
-      deltaScore,
-      cajaLiberada,
-      deltaBps,
-      eurAnio,
+      scoreNuevo: delta == null ? null : Math.round(res.projected.score * 10) / 10,
+      deltaScore: delta == null ? null : Math.round(delta * 10) / 10,
+      cajaLiberada: Math.round(res.caja_liberada_eur ?? 0),
+      eurAnio: res.eur_año == null ? null : Math.round(res.eur_año),
       inaplicable: false,
       advertencias: res.warnings,
       esReal: true,
     };
   }
 
-  // Fallback con simular() local si el backend no responde
-  const fallback = simular(empresaBase, palancaId, valor);
   return {
-    ...fallback,
+    scoreNuevo: null,
+    deltaScore: null,
+    cajaLiberada: 0,
+    eurAnio: null,
     inaplicable: false,
+    motivoRechazo: "El motor no responde",
     esReal: false,
   };
 }
