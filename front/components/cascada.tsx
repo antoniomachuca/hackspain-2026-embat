@@ -94,12 +94,13 @@ export function Anillo({ drivers, score }: { drivers: Driver[]; score: number })
             const resta = d.contribucion < 0;
             const cero = Math.abs(d.contribucion) < 0.005;
             return (
-              <button key={d.feature}
+              <button type="button" key={d.feature}
                 onMouseEnter={() => setSobre(i)}
                 onMouseLeave={() => setSobre(null)}
                 onFocus={() => setSobre(i)}
                 onBlur={() => setSobre(null)}
                 onClick={() => setFijo(i)}
+                aria-pressed={on}
                 className={`flex items-center gap-3 rounded-lg px-3 py-2 text-left transition-colors ${on ? "bg-[rgba(255,255,255,.07)]" : "hover:bg-[rgba(255,255,255,.035)]"}`}>
                 <span className="h-2.5 w-2.5 flex-none rounded-[3px]"
                   style={{ background: cero ? APAGADO : resta ? "#e5775b" : TONOS[i % TONOS.length] }} />
