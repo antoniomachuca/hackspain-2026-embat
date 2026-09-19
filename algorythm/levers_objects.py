@@ -438,6 +438,29 @@ def get_company_objects(company_id: str, path: Path | None = None) -> CompanyObj
     return obj
 
 
+def ap_pending_vector(company_ids, path: Path | None = None) -> np.ndarray:
+    """AP pending of the live snapshot, aligned with `company_ids`. Zeros if no cache.
+
+    Does not build lever objects: historical months have no AP vintage, so a
+    missing cache is treated as AP=0 (circulante cannot fire).
+    """
+    out = np.zeros(len(company_ids), dtype=float)
+    target = objects_path(path)
+    if not target.exists():
+        return out
+    cache = _load(path)
+    index = cache['index']
+    values = cache['ap_pending_eur']
+    for i, cid in enumerate(company_ids):
+        key = str(cid).strip().upper()
+        j = index.get(key)
+        if j is None:
+            j = index.get(str(cid))
+        if j is not None:
+            out[i] = float(values[j])
+    return out
+
+
 def _parse_due(value: Any) -> date | None:
     if not value:
         return None

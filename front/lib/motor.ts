@@ -216,13 +216,13 @@ export async function cargarEmpresa(id: string): Promise<Empresa | null> {
     episodioDestacado: e.episodio_destacado,
     alerta: ep
       ? {
-          severidad: ep.estado_deteccion === "DETERIORO" || ep.estado_deteccion === "RECUPERACION"
+          severidad: ep.estado_deteccion === "DETERIORO"
             ? "ALTA"
-            : ep.estado_deteccion === "TORCIENDOSE" || ep.estado_deteccion === "MEJORANDO"
+            : ep.estado_deteccion === "TORCIENDOSE"
               ? "MEDIA"
               : "BAJA",
           mesDeteccion: ep.deteccion.slice(0, 7),
-          mesesAnticipacion: ep.meses_anticipacion ?? undefined,
+          mesesAnticipacion: ep.perspectiva?.meses_antes_deteccion,
           driversMovidos: ep.senales.map((s) =>
             BLOQUES.find((b) => b.campo === SENAL_A_CAMPO[s.senal])?.etiqueta ?? s.senal),
           codigosRazon: ep.senales.map((s) =>
@@ -307,6 +307,7 @@ export type MiembroGrupo = {
   facturacionAnual: number;
   trayectoria: Punto[];
   deteccion?: { mes: string; direccion: "deterioro" | "mejora" };
+  camino?: { mes: string; scoreProyectado: number; familia?: string };
 };
 
 export type GrupoDetalle = {
@@ -369,6 +370,14 @@ export async function cargarGrupoDetalle(gid: string): Promise<GrupoDetalle | nu
       deteccion:
         isPeor && peorEp
           ? { mes: peorEp.deteccion.slice(0, 7), direccion: peorEp.direccion }
+          : undefined,
+      camino:
+        isPeor && peorEp?.perspectiva
+          ? {
+              mes: peorEp.perspectiva.as_of.slice(0, 7),
+              scoreProyectado: peorEp.perspectiva.score_proyectado,
+              familia: peorEp.familia,
+            }
           : undefined,
     };
   });

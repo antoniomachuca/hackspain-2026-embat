@@ -22,6 +22,7 @@ antes de la detección".
   `TORCIENDOSE → DETERIORO` no abre otro: es una **escalada** dentro del mismo episodio.
 - **Cierra** cuando el estado deja de ser direccional durante `neutral_persistence_months` (2) meses
   —fecha = el segundo mes— o al entrar en la dirección contraria (que abre un episodio nuevo).
+  `BACHE` **no** incrementa el contador de cierre (el pulso no cierra el episodio).
 - **Inicio estimado** = detección − `persistence_months` + 1. Dato retrospectivo, etiquetado así.
 - **Referencia** = `base_health` en detección − `persistence_months` (mes anterior a la racha). Se fija
   al abrir y no se mueve. Se usa `base_health` (liquidez + cobros + deuda, sin momentum) y no el
@@ -30,7 +31,8 @@ antes de la detección".
   en la dirección del episodio (a) cruza una banda (40/70) respecto a la referencia **o** (b) se aleja
   ≥ 10 puntos de la referencia, manteniéndose **2 meses consecutivos**. La fecha es la del segundo mes;
   no se retrocede. Puede ocurrir **antes** de la detección (aviso tardío): no se fuerza que quede después.
-- **Anticipación** = cambio material − detección, en meses; puede ser 0 o negativa y se muestra igual.
+- **Anticipación material** (`meses_anticipacion`) = cambio material − detección, en meses; JSON
+  de medición, **no** copy de ficha. El N visible es `perspectiva.meses_antes_deteccion` (hueco → rojo).
 - **Estado de confirmación**: `confirmado` · `pendiente` (episodio activo sin cambio material) ·
   `no_confirmado` (episodio cerrado sin cambio material; se muestra como "No se confirmó", nunca como pendiente).
 - Umbrales (10 pts, 2 meses, bandas 40/70) son parámetros iniciales, declarados en la salida.
@@ -78,7 +80,8 @@ vivo, histórico = solo salud. Nunca `banco[t+1:]` real.
 "parametros": {"persistence_months": 3, "neutral_persistence_months": 2, "material_delta": 10, "material_persistence": 2, "bands": [40, 70]}
 ```
 
-El backend devuelve todos los episodios; el front destaca uno: el activo o, si no hay, el último
+El backend calcula este contrato al vuelo en el detalle de empresa, sobre el recorte de
+`score_panels.npz` + `bank_inputs.npz`. El front destaca uno: el activo o, si no hay, el último
 cerrado, con su estado visible. "Ver histórico" permite elegir otro. Sin episodios → sin marcas.
 El feed de alertas no cambia (`lead_months` sigue `null` en vivo).
 
@@ -111,10 +114,8 @@ externo. La anticipación real exige un evento independiente: caja-oráculo sint
 ## Plan (orden de prioridad)
 
 1. ✔ `score_episodes.py`: episodios completos (ambas direcciones) + tests.
-2. ✔ Snapshot (`calc_score.py`) y API (`episodios`, `trayectoria_marcas`).
+2. ✔ API calcula episodios al vuelo sobre `score_panels.npz` + `bank_inputs.npz`. Sin `episodes.json`.
 3. ✔ Front: marca de detección, explicación, histórico; retirada la anticipación inventada.
-4. Pendiente (segunda entrega): `score_project.py` (extraer proyección del lab) + `score_outlook.py`
-   (punto hueco) + asociación al episodio. Trabajo parcial guardado fuera del repo. Antes de asumir
-   ~50.000 llamadas a `calculate_scores`, estudiar proyección por lotes: todas las empresas con el mismo
-   origen comparten forma y pueden apilarse en una sola llamada al motor.
+4. ✔ `score_project.py` + `score_outlook.py` + asociación al episodio. Lotes por origen.
+   Circulante (AP) solo en el corte vivo. Copy de familia en el gráfico; cambio material solo en JSON.
 5. Pendiente: medición frente a caja-oráculo en los 19 escenarios sintéticos.

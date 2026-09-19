@@ -11,6 +11,7 @@ from typing import Any, Dict, List, Optional
 from fastapi import APIRouter, HTTPException, Query, Response
 
 from algorythm.score_decompose import history_with_reparto
+from algorythm.score_episodes import empty_company_episodes, episodes_for_company
 from algorythm.telegram_charts import generate_company_chart
 from backend.database import get_cursor, normalize_company_id, query_dicts, query_one
 from backend.routes.forecasts import _load_banks
@@ -35,17 +36,41 @@ RESULTS_DIR = Path(__file__).resolve().parents[2] / "algorythm" / "engine_result
 
 
 @lru_cache(maxsize=4)
-def _read_episodes(path: str, modified_ns: int) -> Dict[str, Any]:
-    return json.loads(Path(path).read_text())
+def _read_score_panels(path: str, modified_ns: int) -> Dict[str, Any]:
+    import numpy as np
+    with np.load(path, allow_pickle=False) as data:
+        return {key: data[key] for key in data.files}
+
+
+def _results_dir() -> Path:
+    return Path(os.environ.get("XRAY_RESULTS_DIR", str(RESULTS_DIR)))
 
 
 def _episodes_for(cid: str) -> Dict[str, Any]:
-    """Episodios del snapshot del motor; vacío si el artefacto no existe."""
-    path = Path(os.environ.get("XRAY_RESULTS_DIR", str(RESULTS_DIR))) / "episodes.json"
+    """Episodios al vuelo sobre el recorte de la empresa. Vacío si no hay paneles."""
+    panels_path = _results_dir() / "score_panels.npz"
     try:
-        return _read_episodes(str(path), path.stat().st_mtime_ns)["companies"].get(cid) or {}
+        panels = _read_score_panels(str(panels_path), panels_path.stat().st_mtime_ns)
     except (FileNotFoundError, KeyError, ValueError, OSError):
-        return {}
+        return empty_company_episodes()
+    bank = None
+    ap = None
+    try:
+        from algorythm.bank_panels import get_company_bank_slice
+        bank_path = _results_dir() / "bank_inputs.npz"
+        bank = get_company_bank_slice(cid, path=bank_path if bank_path.exists() else None)
+    except (FileNotFoundError, KeyError, OSError):
+        bank = None
+    try:
+        from algorythm.levers_objects import OBJECTS_PATH, ap_pending_vector
+        if OBJECTS_PATH.exists():
+            ap = ap_pending_vector([cid])
+    except (FileNotFoundError, KeyError, OSError):
+        ap = None
+    try:
+        return episodes_for_company(cid, panels, bank=bank, ap_pending=ap)
+    except (KeyError, ValueError):
+        return empty_company_episodes()
 
 
 @router.get("", response_model=CompanyListResponse)
@@ -256,7 +281,7 @@ def get_company_detail(id: str):
     except Exception:
         pass
 
-    # 7. Episodios de cambio (snapshot del motor; ausente → vacío, nunca 500)
+    # 7. Episodios de cambio (mismo recorte que el score; vacío si no hay paneles)
     ep_data = _episodes_for(cid)
 
     return CompanyDetailResponse(

@@ -17,17 +17,11 @@ const ESTADOS_MOTOR: Record<string, string> = {
 };
 
 function fraseConfirmacion(ep: Episodio): string {
-  const n = ep.meses_anticipacion;
-  switch (ep.estado_confirmacion) {
-    case "confirmado":
-      if (n != null && n > 0) return `detectado ${n} ${n === 1 ? "mes" : "meses"} antes del cambio material`;
-      if (n === 0) return "detectado el mismo mes del cambio material";
-      return `el cambio material se había producido ${Math.abs(n ?? 0)} ${Math.abs(n ?? 0) === 1 ? "mes" : "meses"} antes: detección tardía`;
-    case "pendiente":
-      return "cambio material pendiente de confirmación";
-    case "no_confirmado":
-      return "no se confirmó cambio material";
+  const n = ep.perspectiva?.meses_antes_deteccion;
+  if (ep.perspectiva && n != null) {
+    return `la perspectiva se vio ${n} ${n === 1 ? "mes" : "meses"} antes de la detección`;
   }
+  return ep.direccion === "deterioro" ? "giro persistente" : "mejora persistente";
 }
 
 const COLOR = { deterioro: "var(--color-warm)", mejora: "var(--color-success)" } as const;
@@ -93,11 +87,18 @@ export function EpisodiosPanel({ episodios, destacado, trayectoria }: {
           deteccion={{
             mes: ep.deteccion.slice(0, 7),
             direccion: ep.direccion,
-            texto: ep.texto,
             senales: ep.senales,
           }}
+          camino={ep.perspectiva ? {
+            mes: ep.perspectiva.as_of.slice(0, 7),
+            scoreProyectado: ep.perspectiva.score_proyectado,
+            familia: ep.familia,
+          } : undefined}
           altura={210}
         />
+        <p className="mt-2 text-center text-[12px] leading-relaxed text-[var(--color-ink-2)]">
+          {ep.texto}
+        </p>
       </div>
 
       {abierto && (
