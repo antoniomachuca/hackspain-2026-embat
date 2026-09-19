@@ -17,7 +17,7 @@ type Arista = { source: Nodo; target: Nodo; matches: number; eur: number; last_d
 type Camara = { x: number; y: number; k: number };
 type Gesto =
   | { tipo: "pan"; lastX: number; lastY: number; moved: boolean }
-  | { tipo: "nodo"; id: string; moved: boolean; ox: number; oy: number }
+  | { tipo: "nodo"; id: string; moved: boolean; startX: number; startY: number; ox: number; oy: number }
   | { tipo: "pinch"; dist: number }
   | null;
 
@@ -181,6 +181,8 @@ export function Grafo({ nodos, aristas, vista = "auto", destacar, alto = 520 }: 
         tipo: "nodo",
         id: idNodo,
         moved: false,
+        startX: ev.clientX,
+        startY: ev.clientY,
         ox: mundo.x - (nodo?.x ?? 0),
         oy: mundo.y - (nodo?.y ?? 0),
       };
@@ -232,8 +234,7 @@ export function Grafo({ nodos, aristas, vista = "auto", destacar, alto = 520 }: 
     if (g.tipo === "nodo") {
       const svg = svgRef.current;
       if (!svg) return;
-      const start = punteros.current.get(ev.pointerId);
-      const dist = start ? Math.hypot(ev.clientX - start.x, ev.clientY - start.y) : UMBRAL_ARRASTRE;
+      const dist = Math.hypot(ev.clientX - g.startX, ev.clientY - g.startY);
       if (!g.moved && dist < UMBRAL_ARRASTRE) return;
       if (!g.moved) {
         g.moved = true;
