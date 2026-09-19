@@ -153,6 +153,25 @@ class CompanyDetailResponse(BaseModel):
 # 2. Esquema de Serie Histórica Temporal
 # -------------------------------------------------------------
 
+class RepartoDriver(BaseModel):
+    field: str
+    etiqueta: str
+    points: float
+    kind: str
+    family: str
+    reason: str
+    razon: str
+
+
+class Reparto(BaseModel):
+    delta: float = 0.0
+    pct_tendencia: int = 0
+    pct_bache: int = 0
+    struct_pts: float = 0.0
+    circ_pts: float = 0.0
+    drivers: List[RepartoDriver] = []
+
+
 class HistoryPoint(BaseModel):
     as_of: str = Field(..., json_schema_extra={"example": "2026-09-01"})
     score: float = Field(..., json_schema_extra={"example": 65.2})
@@ -166,6 +185,7 @@ class HistoryPoint(BaseModel):
     growth_points: float = Field(...)
     fragility_points: float = Field(...)
     data_confidence_index: float = Field(...)
+    reparto: Optional[Reparto] = None
 
 
 class CompanyHistoryResponse(BaseModel):
