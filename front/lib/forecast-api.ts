@@ -4,7 +4,7 @@ import path from 'node:path'
 import type { Forecast, ForecastBenchmark } from './forecast-contract'
 
 const base = process.env.FORECAST_API_URL
-const directory = process.env.XRAY_FORECAST_DIR ?? path.resolve(process.cwd(), '../algorythm/forecast_results')
+const directory = process.env.XRAY_FORECAST_DIR ?? path.resolve(process.cwd(), '../forecasting/artifacts')
 
 async function request<T>(route: string): Promise<T> {
   const response = await fetch(`${base}${route}`, { cache: 'no-store', signal: AbortSignal.timeout(5000) })

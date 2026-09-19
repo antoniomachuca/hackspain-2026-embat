@@ -9,7 +9,7 @@ from fastapi import APIRouter, HTTPException
 from backend.database import normalize_company_id
 
 router = APIRouter(prefix='/api', tags=['Previsión'])
-DEFAULT_DIRECTORY = Path(__file__).resolve().parents[2]/'algorythm'/'forecast_results'
+DEFAULT_DIRECTORY = Path(__file__).resolve().parents[2]/'forecasting'/'artifacts'
 
 
 @lru_cache(maxsize=4)
@@ -22,7 +22,7 @@ def artifact(filename):
     try:
         return _read(str(path), path.stat().st_mtime_ns)
     except FileNotFoundError:
-        raise HTTPException(503, 'Previsiones no generadas. Ejecuta python -m algorythm.forecast_benchmark --dataset data')
+        raise HTTPException(503, 'Previsiones no generadas. Ejecuta python -m forecasting.benchmark --dataset data')
     except (ValueError, OSError):
         raise HTTPException(503, 'Artefacto de previsión no disponible')
 

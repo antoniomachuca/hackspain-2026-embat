@@ -19,9 +19,9 @@ from fastapi.responses import JSONResponse
 from backend.database import close_db_connection, get_db_connection
 from backend.routes.alerts import router as alerts_router
 from backend.routes.companies import router as companies_router
+from backend.routes.forecasts import router as forecasts_router
 from backend.routes.stats import router as stats_router
 from backend.routes.whatif import router as whatif_router
-from backend.routes.forecasts import router as forecasts_router
 
 
 @asynccontextmanager
