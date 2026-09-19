@@ -108,6 +108,7 @@ function activoHijo(href: string, path: string, empresa: string): boolean {
 export function Shell({ children }: { children: React.ReactNode }) {
   const path = usePathname();
   const [abierto, setAbierto] = useState(true);
+  const [movilAbierto, setMovilAbierto] = useState(false);
 
   // El modo se deduce de la ruta; en las compartidas (/grupos, /comparar) se
   // conserva el último conocido para que el menú no salte.
@@ -137,11 +138,17 @@ export function Shell({ children }: { children: React.ReactNode }) {
     setAbierto((a) => { try { localStorage.setItem("xray:panel", a ? "0" : "1"); } catch {} return !a; });
   };
 
+  const abrirMovil = () => { setAbierto(true); setMovilAbierto(true); };
+  const cerrarMovil = () => setMovilAbierto(false);
+
   return (
     <div className="flex min-h-screen">
-      <aside className={`panel-lat ${abierto ? "abierto" : "cerrado"} hidden sm:flex`}>
+      {movilAbierto && (
+        <button type="button" className="fixed inset-0 z-40 bg-black/60 sm:hidden" aria-label="Cerrar menú" onClick={cerrarMovil} />
+      )}
+      <aside className={`panel-lat ${abierto ? "abierto" : "cerrado"} ${movilAbierto ? "movil" : "hidden"} sm:flex`}>
         <div className="pl-cab">
-          <button onClick={alternar} className="rail-marca" title={abierto ? "Plegar el menú" : "Desplegar el menú"}
+          <button onClick={() => { alternar(); cerrarMovil(); }} className="rail-marca" title={abierto ? "Plegar el menú" : "Desplegar el menú"}
             aria-label={abierto ? "Plegar el menú" : "Desplegar el menú"} aria-expanded={abierto}>
             <Isotipo size={19} />
           </button>
@@ -203,7 +210,10 @@ export function Shell({ children }: { children: React.ReactNode }) {
         </div>
       </aside>
 
-      <main className="min-w-0 flex-1 px-5 py-5 sm:px-7">{children}</main>
+      <button type="button" onClick={abrirMovil} className="fixed left-4 top-3 z-30 flex h-10 items-center gap-2 rounded-full bg-[rgba(8,6,14,.88)] px-4 text-[12px] font-medium text-[var(--color-ink-2)] shadow-lg ring-1 ring-white/10 sm:hidden" aria-label="Abrir menú">
+        <Isotipo size={16} /> Menú
+      </button>
+      <main className="min-w-0 flex-1 px-5 pb-5 pt-16 sm:px-7 sm:py-5">{children}</main>
     </div>
   );
 }

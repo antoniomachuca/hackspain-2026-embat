@@ -134,6 +134,11 @@ body::before {
 .panel-lat.abierto { width: 272px; }
 .panel-lat.cerrado { width: 76px; }
 
+@media (max-width: 639px) {
+  .panel-lat.movil,
+  .panel-lat.movil.cerrado { position: fixed; inset: 0 auto 0 0; z-index: 50; width: 272px; }
+}
+
 .pl-cab {
   display: flex; align-items: center; gap: 11px; flex: none;
   padding: 18px 14px 16px;
