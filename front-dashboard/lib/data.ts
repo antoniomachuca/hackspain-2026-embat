@@ -2,6 +2,8 @@
 // Determinista: misma semilla → mismos datos en cada render y en cada máquina.
 // Sustituir por llamadas reales cambiando solo lib/api.ts.
 
+import { num } from "./format";
+
 export type Estado =
   | "MEJORANDO" | "ESTABLE" | "TORCIENDOSE" | "DETERIORO" | "BACHE" | "RECUPERACION";
 
@@ -31,6 +33,27 @@ export const ANTICIPACION_MEDIANA = 8;
 
 export type Punto = { mes: string; score: number; nivel: number };
 
+/** La mediana del cuartil de pares, mes a mes. El benchmark del motor es por
+ *  CUARTIL DE TAMAÑO, no por sector: el dataset no trae sector fiable. */
+export type PuntoPeer = { mes: string; mediana: number };
+
+/** Bache o tendencia: el movimiento del mes, partido en la parte que persiste
+ *  y la que revierte. `pctTendencia + pctBache = 100` salvo en los meses planos. */
+export type Reparto = { mes: string; delta: number; pctTendencia: number; pctBache: number };
+
+/** El mes en que la serie cambió de régimen, con el juicio de si fue la empresa
+ *  o fue su cuartil. Ese juicio es el producto. */
+export type Inflexion = {
+  mes: string;
+  direccion: "mejora" | "deterioro";
+  mesesRegimen: number;
+  deltaEmpresa: number;
+  deltaPeer: number;
+  /** 0–1 · qué fracción del movimiento explica el cuartil. */
+  partePeer: number;
+  frase: string;
+};
+
 export type Empresa = {
   id: string;
   nombre: string;
@@ -53,6 +76,10 @@ export type Empresa = {
   utilizacionLinea: number;
   hhiClientes: number;
   trayectoria: Punto[];
+  peer: { etiqueta: string; n: number };
+  trayectoriaPeer: PuntoPeer[];
+  reparto: Reparto[];
+  inflexion?: Inflexion;
   drivers: Driver[];
   alerta?: Alerta;
 };
@@ -200,6 +227,136 @@ const ANCLAS: Record<number, { score: number; estado: Estado; d3: number; caso: 
   4: { score: 67.5, estado: "RECUPERACION", d3:  44.9, caso: "Trayectoria de éxito" },
 };
 
+// ── El cuartil de pares ───────────────────────────────────────────────
+// Sin esta serie el gráfico enseña una línea que baja. Con ella se puede decir
+// si baja sola o si baja todo su cuartil con ella, que es otra conversación.
+
+const CUARTILES: { techo: number; control: [number, number][]; n: number }[] = [
+  { techo:  3_000_000, control: [[0, 52], [12, 54], [23, 56]], n: 319 },
+  // El invierno de 2025 fue malo para todo el cuartil 2, no solo para quien lo sufrió.
+  { techo:  7_000_000, control: [[0, 58], [8, 58], [12, 52], [16, 55], [23, 58]], n: 322 },
+  { techo: 12_000_000, control: [[0, 60], [12, 61], [23, 62]], n: 321 },
+  // El 4 sigue plano mientras alguno de los suyos cae: ahí sí hay que preocuparse.
+  { techo: Infinity,   control: [[0, 66], [12, 67], [23, 68]], n: 318 },
+];
+
+function cuartil(facturacion: number) {
+  const k = CUARTILES.findIndex((c) => facturacion < c.techo);
+  return { idx: k + 1, etiqueta: `Cuartil de tamaño ${k + 1}`, ...CUARTILES[k] };
+}
+
+/** Cacheada por cuartil: la comparten muchas empresas y tiene que salir idéntica. */
+const SERIE_PEER = new Map<number, number[]>();
+function medianaPeer(idx: number, control: [number, number][]): number[] {
+  const hecha = SERIE_PEER.get(idx);
+  if (hecha) return hecha;
+  const r = rng(7000 + idx * 131);
+  const s = MESES.map((_, i) => {
+    let j = 0;
+    while (j < control.length - 2 && control[j + 1][0] < i) j++;
+    const [x0, y0] = control[j], [x1, y1] = control[j + 1];
+    const t = x1 === x0 ? 0 : (i - x0) / (x1 - x0);
+    return Math.round((y0 + (y1 - y0) * Math.min(1, Math.max(0, t)) + (r() - 0.5)) * 10) / 10;
+  });
+  SERIE_PEER.set(idx, s);
+  return s;
+}
+
+/** Pendiente por mínimos cuadrados sobre los últimos `w` meses, en puntos/mes.
+ *  Es la parte estructural del movimiento: no hace falta un modelo aparte. */
+function pendiente(s: number[], i: number, w = 6): number {
+  const ys = s.slice(Math.max(0, i - w + 1), i + 1);
+  const n = ys.length;
+  if (n < 2) return 0;
+  const mx = (n - 1) / 2, my = ys.reduce((a, b) => a + b, 0) / n;
+  let num = 0, den = 0;
+  ys.forEach((y, k) => { num += (k - mx) * (y - my); den += (k - mx) ** 2; });
+  return den === 0 ? 0 : num / den;
+}
+
+function repartir(s: number[], tends: number[], i: number, mes: string): Reparto {
+  const delta = i === 0 ? 0 : Math.round((s[i] - s[i - 1]) * 10) / 10;
+  // Un mes plano no se reparte: no hay movimiento que atribuir.
+  if (Math.abs(delta) < 0.15) return { mes, delta, pctTendencia: 0, pctBache: 0 };
+  // La tendencia vigente no puede explicar más movimiento del que hubo.
+  const explicado = Math.sign(delta) === Math.sign(tends[i])
+    ? Math.min(Math.abs(tends[i]), Math.abs(delta)) : 0;
+  const pctTendencia = Math.round((explicado / Math.abs(delta)) * 100);
+  return { mes, delta, pctTendencia, pctBache: 100 - pctTendencia };
+}
+
+/** La última inflexión, que es la que importa hoy. */
+function inflexionDe(s: number[], tends: number[], peer: number[]): Inflexion | undefined {
+  const regimen = (i: number) =>
+    [0, 1, 2].every((k) => (tends[i - k] ?? 0) < -0.4) ? "deterioro" as const
+    : [0, 1, 2].every((k) => (tends[i - k] ?? 0) > 0.4) ? "mejora" as const
+    : null;
+
+  let ultima: Inflexion | undefined;
+  for (let i = 3; i < s.length; i++) {
+    const r = regimen(i);
+    // Solo el ARRANQUE del régimen, y solo si aguanta tres meses: lo de menos
+    // duración es ruido, y de eso ya habla la tira de abajo.
+    if (!r || regimen(i - 1) === r) continue;
+    if (![0, 1, 2].every((k) => regimen(i + k) === r)) continue;
+
+    // El régimen no lo cierra un mes plano, solo el contrario. Si no, un deterioro
+    // que pasa por un respiro se mide en 3 meses en vez de en los 9 que duró.
+    let fin = i;
+    while (fin + 1 < s.length) {
+      const sig = regimen(fin + 1);
+      if (sig !== null && sig !== r) break;
+      fin++;
+    }
+    // Se detecta con retraso: cuando tres pendientes seguidas van en contra, la
+    // caída ya lleva un par de meses rodando. Se mira atrás para ver dónde empezó.
+    const ini = Math.max(0, i - 3);
+    const swing = (xs: number[]) => {
+      const antes = xs.slice(ini, i + 1), despues = xs.slice(i, fin + 1);
+      return r === "deterioro"
+        ? Math.min(...despues) - Math.max(...antes)
+        : Math.max(...despues) - Math.min(...antes);
+    };
+    const dEmpresa = Math.round(swing(s) * 10) / 10;
+    const dPeer = Math.round(swing(peer) * 10) / 10;
+    // Un booleano aquí miente: entre "es la marea" y "es el barco" está el caso
+    // real, que es un poco de cada. Se enseña la fracción y juzga quien mira.
+    const misma = dPeer !== 0 && Math.sign(dPeer) === Math.sign(dEmpresa);
+    const partePeer = !misma || dEmpresa === 0 ? 0
+      : Math.min(1, Math.round((Math.abs(dPeer) / Math.abs(dEmpresa)) * 100) / 100);
+
+    ultima = {
+      mes: MESES[i], direccion: r, mesesRegimen: fin - i + 1,
+      deltaEmpresa: dEmpresa, deltaPeer: dPeer, partePeer,
+      frase: fraseInflexion(r, MESES[i], fin - i + 1, dEmpresa, dPeer, partePeer),
+    };
+  }
+  return ultima;
+}
+
+const MESES_TXT = ["enero", "febrero", "marzo", "abril", "mayo", "junio",
+  "julio", "agosto", "septiembre", "octubre", "noviembre", "diciembre"];
+const mesLargo = (m: string) => `${MESES_TXT[+m.split("-")[1] - 1]} de ${m.split("-")[0]}`;
+const pts = (v: number) => `${v > 0 ? "+" : v < 0 ? "−" : ""}${num(Math.abs(v))} pts`;
+
+/** Tres lecturas según cuánto explique el cuartil, porque llevan a tres
+ *  decisiones distintas: no hacer nada, mirar de cerca, o llamar. */
+function fraseInflexion(
+  r: "mejora" | "deterioro", mes: string, meses: number,
+  dE: number, dP: number, parte: number,
+): string {
+  const verbo = r === "mejora" ? "Se anima" : "Empieza a torcerse";
+  const ventana = `${pts(dE)} en ${meses} ${meses === 1 ? "mes" : "meses"}`;
+  if (parte >= 0.5) {
+    return `${verbo} en ${mesLargo(mes)}, pero su cuartil hizo lo mismo: ${ventana} la empresa, ${pts(dP)} el cuartil. Es la marea, no el barco.`;
+  }
+  if (parte >= 0.2) {
+    return `${verbo} en ${mesLargo(mes)}: ${ventana}. Su cuartil se movió ${pts(dP)}, así que el entorno explica algo menos de la mitad. El resto es de la empresa.`;
+  }
+  const quieto = Math.abs(dP) < 0.5;
+  return `${verbo} en ${mesLargo(mes)}: ${ventana} mientras su cuartil ${quieto ? "no se movía" : `hacía ${pts(dP)}`}. Esto no es el entorno, es la empresa.`;
+}
+
 export const EMPRESAS: Empresa[] = NOMBRES.map(([nombre, sector], i) => {
   const r = rng(1000 + i * 37);
   const ancla = ANCLAS[i];
@@ -232,6 +389,10 @@ export const EMPRESAS: Empresa[] = NOMBRES.map(([nombre, sector], i) => {
   const nivelBase = Math.round(Math.max(0, Math.min(100, score - momentum * 6)) * 10) / 10;
   const clipping = Math.round((score >= 99 || score <= 1 ? Math.abs(momentum) * 2 : 0) * 100) / 100;
 
+  const q = cuartil(facturacion);
+  const peerS = medianaPeer(q.idx, q.control);
+  const tends = s.map((_, k) => pendiente(s, k));
+
   const drivers = driversDe(score, dso, util, hhi, dias, momentum, r);
   const negativo = estado === "DETERIORO" || estado === "TORCIENDOSE";
   const mesesAnt = negativo ? (estado === "DETERIORO" ? 8 : 5) : 0;
@@ -245,6 +406,10 @@ export const EMPRESAS: Empresa[] = NOMBRES.map(([nombre, sector], i) => {
     mesesHistoria, facturacionAnual: facturacion,
     dso, dpo, diasCaja: dias, utilizacionLinea: util, hhiClientes: hhi,
     trayectoria: MESES.map((mes, k) => ({ mes, score: s[k], nivel: s[k] })),
+    peer: { etiqueta: q.etiqueta, n: q.n },
+    trayectoriaPeer: MESES.map((mes, k) => ({ mes, mediana: peerS[k] })),
+    reparto: MESES.map((mes, k) => repartir(s, tends, k, mes)),
+    inflexion: inflexionDe(s, tends, peerS),
     drivers,
     alerta: mesesAnt
       ? {

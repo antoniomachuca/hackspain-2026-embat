@@ -59,7 +59,11 @@ export default function Resumen() {
             <h2 className="text-[15px] font-semibold tracking-tight">Histórico y proyección</h2>
             <span className="pildora">24 meses · +12</span>
           </div>
-          <Prevision datos={e.trayectoria} momentum={e.momentum} />
+          <Prevision
+            datos={e.trayectoria} momentum={e.momentum}
+            peer={e.peer} datosPeer={e.trayectoriaPeer}
+            reparto={e.reparto} inflexion={e.inflexion}
+          />
           <p className="mt-1 text-[11px] leading-relaxed text-[var(--color-ink-4)]">
             La proyección extiende tu inercia observada y abre la horquilla con el horizonte.
             Es un escenario, no una predicción cerrada.
