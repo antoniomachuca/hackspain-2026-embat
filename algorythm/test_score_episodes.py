@@ -154,3 +154,13 @@ def test_separated_neutral_months_do_not_close_and_reentry_is_not_escalada():
     assert ep['deteccion'] == '2024-07-01'
     assert ep['escaladas'] == []
     assert ep['cierre'] == '2025-05-01' and ep['motivo_cierre'] == 'estabilizacion'
+
+
+def test_reentry_with_lower_severity_is_not_escalada():
+    # DETERIORO -> neutro -> TORCIENDOSE: la gravedad baja, no hay escalada; el episodio sigue abierto.
+    states = ['ESTABLE'] * 6 + ['DETERIORO'] * 3 + ['ESTABLE'] + ['TORCIENDOSE'] * 3 + ['DETERIORO'] * 2 + ['ESTABLE'] * 9
+    result = build_episodes(make_panels([states], [[50.] * 24]))
+    episodios = result['C0']['episodios']
+    assert len(episodios) == 1
+    assert episodios[0]['estado_deteccion'] == 'DETERIORO'
+    assert episodios[0]['escaladas'] == [{'as_of': '2025-02-01', 'estado': 'DETERIORO'}]

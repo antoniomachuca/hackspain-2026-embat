@@ -7,6 +7,7 @@ from algorythm.score_monitor import POINTS, directional_event_matrix
 from algorythm.score_states import NEGATIVE_STATES, POSITIVE_STATES, PENDING, StateConfig
 
 MESES = ('ene', 'feb', 'mar', 'abr', 'may', 'jun', 'jul', 'ago', 'sep', 'oct', 'nov', 'dic')
+SEVERITY = {'TORCIENDOSE': 1, 'DETERIORO': 2, 'MEJORANDO': 1, 'RECUPERACION': 2}
 SIGNAL_KEYS = ('liquidity_points', 'collections_points', 'debt_points', 'growth_points', 'fragility_points')
 SIGNAL_NAMES = {'liquidity_points': 'liquidez', 'collections_points': 'cobros', 'debt_points': 'deuda',
                 'growth_points': 'crecimiento', 'fragility_points': 'fragilidad'}
@@ -105,11 +106,12 @@ def _company_episodes(panels, c, events, state_config, config):
     for t in range(months):
         event = int(events[c, t])
         if open_ep is not None:
-            # Escalada dentro del episodio (p. ej. TORCIENDOSE→DETERIORO); una reentrada en el mismo
-            # estado tras un mes neutro no escala, pero sí reinicia el contador de cierre.
+            # Escalada = subida de gravedad dentro del episodio (TORCIENDOSE→DETERIORO,
+            # MEJORANDO→RECUPERACION). Una reentrada igual o más leve tras un mes neutro no
+            # escala, pero sí reinicia el contador de cierre.
             if event == direction_of[open_ep['direccion']]:
                 neutral = 0
-                if str(states[t]) != open_ep['_ultimo_estado']:
+                if SEVERITY.get(str(states[t]), 0) > SEVERITY.get(open_ep['_ultimo_estado'], 0):
                     open_ep['escaladas'].append({'as_of': str(as_of[t]), 'estado': str(states[t])})
                 open_ep['_ultimo_estado'] = str(states[t])
             elif event == -direction_of[open_ep['direccion']]:

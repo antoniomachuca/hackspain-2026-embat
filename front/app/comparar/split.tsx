@@ -33,10 +33,15 @@ export default function SplitScreen({
     router.push(`/comparar?sube=${sube.id}&baja=${id}`);
   }
 
-  const epBaja = episodioDestacado(baja);
-  const mesDetectBaja =
-    (epBaja?.direccion === "deterioro" ? epBaja.deteccion.slice(0, 7) : undefined) ??
-    baja.alerta?.mesDeteccion;
+  // Último episodio de cada dirección; nunca se usa un episodio de mejora para hablar de deterioro.
+  const ultimo = (e: typeof baja, dir: "deterioro" | "mejora") =>
+    [...(e.episodios ?? [])].reverse().find((ep) => ep.direccion === dir);
+  const epBaja = ultimo(baja, "deterioro");
+  const epSube = ultimo(sube, "mejora");
+  const frase = (ep: NonNullable<typeof epBaja>, verbo: string) =>
+    ep.estado === "activo"
+      ? `lleva ${verbo} desde ${mesCorto(ep.deteccion.slice(0, 7))}, cuando detectamos las primeras señales.`
+      : `tuvo un episodio de ${ep.direccion} detectado en ${mesCorto(ep.deteccion.slice(0, 7))} y cerrado en ${mesCorto((ep.cierre ?? ep.deteccion).slice(0, 7))}.`;
 
   return (
     <>
@@ -74,11 +79,10 @@ export default function SplitScreen({
           <p className="text-[13px] leading-relaxed">
             {xray ? (
               <>
-                <strong className="font-medium">{sube.nombre}</strong> ({sube.id}) viene subiendo desde el mes 1.{" "}
+                <strong className="font-medium">{sube.nombre}</strong> ({sube.id}){" "}
+                {epSube ? frase(epSube, "mejorando") : "no tiene un episodio de mejora detectado."}{" "}
                 <strong className="font-medium">{baja.nombre}</strong> ({baja.id}){" "}
-                {mesDetectBaja
-                  ? <>lleva torciéndose desde {mesCorto(mesDetectBaja)}, cuando detectamos las primeras señales.</>
-                  : <>no tiene todavía un episodio de deterioro detectado.</>}
+                {epBaja ? frase(epBaja, "torciéndose") : "no tiene un episodio de deterioro detectado."}{" "}
                 Una es mucho mejor riesgo que la otra, y ahora se distingue cuál.
               </>
             ) : (
