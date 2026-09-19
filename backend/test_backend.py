@@ -51,6 +51,16 @@ def test_get_companies_default():
     assert "collections_points" in first
 
 
+def test_get_companies_pagination_is_stable_on_ties():
+    """Los empates del campo de ordenación se resuelven por empresa para paginar sin saltos."""
+    response = client.get("/api/companies?order_by=group_id&order_dir=asc&limit=100")
+    assert response.status_code == 200
+    items = response.json()["items"]
+    for group_id in {item["group_id"] for item in items}:
+        ids = [item["company_id"] for item in items if item["group_id"] == group_id]
+        assert ids == sorted(ids)
+
+
 def test_get_companies_filter_group_normalizes_short_ids():
     """El filtro de empresas acepta las mismas formas de grupo que su endpoint de detalle."""
     canonical = client.get("/api/companies?group_id=GROUP_0044&limit=100").json()
