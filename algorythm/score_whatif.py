@@ -11,6 +11,8 @@ ROOT = HERE.parent
 PANELS_PATH = HERE / 'engine_results' / 'score_panels.npz'
 BALANCES_PATH = ROOT / 'dataset' / 'balances.csv'
 
+DB_PATH = ROOT / 'xray.duckdb'
+
 # In-memory cache for fast repeated queries
 _CACHED_PANELS: Optional[Dict[str, np.ndarray]] = None
 _CACHED_BALANCES: Optional[Dict[str, float]] = None
@@ -32,13 +34,28 @@ def load_panels(panels_path: Optional[Path] = None) -> Optional[Dict[str, np.nda
 
 
 def load_balances(balances_path: Optional[Path] = None) -> Dict[str, float]:
-    """Loads and caches sum of balances per company from dataset/balances.csv."""
+    """Loads and caches sum of balances per company from DuckDB (or dataset/balances.csv fallback)."""
     global _CACHED_BALANCES
+    if _CACHED_BALANCES is not None and not balances_path:
+        return _CACHED_BALANCES
+
+    # 1. Intentar primero DuckDB (fuente centralizada)
+    if not balances_path and DB_PATH.exists():
+        try:
+            import duckdb
+            con = duckdb.connect(str(DB_PATH), read_only=True)
+            rows = con.execute("SELECT company_id, COALESCE(SUM(balance), 0.0) FROM balances GROUP BY company_id;").fetchall()
+            con.close()
+            balances = {r[0]: float(r[1]) for r in rows}
+            _CACHED_BALANCES = balances
+            return balances
+        except Exception:
+            pass
+
+    # 2. Fallback a dataset/balances.csv
     target = Path(balances_path) if balances_path else BALANCES_PATH
     if not target.exists():
         return {}
-    if _CACHED_BALANCES is not None and not balances_path:
-        return _CACHED_BALANCES
     balances: Dict[str, float] = {}
     try:
         with target.open(newline='', encoding='utf-8') as source:
@@ -60,14 +77,62 @@ def load_balances(balances_path: Optional[Path] = None) -> Dict[str, float]:
 
 
 def get_company_data(company_id: str, panels_path: Optional[Path] = None) -> Optional[Dict[str, Any]]:
-    """Extracts the financial cut and historical points for a given company."""
+    """Extracts the financial cut and historical points for a given company (DuckDB primary, NPZ fallback)."""
+    cid_upper = company_id.strip().upper()
+    if not cid_upper.startswith("COMP_") and cid_upper.startswith("COMP") and cid_upper[4:].isdigit():
+        cid_upper = f"COMP_{cid_upper[4:]}"
+    elif cid_upper.isdigit():
+        cid_upper = f"COMP_{cid_upper.zfill(4)}"
+
+    # 1. Intentar primero DuckDB (fuente centralizada)
+    if not panels_path and DB_PATH.exists():
+        try:
+            import duckdb
+            con = duckdb.connect(str(DB_PATH), read_only=True)
+            rows = con.execute("""
+                SELECT 
+                    as_of, score, state, momentum, base_health,
+                    liquidity_points, collections_points, debt_points,
+                    momentum_points, growth_points, fragility_points,
+                    fragility, clipping_points, group_id
+                FROM company_scores 
+                WHERE company_id = ? 
+                ORDER BY as_of ASC;
+            """, (cid_upper,)).fetchall()
+            con.close()
+            if rows:
+                last_row = rows[-1]
+                base_idx = max(0, len(rows) - 4)  # 3 meses antes
+                base_row = rows[base_idx]
+                return {
+                    'index': 0,
+                    'company_id': cid_upper,
+                    'group_id': str(last_row[13]),
+                    'as_of': str(last_row[0]),
+                    'comparison_as_of': str(base_row[0]),
+                    'current_score': float(last_row[1]),
+                    'current_state': str(last_row[2]),
+                    'momentum': float(last_row[3]),
+                    'base_health': float(last_row[4]),
+                    'liquidity_points': float(last_row[5]),
+                    'collections_points': float(last_row[6]),
+                    'debt_points': float(last_row[7]),
+                    'momentum_points': float(last_row[8]),
+                    'growth_points': float(last_row[9]),
+                    'fragility_points': float(last_row[10]),
+                    'fragility': float(last_row[11]),
+                    'clipping_points': float(last_row[12]),
+                    'historical_scores': [float(r[1]) for r in rows],
+                    'as_of_dates': [str(r[0]) for r in rows]
+                }
+        except Exception:
+            pass
+
+    # 2. Fallback a score_panels.npz
     panels = load_panels(panels_path)
     if not panels:
         return None
     cids = [str(c) for c in panels['company_id']]
-    cid_upper = company_id.strip().upper()
-    if not cid_upper.startswith("COMP_") and cid_upper.startswith("COMP") and cid_upper[4:].isdigit():
-        cid_upper = f"COMP_{cid_upper[4:]}"
     if cid_upper not in cids:
         return None
     idx = cids.index(cid_upper)

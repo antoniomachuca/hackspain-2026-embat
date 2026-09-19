@@ -27,23 +27,57 @@ def generate_company_chart(
     Returns:
         PNG image bytes in memory (io.BytesIO).
     """
-    target_path = Path(panels_path) if panels_path else PANELS_PATH
-    if not target_path.exists():
-        raise FileNotFoundError(f"Score panels file not found at {target_path}")
+    DB_PATH = HERE.parent / 'xray.duckdb'
+    cid = str(company_id).strip().upper()
+    if not cid.startswith("COMP_") and cid.startswith("COMP") and cid[4:].isdigit():
+        cid = f"COMP_{cid[4:]}"
+    elif cid.isdigit():
+        cid = f"COMP_{cid.zfill(4)}"
 
-    with np.load(target_path, allow_pickle=False) as data:
-        cids = [str(c) for c in data['company_id']]
-        cid = str(company_id).strip().upper()
-        if not cid.startswith("COMP_") and cid.startswith("COMP") and cid[4:].isdigit():
-            cid = f"COMP_{cid[4:]}"
-        if cid not in cids:
-            raise ValueError(f"Company {cid} not found in score panels catalogue")
+    loaded_from_db = False
+    if not panels_path and DB_PATH.exists():
+        try:
+            import duckdb
+            con = duckdb.connect(str(DB_PATH), read_only=True)
+            rows = con.execute("""
+                SELECT as_of, score, state, group_id 
+                FROM company_scores 
+                WHERE company_id = ? 
+                ORDER BY as_of ASC;
+            """, (cid,)).fetchall()
+            con.close()
+            if rows:
+                scores = np.asarray([r[1] for r in rows], dtype=float)
+                as_of_raw = [str(r[0]) for r in rows]
+                states = [str(r[2]) for r in rows]
+                group_id = str(rows[0][3]) if rows[0][3] else 'N/D'
+                loaded_from_db = True
+            else:
+                con = duckdb.connect(str(DB_PATH), read_only=True)
+                exists = con.execute("SELECT 1 FROM companies WHERE company_id = ?", (cid,)).fetchone()
+                con.close()
+                if not exists:
+                    raise ValueError(f"Company {cid} not found in score panels catalogue")
+        except ValueError:
+            raise
+        except Exception:
+            pass
 
-        idx = cids.index(cid)
-        scores = np.asarray(data['score'][idx], dtype=float)
-        as_of_raw = [str(d) for d in data['as_of']]
-        states = [str(s) for s in data['state'][idx]]
-        group_id = str(data['group_id'][idx]) if 'group_id' in data else 'N/D'
+    if not loaded_from_db:
+        target_path = Path(panels_path) if panels_path else PANELS_PATH
+        if not target_path.exists():
+            raise FileNotFoundError(f"Score panels file not found at {target_path}")
+
+        with np.load(target_path, allow_pickle=False) as data:
+            cids = [str(c) for c in data['company_id']]
+            if cid not in cids:
+                raise ValueError(f"Company {cid} not found in score panels catalogue")
+
+            idx = cids.index(cid)
+            scores = np.asarray(data['score'][idx], dtype=float)
+            as_of_raw = [str(d) for d in data['as_of']]
+            states = [str(s) for s in data['state'][idx]]
+            group_id = str(data['group_id'][idx]) if 'group_id' in data else 'N/D'
 
     latest_score = float(scores[-1])
     latest_state = states[-1]

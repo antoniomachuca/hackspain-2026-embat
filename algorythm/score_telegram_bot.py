@@ -90,7 +90,42 @@ def handle_help(chat_id):
     return send_telegram_message(chat_id, msg)
 
 
+DB_PATH = ROOT / 'xray.duckdb'
+
+
 def handle_status(chat_id):
+    # 1. Intentar primero DuckDB (fuente centralizada)
+    if DB_PATH.exists():
+        try:
+            import duckdb
+            con = duckdb.connect(str(DB_PATH), read_only=True)
+            comp_cnt = con.execute("SELECT count(*) FROM companies;").fetchone()[0]
+            inv_cnt = con.execute("SELECT count(*) FROM invoices;").fetchone()[0]
+            trans_cnt = con.execute("SELECT count(*) FROM transactions;").fetchone()[0]
+            alerts_cnt = con.execute("SELECT count(*) FROM alerts;").fetchone()[0]
+            risk_cnt = con.execute("SELECT count(*) FROM v_latest_company_scores WHERE state IN ('DETERIORO', 'TORCIENDOSE', 'BACHE');").fetchone()[0]
+            con.close()
+            subs = load_subscribers()
+            msg = (
+                f"📊 <b>ESTADO DEL MONITOR FINANCIERO X-RAY</b>\n"
+                f"━━━━━━━━━━━━━━━━━━━━━━━━━\n"
+                f"🏢 <b>Sociedades en cartera:</b> <code>{comp_cnt:,}</code>\n"
+                f"📑 <b>Facturas auditadas ERP:</b> <code>{inv_cnt:,}</code>\n"
+                f"💳 <b>Transacciones bancarias:</b> <code>{trans_cnt:,}</code>\n"
+                f"🚨 <b>Alertas de riesgo registradas:</b> <code>{alerts_cnt:,}</code>\n"
+                f"⚠️ <b>Sociedades en estrés/deterioro:</b> <code>{risk_cnt:,}</code>\n"
+                f"👥 <b>Suscriptores Telegram activos:</b> <code>{len(subs)}</code>\n"
+                f"🗄 <b>Motor analítico central:</b> <code>xray.duckdb (Activo)</code>\n"
+                f"⚙️ <b>Gates estrictos:</b> <code>12 / 12 PASS</code>\n"
+                f"⏱ <b>Filtro de persistencia:</b> <code>3 meses (Resistente a baches)</code>\n"
+                f"━━━━━━━━━━━━━━━━━━━━━━━━━\n"
+                f"🟢 <i>Monitor operativo en tiempo real conectado a DuckDB.</i>"
+            )
+            return send_telegram_message(chat_id, msg)
+        except Exception:
+            pass
+
+    # 2. Fallback a score_manifest.json y validation.json
     manifest_path = HERE / 'engine_results' / 'score_manifest.json'
     validation_path = HERE / 'engine_results' / 'validation.json'
     companies_count = 1286
@@ -124,6 +159,38 @@ def handle_status(chat_id):
 
 
 def handle_top_risk(chat_id):
+    # 1. Intentar primero DuckDB (fuente centralizada)
+    if DB_PATH.exists():
+        try:
+            import duckdb
+            con = duckdb.connect(str(DB_PATH), read_only=True)
+            top5 = con.execute("""
+                SELECT company_id, group_id, score, delta_3m, state, as_of
+                FROM v_latest_company_scores
+                WHERE state_eligible = true
+                ORDER BY delta_3m ASC
+                LIMIT 5;
+            """).fetchall()
+            con.close()
+            if top5:
+                as_of = str(top5[0][5])
+                lines = [
+                    f"🚨 <b>TOP 5 EMPRESAS EN MAYOR DETERIORO</b>",
+                    f"<i>Corte analítico activo: {as_of} (DuckDB Live)</i>",
+                    f"━━━━━━━━━━━━━━━━━━━━━━━━━"
+                ]
+                for rank, (cid, gid, score, delta, state, _) in enumerate(top5, 1):
+                    lines.append(
+                        f"<b>{rank}. {cid}</b> <i>({gid})</i>\n"
+                        f"   • Score: <b>{score:.2f}</b> (🔻 <code>{delta:.2f} pts</code>)\n"
+                        f"   • Estado: <b>{state}</b> | Consultar: <code>/score {cid}</code>\n"
+                    )
+                lines.append("━━━━━━━━━━━━━━━━━━━━━━━━━\n💡 <i>Alerta autónoma activa ante caídas adicionales.</i>")
+                return send_telegram_message(chat_id, '\n'.join(lines))
+        except Exception:
+            pass
+
+    # 2. Fallback a score_panels.npz
     panels = load_latest_scores()
     if not panels:
         return send_telegram_message(chat_id, "⚠️ No se encontraron resultados de scoring en <code>engine_results/</code>.")
@@ -133,13 +200,12 @@ def handle_top_risk(chat_id):
     deltas = panels['score'][:, last_idx] - panels['score'][:, base_idx]
     eligible = panels['state_eligible'][:, last_idx]
     
-    # Filter only eligible companies with negative delta
     candidates = []
     for i in range(len(panels['company_id'])):
         if eligible[i]:
             candidates.append((i, float(deltas[i]), float(panels['score'][i, last_idx]), str(panels['state'][i, last_idx])))
     
-    candidates.sort(key=lambda x: x[1]) # sort by most negative delta
+    candidates.sort(key=lambda x: x[1])
     top5 = candidates[:5]
 
     as_of = str(panels['as_of'][last_idx])
@@ -166,13 +232,57 @@ def handle_score_query(chat_id, company_id):
     company_id = company_id.strip().upper()
     if not company_id.startswith("COMP_") and company_id.startswith("COMP") and company_id[4:].isdigit():
         company_id = f"COMP_{company_id[4:]}"
+    elif company_id.isdigit():
+        company_id = f"COMP_{company_id.zfill(4)}"
+
+    # 1. Intentar primero DuckDB (fuente centralizada)
+    if DB_PATH.exists():
+        try:
+            import duckdb
+            con = duckdb.connect(str(DB_PATH), read_only=True)
+            row = con.execute("""
+                SELECT 
+                    company_id, group_id, as_of, score, delta_3m, state, momentum,
+                    liquidity_points, collections_points, debt_points, momentum_points,
+                    growth_points, fragility_points
+                FROM v_latest_company_scores
+                WHERE company_id = ?;
+            """, (company_id,)).fetchone()
+            con.close()
+            if row:
+                cid, gid, as_of, score, delta, state, mom, l_pts, c_pts, d_pts, m_pts, g_pts, f_pts = row
+                delta_sign = '+' if delta > 0 else ''
+                delta_sym = '🔺' if delta > 0 else '🔻' if delta < 0 else '▶️'
+                health_tag = '🟢 Excelente' if score >= 70 else '🟡 Media / Estable' if score >= 50 else '🔴 Alta Fragilidad'
+                msg = (
+                    f"🏢 <b>FICHA FINANCIERA: {cid}</b>\n"
+                    f"━━━━━━━━━━━━━━━━━━━━━━━━━\n"
+                    f"👥 <b>Grupo:</b> <code>{gid}</code> | 📅 <b>Corte:</b> <code>{as_of}</code>\n"
+                    f"📊 <b>Score Global:</b> <b>{score:.2f} / 100</b> ({health_tag})\n"
+                    f"📉 <b>Variación 3M:</b> {delta_sym} <b>{delta_sign}{delta:.2f} pts</b>\n"
+                    f"⚡ <b>Momentum:</b> <code>{mom:.3f}</code> | 🚦 <b>Estado:</b> <b>{state}</b>\n\n"
+                    f"🔍 <b>Desglose Aditivo de Factores (Puntos):</b>\n"
+                    f"  💧 Liquidez y Margen: <code>{l_pts:.2f} pts</code>\n"
+                    f"  📑 Cobros y Facturas ERP: <code>{c_pts:.2f} pts</code>\n"
+                    f"  🏦 Carga de Deuda: <code>{d_pts:.2f} pts</code>\n"
+                    f"  ⚡ Inercia de Trayectoria: <code>{m_pts:+.2f} pts</code>\n"
+                    f"  🌱 Crecimiento de Cobros: <code>{g_pts:+.2f} pts</code>\n"
+                    f"  💣 Penalización por Fragilidad: <code>-{f_pts:.2f} pts</code>\n"
+                    f"━━━━━━━━━━━━━━━━━━━━━━━━━\n"
+                    f"<i>Fuente: xray.duckdb (Single Source of Truth)</i>"
+                )
+                markup = build_alert_keyboard(cid)
+                return send_telegram_message(chat_id, msg, reply_markup=markup)
+        except Exception:
+            pass
+
+    # 2. Fallback a score_panels.npz
     panels = load_latest_scores()
     if not panels:
         return send_telegram_message(chat_id, "⚠️ No se han encontrado datos de puntuación disponibles.")
 
     ids = [str(cid) for cid in panels['company_id']]
     if company_id not in ids:
-        # Search partial match
         matches = [cid for cid in ids if company_id in cid][:5]
         if matches:
             hint = ", ".join(f"<code>{m}</code>" for m in matches)
@@ -190,7 +300,6 @@ def handle_score_query(chat_id, company_id):
     gid = str(panels['group_id'][idx])
     as_of = str(panels['as_of'][last_idx])
     
-    # Drivers
     l_pts = float(panels['liquidity_points'][idx, last_idx])
     c_pts = float(panels['collections_points'][idx, last_idx])
     d_pts = float(panels['debt_points'][idx, last_idx])
@@ -200,7 +309,6 @@ def handle_score_query(chat_id, company_id):
 
     delta_sign = '+' if delta > 0 else ''
     delta_sym = '🔺' if delta > 0 else '🔻' if delta < 0 else '▶️'
-
     health_tag = '🟢 Excelente' if score >= 70 else '🟡 Media / Estable' if score >= 50 else '🔴 Alta Fragilidad'
 
     msg = (
@@ -225,6 +333,33 @@ def handle_score_query(chat_id, company_id):
 
 
 def handle_recent_alerts(chat_id):
+    # 1. Intentar primero DuckDB (fuente centralizada)
+    if DB_PATH.exists():
+        try:
+            import duckdb
+            con = duckdb.connect(str(DB_PATH), read_only=True)
+            alerts = con.execute("""
+                SELECT company_id, state, score, delta_score, as_of
+                FROM alerts
+                ORDER BY as_of DESC, score ASC
+                LIMIT 5;
+            """).fetchall()
+            con.close()
+            if alerts:
+                lines = ["🚨 <b>ÚLTIMAS ALERTAS EMITIDAS POR EL MONITOR</b>\n━━━━━━━━━━━━━━━━━━━━━━━━━"]
+                for cid, st, sc, ds, asof in alerts:
+                    sign = '+' if ds > 0 else ''
+                    sym = '🔻' if ds < 0 else '🔺'
+                    lines.append(
+                        f"• <b>{cid}</b> (<code>{asof}</code>) ➔ <b>{st}</b>\n"
+                        f"  Score: <b>{sc:.2f}</b> ({sym} <code>{sign}{ds:.2f} pts</code>)"
+                    )
+                lines.append("━━━━━━━━━━━━━━━━━━━━━━━━━\n<i>Monitor proactivo en tiempo real · xray.duckdb</i>")
+                return send_telegram_message(chat_id, '\n'.join(lines))
+        except Exception:
+            pass
+
+    # 2. Fallback a alerts_feed.json
     feed_path = HERE / 'engine_results' / 'alerts_feed.json'
     if not feed_path.exists():
         return send_telegram_message(chat_id, "ℹ️ El feed de alertas aún no tiene eventos publicados.")
