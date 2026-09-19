@@ -47,6 +47,8 @@ def cliente():
 
 
 def main() -> int:
+    from botocore.exceptions import ClientError
+
     destino = Path(os.environ.get("XRAY_DATA_DIR", "/data"))
     destino.mkdir(parents=True, exist_ok=True)
 
@@ -59,7 +61,16 @@ def main() -> int:
         local = destino / nombre
         local.parent.mkdir(parents=True, exist_ok=True)
 
-        remoto = s3.head_object(Bucket=bucket, Key=clave)["ContentLength"]
+        try:
+            remoto = s3.head_object(Bucket=bucket, Key=clave)["ContentLength"]
+        except ClientError as error:
+            if error.response["Error"]["Code"] not in ("404", "NoSuchKey"):
+                raise
+            raise SystemExit(
+                f"[seed] falta {nombre} en el bucket '{bucket}'.\n"
+                "       Súbelo desde tu máquina con:\n"
+                "         railway run --service api python -m deploy.upload_data"
+            )
         if local.exists() and local.stat().st_size == remoto:
             print(f"[seed] ya está  {nombre} ({remoto/1e6:.1f} MB)", flush=True)
             continue
