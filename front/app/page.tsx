@@ -36,7 +36,7 @@ export default async function Resumen() {
             style={{ background: "radial-gradient(circle, rgba(176,131,232,.55), transparent 70%)" }} />
           <div className="relative flex w-full flex-col items-center">
             <p className="text-[12.5px] text-[var(--color-ink-3)]">Tu salud financiera</p>
-            <div className="mt-3"><Anillo score={e.score} delta={e.score - e.scorePrev} tam={162} /></div>
+            <div className="mt-3"><Anillo score={e.score} delta={e.score - e.scorePrev} estado={e.estado} tam={162} /></div>
 
             <div className="mt-4 flex items-center gap-2">
               <EstadoChip estado={e.estado} />

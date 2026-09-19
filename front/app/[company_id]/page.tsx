@@ -108,7 +108,7 @@ export default async function EmpresaPage({
           <div className="relative flex w-full flex-col items-center">
             <p className="text-[12.5px] text-[var(--color-ink-3)]">Salud financiera (Score Real)</p>
             <div className="mt-3">
-              <Anillo score={e.score} delta={e.score - e.scorePrev} tam={162} />
+              <Anillo score={e.score} delta={e.score - e.scorePrev} estado={e.estado} tam={162} />
             </div>
 
             <div className="mt-4 flex items-center gap-2">
