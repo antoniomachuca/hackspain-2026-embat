@@ -166,11 +166,12 @@ def monitor_once(results):
 
 
 def main():
-    parser = argparse.ArgumentParser(description='Local proactive monitor for completed scoring snapshots; can broadcast to Telegram.')
+    parser = argparse.ArgumentParser(description='Local proactive monitor for completed scoring snapshots; can broadcast to Telegram and email.')
     parser.add_argument('--results', type=Path, default=ROOT / 'algorythm' / 'engine_results')
     parser.add_argument('--watch', action='store_true')
     parser.add_argument('--interval', type=float, default=2.0)
     parser.add_argument('--telegram', action='store_true', help='Broadcast new alerts to registered Telegram subscribers')
+    parser.add_argument('--email', action='store_true', help='Send deterioration alerts by email to the affected company (Mailpit in local)')
     args = parser.parse_args()
     if not np.isfinite(args.interval) or args.interval <= 0:
         parser.error('interval must be finite and positive')
@@ -188,6 +189,15 @@ def main():
                                 broadcast_alert(alert)
                         except Exception as tg_err:
                             print(f"[Telegram error] {tg_err}", file=sys.stderr, flush=True)
+                    if args.email and result.get('new_alerts'):
+                        try:
+                            from algorythm.email_notifier import broadcast_alert as email_alert
+                            for alert in result['new_alerts']:
+                                outcome = email_alert(alert)
+                                if outcome.get('sent') or outcome.get('failed'):
+                                    print(json.dumps({'email': outcome}, ensure_ascii=False), flush=True)
+                        except Exception as mail_err:
+                            print(f"[Email error] {mail_err}", file=sys.stderr, flush=True)
                 previous_error = None
             except (FileNotFoundError, json.JSONDecodeError, zipfile.BadZipFile, SnapshotNotReady) as error:
                 if not args.watch:

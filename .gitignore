@@ -84,3 +84,6 @@ data/
 
 # Workspace de la carga de datasets (feature retirada); queda en local.
 /runtime/
+
+# Direcciones de correo fijadas para la demo (pueden ser personales)
+algorythm/email_recipients.json
