@@ -101,7 +101,7 @@ def get_companies(
         SELECT *
         FROM v_latest_company_scores
         {where_clause}
-        ORDER BY {order_by} {safe_order_dir}
+        ORDER BY {order_by} {safe_order_dir}, company_id ASC
         LIMIT ? OFFSET ?;
     """
     query_params = tuple(params + [limit, offset])
