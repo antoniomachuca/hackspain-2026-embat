@@ -231,6 +231,24 @@ export async function cargarFiliales(gid: string, excluir: string) {
   return (r?.items ?? []).filter((x) => x.company_id !== excluir);
 }
 
+/**
+ * Trayectoria real de cada filial, para que el minigráfico de la lista no sea
+ * un adorno. El listado del grupo solo trae el score del último corte, así que
+ * la historia se pide empresa por empresa, en paralelo.
+ */
+export async function cargarTrayectoriasFiliales(ids: string[], meses = 12) {
+  const pares = await Promise.all(
+    ids.map(async (id) => {
+      const h = await apiHistoria(id, meses);
+      const puntos = (h?.history ?? []).map((p) => ({
+        mes: p.as_of.slice(0, 7), score: p.score, nivel: p.base_health,
+      }));
+      return [id, puntos] as const;
+    }),
+  );
+  return Object.fromEntries(pares) as Record<string, { mes: string; score: number; nivel: number }[]>;
+}
+
 export async function cargarRecomendaciones(id: string) {
   const [rk, pl, wf] = await Promise.all([
     apiRankings(id),

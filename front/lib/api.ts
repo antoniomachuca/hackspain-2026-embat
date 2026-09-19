@@ -294,3 +294,31 @@ export const apiGrafoResumen = (limite = 30, minCoincidencias = 2) =>
   get<ApiGrafoResumen>(`/api/graph?limit=${limite}&min_matches=${minCoincidencias}`);
 export const apiGrafo = (gid: string, minCoincidencias = 2) =>
   get<ApiGrafo>(`/api/graph/${gid}?min_matches=${minCoincidencias}`);
+
+/**
+* Las dos familias del catálogo no son una etiqueta: son dos clases de
+* decisión distintas para quien firma.
+*   · salud      → cambia el negocio. La mejora es real.
+*   · circulante → mueve caja de sitio. Da oxígeno hoy y lo quita mañana.
+*/
+
+/**
+ * Las dos familias del catálogo no son una etiqueta: son dos clases de
+ * decisión distintas para quien firma.
+ *   · salud      → cambia el negocio. La mejora es real.
+ *   · circulante → mueve caja de sitio. Da oxígeno hoy y lo quita mañana.
+ */
+export type Familia = "salud" | "circulante";
+
+export const FAMILIAS: Record<Familia, { label: string; nota: string; color: string; fondo: string }> = {
+  salud: {
+    label: "Salud",
+    nota: "Cambia el negocio: la mejora del score es real",
+    color: "#80efa2", fondo: "rgba(128,239,162,.16)",
+  },
+  circulante: {
+    label: "Circulante",
+    nota: "Mueve caja de sitio: alivia hoy y hay que devolverlo",
+    color: "#dfb631", fondo: "rgba(223,182,49,.16)",
+  },
+};
