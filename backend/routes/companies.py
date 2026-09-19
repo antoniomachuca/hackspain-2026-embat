@@ -14,6 +14,7 @@ from algorythm.score_decompose import history_with_reparto
 from algorythm.telegram_charts import generate_company_chart
 from backend.database import get_cursor, normalize_company_id, query_dicts, query_one
 from backend.routes.forecasts import _load_banks
+from backend.routes.stats import normalize_group_id
 from backend.schemas import (
     CompanyDetailResponse,
     CompanyHistoryResponse,
@@ -78,7 +79,7 @@ def get_companies(
         params.append(max_score)
     if group_id:
         conditions.append("group_id = ?")
-        params.append(group_id.strip().upper())
+        params.append(normalize_group_id(group_id))
     if has_erp is not None:
         conditions.append("has_erp = ?")
         params.append(has_erp)
