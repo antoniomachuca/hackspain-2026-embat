@@ -3,10 +3,10 @@
  * Si el motor no responde, `cargar()` devuelve null y la página cae al modo demo.
  */
 import {
-  apiEmpresa, apiHistoria, apiPalancas, apiRankings, apiAlertas, apiEmpresasDeGrupo, apiGrupos, apiGrupo, apiEmpresas,
-  BLOQUES, type ApiEmpresa, type ApiSugerencia, type ApiPalanca,
+  apiEmpresa, apiHistoria, apiPalancas, apiRankings, apiAlertas, apiEmpresasDeGrupo, apiGrupos, apiGrupo, apiEmpresas, apiSimular,
+  BLOQUES, type ApiEmpresa, type ApiSugerencia, type ApiPalanca, type ApiSimulateResponse,
 } from "./api";
-import { pendiente, repartir, EMPRESAS_CON_SCORE } from "./data";
+import { pendiente, repartir, EMPRESAS_CON_SCORE, simular } from "./data";
 import type { Driver, Empresa, Estado, Punto, Severidad } from "./data";
 
 const ESTADOS: Record<string, Estado> = {
@@ -321,6 +321,92 @@ export async function cargarComparativa(subeId?: string, bajaId?: string): Promi
     baja: bajaData ?? bajaMock,
     opcionesSube,
     opcionesBaja,
+  };
+}
+
+export type ResultadoSimulacion = {
+  scoreNuevo: number;
+  deltaScore: number;
+  cajaLiberada: number;
+  deltaBps: number;
+  eurAnio: number;
+  inaplicable: boolean;
+  motivoRechazo?: string;
+  advertencias?: string[];
+  esReal: boolean;
+};
+
+export async function simularPalanca(
+  cid: string,
+  palancaId: string,
+  valor: number,
+  empresaBase: Empresa
+): Promise<ResultadoSimulacion> {
+  // Construir payload según la palanca para simulate_levers del backend
+  let leverPayload: Record<string, unknown> = { id: palancaId };
+  if (palancaId === "reducir_dso" || palancaId === "adelantar_cobros") {
+    leverPayload = { id: "reducir_dso", days: valor, agreement_type: "presion_comercial" };
+  } else if (palancaId === "pronto_pago" || palancaId === "descuento_pronto_pago") {
+    leverPayload = { id: "descuento_pronto_pago", days: 15, haircut: valor / 100, agreement_type: "descuento_pronto_pago" };
+  } else if (palancaId === "recortar_opex") {
+    leverPayload = { id: "recortar_opex", pct: valor / 100 };
+  } else if (palancaId === "refinanciar") {
+    leverPayload = { id: "refinanciar", pct: valor / 100 };
+  } else if (palancaId === "ampliar_dpo") {
+    leverPayload = { id: "ampliar_dpo", pct: valor / 100, agreement_type: "acuerdo_negociado" };
+  } else if (palancaId === "bajar_linea") {
+    leverPayload = { id: "bajar_utilizacion_linea", pct: valor / 100 };
+  } else if (palancaId === "reducir_concent") {
+    leverPayload = { id: "reducir_concentracion", pct: valor / 100 };
+  } else if (palancaId === "sustituir_fact") {
+    leverPayload = { id: "sustituir_factoring", pct: valor / 100 };
+  }
+
+  const res = await apiSimular(cid, [leverPayload]);
+
+  if (res?.detail && !res.projected) {
+    const motivo = res.detail.motivo_rechazo ?? res.detail.error ?? "Inaplicable para el perfil actual";
+    return {
+      scoreNuevo: empresaBase.score,
+      deltaScore: 0,
+      cajaLiberada: 0,
+      deltaBps: 0,
+      eurAnio: 0,
+      inaplicable: true,
+      motivoRechazo: motivo,
+      esReal: true,
+    };
+  }
+
+  if (res && res.projected) {
+    const rawDelta =
+      res.delta_score ??
+      res.efecto_score_informativo ??
+      (res.projected.score - (res.baseline?.score ?? empresaBase.score));
+    const deltaScore = Math.round(rawDelta * 10) / 10;
+    const scoreNuevo = Math.round(res.projected.score * 10) / 10;
+    const cajaLiberada = Math.round(res.caja_liberada_eur ?? 0);
+    const eurAnio = Math.round(res.eur_año ?? (res.effects?.[0]?.eur_año ?? 0));
+    const deltaBps = Math.round(res.delta_bps ?? (deltaScore * 7.5));
+
+    return {
+      scoreNuevo,
+      deltaScore,
+      cajaLiberada,
+      deltaBps,
+      eurAnio,
+      inaplicable: false,
+      advertencias: res.warnings,
+      esReal: true,
+    };
+  }
+
+  // Fallback con simular() local si el backend no responde
+  const fallback = simular(empresaBase, palancaId, valor);
+  return {
+    ...fallback,
+    inaplicable: false,
+    esReal: false,
   };
 }
 

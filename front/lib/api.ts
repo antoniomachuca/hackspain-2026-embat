@@ -24,7 +24,14 @@ async function post<T>(ruta: string, cuerpo: unknown): Promise<T | null> {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(cuerpo),
     });
-    if (!r.ok) return null;
+    if (!r.ok) {
+      try {
+        const errJson = await r.json();
+        return errJson as T;
+      } catch {
+        return null;
+      }
+    }
     return (await r.json()) as T;
   } catch {
     return null;
@@ -146,8 +153,47 @@ export const apiEmpresas = (params?: { state?: string; limit?: number; offset?: 
 };
 export const apiEmpresasDeGrupo = (gid: string) =>
   get<{ total: number; items: ApiEmpresa[] }>(`/api/companies?group_id=${gid}&limit=100`);
-export const apiSimular   = (id: string, levers: Array<Record<string, unknown>>) =>
-  post<Record<string, unknown>>("/api/simulate", { company_id: id, levers });
+export type ApiSimulateScore = {
+  score: number;
+  state?: string | null;
+  liquidity_points?: number | null;
+  collections_points?: number | null;
+  debt_points?: number | null;
+  momentum_points?: number | null;
+};
+
+export type ApiSimulateResponse = {
+  company_id?: string;
+  as_of?: string;
+  month_mutated?: number;
+  model_version?: string;
+  baseline?: ApiSimulateScore;
+  projected?: ApiSimulateScore;
+  delta_score?: number | null;
+  caja_liberada_eur?: number;
+  effects?: Array<{
+    lever_id: string;
+    family: string;
+    mutator: string;
+    euros: number;
+    eur_año?: number | null;
+    delta_score_allowed: boolean;
+    warnings?: string[];
+  }>;
+  warnings?: string[];
+  eur_año?: number | null;
+  delta_bps?: number | null;
+  efecto_score_informativo?: number | null;
+  detail?: {
+    ok?: boolean;
+    error?: string;
+    motivo_rechazo?: string;
+    lever_id?: string;
+  };
+};
+
+export const apiSimular = (id: string, levers: Array<Record<string, unknown>>) =>
+  post<ApiSimulateResponse>("/api/simulate", { company_id: id, levers });
 export const apiWhatIf    = (id: string, inyeccion?: number) =>
   post<Record<string, unknown>>("/api/whatif", { company_id: id, ...(inyeccion ? { injection_amount: inyeccion } : {}) });
 
