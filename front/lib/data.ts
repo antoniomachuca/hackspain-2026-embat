@@ -13,6 +13,10 @@ export type Driver = {
   contribucion: number;   // puntos, con signo. Las seis suman el score.
   valor: string;          // el valor en unidades de negocio
   p_peer: number;         // percentil dentro de su grupo de pares
+  codigo?: string;
+  rango?: string;
+  descripcion?: string;
+  diagnostico?: string;
 };
 
 export type Severidad = "ALTA" | "MEDIA" | "BAJA";
@@ -184,6 +188,44 @@ function estadoDe(s: number[]): Estado {
   return "ESTABLE";
 }
 
+export const DESCRIPCIONES_FACTORES: Record<string, { codigo: string; rango: string; desc: string }> = {
+  liquidity: {
+    codigo: "LIQ-02",
+    rango: "0 a 50 pts",
+    desc: "Colchón de tesorería y autonomía frente al gasto operativo diario (burn rate). Mide los días de caja disponibles sin recurrir a deuda externa.",
+  },
+  collections: {
+    codigo: "COB-01",
+    rango: "0 a 30 pts",
+    desc: "Velocidad de rotación y cobro a clientes (DSO) y disciplina en vencimientos sin facturas en mora impagadas.",
+  },
+  debt: {
+    codigo: "DEU-03",
+    rango: "0 a 20 pts",
+    desc: "Capacidad de servicio de deuda y margen de crédito disponible en pólizas o líneas de circulante.",
+  },
+  momentum: {
+    codigo: "MOM-01",
+    rango: "−15 a +15 pts",
+    desc: "Inercia reciente y tendencia del flujo de tesorería a 3–6 meses. Bonifica aceleración o penaliza deterioro continuado.",
+  },
+  growth: {
+    codigo: "CRE-02",
+    rango: "−10 a +10 pts",
+    desc: "Crecimiento sostenible de ventas y facturación comercial emitida sin provocar descalces en el fondo de maniobra.",
+  },
+  fragility: {
+    codigo: "FRA-01",
+    rango: "−8 a 0 pts",
+    desc: "Penalización por volatilidad intradía de saldos, concentración excesiva de clientes (HHI) y descalce de pagos.",
+  },
+};
+
+const CODIGOS: Record<string, string> = {
+  liquidity: "LIQ-02", collections: "COB-01", debt: "DEU-03",
+  momentum: "MOM-01", growth: "CRE-02", fragility: "FRA-01",
+};
+
 function driversDe(
   score: number, dso: number, util: number, hhi: number, dias: number,
   momentum: number, r: () => number,
@@ -200,20 +242,28 @@ function driversDe(
   ];
   const suma = brutos.reduce((a, b) => a + b.peso * b.p, 0);
   const k = score / (suma / 100);
-  const ds = brutos.map((b) => ({
-    feature: b.feature, etiqueta: b.etiqueta,
-    contribucion: Math.round(b.peso * b.p * k) / 100,
-    valor: b.valor, p_peer: b.p,
-  }));
+  const ds: Driver[] = brutos.map((b) => {
+    const meta = DESCRIPCIONES_FACTORES[b.feature];
+    const diag =
+      b.p >= 70 ? `Rendimiento favorable en ${b.etiqueta.toLowerCase()}` :
+      b.p >= 40 ? `Nivel moderado de ${b.etiqueta.toLowerCase()}` :
+      `Tensión detectada en ${b.etiqueta.toLowerCase()}`;
+    return {
+      feature: b.feature,
+      etiqueta: b.etiqueta,
+      codigo: meta?.codigo ?? CODIGOS[b.feature] ?? "—",
+      rango: meta?.rango ?? "—",
+      descripcion: meta?.desc ?? "",
+      diagnostico: diag,
+      contribucion: Math.round(b.peso * b.p * k) / 100,
+      valor: b.valor,
+      p_peer: b.p,
+    };
+  });
   const total = ds.reduce((a, b) => a + b.contribucion, 0);
   ds[0].contribucion = Math.round((ds[0].contribucion + (score - total)) * 100) / 100;
   return ds.sort((a, b) => b.contribucion - a.contribucion);
 }
-
-const CODIGOS: Record<string, string> = {
-  liquidity: "LIQ-02", collections: "COB-01", debt: "DEU-03",
-  momentum: "MOM-01", growth: "CRE-02", fragility: "FRA-01",
-};
 
 const PERFILES: Perfil[] = [
   "recupera", "cae", "estable", "bache", "solido", "fragil",

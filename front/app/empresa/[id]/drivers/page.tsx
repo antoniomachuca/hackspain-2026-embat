@@ -33,16 +33,30 @@ export default async function Drivers({ params }: { params: Promise<{ id: string
           </div>
           <div className="flex flex-col gap-2">
             {e.drivers.map((d) => (
-              <div key={d.feature} className="fila grid grid-cols-[1.5fr_1fr_1fr_.7fr] items-center gap-4 px-4 py-3">
-                <span className="text-[13.5px] font-medium">{d.etiqueta}</span>
-                <span className="tnum text-[12.5px] text-[var(--color-ink-2)]">{d.valor}</span>
-                <span className="tnum flex items-center justify-end gap-2 text-[12.5px]">
-                  <span className="h-1 w-16 overflow-hidden rounded-full bg-[rgba(255,255,255,.10)]">
-                    <span className="block h-full rounded-full" style={{ width: `${d.p_peer}%`, background: d.p_peer >= 50 ? "var(--color-purple)" : "var(--color-risk-2)" }} />
+              <div key={d.feature} className="fila px-4 py-3">
+                <div className="grid grid-cols-[1.5fr_1fr_1fr_.7fr] items-center gap-4">
+                  <div className="flex items-center gap-2">
+                    <span className="text-[13.5px] font-medium">{d.etiqueta}</span>
+                    {d.codigo && (
+                      <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-[rgba(255,255,255,.08)] text-[var(--color-ink-3)]">
+                        {d.codigo}
+                      </span>
+                    )}
+                  </div>
+                  <span className="tnum text-[12.5px] text-[var(--color-ink-2)]">{d.valor}</span>
+                  <span className="tnum flex items-center justify-end gap-2 text-[12.5px]">
+                    <span className="h-1 w-16 overflow-hidden rounded-full bg-[rgba(255,255,255,.10)]">
+                      <span className="block h-full rounded-full" style={{ width: `${d.p_peer}%`, background: d.p_peer >= 50 ? "var(--color-purple)" : "var(--color-risk-2)" }} />
+                    </span>
+                    P{d.p_peer}
                   </span>
-                  P{d.p_peer}
-                </span>
-                <span className="tnum text-right text-[13.5px] font-semibold">{num(d.contribucion, 2)}</span>
+                  <span className="tnum text-right text-[13.5px] font-semibold">{num(d.contribucion, 2)}</span>
+                </div>
+                {d.descripcion && (
+                  <p className="mt-1.5 text-[11px] text-[var(--color-ink-3)] leading-relaxed">
+                    {d.descripcion} {d.diagnostico ? <span className="text-white/80 font-medium">· {d.diagnostico}</span> : null}
+                  </p>
+                )}
               </div>
             ))}
             <div className="panel-2 grid grid-cols-[1.5fr_1fr_1fr_.7fr] items-center gap-4 px-4 py-3">

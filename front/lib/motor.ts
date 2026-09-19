@@ -6,6 +6,7 @@ import {
   apiEmpresa, apiHistoria, apiPeers, apiPalancas, apiRankings, apiWhatIf, apiAlertas, apiEmpresasDeGrupo, apiGrupos, apiGrupo, apiEmpresas, apiSimular,
   BLOQUES, type ApiEmpresa, type ApiSugerencia, type ApiPalanca, type ApiSimulateResponse, type ApiWhatIfResponse,
 } from "./api";
+import { eur, num } from "./format";
 import { pendiente, repartir, inflexionDe, EMPRESAS_CON_SCORE, simular } from "./data";
 import type { Driver, Empresa, Estado, Punto, Severidad } from "./data";
 
@@ -23,17 +24,124 @@ const SEVERIDADES: Record<string, Severidad> = {
 /** Nombre comercial: el dataset no trae razón social, solo el identificador. */
 export const nombreDe = (id: string) => id.replace("COMP_", "Sociedad ");
 
-function driversDe(w: ApiEmpresa["waterfall"]): Driver[] {
-  const total = BLOQUES.reduce((a, b) => a + Math.abs(w[b.campo]), 0) || 1;
-  return BLOQUES.map((b) => ({
-    feature: b.campo.replace("_points", ""),
-    etiqueta: b.etiqueta,
-    contribucion: Math.round(w[b.campo] * 100) / 100,
-    valor: `${w[b.campo] >= 0 ? "+" : "−"}${Math.abs(w[b.campo]).toFixed(2)} pts`,
-    // FALTA: el motor no expone el percentil por peer group (REQ-B2.2).
-    // Se aproxima con el peso relativo del bloque para no dejar la barra vacía.
-    p_peer: Math.round((Math.abs(w[b.campo]) / total) * 100),
-  })).sort((a, b) => b.contribucion - a.contribucion);
+export function driversDe(w: ApiEmpresa["waterfall"], e?: ApiEmpresa): Driver[] {
+  return BLOQUES.map((b) => {
+    const feat = b.campo.replace("_points", "");
+    const pts = Math.round(w[b.campo] * 100) / 100;
+    const sign = pts >= 0 ? "+" : "−";
+    const absPts = Math.abs(pts);
+
+    let rango = "0 a 50 pts";
+    let desc = "";
+    let diag = "";
+    let valor = `${sign}${absPts.toFixed(1)} pts`;
+    let p_peer = 50;
+
+    if (b.campo === "liquidity_points") {
+      rango = "0 a 50 pts";
+      desc = "Colchón de tesorería y autonomía frente al gasto operativo diario (burn rate). Evalúa cuántos días de caja operativa mantiene la empresa sin deuda.";
+      p_peer = Math.min(100, Math.max(0, Math.round((Math.max(0, pts) / 50) * 100)));
+      const dias = e?.dias_caja ?? 0;
+      if (dias > 0) {
+        valor = `${num(dias, 1)} días de caja`;
+        diag = dias >= 60
+          ? "Excelente autonomía operativa (>60 días). Aporta máxima solidez al score."
+          : dias >= 30
+          ? "Autonomía operativa suficiente (30–60 días de caja sin tensiones)."
+          : "Tensión de liquidez (<30 días de caja). Margen reducido ante imprevistos.";
+      } else if (e?.total_balance != null && e.total_balance > 0) {
+        valor = `${eur(e.total_balance, true)} de saldo`;
+        diag = pts >= 25 ? "Saldo bancario suficiente para el ritmo de pagos actual." : "Colchón de caja ajustado frente a la operativa.";
+      } else {
+        diag = pts >= 25 ? "Cobertura de liquidez sólida." : "Tensión en colchón de tesorería.";
+      }
+    } else if (b.campo === "collections_points") {
+      rango = "0 a 30 pts";
+      desc = "Rotación de cobro de clientes (DSO) y disciplina en vencimientos. Penaliza facturas impagadas o en mora acumuladas.";
+      p_peer = Math.min(100, Math.max(0, Math.round((Math.max(0, pts) / 30) * 100)));
+      const dso = e?.dso ?? 0;
+      const moraCount = e?.overdue_invoices_count ?? 0;
+      const moraAmt = e?.overdue_invoices_amount ?? 0;
+      if (dso > 0) {
+        valor = `DSO ${num(dso, 0)}d${moraCount > 0 ? ` · ${moraCount} en mora` : " · 0 mora"}`;
+        if (moraCount > 0) {
+          diag = `${moraCount} facturas vencidas impagadas (${eur(moraAmt, true)}). Penaliza el flujo de caja.`;
+        } else if (dso <= 45) {
+          diag = "Cobro ágil dentro de plazo comercial estándar (DSO ≤ 45d) sin impagos.";
+        } else {
+          diag = `Plazo de cobro dilatado (${num(dso, 0)} días DSO). Retrasa la liquidez operativa.`;
+        }
+      } else {
+        diag = pts >= 15 ? "Cobro fluido sin incidencias de morosidad." : "Retrasos en el circuito de cobros comerciales.";
+      }
+    } else if (b.campo === "debt_points") {
+      rango = "0 a 20 pts";
+      desc = "Capacidad de cobertura del servicio de deuda y margen de crédito disponible en pólizas o líneas de circulante.";
+      p_peer = Math.min(100, Math.max(0, Math.round((Math.max(0, pts) / 20) * 100)));
+      const util = e?.line_utilization ?? 0;
+      if (util > 0) {
+        valor = `${num(util, 0)}% línea dispuesta`;
+        diag = util >= 75
+          ? `Alto uso de líneas de crédito bancarias (${num(util, 0)}%). Margen de maniobra limitado.`
+          : `Uso moderado de líneas de crédito (${num(util, 0)}%) y deuda estructurada.`;
+      } else {
+        valor = `${sign}${absPts.toFixed(1)} pts`;
+        diag = pts >= 10 ? "Baja dependencia de crédito bancario a corto plazo." : "Capacidad de endeudamiento adicional reducida.";
+      }
+    } else if (b.campo === "momentum_points") {
+      rango = "−15 a +15 pts";
+      desc = "Inercia reciente y tendencia del flujo de tesorería a 3–6 meses. Bonifica aceleración positiva o penaliza deterioro continuado.";
+      p_peer = Math.min(100, Math.max(0, Math.round(((pts + 15) / 30) * 100)));
+      valor = `${sign}${absPts.toFixed(1)} pts inercia`;
+      diag = pts >= 3
+        ? "Tendencia de mejora continuada en el último trimestre que impulsa el score."
+        : pts <= -3
+        ? "Inercia negativa continuada en meses recientes. Alerta de deterioro."
+        : "Evolución neutral sin grandes oscilaciones trimestrales.";
+    } else if (b.campo === "growth_points") {
+      rango = "−10 a +10 pts";
+      desc = "Crecimiento comercial sostenible en facturación emitida sin provocar descalces en el fondo de maniobra.";
+      p_peer = Math.min(100, Math.max(0, Math.round(((pts + 10) / 20) * 100)));
+      const rev = e?.annual_revenue ?? 0;
+      if (rev > 0) {
+        valor = `${eur(rev, true)}/año`;
+      } else {
+        valor = `${sign}${absPts.toFixed(1)} pts`;
+      }
+      diag = pts >= 2
+        ? "Expansión comercial favorable que aporta tracción al negocio."
+        : pts <= -2
+        ? "Contracción o enfriamiento en el volumen de actividad facturada."
+        : "Facturación comercial consolidada a ritmo constante.";
+    } else if (b.campo === "fragility_points") {
+      rango = "−8 a 0 pts";
+      desc = "Penalización por volatilidad intradía de saldos, concentración de clientes (HHI) y descalce temporal de pagos.";
+      p_peer = Math.min(100, Math.max(0, Math.round(((pts + 8) / 8) * 100)));
+      const hhi = e?.customer_hhi;
+      if (hhi != null && hhi > 0) {
+        valor = `HHI ${hhi.toFixed(2)}`;
+      } else {
+        valor = `${pts.toFixed(1)} pts estrés`;
+      }
+      diag = pts <= -3
+        ? "Riesgo de concentración o volatilidad acusada en cuenta. Requiere diversificar."
+        : pts < 0
+        ? "Ligera penalización por picos puntuales de tesorería o concentración moderada."
+        : "Estructura de cobros y saldos diversificada sin penalización por fragilidad.";
+    }
+
+    return {
+      feature: feat,
+      etiqueta: b.etiqueta,
+      codigo: b.codigo,
+      rango,
+      descripcion: desc,
+      diagnostico: diag,
+      contribucion: pts,
+      valor,
+      p_peer,
+    };
+  }).sort((a, b) => b.contribucion - a.contribucion);
 }
 
 export async function cargarEmpresa(id: string): Promise<Empresa | null> {
@@ -86,7 +194,7 @@ export async function cargarEmpresa(id: string): Promise<Empresa | null> {
     trayectoriaPeer: pr?.history ? pr.history.map((p) => ({ mes: p.mes, mediana: p.mediana })) : undefined,
     reparto: trayectoria.map((p, k) => repartir(serie, tends, k, p.mes)),
     inflexion,
-    drivers: driversDe(e.waterfall),
+    drivers: driversDe(e.waterfall, e),
     alerta: alerta
       ? {
           severidad: SEVERIDADES[alerta.severity] ?? "BAJA",
