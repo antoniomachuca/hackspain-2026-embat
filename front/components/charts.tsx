@@ -4,17 +4,23 @@ import {
   ReferenceLine, ReferenceDot, BarChart, Bar, Cell, CartesianGrid, Area, AreaChart,
 } from "recharts";
 import { mesCorto, num, banda } from "@/lib/format";
-import type { Punto, Driver } from "@/lib/data";
+import type { Punto, Driver, EpisodioSenal } from "@/lib/data";
 
 const EJE = { fontSize: 11, fill: "#afafbb" };
 
-function Caja({ active, payload, label }: any) {
+type CajaProps = {
+  active?: boolean;
+  payload?: { name: string; value: number; color?: string }[];
+  label?: string;
+};
+
+function Caja({ active, payload, label }: CajaProps) {
   if (!active || !payload?.length) return null;
   const texto = typeof label === "string" && label.includes("-") ? mesCorto(label) : label;
   return (
     <div className="glass rounded-xl px-3 py-2">
       {texto && <p className="text-[11px] text-[var(--color-ink-3)]">{texto}</p>}
-      {payload.map((p: any) => (
+      {payload.map((p) => (
         <p key={p.name} className="tnum text-[13px] font-medium" style={{ color: p.color }}>
           {p.name}: {num(p.value)}
         </p>
@@ -23,7 +29,16 @@ function Caja({ active, payload, label }: any) {
   );
 }
 
-function CajaWaterfall({ active, payload }: any) {
+type WaterfallDato = {
+  etiqueta: string; v: number; p: number;
+  codigo?: string; rango?: string; valor?: string;
+  descripcion?: string; diagnostico?: string;
+};
+
+function CajaWaterfall({ active, payload }: {
+  active?: boolean;
+  payload?: { payload?: WaterfallDato }[];
+}) {
   if (!active || !payload?.length) return null;
   const d = payload[0]?.payload;
   if (!d) return null;
@@ -77,18 +92,68 @@ function CajaWaterfall({ active, payload }: any) {
   );
 }
 
+export type DeteccionMarca = {
+  mes: string;                       // "YYYY-MM" dentro de la serie
+  direccion: "deterioro" | "mejora";
+  texto?: string;
+  senales?: EpisodioSenal[];
+};
+
+const COLOR_DETECCION = { deterioro: "var(--color-warm)", mejora: "var(--color-success)" } as const;
+
+export type CaminoMarca = {
+  mes: string;                       // "YYYY-MM" dentro de la serie (origen)
+  scoreProyectado: number;
+};
+
+function CajaDeteccion({ deteccion, active, payload, label }: {
+  deteccion?: DeteccionMarca;
+  active?: boolean;
+  payload?: { name: string; value: number; color: string }[];
+  label?: string;
+}) {
+  const base = <Caja active={active} payload={payload} label={label} />;
+  if (!deteccion || label !== deteccion.mes) return base;
+  const color = COLOR_DETECCION[deteccion.direccion as keyof typeof COLOR_DETECCION] ?? "#e59f5e";
+  return (
+    <div className="space-y-1">
+      {base}
+      <div className="glass rounded-xl px-3 py-2 max-w-[280px]">
+        <p className="text-[11px] font-semibold" style={{ color }}>
+          Detección de {deteccion.direccion}
+        </p>
+        {deteccion.texto && (
+          <p className="mt-0.5 text-[11px] leading-snug text-[var(--color-ink-2)]">{deteccion.texto}</p>
+        )}
+        {deteccion.senales?.map((s: EpisodioSenal) => (
+          <p key={s.senal} className="tnum text-[11px] text-[var(--color-ink-3)]">
+            {s.senal}: {num(s.antes)} → {num(s.en_deteccion)}
+          </p>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 /** Trayectoria de 24 meses. El patrón de Moody's EDF-X: la historia, no el gauge. */
-export function Trayectoria({ datos, alerta, comparador, altura = 220 }: {
-  datos: Punto[]; alerta?: string; comparador?: { nombre: string; datos: Punto[] }; altura?: number;
+export function Trayectoria({ datos, deteccion, camino, comparador, altura = 220 }: {
+  datos: Punto[];
+  deteccion?: DeteccionMarca;
+  camino?: CaminoMarca;
+  comparador?: { nombre: string; datos: Punto[] };
+  altura?: number;
 }) {
   const merged = datos.map((d, i) => ({
     mes: d.mes, score: d.score,
     ...(comparador ? { otro: comparador.datos[i]?.score } : {}),
   }));
-  const alertaPunto = alerta ? datos.find((d) => d.mes === alerta) : undefined;
+  const detPunto = deteccion ? datos.find((d) => d.mes === deteccion.mes) : undefined;
+  const colorDet = deteccion
+    ? COLOR_DETECCION[deteccion.direccion] ?? "var(--color-warm)"
+    : "var(--color-warm)";
   return (
     <ResponsiveContainer width="100%" height={altura}>
-      <AreaChart data={merged} margin={{ top: 8, right: 12, bottom: 0, left: -18 }}>
+      <AreaChart data={merged} margin={{ top: 20, right: 12, bottom: 0, left: -18 }}>
         <defs>
           <linearGradient id="grad" x1="0" y1="0" x2="0" y2="1">
             <stop offset="0%" stopColor="#b083e8" stopOpacity={0.30} />
@@ -98,15 +163,26 @@ export function Trayectoria({ datos, alerta, comparador, altura = 220 }: {
         <CartesianGrid stroke="rgba(255,255,255,.07)" vertical={false} />
         <XAxis dataKey="mes" tickFormatter={mesCorto} tick={EJE} tickLine={false} axisLine={{ stroke: "rgba(255,255,255,.12)" }} interval={3} />
         <YAxis domain={[0, 100]} ticks={[0, 25, 50, 75, 100]} tick={EJE} tickLine={false} axisLine={false} width={44} />
-        <Tooltip content={<Caja />} />
-        <ReferenceLine y={45} stroke="rgba(255,255,255,.14)" strokeDasharray="3 3" />
+        <Tooltip content={<CajaDeteccion deteccion={deteccion} />} />
+        <ReferenceLine y={60} stroke="rgba(255,255,255,.14)" strokeDasharray="3 3" />
         <Area type="monotone" dataKey="score" name="Score" stroke="#b083e8" strokeWidth={2.2} fill="url(#grad)" dot={false} />
         {comparador && (
           <Line type="monotone" dataKey="otro" name={comparador.nombre} stroke="#e59f5e" strokeWidth={2.2} strokeDasharray="4 3" dot={false} />
         )}
-        {alertaPunto && (
-          <ReferenceDot x={alertaPunto.mes} y={alertaPunto.score} r={5}
-            fill="#e59f5e" stroke="#0a0810" strokeWidth={2} />
+        {deteccion && (
+          <ReferenceLine x={deteccion.mes} stroke={colorDet} strokeDasharray="4 3"
+            label={{
+              value: `Aquí detectamos señales de ${deteccion.direccion}`,
+              position: "insideTopLeft", fontSize: 10, fill: colorDet,
+            }} />
+        )}
+        {detPunto && (
+          <ReferenceDot x={detPunto.mes} y={detPunto.score} r={5}
+            fill={colorDet} stroke="#0a0810" strokeWidth={2} />
+        )}
+        {camino && (
+          <ReferenceDot x={camino.mes} y={camino.scoreProyectado} r={5.5}
+            fill="rgba(10,8,16,0)" stroke="var(--color-warm)" strokeWidth={2} />
         )}
       </AreaChart>
     </ResponsiveContainer>

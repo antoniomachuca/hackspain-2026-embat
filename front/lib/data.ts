@@ -24,9 +24,41 @@ export type Severidad = "ALTA" | "MEDIA" | "BAJA";
 export type Alerta = {
   severidad: Severidad;
   mesDeteccion: string;
-  mesesAnticipacion: number;
+  mesesAnticipacion?: number;
   driversMovidos: string[];   // los dos causales que la dispararon
   codigosRazon: string[];     // códigos normalizados
+  texto: string;
+};
+
+export type EpisodioSenal = {
+  senal: string;
+  antes: number;
+  en_deteccion: number;
+  delta_puntos: number;
+};
+
+export type Episodio = {
+  direccion: "deterioro" | "mejora";
+  estado: "activo" | "cerrado";
+  cierre: string | null;
+  motivo_cierre: string | null;
+  deteccion: string;
+  estado_deteccion: string;
+  score_deteccion: number;
+  escaladas: { as_of: string; estado: string }[];
+  inicio_estimado: string;
+  referencia_base_health: number;
+  referencia_as_of: string | null;
+  cambio_material: string | null;
+  criterio: string | null;
+  estado_confirmacion: "confirmado" | "pendiente" | "no_confirmado";
+  meses_anticipacion: number | null;
+  perspectiva: {
+    as_of: string; outlook: string; score_observado: number;
+    score_proyectado: number; meses_antes_deteccion: number;
+  } | null;
+  senales: EpisodioSenal[];
+  familia: string;
   texto: string;
 };
 
@@ -90,7 +122,14 @@ export type Empresa = {
   inflexion?: Inflexion;
   drivers: Driver[];
   alerta?: Alerta;
+  episodios?: Episodio[];
+  episodioDestacado?: number | null;
 };
+
+export function episodioDestacado(e: Empresa): Episodio | undefined {
+  if (!e.episodios?.length) return undefined;
+  return e.episodios[e.episodioDestacado ?? e.episodios.length - 1];
+}
 
 // ── Generador determinista ────────────────────────────────────────────
 function rng(seed: number) {
@@ -469,7 +508,6 @@ export const EMPRESAS: Empresa[] = NOMBRES.map(([nombre, sector], i) => {
       ? {
           severidad: (score < 25 ? "ALTA" : score < 60 ? "MEDIA" : "BAJA") as Severidad,
           mesDeteccion: MESES[23 - mesesAnt],
-          mesesAnticipacion: mesesAnt,
           driversMovidos: causales.map((c) => c.etiqueta),
           codigosRazon: causales.map((c) => CODIGOS[c.feature]),
           texto: ancla?.caso ?? `${causales[0].etiqueta} se deterioró antes de que el score lo reflejara`,

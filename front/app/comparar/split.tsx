@@ -3,6 +3,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import type { Empresa } from "@/lib/data";
+import { episodioDestacado } from "@/lib/data";
 import type { OpcionComparar } from "@/lib/motor";
 import { num, mesCorto, banda } from "@/lib/format";
 import { Cabecera } from "@/components/shell";
@@ -33,6 +34,7 @@ export default function SplitScreen({
   }
 
   const mesDetectBaja =
+    episodioDestacado(baja)?.deteccion.slice(0, 7) ??
     baja.alerta?.mesDeteccion ??
     baja.trayectoria[Math.max(0, baja.trayectoria.length - 5)]?.mes ??
     "2026-05";
@@ -94,6 +96,7 @@ export default function SplitScreen({
           ].map(({ emp: e, rol, opts, onSelect, label }) => {
             const primerScore = e.trayectoria[0]?.score ?? 50;
             const ultimoMes = e.trayectoria[e.trayectoria.length - 1]?.mes ?? "2026-09";
+            const ep = episodioDestacado(e);
             return (
               <Card key={e.id} className="overflow-hidden">
                 <div className="flex items-start justify-between gap-4 border-b border-[var(--color-line)] px-5 py-4">
@@ -137,7 +140,11 @@ export default function SplitScreen({
 
                 {xray ? (
                   <div className="px-3 py-4">
-                    <Trayectoria datos={e.trayectoria} alerta={e.alerta?.mesDeteccion} altura={200} />
+                    <Trayectoria
+                      datos={e.trayectoria}
+                      deteccion={ep ? { mes: ep.deteccion.slice(0, 7), direccion: ep.direccion, texto: ep.texto, senales: ep.senales } : undefined}
+                      altura={200}
+                    />
                     <div className="flex items-center justify-between px-3 pt-2 text-[12px]">
                       <span className="tnum text-[var(--color-ink-3)]">
                         mes 1: {num(primerScore)} → mes 24: {num(e.score)}

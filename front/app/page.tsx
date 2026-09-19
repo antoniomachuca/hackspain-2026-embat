@@ -1,7 +1,7 @@
 import Link from "next/link";
 import {
   empresa, grupo, recomendar, MI_EMPRESA, MES_ACTUAL, EMPRESAS_CON_SCORE,
-  ANTICIPACION_MEDIANA, MODEL_VERSION,
+  ANTICIPACION_MEDIANA, MODEL_VERSION, type Estado,
 } from "@/lib/data";
 import { eur, num, mesCorto } from "@/lib/format";
 import { cargarEmpresa, cargarRecomendaciones, cargarFiliales, nombreDe } from "@/lib/motor";
@@ -29,7 +29,7 @@ export default async function Resumen() {
         sector: f.erp ? `ERP ${f.erp}` : "Sin ERP",
         score: f.score,
         momentum: f.momentum,
-        estado: f.state as any,
+        estado: f.state as Estado,
         mesesHistoria: f.state_eligible ? 24 : 8,
         trayectoria: [{ mes: "2026-09", score: f.score, nivel: f.base_health }],
       }))

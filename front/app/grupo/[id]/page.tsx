@@ -41,7 +41,7 @@ export default async function Grupo({ params }: { params: Promise<{ id: string }
 
         <Card className="mt-5">
           <CardHead titulo="Filial más débil" sub={peor ? `${peor.nombre} (${peor.id}) · Score: ${num(peor.score)}` : "Sin datos"} />
-          <div className="px-3 py-4">{peor && <Trayectoria datos={peor.trayectoria} alerta={peor.alerta?.mesDeteccion} altura={190} />}</div>
+          <div className="px-3 py-4">{peor && <Trayectoria datos={peor.trayectoria} deteccion={peor.deteccion} altura={190} />}</div>
         </Card>
 
         <Card className="mt-5 px-6 py-5">

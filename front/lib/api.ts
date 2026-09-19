@@ -53,6 +53,33 @@ export type ApiAlert = {
   score: number; delta_score: number; momentum: number; drivers: ApiDriver[];
 };
 
+export type ApiEpisodioSenal = {
+  senal: string; antes: number; en_deteccion: number; delta_puntos: number;
+};
+
+export type ApiEpisodio = {
+  direccion: "deterioro" | "mejora"; estado: "activo" | "cerrado";
+  cierre: string | null; motivo_cierre: string | null;
+  deteccion: string; estado_deteccion: string; score_deteccion: number;
+  escaladas: { as_of: string; estado: string }[];
+  inicio_estimado: string; referencia_base_health: number;
+  referencia_as_of: string | null;
+  cambio_material: string | null; criterio: string | null;
+  estado_confirmacion: "confirmado" | "pendiente" | "no_confirmado";
+  meses_anticipacion: number | null; perspectiva: unknown | null;
+  senales: ApiEpisodioSenal[]; familia: string; texto: string;
+};
+
+export type ApiCamino = {
+  as_of: string; score_proyectado: number;
+};
+
+export type ApiTrayectoriaMarcas = {
+  deteccion: { as_of: string; state: string; score: number; direccion: string } | null;
+  camino: ApiCamino | null;
+  texto: string;
+};
+
 export type ApiEmpresa = {
   company_id: string; group_id: string; currency: string;
   country: string | null; erp: string | null; has_erp: boolean;
@@ -64,6 +91,9 @@ export type ApiEmpresa = {
   overdue_invoices_count: number; overdue_invoices_amount: number;
   total_pending_amount: number;
   latest_alert: ApiAlert | null;
+  episodios?: ApiEpisodio[];
+  episodio_destacado?: number | null;
+  trayectoria_marcas?: ApiTrayectoriaMarcas | null;
   suggested_action: string | null;
   dso?: number;
   dpo?: number;

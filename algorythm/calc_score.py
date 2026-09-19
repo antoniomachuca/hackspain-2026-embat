@@ -15,6 +15,7 @@ if not __package__:
 
 from algorythm.score_data import add_cash_observations, load_bank_panel, load_erp_snapshot, sha256
 from algorythm.score_engine import ScoreConfig, calculate_scores
+from algorythm.score_episodes import build_episodes
 from algorythm.score_monitor import atomic_json, monitor_once
 from algorythm.score_states import StateConfig, classify_states
 
@@ -38,7 +39,7 @@ def calculate_dataset(dataset, start='2024-09-01', end='2026-09-01', erp_snapsho
     return companies, edges, bank, output, {'bank': audit, 'erp': erp_audit}
 
 
-def export_scores(directory, companies, edges, bank, output, manifest):
+def export_scores(directory, companies, edges, bank, output, manifest, state_config=None):
     directory.mkdir(parents=True, exist_ok=True)
     names = list(output)
     with tempfile.TemporaryDirectory(dir=directory, prefix='.score-export-') as temporary:
@@ -56,6 +57,11 @@ def export_scores(directory, companies, edges, bank, output, manifest):
         np.savez_compressed(staging / 'score_panels.npz', **panels)
         manifest['panels_sha256'] = sha256(staging / 'score_panels.npz')
         manifest['csv_sha256'] = sha256(staging / 'scores_monthly.csv')
+        episodes = {'model_version': manifest.get('model_version'), 'as_of': edges[-1].isoformat(),
+                    'companies': build_episodes(panels, state_config)}
+        atomic_json(staging / 'episodes.json', episodes)
+        manifest['episodes_sha256'] = sha256(staging / 'episodes.json')
+        os.replace(staging / 'episodes.json', directory / 'episodes.json')
         for filename in ('scores_monthly.csv', 'score_panels.npz'):
             os.replace(staging / filename, directory / filename)
         atomic_json(directory / 'score_manifest.json', manifest)
@@ -110,7 +116,7 @@ def main():
                 'endpoint_prior_count': int(output['is_prior'][:, -1].sum()),
                 'endpoint_cash_known_count': int(output['cash_known'][:, -1].sum()),
                 'endpoint_erp_used_count': int(output['erp_used'][:, -1].sum())}
-    export_scores(args.output, companies, edges, bank, output, manifest)
+    export_scores(args.output, companies, edges, bank, output, manifest, state_config)
     monitor = monitor_once(args.output)
     print(f"Exported {len(companies)} companies x {len(edges)-1} months to {args.output}", flush=True)
     print(f"Monitor: {monitor['status']}, {len(monitor['new_alerts'])} new notifications.", flush=True)

@@ -52,6 +52,65 @@ class CompanyListResponse(BaseModel):
     items: List[CompanyListItem] = Field(..., description="Lista de empresas")
 
 
+# -------------------------------------------------------------
+# 1b. Episodios de cambio (ver algorythm/EPISODIOS.md)
+# -------------------------------------------------------------
+
+class EpisodeSignal(BaseModel):
+    senal: str
+    antes: float
+    en_deteccion: float
+    delta_puntos: float
+
+
+class EpisodeEscalada(BaseModel):
+    as_of: str
+    estado: str
+
+
+class Episode(BaseModel):
+    direccion: str = Field(..., description="deterioro | mejora")
+    estado: str = Field(..., description="activo | cerrado")
+    cierre: Optional[str] = None
+    motivo_cierre: Optional[str] = None
+    deteccion: str
+    estado_deteccion: str
+    score_deteccion: float
+    escaladas: List[EpisodeEscalada] = []
+    inicio_estimado: str
+    referencia_base_health: float
+    referencia_as_of: Optional[str] = None
+    cambio_material: Optional[str] = None
+    criterio: Optional[str] = None
+    estado_confirmacion: str
+    meses_anticipacion: Optional[int] = None
+    perspectiva: Optional[Dict[str, Any]] = None
+    senales: List[EpisodeSignal] = []
+    familia: str = "salud"
+    texto: str = ""
+
+
+class TrayectoriaDeteccion(BaseModel):
+    as_of: str
+    state: str
+    score: float
+    direccion: str
+
+
+class TrayectoriaMarcas(BaseModel):
+    deteccion: Optional[TrayectoriaDeteccion] = None
+    camino: Optional[Dict[str, Any]] = None
+    texto: str = ""
+
+
+class EpisodiosParametros(BaseModel):
+    persistence_months: int = 3
+    neutral_persistence_months: int = 2
+    material_delta: float = 10.0
+    material_persistence: int = 2
+    bands: List[float] = [40.0, 70.0]
+
+
 class CompanyDetailResponse(BaseModel):
     company_id: str
     group_id: str
@@ -83,6 +142,11 @@ class CompanyDetailResponse(BaseModel):
     line_utilization: float = Field(0.0, description="Utilización de línea de crédito (%)")
     customer_hhi: Optional[float] = Field(None, description="Concentración de clientes (HHI)")
     daily_burn: float = Field(0.0, description="Gasto operativo diario medio (€/día)")
+    episodios: List[Episode] = Field([], description="Episodios de cambio detectados (ambas direcciones)")
+    episodio_destacado: Optional[int] = Field(None, description="Índice del episodio destacado (activo o último cerrado)")
+    perspectivas_sin_aviso: List[Dict[str, Any]] = Field([], description="Perspectivas caducadas sin episodio asociado")
+    trayectoria_marcas: Optional[TrayectoriaMarcas] = Field(None, description="Marcas del episodio destacado para la trayectoria")
+    parametros_episodios: Optional[EpisodiosParametros] = Field(None, description="Umbrales declarados del motor de episodios")
 
 
 # -------------------------------------------------------------
