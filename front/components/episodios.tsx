@@ -32,6 +32,14 @@ function fraseConfirmacion(ep: Episodio): string {
 
 const COLOR = { deterioro: "var(--color-warm)", mejora: "var(--color-success)" } as const;
 
+/* El estado al detectar es un dato con signo: merece su color, no el gris del
+   párrafo. Verde y rojo literales porque --color-success es morado aquí. */
+const ESTADO_COLOR: Record<string, string> = {
+  MEJORANDO: "#80efa2", RECUPERACION: "#9fe3b4", ESTABLE: "var(--color-ink-2)",
+  BACHE: "#dfb631", TORCIENDOSE: "#e59f5e", DETERIORO: "#e5775b",
+  EVALUACION_PENDIENTE: "var(--color-ink-4)",
+};
+
 export function EpisodiosPanel({ episodios, destacado, trayectoria }: {
   episodios: Episodio[];
   destacado: number | null;
@@ -52,9 +60,22 @@ export function EpisodiosPanel({ episodios, destacado, trayectoria }: {
           </p>
           <p className="mt-1 text-[12px] leading-relaxed text-[var(--color-ink-3)]">
             Episodio de {ep.direccion} {ep.estado === "activo" ? "activo" : `cerrado en ${mesAno(ep.cierre ?? ep.deteccion)}`}
-            {" · "}estado al detectar: {ESTADOS_MOTOR[ep.estado_deteccion] ?? ep.estado_deteccion}.
-            {ep.senales.length > 0 && ` Señales: ${ep.senales.map((s) => s.senal).join(", ")}.`}
+            {" · "}estado al detectar:{" "}
+            <span style={{ color: ESTADO_COLOR[ep.estado_deteccion] ?? "var(--color-ink-2)" }}>
+              {ESTADOS_MOTOR[ep.estado_deteccion] ?? ep.estado_deteccion}
+            </span>.
           </p>
+          {ep.senales.length > 0 && (
+            <div className="mt-2 flex flex-wrap items-center gap-1.5">
+              <span className="text-[11px] text-[var(--color-ink-4)]">señales</span>
+              {ep.senales.map((s) => (
+                <span key={s.senal} className="rounded-full px-2 py-[3px] text-[11px]"
+                  style={{ color, background: `color-mix(in srgb, ${color} 14%, transparent)` }}>
+                  {s.senal}
+                </span>
+              ))}
+            </div>
+          )}
         </div>
         {episodios.length > 1 && (
           <button

@@ -94,7 +94,7 @@ export default async function Flujos({ searchParams }: { searchParams: Promise<R
                 </div>
                 <div className="mt-3">
                   {grafo.edges.length > 0
-                    ? <Grafo nodos={grafo.nodes} aristas={grafo.edges} vista="embat" />
+                    ? <Grafo nodos={grafo.nodes} aristas={grafo.edges} />
                     : <Vacio titulo="Sin flujos internos con este umbral" texto="Baja a ≥ 2 coincidencias o elige otro grupo." />}
                 </div>
               </Card>

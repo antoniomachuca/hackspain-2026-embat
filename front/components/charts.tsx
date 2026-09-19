@@ -156,15 +156,20 @@ export function Trayectoria({ datos, deteccion, camino, comparador, altura = 220
       <AreaChart data={merged} margin={{ top: 20, right: 12, bottom: 0, left: -18 }}>
         <defs>
           <linearGradient id="grad" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stopColor="#b083e8" stopOpacity={0.30} />
-            <stop offset="100%" stopColor="#b083e8" stopOpacity={0} />
+            <stop offset="0%"   stopColor="#80efa2" stopOpacity={0.26} />
+            <stop offset="20%"  stopColor="#9fe3b4" stopOpacity={0.22} />
+            <stop offset="40%"  stopColor="#b083e8" stopOpacity={0.20} />
+            <stop offset="55%"  stopColor="#dfb631" stopOpacity={0.17} />
+            <stop offset="75%"  stopColor="#e59f5e" stopOpacity={0.13} />
+            <stop offset="100%" stopColor="#e5775b" stopOpacity={0.05} />
           </linearGradient>
         </defs>
-        <CartesianGrid stroke="rgba(255,255,255,.07)" vertical={false} />
-        <XAxis dataKey="mes" tickFormatter={mesCorto} tick={EJE} tickLine={false} axisLine={{ stroke: "rgba(255,255,255,.12)" }} interval={3} />
+        <CartesianGrid stroke="rgba(176,131,232,.10)" vertical={false} />
+        <XAxis dataKey="mes" tickFormatter={mesCorto} tick={EJE} tickLine={false} axisLine={{ stroke: "rgba(176,131,232,.22)" }} interval={3} />
         <YAxis domain={[0, 100]} ticks={[0, 25, 50, 75, 100]} tick={EJE} tickLine={false} axisLine={false} width={44} />
         <Tooltip content={<CajaDeteccion deteccion={deteccion} />} />
-        <ReferenceLine y={60} stroke="rgba(255,255,255,.14)" strokeDasharray="3 3" />
+        <ReferenceLine y={60} stroke="#dfb631" strokeOpacity={0.42} strokeDasharray="3 3"
+          label={{ value: "umbral 60", position: "insideBottomLeft", fontSize: 9.5, fill: "rgba(223,182,49,.62)", offset: 6 }} />
         <Area type="monotone" dataKey="score" name="Score" stroke="#b083e8" strokeWidth={2.2} fill="url(#grad)" dot={false} />
         {comparador && (
           <Line type="monotone" dataKey="otro" name={comparador.nombre} stroke="#e59f5e" strokeWidth={2.2} strokeDasharray="4 3" dot={false} />
@@ -175,6 +180,10 @@ export function Trayectoria({ datos, deteccion, camino, comparador, altura = 220
               value: `Aquí detectamos señales de ${deteccion.direccion}`,
               position: "insideTopLeft", fontSize: 10, fill: colorDet,
             }} />
+        )}
+        {detPunto && (
+          <ReferenceDot x={detPunto.mes} y={detPunto.score} r={9}
+            fill={colorDet} fillOpacity={0.2} stroke="none" />
         )}
         {detPunto && (
           <ReferenceDot x={detPunto.mes} y={detPunto.score} r={5}
@@ -238,7 +247,7 @@ export function Histograma({ datos, altura = 180 }: { datos: Array<{ bucket: num
   return (
     <ResponsiveContainer width="100%" height={altura}>
       <BarChart data={filas} margin={{ top: 8, right: 8, bottom: 0, left: -18 }}>
-        <CartesianGrid stroke="rgba(255,255,255,.07)" vertical={false} />
+        <CartesianGrid stroke="rgba(176,131,232,.10)" vertical={false} />
         <XAxis dataKey="tramo" tick={EJE} tickLine={false} axisLine={{ stroke: "rgba(255,255,255,.12)" }} interval={0} />
         <YAxis tick={EJE} tickLine={false} axisLine={false} width={44} allowDecimals={false} />
         <Tooltip content={<Caja />} cursor={{ fill: "rgba(255,255,255,.05)" }} />
