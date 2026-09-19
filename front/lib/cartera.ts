@@ -6,11 +6,11 @@
 export type Segmento = "APOSTAR" | "VIGILAR" | "ACOMPANAR";
 
 export const SEGMENTOS: Record<Segmento, { label: string; accion: string; color: string; bg: string }> = {
-  APOSTAR:   { label: "Apostar",   accion: "Sana y creciendo. Candidata a línea de crédito o módulo sin coste.",
+  APOSTAR:   { label: "Apostar",   accion: "Sana y creciendo: candidata a línea de crédito.",
                color: "#80efa2", bg: "rgba(128,239,162,.14)" },
-  VIGILAR:   { label: "Vigilar",   accion: "Empieza a torcerse. Retención: ofrecer ayuda antes de perder al cliente.",
+  VIGILAR:   { label: "Vigilar",   accion: "Empieza a torcerse: ofrecer ayuda antes de perderla.",
                color: "#e5775b", bg: "rgba(229,119,91,.14)" },
-  ACOMPANAR: { label: "Acompañar", accion: "Bache puntual. Seguimiento cercano, sin actuar todavía.",
+  ACOMPANAR: { label: "Acompañar", accion: "Bache puntual: seguir de cerca, sin actuar aún.",
                color: "#dfb631", bg: "rgba(223,182,49,.14)" },
 };
 

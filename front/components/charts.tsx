@@ -165,21 +165,40 @@ export function Trayectoria({ datos, deteccion, camino, comparador, altura = 220
   }));
   const detPunto = deteccion ? datos.find((d) => d.mes === deteccion.mes) : undefined;
   const camPunto = camino ? datos.find((d) => d.mes === camino.mes) : undefined;
-  const colorDet = deteccion
-    ? COLOR_DETECCION[deteccion.direccion] ?? "var(--color-warm)"
-    : "var(--color-warm)";
   const colorCam = COLOR_CAMINO[(camino?.familia === "circulante" ? "circulante" : "salud")];
+
+  // El corte del degradado, en % del ancho, es el mes de la detección.
+  const trazoId = `trazo-${gradientId}`;
+  const areaId = `area-${gradientId}`;
+  const iDet = deteccion ? datos.findIndex((d) => d.mes === deteccion.mes) : -1;
+  const hayCorte = iDet > 0 && datos.length > 1;
+  const corte = hayCorte ? Math.round((iDet / (datos.length - 1)) * 100) : 100;
+  const colorAntes = "#b083e8";
+  const colorDespues = hayCorte
+    ? (deteccion!.direccion === "deterioro" ? "#e59f5e" : "#80efa2")
+    : colorAntes;
   return (
     <ResponsiveContainer width="100%" height={altura}>
       <AreaChart data={merged} margin={{ top: 20, right: 12, bottom: 0, left: -18 }}>
         <defs>
+          {/* El color va a lo largo del tiempo, no de la altura: la serie es
+              morada hasta el mes en que saltó la detección y toma el color del
+              episodio a partir de ahí. El corte cae exactamente en ese mes. */}
           <linearGradient id={gradientId} x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%"   stopColor="#80efa2" stopOpacity={0.26} />
-            <stop offset="20%"  stopColor="#9fe3b4" stopOpacity={0.22} />
-            <stop offset="40%"  stopColor="#b083e8" stopOpacity={0.20} />
-            <stop offset="55%"  stopColor="#dfb631" stopOpacity={0.17} />
-            <stop offset="75%"  stopColor="#e59f5e" stopOpacity={0.13} />
-            <stop offset="100%" stopColor="#e5775b" stopOpacity={0.05} />
+            <stop offset="0%"   stopColor={colorAntes} stopOpacity={0.26} />
+            <stop offset="100%" stopColor={colorAntes} stopOpacity={0} />
+          </linearGradient>
+          <linearGradient id={trazoId} x1="0" y1="0" x2="1" y2="0">
+            <stop offset="0%"            stopColor={colorAntes} />
+            <stop offset={`${corte}%`}   stopColor={colorAntes} />
+            <stop offset={`${corte}%`}   stopColor={colorDespues} />
+            <stop offset="100%"          stopColor={colorDespues} />
+          </linearGradient>
+          <linearGradient id={areaId} x1="0" y1="0" x2="1" y2="0">
+            <stop offset="0%"            stopColor={colorAntes} stopOpacity={0.22} />
+            <stop offset={`${corte}%`}   stopColor={colorAntes} stopOpacity={0.22} />
+            <stop offset={`${corte}%`}   stopColor={colorDespues} stopOpacity={0.24} />
+            <stop offset="100%"          stopColor={colorDespues} stopOpacity={0.06} />
           </linearGradient>
         </defs>
         <CartesianGrid stroke="rgba(176,131,232,.10)" vertical={false} />
@@ -188,20 +207,25 @@ export function Trayectoria({ datos, deteccion, camino, comparador, altura = 220
         <Tooltip content={<CajaDeteccion deteccion={deteccion} camino={camino} />} />
         <ReferenceLine y={60} stroke="#dfb631" strokeOpacity={0.42} strokeDasharray="3 3"
           label={{ value: "umbral 60", position: "insideBottomLeft", fontSize: 9.5, fill: "rgba(223,182,49,.62)", offset: 6 }} />
-        <Area type="monotone" dataKey="score" name="Score" stroke="#b083e8" strokeWidth={2.2} fill={`url(#${gradientId})`} dot={false} isAnimationActive={false} />
+        <Area type="monotone" dataKey="score" name="Score" stroke={hayCorte ? `url(#${trazoId})` : colorAntes} strokeWidth={2.2}
+          fill={`url(#${hayCorte ? areaId : gradientId})`} dot={false} isAnimationActive={false} />
         {comparador && (
           <Line type="monotone" dataKey="otro" name={comparador.nombre} stroke="#e59f5e" strokeWidth={2.2} strokeDasharray="4 3" dot={false} isAnimationActive={false} />
         )}
         {deteccion && (
-          <ReferenceLine x={deteccion.mes} stroke={colorDet} strokeDasharray="4 3" />
+          <ReferenceLine x={deteccion.mes} stroke="rgba(255,255,255,.72)" strokeDasharray="4 3"
+            label={{
+              value: `Aquí detectamos señales de ${deteccion.direccion}`,
+              position: "insideTopLeft", fontSize: 10, fill: "rgba(255,255,255,.82)",
+            }} />
         )}
         {detPunto && (
           <ReferenceDot x={detPunto.mes} y={detPunto.score} r={9}
-            fill={colorDet} fillOpacity={0.2} stroke="none" />
+            fill="#ffffff" fillOpacity={0.16} stroke="none" />
         )}
         {detPunto && (
           <ReferenceDot x={detPunto.mes} y={detPunto.score} r={5}
-            fill={colorDet} stroke="#0a0810" strokeWidth={2} />
+            fill="#ffffff" stroke="#0a0810" strokeWidth={2} />
         )}
         {camPunto && (
           <ReferenceDot x={camPunto.mes} y={camPunto.score} r={5.5}

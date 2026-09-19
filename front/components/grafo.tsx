@@ -382,20 +382,30 @@ export function Grafo({ nodos, aristas, destacar, alto = 520 }: {
               const denso = layout.aristas.length > 60 ? 0.55 : 1;
               const opacidad = (0.26 + 0.44 * Math.min(1, a.matches / 12)) * denso;
               const toca = destacar && (a.source.company_id === destacar || a.target.company_id === destacar);
+              const traza = `M${sx},${sy} Q${mx},${my} ${tx},${ty}`;
+              const globo = (
+                <>
+                  <p className="font-medium">{corto(a.source.company_id)} → {corto(a.target.company_id)}</p>
+                  <p className="tnum text-[var(--color-ink-3)]">{eur(a.eur)} · {a.matches} coincidencias · último {mesCorto(a.last_date.slice(0, 7))}</p>
+                </>
+              );
               return (
-                <path key={i} d={`M${sx},${sy} Q${mx},${my} ${tx},${ty}`} fill="none"
-                  stroke={toca ? "#b9b2d6" : "#8d88ab"} strokeWidth={grosor} strokeOpacity={opacidad} strokeLinecap="round"
-                  markerEnd={`url(#${marcador})`} style={{ cursor: "help", pointerEvents: gestoUi ? "none" : "stroke" }}
-                  onMouseMove={(e) => {
-                    if (gesto.current) return;
-                    setHover({ x: e.clientX, y: e.clientY, texto: (
-                      <>
-                        <p className="font-medium">{corto(a.source.company_id)} → {corto(a.target.company_id)}</p>
-                        <p className="tnum text-[var(--color-ink-3)]">{eur(a.eur)} · {a.matches} coincidencias · último {mesCorto(a.last_date.slice(0, 7))}</p>
-                      </>
-                    ) });
-                  }}
-                  onMouseLeave={() => setHover(null)} />
+                <g key={i}>
+                  {/* La arista fina es imposible de acertar con el ratón: el
+                      trazo invisible de debajo es el que recibe el puntero. */}
+                  <path d={traza} fill="none" stroke="transparent" strokeWidth={Math.max(24, grosor + 18)}
+                    strokeLinecap="round"
+                    style={{ cursor: "help", pointerEvents: gestoUi ? "none" : "stroke" }}
+                    onMouseMove={(e) => {
+                      if (gesto.current) return;
+                      setHover({ x: e.clientX, y: e.clientY, texto: globo });
+                    }}
+                    onMouseLeave={() => setHover(null)} />
+                  <path d={traza} fill="none"
+                    stroke={toca ? "#b9b2d6" : "#8d88ab"} strokeWidth={grosor} strokeOpacity={opacidad}
+                    strokeLinecap="round" markerEnd={`url(#${marcador})`}
+                    style={{ pointerEvents: "none" }} />
+                </g>
               );
             })}
 

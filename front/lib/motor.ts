@@ -3,8 +3,8 @@
  * Si el motor no responde, `cargar()` devuelve null y la página cae al modo demo.
  */
 import {
-  apiEmpresa, apiHistoria, apiPeers, apiPalancas, apiRankings, apiWhatIf, apiEmpresasDeGrupo, apiGrupos, apiGrupo, apiEmpresas, apiSimular, apiPrevisionEstructural,
-  BLOQUES, type ApiHistoria, type ApiReparto, type ApiEmpresa, type ApiSugerencia, type ApiPalanca, type ApiWhatIfResponse,
+  apiEmpresa, apiHistoria, apiPeers, apiPalancas, apiRankings, apiWhatIf, apiEmpresasDeGrupo, apiGrupos, apiGrupo, apiEmpresas, apiSimular, apiPrevisionEstructural, apiGrafoResumen,
+  BLOQUES, type ApiGrupoDetalle, type ApiHistoria, type ApiReparto, type ApiEmpresa, type ApiSugerencia, type ApiPalanca, type ApiWhatIfResponse,
 } from "./api";
 import { LAST_CLOSED_MONTH, mesDePunto, mesCerradoDeAsOf } from "./calendar";
 import { payloadPalanca } from "./palanca-payload";
@@ -590,6 +590,89 @@ export function mapReparto(
         reason: d.reason,
         razon: d.razon,
       })),
+    };
+  });
+}
+
+/* ── La cartera de grupos, con el motivo por el que cada uno pide algo ─── */
+
+export type MotivoGrupo = "CONTAGIO" | "DETERIORO" | "DISPERSION" | "OPORTUNIDAD" | "SIN_SENAL";
+
+export type GrupoCartera = {
+  id: string;
+  nombre: string;
+  erp: string | null;
+  filiales: number;
+  media: number;
+  consolidado: number;
+  penalizacion: number;
+  peor: { id: string; score: number };
+  mejor: { id: string; score: number };
+  enRiesgo: number;
+  cobertura: number;
+  flujoInterno: number;      // euros que se mueven entre sus sociedades
+  motivo: MotivoGrupo;
+  /** Cuánto duele, para ordenar dentro de su motivo. */
+  gravedad: number;
+};
+
+/**
+ * El motivo es una regla, no un modelo, y se evalúa en orden: lo que se mira
+ * primero es lo que ningún score por empresa puede ver —que una filial
+ * arrastre al grupo entero—, y solo después lo que se repite en varias.
+ */
+function motivoDe(g: ApiGrupoDetalle): MotivoGrupo {
+  const pctRiesgo = g.risk_companies_count / Math.max(1, g.company_count);
+  if (g.contagion_penalty > 0) return "CONTAGIO";
+  if (g.risk_companies_count >= 3 || pctRiesgo >= 0.3) return "DETERIORO";
+  if (g.best_company_score - g.worst_company_score >= 30) return "DISPERSION";
+  if (g.consolidated_score >= 65 && g.risk_companies_count === 0) return "OPORTUNIDAD";
+  return "SIN_SENAL";
+}
+
+function gravedadDe(g: ApiGrupoDetalle, motivo: MotivoGrupo) {
+  switch (motivo) {
+    case "CONTAGIO":    return g.contagion_penalty;
+    case "DETERIORO":   return g.risk_companies_count;
+    case "DISPERSION":  return g.best_company_score - g.worst_company_score;
+    case "OPORTUNIDAD": return g.consolidated_score;
+    default:            return 0;
+  }
+}
+
+export async function cargarCarteraGrupos(): Promise<GrupoCartera[]> {
+  const lista = await apiGrupos(250);
+  if (!lista?.groups?.length) return [];
+
+  // El detalle va uno por grupo, pero son 250 llamadas de ~1,5 ms contra el
+  // motor local: en lotes sale en menos de medio segundo y trae lo único que
+  // justifica esta pantalla —consolidado, contagio, mejor y peor filial—.
+  const detalles: (ApiGrupoDetalle | null)[] = [];
+  const ids = lista.groups.map((g) => g.group_id);
+  for (let i = 0; i < ids.length; i += 40) {
+    detalles.push(...await Promise.all(ids.slice(i, i + 40).map((id) => apiGrupo(id))));
+  }
+
+  const flujos = await apiGrafoResumen(250, 1);
+  const porGrupo = new Map((flujos?.groups ?? []).map((g) => [g.group_id, g.eur]));
+
+  return detalles.filter((d): d is ApiGrupoDetalle => !!d).map((g) => {
+    const motivo = motivoDe(g);
+    return {
+      id: g.group_id,
+      nombre: g.group_id.replace("GROUP_", "Grupo "),
+      erp: g.erp,
+      filiales: g.company_count,
+      media: g.average_score,
+      consolidado: g.consolidated_score,
+      penalizacion: g.contagion_penalty,
+      peor: { id: g.worst_company_id, score: g.worst_company_score },
+      mejor: { id: g.best_company_id, score: g.best_company_score },
+      enRiesgo: g.risk_companies_count,
+      cobertura: g.data_coverage_percentage,
+      flujoInterno: porGrupo.get(g.group_id) ?? 0,
+      motivo,
+      gravedad: gravedadDe(g, motivo),
     };
   });
 }
