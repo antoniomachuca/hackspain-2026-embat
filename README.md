@@ -238,6 +238,7 @@ flowchart TD
 
 5. **Monitor Proactivo de Tesorería (`algorythm/score_monitor.py`):**
    - Detección automática de transiciones de régimen y bot de Telegram integrado para notificaciones inmediatas con desglose aditivo del motivo del cambio.
+   - Canal de correo (`algorythm/email_notifier.py`) que avisa a la propia empresa cuando entra en Torciéndose o Deterioro, con la gráfica de 24 meses incrustada. En local contra Mailpit; ver `algorythm/EMAIL.md`.
 
 ---
 
@@ -252,6 +253,7 @@ flowchart TD
 │   ├── levers_catalog.py       # Catálogo de palancas operativas y financieras
 │   ├── score_monitor.py        # Generador de alertas causales y lead time
 │   ├── score_telegram_bot.py   # Bot de notificaciones en Telegram
+│   ├── email_notifier.py       # Aviso por correo a la empresa afectada (Mailpit en local, ver EMAIL.md)
 │   └── build_duckdb.py         # Pipeline de ingesta hacia DuckDB
 ├── backend/                    # Capa de servicios REST (FastAPI)
 │   ├── main.py                 # Punto de entrada de la API y registro de routers

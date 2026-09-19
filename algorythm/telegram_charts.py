@@ -13,10 +13,15 @@ PANELS_PATH = HERE / 'engine_results' / 'score_panels.npz'
 
 def generate_company_chart(
     company_id: str,
-    panels_path: Optional[Union[str, Path]] = None
+    panels_path: Optional[Union[str, Path]] = None,
+    theme: str = 'telegram',
 ) -> bytes:
     """
     Renders a 24-month financial health trajectory chart for a given company.
+
+    theme='telegram' is the original corporate navy/teal look used by the bot and
+    the backend PNG endpoint. theme='embat' mirrors the front's Trayectoria chart
+    (front/components/charts.tsx): black background, purple line, quiet grid.
     
     Styling:
     - Corporate dark mode (#050B2C background, #081138 plot area)
@@ -95,6 +100,9 @@ def generate_company_chart(
             labels.append(f"{parts[1]}/{parts[0][2:]}")
         else:
             labels.append(d)
+
+    if theme == 'embat':
+        return _draw_embat(scores, as_of_raw, latest_state)
 
     # Matplotlib styling
     plt.style.use('dark_background')
@@ -226,6 +234,59 @@ def generate_company_chart(
             bbox_inches='tight'
         )
         buffer.seek(0)
+        return buffer.getvalue()
+    finally:
+        plt.close(fig)
+
+
+# ── Tema Embat: el mismo dibujo que front/components/charts.tsx (Trayectoria) ──
+EMBAT_BG = '#131218'            # superficie de tarjeta sobre --color-deep
+EMBAT_LINE = '#b083e8'          # --color-purple
+EMBAT_INK_3 = '#afafbb'         # eje
+EMBAT_ESTADO = {
+    'DETERIORO': '#e5775b', 'TORCIENDOSE': '#e59f5e', 'BACHE': '#dfb631',
+    'ESTABLE': '#9fe3b4', 'MEJORANDO': '#80efa2', 'RECUPERACION': '#80efa2',
+}
+MESES = ['ene', 'feb', 'mar', 'abr', 'may', 'jun', 'jul', 'ago', 'sep', 'oct', 'nov', 'dic']
+
+
+def _mes_corto(iso: str) -> str:
+    parts = iso.split('-')
+    if len(parts) < 2 or not parts[1].isdigit():
+        return iso
+    return f"{MESES[int(parts[1]) - 1]} {parts[0][2:]}"
+
+
+def _draw_embat(scores, as_of_raw, latest_state) -> bytes:
+    x = np.arange(len(scores))
+    fig, ax = plt.subplots(figsize=(6.7, 3.0), dpi=160)
+    try:
+        fig.patch.set_facecolor(EMBAT_BG)
+        ax.set_facecolor(EMBAT_BG)
+        ax.fill_between(x, scores, 0, color=EMBAT_LINE, alpha=0.16, linewidth=0, zorder=2)
+        ax.plot(x, scores, color=EMBAT_LINE, linewidth=2.2, solid_capstyle='round', zorder=3)
+        ax.axhline(60.0, color='white', alpha=0.14, linestyle=(0, (3, 3)), linewidth=1.0, zorder=2)
+        color = EMBAT_ESTADO.get(latest_state, '#afafbb')
+        ax.plot(x[-1], scores[-1], marker='o', markersize=8.5, color=color,
+                markeredgecolor='#0a0810', markeredgewidth=2, zorder=5)
+        ax.annotate(f"{scores[-1]:.1f}".replace('.', ','), xy=(x[-1], scores[-1]),
+                    xytext=(0, 12 if scores[-1] < 85 else -18), textcoords='offset points',
+                    ha='center', color=color, fontsize=12, fontweight='bold', zorder=6)
+        ax.set_xlim(-0.5, len(scores) - 0.5)
+        ax.set_ylim(0, 100)
+        ax.set_yticks([0, 25, 50, 75, 100])
+        ax.set_xticks(x[::3])
+        ax.set_xticklabels([_mes_corto(as_of_raw[i]) for i in x[::3]])
+        ax.tick_params(colors=EMBAT_INK_3, labelsize=11, length=0, pad=6)
+        ax.grid(True, axis='y', color='white', alpha=0.07, linewidth=1)
+        ax.grid(False, axis='x')
+        for side, spine in ax.spines.items():
+            spine.set_visible(side == 'bottom')
+            spine.set_edgecolor('white')
+            spine.set_alpha(0.12)
+        plt.tight_layout(pad=0.6)
+        buffer = io.BytesIO()
+        plt.savefig(buffer, format='png', facecolor=EMBAT_BG, edgecolor='none')
         return buffer.getvalue()
     finally:
         plt.close(fig)
