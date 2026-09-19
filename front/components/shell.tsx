@@ -70,7 +70,7 @@ const seccionesDe = (modo: Modo, empresa: string): Seccion[] => [
             label: "X Ray", nota: "Salud financiera y anticipación", icono: I.rayos, href: `/${empresa}`,
             hijos: [
               { href: `/${empresa}`, label: "Resumen", icono: I.panel },
-              { href: "/grupos", label: "Mi grupo", icono: I.grupo },
+              { href: `/${empresa}/grupo`, label: "Mi grupo", icono: I.grupo },
               { href: "/comparar", label: "Escenarios", icono: I.rayos },
             ],
           },
@@ -98,9 +98,17 @@ const seccionesDe = (modo: Modo, empresa: string): Seccion[] => [
   },
 ];
 
+/** Qué entrada del submenú se enciende. Las raíces ("/" y "/COMP_xxxx") solo en exacto o en sus fichas. */
+function activoHijo(href: string, path: string, empresa: string): boolean {
+  if (href === "/") return path === "/" || path.startsWith("/embat");
+  if (href === `/${empresa}`) return path === href || path.startsWith("/empresa/");
+  return path.startsWith(href);
+}
+
 export function Shell({ children }: { children: React.ReactNode }) {
   const path = usePathname();
   const [abierto, setAbierto] = useState(true);
+  const [movilAbierto, setMovilAbierto] = useState(false);
 
   // El modo se deduce de la ruta; en las compartidas (/grupos, /comparar) se
   // conserva el último conocido para que el menú no salte.
@@ -110,6 +118,7 @@ export function Shell({ children }: { children: React.ReactNode }) {
   // sessionStorage solo existe tras hidratar; leerlo en el effect evita un desajuste con el servidor.
   /* eslint-disable react-hooks/set-state-in-effect */
   useEffect(() => {
+    setMovilAbierto(false);
     const m = modoDe(path);
     const id = empresaDe(path);
     try {
@@ -130,11 +139,17 @@ export function Shell({ children }: { children: React.ReactNode }) {
     setAbierto((a) => { try { localStorage.setItem("xray:panel", a ? "0" : "1"); } catch {} return !a; });
   };
 
+  const abrirMovil = () => { setAbierto(true); setMovilAbierto(true); };
+  const cerrarMovil = () => setMovilAbierto(false);
+
   return (
     <div className="flex min-h-screen">
-      <aside className={`panel-lat ${abierto ? "abierto" : "cerrado"} hidden sm:flex`}>
+      {movilAbierto && (
+        <button type="button" className="fixed inset-0 z-40 bg-black/60 sm:hidden" aria-label="Cerrar menú" onClick={cerrarMovil} />
+      )}
+      <aside className={`panel-lat ${abierto ? "abierto" : "cerrado"} ${movilAbierto ? "movil" : "hidden"} sm:flex`}>
         <div className="pl-cab">
-          <button onClick={alternar} className="rail-marca" title={abierto ? "Plegar el menú" : "Desplegar el menú"}
+          <button onClick={() => { alternar(); cerrarMovil(); }} className="rail-marca" title={abierto ? "Plegar el menú" : "Desplegar el menú"}
             aria-label={abierto ? "Plegar el menú" : "Desplegar el menú"} aria-expanded={abierto}>
             <Isotipo size={19} />
           </button>
@@ -170,7 +185,7 @@ export function Shell({ children }: { children: React.ReactNode }) {
                       <div className="pl-hijos">
                         {m.hijos.map((h) => (
                           <Link key={h.href} href={h.href}
-                            className={`pl-hijo ${(h.href === "/" ? path === "/" || path.startsWith("/embat") : path.startsWith(h.href)) ? "on" : ""}`}>
+                            className={`pl-hijo ${activoHijo(h.href, path, empresa) ? "on" : ""}`}>
                             <Icono width="14" height="14" trazo={h.icono} />
                             {h.label}
                           </Link>
@@ -196,7 +211,10 @@ export function Shell({ children }: { children: React.ReactNode }) {
         </div>
       </aside>
 
-      <main className="min-w-0 flex-1 px-5 py-5 sm:px-7">{children}</main>
+      <button type="button" onClick={abrirMovil} className="fixed left-4 top-3 z-30 flex h-10 items-center gap-2 rounded-full bg-[rgba(8,6,14,.88)] px-4 text-[12px] font-medium text-[var(--color-ink-2)] shadow-lg ring-1 ring-white/10 sm:hidden" aria-label="Abrir menú">
+        <Isotipo size={16} /> Menú
+      </button>
+      <main className="min-w-0 flex-1 px-5 pb-5 pt-16 sm:px-7 sm:py-5">{children}</main>
     </div>
   );
 }
@@ -210,12 +228,21 @@ export function Cabecera({ titulo, sub, extra }: { titulo: string; sub?: React.R
       </div>
       <div className="flex items-center gap-2.5">
         {extra}
-        <button className="flex h-10 w-10 items-center justify-center rounded-full bg-[rgba(255,255,255,.08)] text-[var(--color-ink-2)] transition-colors hover:bg-[rgba(255,255,255,.14)]" aria-label="Buscar">
+        <Link
+          href="/#cartera"
+          className="flex h-10 w-10 items-center justify-center rounded-full bg-[rgba(255,255,255,.08)] text-[var(--color-ink-2)] transition-colors hover:bg-[rgba(255,255,255,.14)]"
+          aria-label="Buscar en la cartera"
+          title="Buscar en la cartera"
+        >
           <Icono width="17" height="17" trazo={<><circle cx="11" cy="11" r="7" /><path d="m20 20-3.2-3.2" /></>} />
-        </button>
+        </Link>
         <span className="flex h-10 w-10 items-center justify-center rounded-full text-[13px] font-semibold"
-          style={{ background: "linear-gradient(145deg,var(--color-purple-mid),var(--color-purple-deep))", color: "#0d0416" }}>
-          Q
+          style={{ background: "linear-gradient(145deg,var(--color-purple-mid),var(--color-purple-deep))", color: "#0d0416" }}
+          role="img"
+          aria-label="Perfil"
+          title="Perfil"
+        >
+          <Icono width="18" height="18" trazo={<><circle cx="12" cy="8" r="3.2" /><path d="M5 20c.8-3.2 3.1-5 7-5s6.2 1.8 7 5" /></>} />
         </span>
       </div>
     </header>

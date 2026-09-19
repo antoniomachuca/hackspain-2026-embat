@@ -15,6 +15,7 @@ from algorythm.score_episodes import empty_company_episodes, episodes_for_compan
 from algorythm.telegram_charts import generate_company_chart
 from backend.database import get_cursor, normalize_company_id, query_dicts, query_one
 from backend.routes.forecasts import _load_banks
+from backend.routes.stats import normalize_group_id
 from backend.schemas import (
     CompanyDetailResponse,
     CompanyHistoryResponse,
@@ -103,7 +104,7 @@ def get_companies(
         params.append(max_score)
     if group_id:
         conditions.append("group_id = ?")
-        params.append(group_id.strip().upper())
+        params.append(normalize_group_id(group_id))
     if has_erp is not None:
         conditions.append("has_erp = ?")
         params.append(has_erp)
@@ -125,7 +126,7 @@ def get_companies(
         SELECT *
         FROM v_latest_company_scores
         {where_clause}
-        ORDER BY {order_by} {safe_order_dir}
+        ORDER BY {order_by} {safe_order_dir}, company_id ASC
         LIMIT ? OFFSET ?;
     """
     query_params = tuple(params + [limit, offset])
@@ -602,7 +603,7 @@ def get_company_invoices(
             total_amount, pending_amount, currency, status, concept, counterparty_id
         FROM invoices
         {where_clause}
-        ORDER BY due_date DESC, issue_date DESC
+        ORDER BY due_date DESC, issue_date DESC, invoice_id ASC
         LIMIT ? OFFSET ?;
     """
     rows = query_dicts(inv_sql, tuple(params + [limit, offset]))

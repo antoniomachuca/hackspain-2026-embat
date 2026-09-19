@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import type { Empresa } from "@/lib/data";
 import type { OpcionComparar } from "@/lib/motor";
-import { num, mesCorto, banda } from "@/lib/format";
+import { num, mesCorto } from "@/lib/format";
 import { Cabecera } from "@/components/shell";
 import { Trayectoria } from "@/components/charts";
 import { Card, ScoreBadge, BandaChip, EstadoChip, Delta } from "@/components/ui";
@@ -95,9 +95,9 @@ export default function SplitScreen({
 
         <div className="grid gap-5 lg:grid-cols-2">
           {[
-            { emp: sube, rol: "sube" as const, opts: opcionesSube, onSelect: cambiarSube, label: "Trayectoria de mejora / recuperación" },
-            { emp: baja, rol: "baja" as const, opts: opcionesBaja, onSelect: cambiarBaja, label: "Trayectoria de deterioro / tensión" },
-          ].map(({ emp: e, rol, opts, onSelect, label }) => {
+            { emp: sube, rol: "sube" as const, opts: opcionesSube, onSelect: cambiarSube },
+            { emp: baja, rol: "baja" as const, opts: opcionesBaja, onSelect: cambiarBaja },
+          ].map(({ emp: e, rol, opts, onSelect }) => {
             const primerScore = e.trayectoria[0]?.score ?? 50;
             const ultimoMes = e.trayectoria[e.trayectoria.length - 1]?.mes ?? "2026-09";
             // El gráfico marca el mismo episodio que describe el texto: el último de la dirección del rol.

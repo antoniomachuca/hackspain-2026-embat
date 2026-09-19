@@ -51,6 +51,28 @@ def test_get_companies_default():
     assert "collections_points" in first
 
 
+def test_get_companies_pagination_is_stable_on_ties():
+    """Los empates del campo de ordenación se resuelven por empresa para paginar sin saltos."""
+    response = client.get("/api/companies?order_by=group_id&order_dir=asc&limit=100")
+    assert response.status_code == 200
+    items = response.json()["items"]
+    for group_id in {item["group_id"] for item in items}:
+        ids = [item["company_id"] for item in items if item["group_id"] == group_id]
+        assert ids == sorted(ids)
+
+
+def test_get_companies_filter_group_normalizes_short_ids():
+    """El filtro de empresas acepta las mismas formas de grupo que su endpoint de detalle."""
+    canonical = client.get("/api/companies?group_id=GROUP_0044&limit=100").json()
+    for group_id in ("44", "GROUP44"):
+        response = client.get(f"/api/companies?group_id={group_id}&limit=100")
+        assert response.status_code == 200
+        assert response.json()["total"] == canonical["total"]
+        assert [item["company_id"] for item in response.json()["items"]] == [
+            item["company_id"] for item in canonical["items"]
+        ]
+
+
 def test_get_companies_filter_state():
     """Verifica el filtrado de empresas por estado de riesgo."""
     response = client.get("/api/companies?state=DETERIORO&limit=20")
@@ -175,6 +197,18 @@ def test_get_company_invoices():
         assert "pending_amount" in inv
 
 
+def test_get_company_invoices_pagination_is_stable_on_ties():
+    """Los empates de vencimiento y emisión se resuelven por invoice_id."""
+    response = client.get("/api/companies/COMP_0010/invoices?limit=200")
+    assert response.status_code == 200
+    invoices = response.json()["invoices"]
+    for previous, current in zip(invoices, invoices[1:]):
+        previous_key = (previous["due_date"], previous["issue_date"])
+        current_key = (current["due_date"], current["issue_date"])
+        if previous_key == current_key:
+            assert previous["invoice_id"] <= current["invoice_id"]
+
+
 def test_get_company_chart_png():
     """Verifica la generación de la imagen PNG de trayectoria."""
     response = client.get("/api/companies/COMP_0010/chart")
@@ -223,6 +257,21 @@ def test_get_alerts():
     assert "drivers" in first
 
 
+def test_get_alerts_pagination_is_stable_on_ties():
+    """Los empates de fecha y score se resuelven por alert_id."""
+    response = client.get("/api/alerts?limit=200")
+    assert response.status_code == 200
+    alerts = response.json()["alerts"]
+    for previous, current in zip(alerts, alerts[1:]):
+        previous_key = (previous["as_of"], previous["score"], previous["alert_id"])
+        current_key = (current["as_of"], current["score"], current["alert_id"])
+        assert previous_key[0] >= current_key[0]
+        if previous_key[0] == current_key[0]:
+            assert previous_key[1] <= current_key[1]
+            if previous_key[1] == current_key[1]:
+                assert previous_key[2] <= current_key[2]
+
+
 def test_get_alerts_filter_severity():
     """Verifica el filtrado de alertas por severidad ALTA."""
     response = client.get("/api/alerts?severity=ALTA&limit=5")
@@ -258,3 +307,12 @@ def test_get_groups():
     assert "group_id" in first
     assert "company_count" in first
     assert "average_score" in first
+
+
+def test_get_groups_honors_limit_and_reports_total():
+    """El catálogo respeta el límite solicitado sin perder el total real."""
+    response = client.get("/api/groups?limit=1")
+    assert response.status_code == 200
+    data = response.json()
+    assert data["total"] > len(data["groups"])
+    assert len(data["groups"]) == 1

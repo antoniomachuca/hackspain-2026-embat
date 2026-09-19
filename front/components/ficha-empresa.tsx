@@ -21,7 +21,12 @@ import { EpisodiosPanel } from "@/components/episodios";
 export type Vista = "empresa" | "embat";
 
 export function normalizarId(raw: string): string | null {
-  const limpio = decodeURIComponent(raw).trim().toUpperCase();
+  let limpio: string;
+  try {
+    limpio = decodeURIComponent(raw).trim().toUpperCase();
+  } catch {
+    return null;
+  }
   if (limpio.includes(".") || limpio.startsWith("_") || limpio === "FAVICON.ICO") {
     return null;
   }
@@ -129,9 +134,6 @@ export async function FichaEmpresa({ id, vista }: { id: string; vista: Vista }) 
             <Boton tono="plano" href={`/empresa/${e.id}/drivers`}>
               Ver drivers
             </Boton>
-            <Boton href={`/empresa/${e.id}/escenarios`}>
-              Simular mejoras
-            </Boton>
           </div>
         }
       />
@@ -178,7 +180,7 @@ export async function FichaEmpresa({ id, vista }: { id: string; vista: Vista }) 
           {whatif && (
             <p className="mt-3 border-t border-[var(--color-line)] pt-3 text-[12px] text-[var(--color-ink-3)]">
               Producto Embat con más efecto sobre su score:{" "}
-              <strong className="font-medium text-[var(--color-ink-1)]">{whatif.recommended_product}</strong>
+              <strong className="font-medium text-[var(--color-ink)]">{whatif.recommended_product}</strong>
               {" "}· {eur(whatif.injection_amount)} → {num(whatif.projected_score)} pts ({whatif.delta_score >= 0 ? "+" : ""}{num(whatif.delta_score)}).
             </p>
           )}
@@ -326,7 +328,7 @@ export async function FichaEmpresa({ id, vista }: { id: string; vista: Vista }) 
             <span className="text-[11px] text-[var(--color-ink-3)]">consolidado</span>
             <span className="tnum text-[24px] font-semibold leading-none"
               style={{ color: banda(consolidado).color }}>{num(consolidado)}</span>
-            <Link href={`/grupo/${e.grupo}`} className="ml-2 text-[11.5px] text-[var(--color-purple)] hover:underline">
+            <Link href={embat ? `/grupo/${e.grupo}` : `/${e.id}/grupo`} className="ml-2 text-[11.5px] text-[var(--color-purple)] hover:underline">
               Ver el grupo
             </Link>
           </div>
