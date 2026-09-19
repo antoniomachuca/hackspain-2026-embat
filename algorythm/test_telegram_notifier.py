@@ -58,12 +58,16 @@ class TestTelegramNotifier(unittest.TestCase):
         self.assertIn('MEJORANDO', html)
 
     def test_subscriber_management(self):
-        saved = save_subscribers(['12345', '67890'])
-        self.assertIn('12345', saved)
-        self.assertIn('67890', saved)
-        
-        updated = add_subscriber('99999')
-        self.assertIn('99999', updated)
+        original = load_subscribers()
+        try:
+            saved = save_subscribers(['12345', '67890'])
+            self.assertIn('12345', saved)
+            self.assertIn('67890', saved)
+            
+            updated = add_subscriber('99999')
+            self.assertIn('99999', updated)
+        finally:
+            save_subscribers(original)
 
     @patch('urllib.request.urlopen')
     def test_broadcast_alert_mocked(self, mock_urlopen):

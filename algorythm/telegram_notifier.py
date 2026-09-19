@@ -75,7 +75,22 @@ def add_subscriber(chat_id):
     return current
 
 
-def send_telegram_message(chat_id, text, parse_mode='HTML', bot_token=None):
+def build_alert_keyboard(company_id):
+    cid = str(company_id).strip().upper()
+    return {
+        "inline_keyboard": [
+            [
+                {"text": "📊 Ver Gráfica", "callback_data": f"cb_chart:{cid}"},
+                {"text": "🔍 Desglose CFO", "callback_data": f"cb_drivers:{cid}"}
+            ],
+            [
+                {"text": "💡 Simular What-If", "callback_data": f"cb_whatif:{cid}"}
+            ]
+        ]
+    }
+
+
+def send_telegram_message(chat_id, text, parse_mode='HTML', bot_token=None, reply_markup=None):
     token = bot_token or load_config().get('bot_token')
     if not token:
         return {'ok': False, 'error': 'No bot token configured'}
@@ -87,6 +102,9 @@ def send_telegram_message(chat_id, text, parse_mode='HTML', bot_token=None):
         'parse_mode': parse_mode,
         'disable_web_page_preview': True
     }
+    if reply_markup is not None:
+        payload['reply_markup'] = reply_markup
+
     data = json.dumps(payload).encode('utf-8')
     req = urllib.request.Request(url, data=data, headers={'Content-Type': 'application/json'})
     try:
@@ -95,6 +113,94 @@ def send_telegram_message(chat_id, text, parse_mode='HTML', bot_token=None):
             return json.loads(res_data)
     except Exception as error:
         return {'ok': False, 'error': str(error)}
+
+
+def encode_multipart_formdata(fields, files):
+    import uuid
+    boundary = uuid.uuid4().hex
+    crlf = b'\r\n'
+    lines = []
+    for key, value in fields.items():
+        if value is None:
+            continue
+        lines.append(f'--{boundary}'.encode('utf-8'))
+        lines.append(f'Content-Disposition: form-data; name="{key}"'.encode('utf-8'))
+        lines.append(b'')
+        if isinstance(value, (dict, list)):
+            lines.append(json.dumps(value).encode('utf-8'))
+        else:
+            lines.append(str(value).encode('utf-8'))
+    for key, (filename, file_bytes, content_type) in files.items():
+        lines.append(f'--{boundary}'.encode('utf-8'))
+        lines.append(f'Content-Disposition: form-data; name="{key}"; filename="{filename}"'.encode('utf-8'))
+        lines.append(f'Content-Type: {content_type}'.encode('utf-8'))
+        lines.append(b'')
+        lines.append(file_bytes)
+    lines.append(f'--{boundary}--'.encode('utf-8'))
+    lines.append(b'')
+    body = crlf.join(lines)
+    content_type_header = f'multipart/form-data; boundary={boundary}'
+    return body, content_type_header
+
+
+def send_telegram_photo(chat_id, photo_bytes, caption=None, parse_mode='HTML', reply_markup=None, bot_token=None):
+    token = bot_token or load_config().get('bot_token')
+    if not token:
+        return {'ok': False, 'error': 'No bot token configured'}
+
+    url = f"https://api.telegram.org/bot{token}/sendPhoto"
+    fields = {'chat_id': str(chat_id)}
+    if caption:
+        fields['caption'] = caption
+        if parse_mode:
+            fields['parse_mode'] = parse_mode
+    if reply_markup is not None:
+        if isinstance(reply_markup, (dict, list)):
+            fields['reply_markup'] = json.dumps(reply_markup)
+        else:
+            fields['reply_markup'] = str(reply_markup)
+
+    files = {
+        'photo': ('chart.png', photo_bytes, 'image/png')
+    }
+    body, content_type = encode_multipart_formdata(fields, files)
+    req = urllib.request.Request(
+        url,
+        data=body,
+        headers={
+            'Content-Type': content_type,
+            'Content-Length': str(len(body)),
+            'User-Agent': 'XRayBot/1.0'
+        }
+    )
+    try:
+        with urllib.request.urlopen(req, timeout=15, context=get_ssl_context()) as response:
+            res_data = response.read().decode('utf-8')
+            return json.loads(res_data)
+    except Exception as error:
+        return {'ok': False, 'error': str(error)}
+
+
+def answer_callback_query(callback_query_id, text=None, show_alert=False, bot_token=None):
+    token = bot_token or load_config().get('bot_token')
+    if not token or not callback_query_id:
+        return {'ok': False, 'error': 'Missing token or callback_query_id'}
+
+    url = f"https://api.telegram.org/bot{token}/answerCallbackQuery"
+    payload = {'callback_query_id': callback_query_id}
+    if text:
+        payload['text'] = text
+    if show_alert:
+        payload['show_alert'] = show_alert
+
+    data = json.dumps(payload).encode('utf-8')
+    req = urllib.request.Request(url, data=data, headers={'Content-Type': 'application/json'})
+    try:
+        with urllib.request.urlopen(req, timeout=10, context=get_ssl_context()) as response:
+            return json.loads(response.read().decode('utf-8'))
+    except Exception as error:
+        return {'ok': False, 'error': str(error)}
+
 
 
 def format_alert_html(alert):
@@ -192,7 +298,7 @@ def sync_subscribers_from_updates(bot_token=None):
         return load_subscribers()
 
 
-def broadcast_alert(alert, subscribers=None, bot_token=None):
+def broadcast_alert(alert, subscribers=None, bot_token=None, include_buttons=True):
     config = load_config()
     if not config.get('enabled', True):
         return {'sent': 0, 'failed': 0, 'reason': 'disabled'}
@@ -204,6 +310,9 @@ def broadcast_alert(alert, subscribers=None, bot_token=None):
         return {'sent': 0, 'failed': 0, 'reason': f'severity {severity} below threshold {min_severity}'}
 
     text = format_alert_html(alert)
+    company_id = alert.get('company_id')
+    reply_markup = build_alert_keyboard(company_id) if (include_buttons and company_id) else None
+
     targets = set(subscribers or load_subscribers())
     default_chat = config.get('default_chat_id')
     if default_chat:
@@ -222,7 +331,7 @@ def broadcast_alert(alert, subscribers=None, bot_token=None):
     failed = 0
     token = bot_token or config.get('bot_token')
     for chat_id in targets:
-        res = send_telegram_message(chat_id, text, parse_mode='HTML', bot_token=token)
+        res = send_telegram_message(chat_id, text, parse_mode='HTML', bot_token=token, reply_markup=reply_markup)
         if res.get('ok'):
             sent += 1
         else:

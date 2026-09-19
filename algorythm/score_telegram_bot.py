@@ -16,9 +16,12 @@ if not __package__:
 from algorythm.telegram_notifier import (
     load_config, add_subscriber, load_subscribers,
     send_telegram_message, format_alert_html, broadcast_alert,
+    build_alert_keyboard, send_telegram_photo, answer_callback_query,
     get_ssl_context
 )
 from algorythm.score_monitor import monitor_once
+from algorythm.telegram_charts import generate_company_chart
+from algorythm.score_whatif import simulate_whatif
 
 
 def load_latest_scores():
@@ -55,12 +58,14 @@ def handle_start(chat_id, user_name=""):
         f"🚨 <b>¿Cómo funciona?</b>\n"
         f"El motor vigila continuamente los extractos bancarios y facturas ERP de la cartera. "
         f"Cuando detecte un deterioro real (filtrando baches transitorios y estacionalidad) "
-        f"o una recuperación, <b>te enviará un aviso de inmediato sin que tengas que preguntar</b>.\n\n"
+        f"o una recuperación, <b>te enviará un aviso interactivo de inmediato con botones táctiles</b>.\n\n"
         f"📌 <b>Comandos interactivos disponibles:</b>\n"
         f"• 📉 <code>/top_riesgo</code> : Top 5 empresas en mayor riesgo o deterioro.\n"
-        f"• 🔍 <code>/score &lt;ID&gt;</code> : Consulta una empresa (ej. <code>/score COMP_0010</code>).\n"
+        f"• 🔍 <code>/score &lt;ID&gt;</code> : Ficha financiera y waterfall de factores.\n"
+        f"• 📊 <code>/grafica &lt;ID&gt;</code> : Evolución temporal en modo oscuro (24 meses).\n"
+        f"• 💡 <code>/whatif &lt;ID&gt; [monto]</code> : Simulación contrafactual de rescate/factoring.\n"
         f"• 📜 <code>/alertas</code> : Ver las últimas 5 alertas emitidas por el monitor.\n"
-        f"• ⚡ <code>/simular_alerta</code> : Probar la recepción de una alerta crítica.\n"
+        f"• ⚡ <code>/simular_alerta</code> : Probar alerta crítica con botones táctiles.\n"
         f"• ℹ️ <code>/status</code> : Estado de la cartera y cobertura de datos.\n"
         f"• ❓ <code>/help</code> : Ver esta ayuda en cualquier momento.\n"
         f"━━━━━━━━━━━━━━━━━━━━━━━━━\n"
@@ -76,8 +81,10 @@ def handle_help(chat_id):
         f"• <code>/start</code> - Activar suscripción a alertas proactivas.\n"
         f"• <code>/top_riesgo</code> - Ver las 5 empresas con mayor deterioro o caída de score.\n"
         f"• <code>/score COMP_XXXX</code> - Ver ficha financiera, score (0-100), momentum y waterfall de factores.\n"
+        f"• <code>/grafica COMP_XXXX</code> - Ver gráfico temporal de 24 meses en dark mode.\n"
+        f"• <code>/whatif COMP_XXXX [monto]</code> - Simular inyección de liquidez / factoring Embat.\n"
         f"• <code>/alertas</code> - Histórico de las 5 alertas más recientes del feed.\n"
-        f"• <code>/simular_alerta</code> - Enviar una alerta de prueba con formato completo.\n"
+        f"• <code>/simular_alerta</code> - Enviar una alerta de prueba con botones táctiles.\n"
         f"• <code>/status</code> - Estadísticas del monitor y cartera auditada.\n"
     )
     return send_telegram_message(chat_id, msg)
@@ -157,6 +164,8 @@ def handle_top_risk(chat_id):
 
 def handle_score_query(chat_id, company_id):
     company_id = company_id.strip().upper()
+    if not company_id.startswith("COMP_") and company_id.startswith("COMP") and company_id[4:].isdigit():
+        company_id = f"COMP_{company_id[4:]}"
     panels = load_latest_scores()
     if not panels:
         return send_telegram_message(chat_id, "⚠️ No se han encontrado datos de puntuación disponibles.")
@@ -211,7 +220,8 @@ def handle_score_query(chat_id, company_id):
         f"━━━━━━━━━━━━━━━━━━━━━━━━━\n"
         f"<i>Suma exacta reconciliada (Waterfall = {score:.2f})</i>"
     )
-    return send_telegram_message(chat_id, msg)
+    markup = build_alert_keyboard(company_id)
+    return send_telegram_message(chat_id, msg, reply_markup=markup)
 
 
 def handle_recent_alerts(chat_id):
@@ -263,7 +273,94 @@ def handle_simulate_alert(chat_id):
         ]
     }
     text = format_alert_html(dummy_alert)
-    return send_telegram_message(chat_id, text)
+    markup = build_alert_keyboard('COMP_0010')
+    return send_telegram_message(chat_id, text, reply_markup=markup)
+
+
+def parse_amount(val_str):
+    if not val_str:
+        return None
+    s = str(val_str).strip().lower().replace('€', '').replace('eur', '').replace(' ', '').strip()
+    try:
+        if s.endswith('k'):
+            return float(s[:-1].replace(',', '.')) * 1000.0
+        if s.endswith('m'):
+            return float(s[:-1].replace(',', '.')) * 1000000.0
+        if '.' in s and ',' in s:
+            if s.find('.') < s.find(','):
+                s = s.replace('.', '').replace(',', '.')
+            else:
+                s = s.replace(',', '')
+        elif '.' in s:
+            parts = s.split('.')
+            if len(parts) == 2 and len(parts[1]) == 3 and parts[1].isdigit():
+                s = parts[0] + parts[1]
+        elif ',' in s:
+            parts = s.split(',')
+            if len(parts) == 2 and len(parts[1]) == 3 and parts[1].isdigit():
+                s = parts[0] + parts[1]
+            else:
+                s = s.replace(',', '.')
+        return float(s)
+    except Exception:
+        return None
+
+
+def handle_chart_query(chat_id, company_id):
+    cid = company_id.strip().upper()
+    try:
+        photo_bytes = generate_company_chart(cid)
+        caption = (
+            f"📊 <b>Trayectoria Histórica Score 24M · {cid}</b>\n"
+            f"━━━━━━━━━━━━━━━━━━━━━━━━━\n"
+            f"Evolución temporal del score X-Ray frente al umbral base de solvencia (60.0 pts).\n"
+            f"💡 <i>¿Simular rescate contrafactual con Embat? Toca el botón abajo:</i>"
+        )
+        markup = build_alert_keyboard(cid)
+        return send_telegram_photo(chat_id, photo_bytes, caption=caption, reply_markup=markup)
+    except ValueError:
+        return send_telegram_message(chat_id, f"❌ Empresa <code>{cid}</code> no encontrada en el catálogo.")
+    except Exception as err:
+        return send_telegram_message(chat_id, f"⚠️ Error al generar gráfica para <code>{cid}</code>: {err}")
+
+
+def handle_whatif_query(chat_id, company_id, amount=None):
+    cid = company_id.strip().upper()
+    res = simulate_whatif(cid, injection_amount=amount)
+    if not res:
+        return send_telegram_message(chat_id, f"❌ Empresa <code>{cid}</code> no encontrada en el catálogo.")
+    markup = build_alert_keyboard(cid)
+    return send_telegram_message(chat_id, res['summary_html'], reply_markup=markup)
+
+
+def handle_callback_query(callback_query):
+    cb_id = callback_query.get('id')
+    data = callback_query.get('data', '')
+    message = callback_query.get('message', {})
+    chat = message.get('chat', {})
+    chat_id = chat.get('id')
+    if not chat_id:
+        return
+
+    add_subscriber(chat_id)
+    if cb_id:
+        answer_callback_query(cb_id)
+
+    if not data:
+        return
+
+    parts = data.split(':', 1)
+    action = parts[0]
+    cid = parts[1] if len(parts) > 1 else ''
+
+    if action == 'cb_chart' and cid:
+        handle_chart_query(chat_id, cid)
+    elif action == 'cb_drivers' and cid:
+        handle_score_query(chat_id, cid)
+    elif action == 'cb_whatif' and cid:
+        handle_whatif_query(chat_id, cid, None)
+    else:
+        send_telegram_message(chat_id, f"Acción interactiva no reconocida: <code>{action}</code>")
 
 
 def run_bot_polling(poll_interval=2.0, auto_monitor=True):
@@ -303,7 +400,14 @@ def run_bot_polling(poll_interval=2.0, auto_monitor=True):
                 for update in data.get('result', []):
                     update_id = update['update_id']
                     offset = max(offset, update_id + 1)
-                    
+
+                    # 1. Handle Callback Query (tactile inline keyboard events)
+                    callback_query = update.get('callback_query')
+                    if callback_query:
+                        handle_callback_query(callback_query)
+                        continue
+
+                    # 2. Handle Message
                     message = update.get('message')
                     if not message:
                         continue
@@ -340,14 +444,26 @@ def run_bot_polling(poll_interval=2.0, auto_monitor=True):
                         handle_recent_alerts(chat_id)
                     elif cmd in ('/simular_alerta', '/test', '/prueba'):
                         handle_simulate_alert(chat_id)
+                    elif cmd in ('/grafica', '/chart', '/grafico'):
+                        if len(parts) > 1:
+                            handle_chart_query(chat_id, parts[1])
+                        else:
+                            send_telegram_message(chat_id, "💡 Indica el ID de la empresa. Ejemplo: <code>/grafica COMP_0010</code>")
+                    elif cmd in ('/whatif', '/simular', '/what_if'):
+                        if len(parts) > 1:
+                            amt_str = ' '.join(parts[2:]) if len(parts) > 2 else None
+                            amt = parse_amount(amt_str) if amt_str else None
+                            handle_whatif_query(chat_id, parts[1], amt)
+                        else:
+                            send_telegram_message(chat_id, "💡 Indica la empresa y opcionalmente el importe. Ejemplo: <code>/whatif COMP_0010</code> o <code>/whatif COMP_0010 50000</code>")
                     elif cmd.startswith('/score'):
                         if len(parts) > 1:
                             handle_score_query(chat_id, parts[1])
                         else:
                             send_telegram_message(chat_id, "💡 Indica el ID de la empresa. Ejemplo: <code>/score COMP_0010</code>")
                     else:
-                        # If user simply types a company ID directly (e.g. "COMP_0010")
-                        if text.upper().startswith("COMP_"):
+                        # If user simply types a company ID directly (e.g. "COMP_0010" or "comp0010")
+                        if text.upper().startswith("COMP"):
                             handle_score_query(chat_id, text)
                         else:
                             handle_help(chat_id)
