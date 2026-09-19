@@ -74,11 +74,36 @@ export type ApiEmpresa = {
   daily_burn?: number;
 };
 
+/**
+ * El reparto del Δ del mes entre tendencia y bache, anidado en cada punto de
+ * la historia. Mientras FastAPI no lo sirva llega `undefined` y el anillo no
+ * se pinta; nunca se sustituye por el cálculo del cliente.
+ */
+export type ApiRepartoDriver = {
+  field: string;
+  etiqueta: string;
+  points: number;
+  kind: "estructural" | "coyuntural";
+  family: "salud" | "circulante" | "dato" | "formula";
+  reason: string;
+  razon: string;
+};
+
+export type ApiReparto = {
+  delta: number;
+  pct_tendencia: number;
+  pct_bache: number;
+  struct_pts: number;
+  circ_pts: number;
+  drivers: ApiRepartoDriver[];
+};
+
 export type ApiHistoria = {
   company_id: string; months: number;
   history: Array<{
     as_of: string; score: number; base_health: number; state: string;
     momentum: number; data_confidence_index: number;
+    reparto?: ApiReparto;
   } & Omit<ApiWaterfall, "clipping_points">>;
 };
 
@@ -322,3 +347,26 @@ export const FAMILIAS: Record<Familia, { label: string; nota: string; color: str
     color: "#dfb631", fondo: "rgba(223,182,49,.16)",
   },
 };
+
+/**
+ * Previsión estructural a 12 meses. No es un modelo sobre el índice: el motor
+ * proyecta la cuenta (cobros, gastos, deuda) por tres caminos y puntúa cada mes
+ * futuro con el mismo `calculate_scores` de producción. Alto es el camino que
+ * ayuda al score, no "más caja".
+ */
+export type ApiPrevisionEstructural = {
+  company_id: string;
+  model: string;
+  status?: string;
+  as_of: string;
+  meses: number;
+  current_score: number;
+  alto: number[];
+  medio: number[];
+  bajo: number[];
+};
+
+export const apiPrevisionEstructural = (id: string, meses = 12) =>
+  get<ApiPrevisionEstructural>(
+    `/api/companies/${encodeURIComponent(id)}/prevision-estructural?meses=${meses}`,
+  );
