@@ -3,7 +3,7 @@ Endpoints de estadísticas globales, KPIs de cartera, grupos corporativos y salu
 """
 
 from datetime import datetime
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Query
 
 from backend.database import DB_PATH, query_dicts, query_one
 from backend.schemas import (
@@ -242,7 +242,7 @@ def get_portfolio(top: int = 10, per_segment: int = 8):
 
 
 @router.get("/api/groups", response_model=GroupListResponse)
-def get_groups():
+def get_groups(limit: int = Query(250, ge=1, le=500, description="Cantidad máxima de grupos a devolver")):
     """
     Lista los grupos corporativos con métricas agregadas de empresas, score medio y riesgo.
     """
@@ -256,8 +256,9 @@ def get_groups():
         FROM groups g
         LEFT JOIN v_latest_company_scores s ON g.group_id = s.group_id
         GROUP BY g.group_id, g.erp
-        ORDER BY company_count DESC, average_score ASC;
-    """)
+        ORDER BY company_count DESC, average_score ASC, g.group_id ASC
+        LIMIT ?;
+    """, (limit,))
 
     groups = [
         GroupItem(
@@ -270,7 +271,9 @@ def get_groups():
         for row in rows
     ]
 
-    return GroupListResponse(total=len(groups), groups=groups)
+    total_row = query_one("SELECT count(*) AS total FROM groups;")
+    total = int(total_row["total"]) if total_row else 0
+    return GroupListResponse(total=total, groups=groups)
 
 
 def normalize_group_id(raw_id: str) -> str:

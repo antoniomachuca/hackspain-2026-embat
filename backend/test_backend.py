@@ -307,3 +307,12 @@ def test_get_groups():
     assert "group_id" in first
     assert "company_count" in first
     assert "average_score" in first
+
+
+def test_get_groups_honors_limit_and_reports_total():
+    """El catálogo respeta el límite solicitado sin perder el total real."""
+    response = client.get("/api/groups?limit=1")
+    assert response.status_code == 200
+    data = response.json()
+    assert data["total"] > len(data["groups"])
+    assert len(data["groups"]) == 1
