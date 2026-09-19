@@ -41,25 +41,25 @@ LEVER_CATALOG: dict[str, dict[str, Any]] = {
     'adelantar_cobros': {
         'family': 'salud',
         'mutator': 'ar_a_receipts',
-        'agreement_types': tuple(AGREEMENT_COBROS - {'descuento_pronto_pago'}),
-        'excluido_con': ('descuento_pronto_pago',),
+        'agreement_types': tuple(AGREEMENT_COBROS),
+        'excluido_con': (),
         'alias_of': None,
         'needs_agreement': True,
     },
     'reducir_dso': {
         'family': 'salud',
         'mutator': 'ar_a_receipts',
-        'agreement_types': tuple(AGREEMENT_COBROS - {'descuento_pronto_pago'}),
-        'excluido_con': ('descuento_pronto_pago',),
+        'agreement_types': tuple(AGREEMENT_COBROS),
+        'excluido_con': (),
         'alias_of': 'adelantar_cobros',
         'needs_agreement': True,
     },
     'descuento_pronto_pago': {
         'family': 'salud',
         'mutator': 'ar_a_receipts',
-        'agreement_types': ('descuento_pronto_pago',),
-        'excluido_con': ('adelantar_cobros', 'reducir_dso'),
-        'alias_of': None,
+        'agreement_types': tuple(AGREEMENT_COBROS),
+        'excluido_con': (),
+        'alias_of': 'adelantar_cobros',
         'needs_agreement': True,
     },
     'recortar_opex': {
@@ -98,7 +98,7 @@ LEVER_CATALOG: dict[str, dict[str, Any]] = {
         'family': 'circulante',
         'mutator': 'retrasar_ap',
         'agreement_types': tuple(AGREEMENT_DPO - {'confirming_en_su_lugar'}),
-        'excluido_con': ('usar_confirming', 'ofrecer_pronto_pago_proveedor'),
+        'excluido_con': (),
         'alias_of': None,
         'needs_agreement': True,
     },
@@ -106,7 +106,7 @@ LEVER_CATALOG: dict[str, dict[str, Any]] = {
         'family': 'circulante',
         'mutator': 'confirming_fee',
         'agreement_types': (),
-        'excluido_con': ('ampliar_dpo', 'ofrecer_pronto_pago_proveedor'),
+        'excluido_con': (),
         'alias_of': None,
         'needs_agreement': False,
     },
@@ -114,7 +114,7 @@ LEVER_CATALOG: dict[str, dict[str, Any]] = {
         'family': 'circulante',
         'mutator': 'adelantar_ap',
         'agreement_types': tuple(AGREEMENT_DPO - {'confirming_en_su_lugar'}),
-        'excluido_con': ('ampliar_dpo', 'usar_confirming'),
+        'excluido_con': (),
         'alias_of': None,
         'needs_agreement': True,
     },
@@ -177,9 +177,7 @@ LEVER_CATALOG: dict[str, dict[str, Any]] = {
 }
 
 MUTEX_GROUPS: tuple[FrozenSet[str], ...] = (
-    frozenset({'adelantar_cobros', 'reducir_dso', 'descuento_pronto_pago'}),
     frozenset({'refinanciar', 'renegociar_interes', 'leasing_a_cuota_menor'}),
-    frozenset({'ampliar_dpo', 'usar_confirming', 'ofrecer_pronto_pago_proveedor'}),
 )
 
 PUBLIC_LEVER_IDS = tuple(k for k, v in LEVER_CATALOG.items() if not v.get('alias_of'))

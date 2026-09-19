@@ -22,6 +22,8 @@ def test_get_palancas_comp_0010():
     assert "ampliar_dpo" in ids
     cobros = next(p for p in data["palancas"] if p["id"] == "adelantar_cobros")
     assert cobros["es_aplicable"] is True
+    assert "descuento_pronto_pago" not in ids
+    assert "descuento_pronto_pago" in cobros["agreement_types"]
     refi = next(p for p in data["palancas"] if p["id"] == "refinanciar")
     assert refi["es_aplicable"] is False
     assert refi["motivo_rechazo"]
@@ -60,3 +62,46 @@ def test_rankings_comp_0031():
     assert data["ok"] is True
     assert all(r["familia"] == "salud" for r in data["sugerencias"])
     assert all(r.get("delta_score") is None for r in data["opciones_circulante"])
+    assert all(r["id"] != "descuento_pronto_pago" for r in data["sugerencias"])
+
+
+def test_post_simulate_disjoint_lineas_ok():
+    from algorythm.levers_objects import get_company_objects
+    obj = get_company_objects("COMP_0004")
+    ids = [str(inv["invoice_id"]) for inv in obj.ar_invoices if inv.get("invoice_id")][:2]
+    assert len(ids) == 2
+    payload = {
+        "company_id": "COMP_0004",
+        "levers": [{
+            "id": "adelantar_cobros",
+            "agreement_type": "presion_comercial",
+            "lineas": [
+                {"facturas": [ids[0]], "dias": 15, "tasa_descuento": 0},
+                {"facturas": [ids[1]], "dias": 7, "tasa_descuento": 0.02},
+            ],
+        }],
+    }
+    res = client.post("/api/simulate", json=payload)
+    assert res.status_code == 200
+    assert res.json()["caja_liberada_eur"] > 0
+
+
+def test_post_simulate_overlapping_lines_422():
+    from algorythm.levers_objects import get_company_objects
+    obj = get_company_objects("COMP_0031")
+    counterparty = next(str(inv["counterparty_id"]) for inv in obj.ar_invoices if inv.get("counterparty_id"))
+    payload = {
+        "company_id": "COMP_0031",
+        "levers": [{
+            "id": "adelantar_cobros",
+            "agreement_type": "presion_comercial",
+            "lineas": [
+                {"clientes": [counterparty], "dias": 15, "tasa_descuento": 0},
+                {"clientes": [counterparty], "dias": 30, "tasa_descuento": 0.02},
+            ],
+        }],
+    }
+    res = client.post("/api/simulate", json=payload)
+    assert res.status_code == 422
+    assert res.json()["detail"]["error"] == "doble_conteo"
+    assert res.json()["detail"]["resource_key"]
