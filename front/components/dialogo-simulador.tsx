@@ -20,7 +20,7 @@ export function DialogoSimulador({ empresa, aplicables, palancas, inicial, produ
   const [abierto, setAbierto] = useState(false);
   return (
     <>
-      <button onClick={() => setAbierto(true)} className="boton-simulador mt-5 w-full">
+      <button type="button" onClick={() => setAbierto(true)} className="boton-simulador mt-5 w-full">
         {etiqueta}
       </button>
       <Modal abierto={abierto} onCerrar={() => setAbierto(false)}

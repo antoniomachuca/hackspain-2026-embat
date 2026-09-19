@@ -67,11 +67,11 @@ function Flechas({ chica, sube, baja, topeArriba, topeAbajo, paso, unidad }:
   const w = chica ? 17 : 34, h = chica ? 11 : 22;
   return (
     <div className="flex flex-col">
-      <button onClick={sube} disabled={topeArriba}
+      <button type="button" onClick={sube} disabled={topeArriba}
         className={`flecha subir ${chica ? "chica" : ""}`} aria-label={`Subir ${paso} ${unidad}`}>
         <svg viewBox="0 0 14 9" width={w} height={h} aria-hidden><path d="M7 0 14 9H0z" fill="currentColor" /></svg>
       </button>
-      <button onClick={baja} disabled={topeAbajo}
+      <button type="button" onClick={baja} disabled={topeAbajo}
         className={`flecha bajar ${chica ? "chica" : ""}`} aria-label={`Bajar ${paso} ${unidad}`}>
         <svg viewBox="0 0 14 9" width={w} height={h} aria-hidden><path d="M7 9 0 0h14z" fill="currentColor" /></svg>
       </button>
