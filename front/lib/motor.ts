@@ -3,7 +3,7 @@
  * Si el motor no responde, `cargar()` devuelve null y la página cae al modo demo.
  */
 import {
-  apiEmpresa, apiHistoria, apiPalancas, apiRankings, apiAlertas, apiEmpresasDeGrupo,
+  apiEmpresa, apiHistoria, apiPalancas, apiRankings, apiAlertas, apiEmpresasDeGrupo, apiGrupos,
   BLOQUES, type ApiEmpresa, type ApiSugerencia, type ApiPalanca,
 } from "./api";
 import { pendiente, repartir } from "./data";
@@ -104,3 +104,124 @@ export async function cargarRecomendaciones(id: string) {
     nSims: rk?.n_sims ?? 0,
   };
 }
+
+export type GrupoResumen = {
+  id: string;
+  nombre: string;
+  erp: string | null;
+  company_count: number;
+  average_score: number;
+  risk_companies_count: number;
+};
+
+export async function cargarGrupos(): Promise<GrupoResumen[]> {
+  const r = await apiGrupos(250);
+  if (!r?.groups) return [];
+  return r.groups.map((g) => ({
+    id: g.group_id,
+    nombre: g.group_id.replace("GROUP_", "Grupo "),
+    erp: g.erp,
+    company_count: g.company_count,
+    average_score: g.average_score,
+    risk_companies_count: g.risk_companies_count,
+  }));
+}
+
+export type MiembroGrupo = {
+  id: string;
+  nombre: string;
+  sector: string;
+  score: number;
+  scorePrev: number;
+  momentum: number;
+  estado: Estado;
+  mesesHistoria: number;
+  facturacionAnual: number;
+  trayectoria: Punto[];
+  alerta?: { mesDeteccion: string };
+};
+
+export type GrupoDetalle = {
+  id: string;
+  nombre: string;
+  cobertura: number;
+  consolidado: number;
+  media: number;
+  penalizacion: number;
+  peor: MiembroGrupo | null;
+  miembros: MiembroGrupo[];
+};
+
+export async function cargarGrupoDetalle(gid: string): Promise<GrupoDetalle | null> {
+  const limpio = decodeURIComponent(gid).trim().toUpperCase();
+  const normGid = limpio.startsWith("GROUP_")
+    ? limpio
+    : `GROUP_${limpio.padStart(4, "0")}`;
+
+  const r = await apiEmpresasDeGrupo(normGid);
+  const items = r?.items ?? [];
+  if (!items.length) return null;
+
+  let peorItem = items[0];
+  for (const item of items) {
+    if (item.score < peorItem.score) {
+      peorItem = item;
+    }
+  }
+
+  const [peorHist, peorAlert] = await Promise.all([
+    apiHistoria(peorItem.company_id, 24),
+    apiAlertas(peorItem.company_id, 1),
+  ]);
+
+  const peorTrayectoria: Punto[] = (peorHist?.history ?? []).map((p) => ({
+    mes: p.as_of.slice(0, 7),
+    score: p.score,
+    nivel: p.base_health,
+  }));
+
+  const miembros: MiembroGrupo[] = items.map((m) => {
+    const isPeor = m.company_id === peorItem.company_id;
+    const hist = isPeor
+      ? peorTrayectoria
+      : [{ mes: "2026-09", score: m.score, nivel: m.base_health }];
+    return {
+      id: m.company_id,
+      nombre: nombreDe(m.company_id),
+      sector: m.erp ? `ERP ${m.erp}` : "Sin ERP",
+      score: m.score,
+      scorePrev: m.score,
+      momentum: m.momentum,
+      estado: ESTADOS[m.state] ?? "ESTABLE",
+      mesesHistoria: m.state_eligible ? 24 : 8,
+      facturacionAnual: 0,
+      trayectoria: hist,
+      alerta:
+        isPeor && peorAlert?.alerts?.[0]
+          ? { mesDeteccion: peorAlert.alerts[0].as_of.slice(0, 7) }
+          : undefined,
+    };
+  });
+
+  const scores = miembros.map((m) => m.score);
+  const media = Math.round((scores.reduce((a, b) => a + b, 0) / scores.length) * 10) / 10;
+  const peorScore = Math.min(...scores);
+  const consolidado = Math.round((0.65 * media + 0.35 * peorScore) * 10) / 10;
+  const penalizacion = peorScore < 40 ? Math.round((40 - peorScore) * 0.25 * 10) / 10 : 0;
+  const elegibles = items.filter((x) => x.state_eligible).length;
+  const cobertura = Math.round((elegibles / items.length) * 100);
+
+  const peorMiembro = miembros.find((m) => m.id === peorItem.company_id) ?? null;
+
+  return {
+    id: normGid,
+    nombre: normGid.replace("GROUP_", "Grupo "),
+    cobertura,
+    consolidado,
+    media,
+    penalizacion,
+    peor: peorMiembro,
+    miembros,
+  };
+}
+
