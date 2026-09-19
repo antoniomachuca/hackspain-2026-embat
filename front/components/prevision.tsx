@@ -46,6 +46,9 @@ export function Prevision({
   const datos = datosTodos.slice(-rango);
   const datosPeer = peerTodos?.slice(-rango);
   const reparto = repartoTodo?.slice(-rango);
+  if (datos.length === 0) {
+    return <p className="py-8 text-center text-[12px] text-[var(--color-ink-4)]">No hay histórico suficiente para dibujar la previsión.</p>;
+  }
   const hoy = datos[datos.length - 1].score;
 
   // Con previsión estructural el camino lo dicta el motor: proyecta la cuenta
