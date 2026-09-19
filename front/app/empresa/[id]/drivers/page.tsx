@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { empresa } from "@/lib/data";
+import { cargarEmpresa } from "@/lib/motor";
 import { num, mesCorto } from "@/lib/format";
 import { Cabecera } from "@/components/shell";
 import { Waterfall } from "@/components/charts";
@@ -8,7 +9,7 @@ import { Card, CardHead, ScoreBadge, Delta, Boton } from "@/components/ui";
 
 export default async function Drivers({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  const e = empresa(id);
+  const e = (await cargarEmpresa(id)) ?? empresa(id);
   if (!e) notFound();
   const total = e.drivers.reduce((a, d) => a + d.contribucion, 0);
 
@@ -16,8 +17,8 @@ export default async function Drivers({ params }: { params: Promise<{ id: string
     <>
       <Cabecera
         titulo="Detalle de drivers"
-        sub={<><Link href={`/empresa/${e.id}`} className="underline decoration-[var(--color-line-2)] underline-offset-2 hover:text-[var(--color-aqua)]">{e.nombre}</Link> · descomposición aditiva exacta</>}
-        extra={<Boton tono="plano" href={`/empresa/${e.id}`}>Volver a la ficha</Boton>}
+        sub={<><Link href={`/${e.id}`} className="underline decoration-[var(--color-line-2)] underline-offset-2 hover:text-[var(--color-aqua)]">{e.nombre}</Link> · descomposición aditiva exacta</>}
+        extra={<Boton tono="plano" href={`/${e.id}`}>Volver a la ficha</Boton>}
       />
       <div>
         <Card>
