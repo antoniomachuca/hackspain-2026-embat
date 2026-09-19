@@ -1,66 +1,72 @@
-import Link from 'next/link'
-import { notFound } from 'next/navigation'
-import { EstadoEtiqueta, ScoreNumero } from '@/components/Score'
-import { ApiError, api } from '@/lib/api'
-import { colorScore, fmtNum } from '@/lib/format'
-import { nombre, nombreGrupo } from '@/lib/identity'
+import Link from "next/link";
+import { notFound } from "next/navigation";
+import { grupo } from "@/lib/data";
+import { eur, num } from "@/lib/format";
+import { Cabecera } from "@/components/shell";
+import { Trayectoria, Sparkline } from "@/components/charts";
+import { Card, CardHead, KPI, ScoreBadge, BandaChip, EstadoChip, Confianza, Delta } from "@/components/ui";
 
-/**
- * Vista de grupo (B6) · "El grupo saca 71, pero la filial francesa saca 38 y arrastra al
- * consolidado". Multi-entidad es la razón de ser de Embat: por eso este módulo es
- * opcional para el leaderboard y obligatorio para el producto (PRODUCTO.md §4).
- */
 export default async function Grupo({ params }: { params: Promise<{ id: string }> }) {
-  const { id } = await params
-  let g
-  try {
-    g = await api.getGroup(id)
-  } catch (e) {
-    if (e instanceof ApiError) notFound()
-    throw e
-  }
-  const peor = g.filiales.find((f) => f.entity_id === g.peor_filial)
+  const { id } = await params;
+  const g = grupo(id);
+  if (!g.miembros.length) notFound();
+  const peor = g.peor;
 
   return (
-    <div>
-      <h1 className="text-3xl peso-medio tracking-tight">{nombreGrupo(g.group_id)}</h1>
-      <p className="mt-1.5 text-sm text-ink-2">{g.filiales.length} entidades consolidadas</p>
+    <>
+      <Cabecera
+        titulo={g.nombre}
+        sub={<>{g.miembros.length} filiales · cobertura de datos {g.cobertura}% · {g.id}</>}
+      />
+      <div>
+        <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+          <KPI etiqueta="Consolidado del grupo" valor={num(g.consolidado)} nota="65% media + 35% peor filial material" />
+          <KPI etiqueta="Media simple" valor={num(g.media)} nota="sin ponderar" />
+          <KPI etiqueta="Peor filial" valor={peor ? num(peor.score) : "—"} nota={peor?.nombre} />
+          <KPI etiqueta="Filiales con score" valor={`${g.miembros.filter(m => m.mesesHistoria >= 12).length} de ${g.miembros.length}`} nota="el resto, sin historia suficiente" />
+        </div>
 
-      <div className="mt-8 grid gap-8 lg:grid-cols-[1fr_1.4fr]">
-        <section className="rounded-2xl border border-line p-7">
-          <p className="mb-3 text-xs uppercase tracking-wide text-ink-2">Consolidado</p>
-          <ScoreNumero score={g.consolidado} />
-          {peor && (
-            <p className="mt-6 border-l-2 border-[var(--negativo)] pl-4 text-sm leading-relaxed text-ink-3">
-              El grupo saca {fmtNum(g.consolidado)}, pero {nombre(peor.entity_id)} saca{' '}
-              {fmtNum(peor.score)} y arrastra al consolidado. La penalización por contagio resta{' '}
-              {fmtNum(g.penalizacion_contagio)} puntos a la media ponderada.
+        {peor && g.consolidado < g.media - 1 && (
+          <Card className="mt-5 px-5 py-4">
+            <p className="text-[13px] leading-relaxed">
+              El grupo saca <strong className="tnum font-medium">{num(g.consolidado)}</strong>, pero{" "}
+              <Link href={`/empresa/${peor.id}`} className="font-medium underline decoration-[var(--color-line-2)] underline-offset-2 hover:text-[var(--color-aqua)]">{peor.nombre}</Link>{" "}
+              saca <strong className="tnum font-medium">{num(peor.score)}</strong> y arrastra al consolidado.
             </p>
-          )}
-        </section>
+            <p className="mt-1.5 text-[11px] text-[var(--color-ink-4)]">
+              Agregación bruta: los flujos intragrupo se eliminan de forma aproximada por categoría, porque las
+              contrapartes no cruzan entre empresas del dataset.
+            </p>
+          </Card>
+        )}
 
-        <section>
-          <h2 className="peso-medio mb-4 text-sm">Filiales</h2>
-          <div className="space-y-2">
-            {[...g.filiales]
-              .sort((a, b) => a.score - b.score)
-              .map((f) => (
-                <Link
-                  key={f.entity_id}
-                  href={`/empresa/${f.entity_id}`}
-                  className="flex items-center gap-4 rounded-xl border border-line p-4 transition-colors hover:bg-surface-3"
-                >
-                  <span className="tabular w-12 text-xl peso-medio" style={{ color: colorScore(f.score) }}>
-                    {fmtNum(f.score)}
-                  </span>
-                  <span className="min-w-0 flex-1 text-sm">{nombre(f.entity_id)}</span>
-                  <span className="tabular text-xs text-ink-2">{Math.round(f.peso * 100)} % del grupo</span>
-                  <EstadoEtiqueta estado={f.estado} />
-                </Link>
-              ))}
+        <Card className="mt-5">
+          <CardHead titulo="Filial más débil" sub={peor?.nombre} />
+          <div className="px-3 py-4">{peor && <Trayectoria datos={peor.trayectoria} alerta={peor.alerta?.mesDeteccion} altura={190} />}</div>
+        </Card>
+
+        <Card className="mt-5 px-6 py-5">
+          <h2 className="mb-4 text-[16px] font-semibold tracking-tight">Filiales</h2>
+          <div className="flex flex-col gap-2">
+            {g.miembros.map((m) => (
+              <Link key={m.id} href={`/empresa/${m.id}`}
+                className="fila grid grid-cols-2 items-center gap-4 px-4 py-3 lg:grid-cols-[1.9fr_.7fr_.6fr_.8fr_.9fr_.8fr]">
+                <div className="col-span-2 min-w-0 lg:col-span-1">
+                  <p className="truncate text-[13.5px] font-medium">{m.nombre}</p>
+                  <p className="truncate text-[11px] text-[var(--color-ink-4)]">{m.sector}</p>
+                </div>
+                <div className="text-right">
+                  {m.mesesHistoria >= 12 ? <ScoreBadge score={m.score} size="sm" /> : <span className="text-[11.5px] text-[var(--color-ink-4)]">sin score</span>}
+                </div>
+                <div className="text-right">{m.mesesHistoria >= 12 && <Delta v={m.score - m.scorePrev} />}</div>
+                <div className="hidden lg:block">{m.mesesHistoria >= 12 && <Sparkline datos={m.trayectoria} />}</div>
+                <div className="hidden lg:block">{m.mesesHistoria >= 12 && <EstadoChip estado={m.estado} />}</div>
+                <div className="tnum hidden text-right text-[12.5px] text-[var(--color-ink-2)] lg:block">{eur(m.facturacionAnual, true)}</div>
+              </Link>
+            ))}
           </div>
-        </section>
+        </Card>
       </div>
-    </div>
-  )
+    </>
+  );
 }

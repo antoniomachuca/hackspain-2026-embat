@@ -76,9 +76,12 @@ export type Empresa = {
   utilizacionLinea: number;
   hhiClientes: number;
   trayectoria: Punto[];
-  peer: { etiqueta: string; n: number };
-  trayectoriaPeer: PuntoPeer[];
-  reparto: Reparto[];
+  // Opcionales: los datos de demostración los calculan, pero el motor todavía
+  // no los sirve (peer group, reparto tendencia/bache, inflexión). El gráfico
+  // los trata como capas que aparecen si existen.
+  peer?: { etiqueta: string; n: number };
+  trayectoriaPeer?: PuntoPeer[];
+  reparto?: Reparto[];
   inflexion?: Inflexion;
   drivers: Driver[];
   alerta?: Alerta;
@@ -264,7 +267,7 @@ function medianaPeer(idx: number, control: [number, number][]): number[] {
 
 /** Pendiente por mínimos cuadrados sobre los últimos `w` meses, en puntos/mes.
  *  Es la parte estructural del movimiento: no hace falta un modelo aparte. */
-function pendiente(s: number[], i: number, w = 6): number {
+export function pendiente(s: number[], i: number, w = 6): number {
   const ys = s.slice(Math.max(0, i - w + 1), i + 1);
   const n = ys.length;
   if (n < 2) return 0;
@@ -274,7 +277,7 @@ function pendiente(s: number[], i: number, w = 6): number {
   return den === 0 ? 0 : num / den;
 }
 
-function repartir(s: number[], tends: number[], i: number, mes: string): Reparto {
+export function repartir(s: number[], tends: number[], i: number, mes: string): Reparto {
   const delta = i === 0 ? 0 : Math.round((s[i] - s[i - 1]) * 10) / 10;
   // Un mes plano no se reparte: no hay movimiento que atribuir.
   if (Math.abs(delta) < 0.15) return { mes, delta, pctTendencia: 0, pctBache: 0 };
@@ -430,7 +433,14 @@ export const EMPRESAS_SIN_DATOS  = EMPRESAS.filter((e) => e.mesesHistoria < 12);
 
 /** La empresa que ha iniciado sesión. El producto es para ella, no para
  *  quien la mira desde fuera: nunca se enseñan otras empresas con nombre. */
-export const MI_EMPRESA = "COMP_0002";
+export const MI_EMPRESA = "COMP_0773";
+/**
+ * Elegida del dataset por volumen e historia: 16 meses con estado real —el
+ * máximo, porque el motor gasta 8 en arrancar—, confianza 100, ERP conectado,
+ * 3.862 facturas y 12.773 movimientos. Y una trayectoria que se puede contar:
+ * 71,5 → 22,0 en dos meses, recuperación a 73,1 y descenso hasta 56,4, con una
+ * alerta ALTA de −38,9 puntos en octubre de 2025. Su grupo tiene 12 sociedades.
+ */
 
 export function empresa(id: string) {
   return EMPRESAS.find((e) => e.id === id);

@@ -25,9 +25,11 @@ import type { Punto, PuntoPeer, Reparto, Inflexion } from "@/lib/data";
  * Las tres son opcionales. Mientras el motor no las sirva, el gráfico es
  * exactamente el que era.
  */
+const RANGOS = [6, 12, 24] as const;
+
 export function Prevision({
-  datos, momentum, peer, datosPeer, reparto, inflexion,
-  meses = 12, alto = 380, ancho = 1120,
+  datos: datosTodos, momentum, peer, datosPeer: peerTodos, reparto: repartoTodo, inflexion,
+  meses = 12, alto = 320, ancho = 1120,
 }: {
   datos: Punto[];
   momentum: number;
@@ -38,6 +40,11 @@ export function Prevision({
   meses?: number; alto?: number; ancho?: number;
 }) {
   const [hover, setHover] = useState<number | null>(null);
+  // La ventana de histórico la elige quien mira; el horizonte sigue siendo 12 meses.
+  const [rango, setRango] = useState<(typeof RANGOS)[number]>(24);
+  const datos = datosTodos.slice(-rango);
+  const datosPeer = peerTodos?.slice(-rango);
+  const reparto = repartoTodo?.slice(-rango);
   const hoy = datos[datos.length - 1].score;
 
   const deriva = momentum * 14;
@@ -47,7 +54,7 @@ export function Prevision({
   const abajo = clamp(central - amplitud);
 
   // El margen inferior guarda sitio para la tira; el área de trazado no cambia.
-  const padL = 6, padR = 232, padT = 20, padB = 84;
+  const padL = 56, padR = 210, padT = 20, padB = 44;
   const w = ancho - padL - padR;
   const h = alto - padT - padB;
   const nHist = datos.length;
@@ -70,7 +77,21 @@ export function Prevision({
   const paso = w / total;
 
   const linea = datos.map((d, i) => `${i ? "L" : "M"}${x(i).toFixed(1)},${y(d.score).toFixed(1)}`).join(" ");
-  const cono = `M${xHoy},${yHoy} L${xFin},${y(arriba)} L${xFin},${y(abajo)} Z`;
+
+  // La proyección no es una recta: se mueve con la volatilidad observada y
+  // cada escenario tiene su forma de llegar. Alto remonta pronto (ease-out),
+  // medio sigue la inercia, bajo aguanta y se desploma al final (ease-in).
+  const saltos = datos.slice(1).map((d, i) => d.score - datos[i].score);
+  const mediaSalto = saltos.reduce((a, b) => a + b, 0) / (saltos.length || 1);
+  const vol = Math.min(4.5, Math.sqrt(saltos.reduce((a, b) => a + (b - mediaSalto) ** 2, 0) / (saltos.length || 1)));
+  const sendas = {
+    Alto:  senda(hoy, arriba,  meses, 0.62, vol, 9001),
+    Medio: senda(hoy, central, meses, 0.92, vol, 9002),
+    Bajo:  senda(hoy, abajo,   meses, 1.45, vol, 9003),
+  };
+  const pts = (vs: number[]) => vs.map((v, k) => `${x(nHist - 1 + k).toFixed(1)},${y(v).toFixed(1)}`);
+  const traza = (vs: number[]) => `M${pts(vs).join(" L")}`;
+  const cono = `M${pts(sendas.Alto).join(" L")} L${pts(sendas.Bajo).reverse().join(" L")} Z`;
 
   // Cada etiqueta ocupa dos líneas: se separan para que no se pisen nunca
   const HUECO = 54;
@@ -84,26 +105,6 @@ export function Prevision({
 
   // Rejilla: tres líneas repartidas por el dominio real
   const guias = [lo + (hi - lo) * 0.25, lo + (hi - lo) * 0.5, lo + (hi - lo) * 0.75];
-
-  // ── La tira de abajo. Altura = cuánto se movió el mes; relleno = qué parte
-  //    de ese movimiento es tendencia y cuánta es bache. Escala de raíz: con escala lineal un mes de
-  //    −3 pts aplasta a los de −0,4 hasta dejarlos en un píxel, y justo esos
-  //    son los meses de bache que hay que poder ver.
-  const yTira = padT + h + 40;
-  const ALTO_TIRA = 21;
-  const maxAbs = Math.max(1, ...(reparto?.map((d) => Math.abs(d.delta)) ?? [1]));
-  const anchoBarra = Math.min(13, paso * 0.6);
-  const barras = (reparto ?? []).map((d, i) => {
-    const alt = Math.sqrt(Math.abs(d.delta) / maxAbs) * ALTO_TIRA;
-    const hQueda = (alt * d.pctTendencia) / 100;
-    const sube = d.delta >= 0;
-    return {
-      i, mes: d.mes, x: x(i), hQueda, hRevierte: alt - hQueda,
-      // La tendencia pega a la línea base; el bache queda por fuera.
-      yQueda: sube ? yTira - hQueda : yTira,
-      yRevierte: sube ? yTira - alt : yTira + hQueda,
-    };
-  });
 
   // ── La marca de inflexión. Solo la última: es la que importa hoy, y dos
   //    marcas en el mismo dibujo obligan a leerlo en vez de verlo.
@@ -125,22 +126,33 @@ export function Prevision({
   const capas = [
     `Histórico de ${nHist} meses y proyección a ${meses} meses`,
     datosPeer && `mediana de ${peer?.etiqueta.toLowerCase() ?? "su cuartil"} de fondo`,
-    reparto && "y el reparto mensual de cada mes entre tendencia y bache",
   ].filter(Boolean).join(", ");
 
   return (
     <div className="w-full">
-      <div className="flex items-baseline gap-2.5">
-        <span className="tnum text-[26px] font-semibold leading-none" style={{ color: "var(--color-purple)" }}>
-          {num(central)}
-        </span>
-        <span className="text-[12px] text-[var(--color-ink-3)]">/ 100</span>
+      <div className="flex flex-wrap items-start justify-between gap-3">
+        <div>
+          <div className="flex items-baseline gap-2.5">
+            <span className="tnum text-[26px] font-semibold leading-none" style={{ color: "var(--color-purple)" }}>
+              {num(central)}
+            </span>
+            <span className="text-[12px] text-[var(--color-ink-3)]">/ 100</span>
+          </div>
+          <p className="mt-1 text-[12px] text-[var(--color-ink-3)]">
+            Proyección a {meses} meses · escenario central
+          </p>
+        </div>
+        <div className="flex gap-1.5">
+          {RANGOS.map((r) => (
+            <button key={r} onClick={() => { setRango(r); setHover(null); }}
+              className={`pildora ${r === rango ? "on" : ""}`} style={{ padding: "5px 13px", fontSize: 12 }}>
+              {r}M
+            </button>
+          ))}
+        </div>
       </div>
-      <p className="mt-1 text-[12px] text-[var(--color-ink-3)]">
-        Proyección a {meses} meses · escenario central
-      </p>
 
-      <div className="relative -mx-6 mt-2 w-[calc(100%+3rem)]">
+      <div className="relative -mr-6 mt-2 w-[calc(100%+1.5rem)]">
         <svg viewBox={`0 0 ${ancho} ${alto}`} className="w-full" role="img" aria-label={capas}>
           <defs>
             <linearGradient id="prev-cono" x1="0" y1="0" x2="0" y2="1">
@@ -192,9 +204,10 @@ export function Prevision({
           )}
 
           {crudos.map((e) => (
-            <line key={e.k} x1={xHoy} y1={yHoy} x2={xFin} y2={e.yy}
-              stroke={e.c} strokeOpacity={e.k === "Medio" ? 0.85 : 0.55}
-              strokeWidth={e.k === "Medio" ? 1.8 : 1.4} strokeDasharray="4 5" />
+            <path key={e.k} d={traza(sendas[e.k as keyof typeof sendas])} fill="none"
+              stroke={e.c} strokeOpacity={e.k === "Medio" ? 0.9 : 0.6}
+              strokeWidth={e.k === "Medio" ? 2 : 1.6} strokeDasharray="5 5"
+              strokeLinejoin="round" strokeLinecap="round" />
           ))}
 
           <line x1={xFin} y1={y(arriba)} x2={xFin} y2={y(abajo)} stroke="url(#prev-eje)" strokeWidth="1.8" />
@@ -232,35 +245,14 @@ export function Prevision({
             </g>
           )}
 
-          {/* ── Bache o tendencia. Su leyenda va pegada a la tira, no al pie:
-               es lo único del dibujo que no se entiende sin explicarlo. */}
-          {reparto && (
-            <>
-              <g transform={`translate(${padL}, ${yTira - ALTO_TIRA - 12})`}>
-                <text fontSize="12" fill="#787d96" letterSpacing="0.06em">BACHE O TENDENCIA</text>
-                <rect x="158" y="-8" width="8" height="8" rx="2" fill="#b083e8" />
-                <text x="172" fontSize="12" fill="#787d96">tendencia</text>
-                <rect x="242" y="-8" width="8" height="8" rx="2" fill="rgba(255,255,255,.34)" />
-                <text x="256" fontSize="12" fill="#787d96">bache</text>
-              </g>
-              <line x1={padL} x2={xHoy} y1={yTira} y2={yTira} stroke="rgba(255,255,255,.08)" />
-              {barras.map((b) => (
-                <g key={b.mes} opacity={hover === null ? 1 : hover === b.i ? 1 : 0.3}>
-                  <rect x={b.x - anchoBarra / 2} y={b.yQueda} width={anchoBarra} height={b.hQueda} rx="2" fill="#b083e8" />
-                  <rect x={b.x - anchoBarra / 2} y={b.yRevierte} width={anchoBarra} height={b.hRevierte} rx="2" fill="rgba(255,255,255,.34)" />
-                </g>
-              ))}
-            </>
-          )}
-
           {/* La frontera: a la izquierda hay datos, a la derecha un modelo. */}
-          <line x1={xHoy} x2={xHoy} y1={padT} y2={reparto ? yTira + ALTO_TIRA : padT + h}
+          <line x1={xHoy} x2={xHoy} y1={padT} y2={padT + h}
             stroke="rgba(255,255,255,.10)" strokeWidth="1" strokeDasharray="3 5" />
 
           {/* Guía del mes señalado */}
           {hover !== null && (
             <g pointerEvents="none">
-              <line x1={x(hover)} x2={x(hover)} y1={padT} y2={reparto ? yTira + ALTO_TIRA : padT + h}
+              <line x1={x(hover)} x2={x(hover)} y1={padT} y2={padT + h}
                 stroke="#b083e8" strokeWidth="1" strokeOpacity="0.5" />
               <circle cx={x(hover)} cy={y(datos[hover].score)} r="5" fill="#b083e8" stroke="#120d1d" strokeWidth="2" />
             </g>
@@ -269,7 +261,7 @@ export function Prevision({
           {/* Zonas de escucha: una por mes, invisibles y de alto completo. */}
           {datos.map((d, i) => (
             <rect key={d.mes} x={x(i) - paso / 2} y={padT} width={paso}
-              height={(reparto ? yTira + ALTO_TIRA : padT + h) - padT} fill="transparent"
+              height={h} fill="transparent"
               onMouseEnter={() => setHover(i)}
               onMouseLeave={() => setHover((v) => (v === i ? null : v))} />
           ))}
@@ -301,9 +293,17 @@ export function Prevision({
               </p>
             )}
             {hRep && hRep.pctTendencia + hRep.pctBache > 0 && (
-              <p className="tnum mt-0.5 text-[11px] text-[var(--color-ink-4)]">
-                {hRep.pctTendencia} % tendencia · {hRep.pctBache} % bache
-              </p>
+              <div className="mt-2 flex items-center gap-2.5 border-t border-[rgba(255,255,255,.10)] pt-2">
+                <AnilloReparto tendencia={hRep.pctTendencia} bache={hRep.pctBache} />
+                <div className="leading-tight">
+                  <p className="tnum text-[11px]" style={{ color: "#b083e8" }}>
+                    {hRep.pctTendencia} % tendencia
+                  </p>
+                  <p className="tnum text-[11px]" style={{ color: "#dfb631" }}>
+                    {hRep.pctBache} % bache
+                  </p>
+                </div>
+              </div>
             )}
           </div>
           );
@@ -331,6 +331,53 @@ export function Prevision({
       )}
     </div>
   );
+}
+
+/**
+ * Anillo del reparto del mes: cuánto del movimiento es tendencia y cuánto
+ * bache. Dos arcos sobre la misma circunferencia, sin hueco entre ellos.
+ */
+function AnilloReparto({ tendencia, bache, tam = 38, grosor = 5 }:
+  { tendencia: number; bache: number; tam?: number; grosor?: number }) {
+  const total = Math.max(1, tendencia + bache);
+  const r = (tam - grosor) / 2, cx = tam / 2;
+  const circ = 2 * Math.PI * r;
+  const lTend = (circ * tendencia) / total;
+  return (
+    <span className="relative inline-flex shrink-0 items-center justify-center" style={{ width: tam, height: tam }}>
+      <svg width={tam} height={tam} style={{ transform: "rotate(-90deg)" }}>
+        {/* El bache ocupa toda la vuelta por debajo; la tendencia se pinta encima */}
+        <circle cx={cx} cy={cx} r={r} fill="none" stroke="#dfb631" strokeOpacity="0.85" strokeWidth={grosor} />
+        <circle cx={cx} cy={cx} r={r} fill="none" stroke="#b083e8" strokeWidth={grosor}
+          strokeDasharray={`${lTend.toFixed(2)} ${circ.toFixed(2)}`} strokeLinecap="butt" />
+      </svg>
+      <span className="tnum absolute text-[10px] font-medium" style={{ color: "#b083e8" }}>
+        {tendencia}
+      </span>
+    </span>
+  );
+}
+
+/**
+ * Camino de un escenario: puente browniano entre hoy y el destino. `forma`
+ * curva la trayectoria y el ruido se escala con la volatilidad observada,
+ * anulándose en los extremos para aterrizar exactamente en el objetivo.
+ */
+function senda(desde: number, hasta: number, n: number, forma: number, vol: number, semilla: number) {
+  let s = semilla >>> 0;
+  const r = () => ((s = (s * 1664525 + 1013904223) >>> 0) / 4294967296 - 0.5);
+  const paso: number[] = []; let acc = 0;
+  for (let i = 0; i <= n; i++) { acc += r() * vol * 1.1; paso.push(acc); }
+  const deriva = paso[n];
+  const out: number[] = [];
+  for (let i = 0; i <= n; i++) {
+    const t = i / n;
+    const base = desde + (hasta - desde) * Math.pow(t, forma);
+    const ruido = (paso[i] - deriva * t) * Math.sin(Math.PI * t);
+    out.push(Math.max(1, Math.min(99, Math.round((base + ruido) * 10) / 10)));
+  }
+  out[0] = desde; out[n] = hasta;
+  return out;
 }
 
 const clamp = (v: number) => Math.max(1, Math.min(99, Math.round(v * 10) / 10));

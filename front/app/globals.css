@@ -1,92 +1,238 @@
-/* General Sans — sustituto libre de Haffer SQXH, la tipografía real de Embat.
-   Dos pesos, 400 y 500, como carga embat.io. La contención es parte del look.
-   TODO antes del pitch: auto-hospedar el woff2 (RF-B11.5, cero dependencia de red). */
-@import url('https://api.fontshare.com/v2/css?f[]=general-sans@400,500,600&display=swap');
-@import 'tailwindcss';
+@import "tailwindcss";
 
-/**
- * Sistema visual · tokens literales del CSS de embat.io
- * (research/producto_research_quirce.md §1). Si la demo usa marino + aguamarina y dos
- * pesos de una geométrica, el jurado la ve como suya.
- */
-:root {
-  /* Tinta y superficies — modo claro */
-  --content-primary: #050b2c;
-  --content-secondary: #6e707c;
-  --content-tertiary: #42444c;
-  --bg-primary: #ffffff;
-  --bg-secondary: #f3f4f6;
-  --bg-tertiary: #fbfbfc;
-  --border-primary: #e8e8ed;
-  --border-secondary: #d2d2db;
+/* ══════════════════════════════════════════════════════════════════════
+   Sistema visual Embat · modo inverso (oscuro)
+   Todos los valores son tokens oficiales extraídos del CSS de embat.io.
+   El glass sale de sus propios tokens translúcidos: #ffffff0d y #ffffff33.
+   ══════════════════════════════════════════════════════════════════════ */
 
-  /* Superficies invertidas — el hero oscuro a todo el ancho de su web */
-  --inv-bg-primary: #050b2c;
-  --inv-bg-secondary: #232845;
-  --inv-bg-tertiary: #41465f;
-  --inv-border: #373c56;
-  --inv-content-primary: #ffffff;
-  --inv-content-secondary: #d2d2db;
+@theme {
+  /* — Negro de base, con el morado de Embat como acento — */
+  --color-deep:       #08070c;
+  --color-deep-2:     #120d1d;
+  --color-deep-3:     #1d1630;
 
-  /* Acentos de Embat */
-  --agua-claro: #c5f8fc;
-  --agua: #5ed3e5;
-  --agua-oscuro: #007b93;
-  --rosa: #e05a8a;
-  --rosa-oscuro: #920036;
-  --morado: #a154e9;
+  /* — Texto inverso oficial — */
+  --color-ink:        #ffffff;  /* inverse-content-primary   */
+  --color-ink-2:      #d2d2db;  /* inverse-content-secondary */
+  --color-ink-3:      #afafbb;  /* inverse-content-tertiary  */
+  --color-ink-4:      #787d96;  /* inverse-content-disabled  */
 
-  /**
-   * Eje del score: ámbar → aguamarina, continuo y con un solo gradiente.
-   * NO es un semáforo. El rojo/verde puro falla para el ~8 % de los hombres, y el
-   * estado siempre se acompaña de texto (research §5).
-   */
-  --score-alto: #007b93;
-  --score-medio: #5ed3e5;
-  --score-bajo: #e8a33d;
-  --score-critico: #c2410c;
+  /* — Cristal: los transparentes del sistema — */
+  --glass-1:          #ffffff0d; /* inverse-transparent-2 · relleno    */
+  --glass-2:          #ffffff33; /* inverse-transparent-3 · borde      */
+  --color-line:       rgba(255,255,255,.10);
+  --color-line-2:     #373c56;   /* inverse-border-primary            */
+  --color-line-3:     #696d80;   /* inverse-border-secondary          */
+  --color-surface:    rgba(255,255,255,.045);
+  --color-surface-2:  rgba(255,255,255,.028);
+  --color-surface-3:  rgba(255,255,255,.085);
+  --color-overlay:    #050b2ca6;  /* inverse-overlay                  */
 
-  /* Dirección del movimiento: azul/ámbar, no verde/rojo */
-  --positivo: #007b93;
-  --negativo: #c2410c;
-  --neutro: #6e707c;
+  /* — Morado oficial de Embat — */
+  --color-purple:       #b083e8;  /* inverse-purple        */
+  --color-purple-dark:  #a154e9;  /* inverse-purple-dark   */
+  --color-purple-mid:   #c357ec;  /* purple-medium         */
+  --color-purple-deep:  #7b32c0;  /* inverse-purple-medium */
+  --color-purple-base:  #8041d1;  /* purple                */
+  /* El acento del producto es el morado. Se mantienen los nombres
+     --color-aqua* para no reescribir cada pantalla.                 */
+  --color-aqua:       #b083e8;
+  --color-aqua-deep:  #7b32c0;
+  --color-pink:       #e05a8a;
+  --color-warm:       #e59f5e;
+
+  /* — Semánticos inversos oficiales — */
+  --color-success:    #b083e8;
+  --color-warning:    #dfb631;
+  --color-danger:     #e5775b;
+  --color-info:       #5c92fe;
+
+  /* Eje de riesgo: rampa continua cálido → frío con tokens oficiales.
+     Nunca es el único canal: siempre va con flecha, signo o etiqueta.  */
+  --color-risk-1:     #e5775b;  /* crítico   0-24  */
+  --color-risk-2:     #e59f5e;  /* frágil   25-44  */
+  --color-risk-3:     #dfb631;  /* atención 45-59  */
+  --color-risk-4:     #a154e9;  /* estable  60-79  */
+  --color-risk-5:     #c357ec;  /* sólido   80-100 */
+
+  --font-sans: "General Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
 }
 
-@theme inline {
-  --color-ink: var(--content-primary);
-  --color-ink-2: var(--content-secondary);
-  --color-ink-3: var(--content-tertiary);
-  --color-surface: var(--bg-primary);
-  --color-surface-2: var(--bg-secondary);
-  --color-surface-3: var(--bg-tertiary);
-  --color-line: var(--border-primary);
-  --color-line-2: var(--border-secondary);
-  --color-navy: var(--inv-bg-primary);
-  --color-navy-2: var(--inv-bg-secondary);
-  --color-navy-3: var(--inv-bg-tertiary);
-  --color-navy-line: var(--inv-border);
-  --color-agua: var(--agua);
-  --color-agua-claro: var(--agua-claro);
-  --color-agua-oscuro: var(--agua-oscuro);
-  --color-positivo: var(--positivo);
-  --color-negativo: var(--negativo);
-  --font-sans: 'General Sans', ui-sans-serif, system-ui, -apple-system, sans-serif;
-}
+html { -webkit-font-smoothing: antialiased; }
 
 body {
-  background: var(--bg-primary);
-  color: var(--content-primary);
+  min-height: 100vh;
+  color: var(--color-ink);
   font-family: var(--font-sans);
-  -webkit-font-smoothing: antialiased;
+  font-weight: 400;
+  background: var(--color-deep);
 }
 
-/* Las cifras alinean en columna. Innegociable en una tabla financiera. */
-.tabular {
-  font-variant-numeric: tabular-nums;
-  font-feature-settings: 'tnum' 1;
+/* Ambiente: dos halos suaves detrás del cristal. Sin ellos el desenfoque
+   no tiene nada que desenfocar y el efecto no se ve.                    */
+body::before {
+  content: "";
+  position: fixed; inset: 0; z-index: -1; pointer-events: none;
+  background:
+    radial-gradient(56rem 40rem at 10% -6%,  rgba(176,131,232,.20), transparent 62%),
+    radial-gradient(46rem 36rem at 94% 8%,   rgba(195,87,236,.14),  transparent 60%),
+    radial-gradient(52rem 40rem at 70% 106%, rgba(123,50,192,.22),  transparent 62%),
+    linear-gradient(168deg, #08070c 0%, #120d1d 48%, #0a0810 100%);
 }
 
-/* Dos pesos, no cinco. */
-.peso-medio {
-  font-weight: 500;
+.tnum { font-variant-numeric: tabular-nums; font-feature-settings: "tnum" 1; }
+::selection { background: rgba(176,131,232,.34); color: #fff; }
+
+/* ---------- cristal ---------- */
+.glass {
+  background: linear-gradient(158deg, rgba(255,255,255,.075), rgba(255,255,255,.028));
+  border: 1px solid var(--glass-2);
+  backdrop-filter: blur(22px) saturate(150%);
+  -webkit-backdrop-filter: blur(22px) saturate(150%);
+  box-shadow: 0 8px 32px rgba(0,0,0,.5), inset 0 1px 0 rgba(255,255,255,.09);
 }
+.glass-soft {
+  background: rgba(255,255,255,.04);
+  border: 1px solid var(--color-line);
+  backdrop-filter: blur(16px) saturate(140%);
+  -webkit-backdrop-filter: blur(16px) saturate(140%);
+}
+
+/* ---------- panel lateral desplegable ---------- */
+.panel-lat {
+  flex: none; display: flex; flex-direction: column;
+  background: #050408;
+  border-right: 1px solid rgba(255,255,255,.06);
+  border-radius: 0 26px 26px 0;
+  box-shadow: 14px 0 44px rgba(0,0,0,.66);
+  position: sticky; top: 0; height: 100vh;
+  /* Una sola curva para el ancho y para el texto: si difieren, el ojo lo nota.
+     El arranque es plano (0,.72) para que el clic se sienta inmediato. */
+  transition: width .34s cubic-bezier(.2,.72,.24,1);
+  will-change: width;
+  overflow: hidden;
+}
+
+/* Las etiquetas viven siempre en el DOM: montarlas y desmontarlas hacía que
+   apareciesen de golpe antes de que el panel terminara de abrirse. */
+.pl-etiqueta {
+  opacity: 1; transform: none;
+  transition: opacity .2s ease .1s, transform .3s cubic-bezier(.2,.72,.24,1) .06s;
+}
+.panel-lat.cerrado .pl-etiqueta {
+  opacity: 0; transform: translateX(-8px);
+  transition: opacity .12s ease, transform .18s ease;
+  pointer-events: none;
+}
+.panel-lat.cerrado .pl-titulo {
+  opacity: 0; height: 0; padding: 0; overflow: hidden;
+  transition: opacity .12s ease, height .22s cubic-bezier(.2,.72,.24,1), padding .22s cubic-bezier(.2,.72,.24,1);
+}
+.pl-titulo { transition: opacity .2s ease .12s, height .26s cubic-bezier(.2,.72,.24,1), padding .26s cubic-bezier(.2,.72,.24,1); }
+.panel-lat.abierto { width: 272px; }
+.panel-lat.cerrado { width: 76px; }
+
+.pl-cab {
+  display: flex; align-items: center; gap: 11px; flex: none;
+  padding: 18px 14px 16px;
+}
+.panel-lat.cerrado .pl-cab { justify-content: center; padding: 18px 0 16px; }
+
+.pl-cuerpo { flex: 1; min-height: 0; overflow-y: auto; padding: 0 10px 8px; }
+.pl-cuerpo::-webkit-scrollbar { width: 6px; }
+.pl-cuerpo::-webkit-scrollbar-thumb { background: rgba(255,255,255,.10); border-radius: 3px; }
+
+.pl-seccion + .pl-seccion { margin-top: 14px; }
+.pl-titulo {
+  padding: 8px 8px 6px; font-size: 10px; font-weight: 500;
+  letter-spacing: .07em; text-transform: uppercase; color: var(--color-ink-4);
+}
+
+.pl-modulo {
+  display: flex; align-items: center; gap: 11px;
+  padding: 8px 10px; border-radius: 10px; position: relative;
+  color: var(--color-ink-2); transition: background .18s ease, color .18s ease;
+}
+.panel-lat.cerrado .pl-modulo { justify-content: center; padding: 9px 0; }
+.pl-modulo svg { flex: none; color: var(--color-ink-3); transition: color .18s ease; }
+.pl-modulo:hover { background: rgba(255,255,255,.06); color: var(--color-ink); }
+.pl-modulo:hover svg { color: var(--color-ink); }
+
+.pl-modulo.on { background: rgba(255,255,255,.11); color: var(--color-ink); }
+.pl-modulo.on svg { color: var(--color-purple); }
+.pl-modulo.on::before {
+  content: ""; position: absolute; left: -10px; top: 50%;
+  width: 2.5px; height: 18px; margin-top: -9px;
+  border-radius: 0 3px 3px 0; background: var(--color-purple);
+}
+
+/* Módulos del catálogo que esta maqueta no trae */
+.pl-modulo.vacio { opacity: .38; cursor: default; }
+.pl-modulo.vacio:hover { background: transparent; color: var(--color-ink-2); }
+.pl-modulo.vacio:hover svg { color: var(--color-ink-3); }
+
+.pl-hijos { margin: 2px 0 6px 20px; padding-left: 12px; border-left: 1px solid rgba(255,255,255,.09); }
+.pl-hijo {
+  display: flex; align-items: center; gap: 9px;
+  padding: 6px 9px; border-radius: 8px; font-size: 12.5px;
+  color: var(--color-ink-3); transition: background .18s ease, color .18s ease;
+}
+.pl-hijo:hover { background: rgba(255,255,255,.06); color: var(--color-ink); }
+.pl-hijo.on { color: var(--color-ink); font-weight: 500; background: rgba(255,255,255,.07); }
+
+.pl-pie {
+  flex: none; display: flex; align-items: center; gap: 9px;
+  margin: 0 10px; padding: 12px 8px;
+  border-top: 1px solid rgba(255,255,255,.09);
+}
+.panel-lat.cerrado .pl-pie { justify-content: center; }
+
+/* Etiqueta emergente cuando está plegado */
+.pl-modulo .tip {
+  position: absolute; left: 58px; display: none; white-space: nowrap;
+  padding: 5px 10px; border-radius: 9px; font-size: 12px;
+  background: #191227; color: var(--color-ink-2);
+  border: 1px solid rgba(255,255,255,.12);
+  opacity: 0; transform: translateX(-4px); pointer-events: none;
+  transition: opacity .16s ease, transform .16s ease; z-index: 40;
+}
+.panel-lat.cerrado .pl-modulo .tip { display: block; }
+.panel-lat.cerrado .pl-modulo:hover .tip { opacity: 1; transform: none; }
+
+@media (prefers-reduced-motion: reduce) {
+  .panel-lat, .pl-etiqueta, .pl-titulo { transition: none; }
+}
+
+/* ---------- tarjetas ---------- */
+.panel {
+  border-radius: 24px;
+  background: linear-gradient(158deg, rgba(255,255,255,.072), rgba(255,255,255,.030));
+  border: 1px solid rgba(255,255,255,.09);
+  backdrop-filter: blur(26px) saturate(150%);
+  -webkit-backdrop-filter: blur(26px) saturate(150%);
+  box-shadow: 0 14px 44px rgba(0,0,0,.52), inset 0 1px 0 rgba(255,255,255,.08);
+}
+.panel-2 {
+  border-radius: 18px;
+  background: rgba(255,255,255,.055);
+  border: 1px solid rgba(255,255,255,.07);
+}
+/* Fila tipo píldora de la tabla */
+.fila {
+  border-radius: 16px;
+  background: rgba(255,255,255,.045);
+  border: 1px solid rgba(255,255,255,.055);
+  transition: background .18s ease, transform .18s ease;
+}
+.fila:hover { background: rgba(255,255,255,.085); transform: translateY(-1px); }
+/* Control tipo píldora */
+.pildora {
+  border-radius: 999px; padding: 8px 16px; font-size: 12.5px;
+  background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.10);
+  color: var(--color-ink-2); transition: background .18s ease, color .18s ease;
+}
+.pildora:hover { background: rgba(255,255,255,.14); color: var(--color-ink); }
+.pildora.on { background: var(--color-purple); color: #0d0416; font-weight: 600; border-color: transparent; }
+
+input[type="range"] { accent-color: var(--color-purple); }
