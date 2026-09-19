@@ -1,7 +1,7 @@
 import Link from "next/link";
 import {
   empresa, grupo, recomendar, MI_EMPRESA, MES_ACTUAL, EMPRESAS_CON_SCORE,
-  ANTICIPACION_MEDIANA, MODEL_VERSION, type Estado,
+  MODEL_VERSION, type Estado,
 } from "@/lib/data";
 import { eur, num, mesCorto } from "@/lib/format";
 import { cargarEmpresa, cargarRecomendaciones, cargarFiliales, nombreDe } from "@/lib/motor";
@@ -120,7 +120,14 @@ export default async function Resumen() {
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div>
               <p className="text-[13.5px] font-medium">
-                Lo vimos {e.alerta.mesesAnticipacion} meses antes, en {mesCorto(e.alerta.mesDeteccion)}
+                Detección en {mesCorto(e.alerta.mesDeteccion)}
+                {e.alerta.mesesAnticipacion == null
+                  ? ""
+                  : e.alerta.mesesAnticipacion > 0
+                    ? ` · ${e.alerta.mesesAnticipacion} ${e.alerta.mesesAnticipacion === 1 ? "mes" : "meses"} antes del cambio material`
+                    : e.alerta.mesesAnticipacion === 0
+                      ? " · el mismo mes del cambio material"
+                      : ` · cambio material ${-e.alerta.mesesAnticipacion} ${e.alerta.mesesAnticipacion === -1 ? "mes" : "meses"} antes: detección tardía`}
               </p>
               <p className="mt-1 text-[12px] leading-relaxed text-[var(--color-ink-3)]">
                 {e.alerta.texto}. Se movieron {e.alerta.driversMovidos.join(" y ").toLowerCase()}.
@@ -381,9 +388,8 @@ export default async function Resumen() {
           </div>
           <p className="mt-4 text-[13px] leading-relaxed text-[var(--color-ink-2)]">
             Estás en el <strong className="font-medium">percentil {percentil}</strong> de tu grupo de pares
-            —empresas de tamaño y moneda comparables—. La mediana de anticipación del sistema es de{" "}
-            <strong className="font-medium">{ANTICIPACION_MEDIANA} meses</strong>, medida a una tasa fijada
-            de una falsa alarma por empresa y año.
+            —empresas de tamaño y moneda comparables—. La anticipación de cada aviso se mide por episodio
+            frente al cambio material y se muestra en el panel de detección de la ficha.
           </p>
         </div>
       </Card>

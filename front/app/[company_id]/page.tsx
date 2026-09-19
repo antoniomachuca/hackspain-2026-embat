@@ -2,7 +2,6 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import {
   MES_ACTUAL,
-  ANTICIPACION_MEDIANA,
 } from "@/lib/data";
 import { eur, num, mesCorto } from "@/lib/format";
 import { cargarEmpresa, cargarRecomendaciones, cargarFiliales, nombreDe } from "@/lib/motor";
@@ -460,8 +459,7 @@ export default async function EmpresaPage({
             <span>P100</span>
           </div>
           <p className="mt-4 text-[13px] leading-relaxed text-[var(--color-ink-2)]">
-            {e.nombre} se sitúa en el <strong className="font-medium">percentil {percentil}</strong> de su grupo de referencia. La mediana de anticipación de alertas tempranas es de{" "}
-            <strong className="font-medium">{ANTICIPACION_MEDIANA} meses</strong>.
+            {e.nombre} se sitúa en el <strong className="font-medium">percentil {percentil}</strong> de su grupo de referencia. La anticipación de cada aviso se mide por episodio frente al cambio material, en el panel de detección.
           </p>
         </div>
       </Card>

@@ -64,8 +64,6 @@ export type Episodio = {
 
 /** Trazabilidad: va en cada respuesta del motor. */
 export const MODEL_VERSION = "xray-1.0.0+d41f2ac";
-/** Medida a una tasa fijada de 1 falsa alarma por empresa-año en las sanas. */
-export const ANTICIPACION_MEDIANA = 8;
 
 export type Punto = { mes: string; score: number; nivel: number };
 

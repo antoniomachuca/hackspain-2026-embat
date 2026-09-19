@@ -82,9 +82,10 @@ def _text(direction, deteccion, senales, estado_confirmacion, meses_anticipacion
     first = f'Detectamos señales de {direction} en {_mes(deteccion)}: {frases}.'
     if estado_confirmacion == 'confirmado':
         n = meses_anticipacion
-        second = (f'El cambio material se confirmó {n} meses después.' if n > 0 else
+        meses = lambda k: f'{k} mes' if k == 1 else f'{k} meses'
+        second = (f'El cambio material se confirmó {meses(n)} después.' if n > 0 else
                   'El cambio material se confirmó el mismo mes.' if n == 0 else
-                  f'El cambio material se había producido {-n} meses antes: detección tardía.')
+                  f'El cambio material se había producido {meses(-n)} antes: detección tardía.')
     elif estado_confirmacion == 'pendiente':
         second = 'Cambio material pendiente de confirmación.'
     else:
@@ -104,9 +105,13 @@ def _company_episodes(panels, c, events, state_config, config):
     for t in range(months):
         event = int(events[c, t])
         if open_ep is not None:
-            # Escalada dentro del episodio (p. ej. TORCIENDOSE→DETERIORO)
+            # Escalada dentro del episodio (p. ej. TORCIENDOSE→DETERIORO); una reentrada en el mismo
+            # estado tras un mes neutro no escala, pero sí reinicia el contador de cierre.
             if event == direction_of[open_ep['direccion']]:
-                open_ep['escaladas'].append({'as_of': str(as_of[t]), 'estado': str(states[t])})
+                neutral = 0
+                if str(states[t]) != open_ep['_ultimo_estado']:
+                    open_ep['escaladas'].append({'as_of': str(as_of[t]), 'estado': str(states[t])})
+                open_ep['_ultimo_estado'] = str(states[t])
             elif event == -direction_of[open_ep['direccion']]:
                 open_ep['estado'] = 'cerrado'
                 open_ep['cierre'] = str(as_of[t])
@@ -126,18 +131,20 @@ def _company_episodes(panels, c, events, state_config, config):
                         neutral = 0
                 else:
                     neutral = 0
+                    open_ep['_ultimo_estado'] = str(states[t])
         if event and open_ep is None:
             direction = 'deterioro' if event < 0 else 'mejora'
             open_ep = {'direccion': direction, 'estado': 'activo', 'cierre': None, 'motivo_cierre': None,
                        'deteccion': str(as_of[t]), 'estado_deteccion': str(states[t]),
                        'score_deteccion': float(panels['score'][c, t]),
-                       'escaladas': [], '_t': t}
+                       'escaladas': [], '_t': t, '_ultimo_estado': str(states[t])}
             neutral = 0
     if open_ep is not None:
         episodes.append(open_ep)
     result = []
     for ep in episodes:
         t = ep.pop('_t')
+        ep.pop('_ultimo_estado')
         inicio = max(0, t - state_config.persistence_months + 1)
         ref_idx = t - state_config.persistence_months
         if ref_idx < 0 or panels['is_prior'][c, ref_idx]:

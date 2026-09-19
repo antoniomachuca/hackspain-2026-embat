@@ -140,3 +140,17 @@ def test_output_is_json_serialisable_and_company_without_episodes():
     assert row['perspectivas_sin_aviso'] == []
     json.dumps(result, allow_nan=False)
     assert month_diff('2026-03-01', '2025-12-01') == 3
+
+
+def test_separated_neutral_months_do_not_close_and_reentry_is_not_escalada():
+    # T T T | E | T T | E | T T | E E  -> un solo episodio, cierre en el segundo neutro consecutivo
+    states = (['ESTABLE'] * 6 + ['TORCIENDOSE'] * 3 + ['ESTABLE'] + ['TORCIENDOSE'] * 2 + ['ESTABLE']
+              + ['TORCIENDOSE'] * 2 + ['ESTABLE'] * 2 + ['ESTABLE'] * 7)
+    base = [70.] * 24
+    result = build_episodes(make_panels([states], [base]))
+    episodios = result['C0']['episodios']
+    assert len(episodios) == 1
+    ep = episodios[0]
+    assert ep['deteccion'] == '2024-07-01'
+    assert ep['escaladas'] == []
+    assert ep['cierre'] == '2025-05-01' and ep['motivo_cierre'] == 'estabilizacion'

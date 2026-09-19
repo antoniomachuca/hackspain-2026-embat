@@ -33,11 +33,10 @@ export default function SplitScreen({
     router.push(`/comparar?sube=${sube.id}&baja=${id}`);
   }
 
+  const epBaja = episodioDestacado(baja);
   const mesDetectBaja =
-    episodioDestacado(baja)?.deteccion.slice(0, 7) ??
-    baja.alerta?.mesDeteccion ??
-    baja.trayectoria[Math.max(0, baja.trayectoria.length - 5)]?.mes ??
-    "2026-05";
+    (epBaja?.direccion === "deterioro" ? epBaja.deteccion.slice(0, 7) : undefined) ??
+    baja.alerta?.mesDeteccion;
 
   return (
     <>
@@ -76,8 +75,10 @@ export default function SplitScreen({
             {xray ? (
               <>
                 <strong className="font-medium">{sube.nombre}</strong> ({sube.id}) viene subiendo desde el mes 1.{" "}
-                <strong className="font-medium">{baja.nombre}</strong> ({baja.id}) lleva {baja.alerta?.mesesAnticipacion ?? 4} meses
-                torciéndose y lo vimos en {mesCorto(mesDetectBaja)}.
+                <strong className="font-medium">{baja.nombre}</strong> ({baja.id}){" "}
+                {mesDetectBaja
+                  ? <>lleva torciéndose desde {mesCorto(mesDetectBaja)}, cuando detectamos las primeras señales.</>
+                  : <>no tiene todavía un episodio de deterioro detectado.</>}
                 Una es mucho mejor riesgo que la otra, y ahora se distingue cuál.
               </>
             ) : (

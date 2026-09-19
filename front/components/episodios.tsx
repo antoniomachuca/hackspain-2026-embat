@@ -22,7 +22,7 @@ function fraseConfirmacion(ep: Episodio): string {
     case "confirmado":
       if (n != null && n > 0) return `detectado ${n} ${n === 1 ? "mes" : "meses"} antes del cambio material`;
       if (n === 0) return "detectado el mismo mes del cambio material";
-      return `el cambio material se había producido ${Math.abs(n ?? 0)} meses antes: detección tardía`;
+      return `el cambio material se había producido ${Math.abs(n ?? 0)} ${Math.abs(n ?? 0) === 1 ? "mes" : "meses"} antes: detección tardía`;
     case "pendiente":
       return "cambio material pendiente de confirmación";
     case "no_confirmado":

@@ -66,7 +66,11 @@ export type ApiEpisodio = {
   referencia_as_of: string | null;
   cambio_material: string | null; criterio: string | null;
   estado_confirmacion: "confirmado" | "pendiente" | "no_confirmado";
-  meses_anticipacion: number | null; perspectiva: unknown | null;
+  meses_anticipacion: number | null;
+  perspectiva: {
+    as_of: string; outlook: string; score_observado: number;
+    score_proyectado: number; meses_antes_deteccion: number;
+  } | null;
   senales: ApiEpisodioSenal[]; familia: string; texto: string;
 };
 
