@@ -213,7 +213,7 @@ export async function FichaEmpresa({ id, vista }: { id: string; vista: Vista }) 
 
       {/* ── Score de la Empresa y Trayectoria ─────────────────────── */}
       <div className="grid gap-5 xl:grid-cols-[296px_1fr]">
-        <Card className="relative flex flex-col items-center overflow-hidden px-6 py-6">
+        <Card className="relative min-w-0 flex flex-col items-center overflow-hidden px-6 py-6">
           <div
             className="pointer-events-none absolute -top-24 left-1/2 h-56 w-56 -translate-x-1/2 rounded-full opacity-35 blur-3xl"
             style={{ background: "radial-gradient(circle, rgba(176,131,232,.55), transparent 70%)" }}
@@ -247,7 +247,7 @@ export async function FichaEmpresa({ id, vista }: { id: string; vista: Vista }) 
           </div>
         </Card>
 
-        <Card className="px-6 py-5">
+        <Card className="min-w-0 px-6 py-5">
           <div className="mb-3 flex items-center justify-between">
             <h2 className="text-[15px] font-semibold tracking-tight">Histórico y proyección (24 meses)</h2>
             <span className="text-[11px] text-[var(--color-ink-4)]">{e.id} · DuckDB Single Source of Truth</span>
@@ -345,18 +345,18 @@ export async function FichaEmpresa({ id, vista }: { id: string; vista: Vista }) 
 
 function Dato({ k, v }: { k: string; v: string }) {
   return (
-    <div className="flex items-baseline justify-between gap-3">
-      <span className="text-[12px] text-[var(--color-ink-3)]">{k}</span>
-      <span className="tnum text-[12.5px] font-medium">{v}</span>
+    <div className="flex min-w-0 items-baseline justify-between gap-3">
+      <span className="min-w-0 truncate text-[12px] text-[var(--color-ink-3)]">{k}</span>
+      <span className="tnum min-w-0 truncate text-right text-[12.5px] font-medium" title={v}>{v}</span>
     </div>
   );
 }
 
 function Mini({ k, v }: { k: string; v: string }) {
   return (
-    <div className="text-center">
-      <p className="text-[10.5px] uppercase tracking-wider text-[var(--color-ink-4)]">{k}</p>
-      <p className="tnum mt-1 text-[17px] font-semibold leading-none">{v}</p>
+    <div className="min-w-0 text-center">
+      <p className="truncate text-[10.5px] uppercase tracking-wider text-[var(--color-ink-4)]" title={k}>{k}</p>
+      <p className="tnum mt-1 truncate text-[17px] font-semibold leading-none" title={v}>{v}</p>
     </div>
   );
 }
