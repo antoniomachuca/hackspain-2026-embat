@@ -1,4 +1,5 @@
 import { ForecastChart } from '@/components/ForecastChart'
+import { Cabecera } from '@/components/shell'
 import { getForecastPage } from '@/lib/forecast-api'
 import { fmtNum } from '@/lib/format'
 
@@ -6,13 +7,14 @@ export default async function Prevision({ searchParams }: { searchParams: Promis
   const { company } = await searchParams
   let result
   try { result = await getForecastPage(company) } catch {
-    return <div><h1 className="text-3xl font-medium">Previsión de salud financiera</h1>
-      <p className="mt-5 text-ink-2">Las previsiones no están disponibles en este momento. Vuelve a intentarlo cuando estén preparados los resultados.</p></div>
+    return <>
+      <Cabecera titulo="Previsión de salud financiera" sub="Explora cómo puede evolucionar la empresa y cuánto cambia la incertidumbre con el horizonte de predicción." />
+      <p className="mt-5 text-ink-2">Las previsiones no están disponibles en este momento. Vuelve a intentarlo cuando estén preparados los resultados.</p>
+    </>
   }
   const { companies, forecast, benchmark } = result
-  return <div>
-    <h1 className="text-3xl font-medium">Previsión de salud financiera</h1>
-    <p className="mt-3 max-w-3xl text-sm text-ink-2">Explora cómo puede evolucionar la empresa y cuánto cambia la incertidumbre con el horizonte de predicción.</p>
+  return <>
+    <Cabecera titulo="Previsión de salud financiera" sub="Explora cómo puede evolucionar la empresa y cuánto cambia la incertidumbre con el horizonte de predicción." />
     <form className="my-7 flex flex-wrap items-center gap-3" method="get">
       <label htmlFor="company" className="text-sm">Empresa</label>
       <select id="company" name="company" defaultValue={forecast?.company_id} className="rounded-lg border border-line bg-surface px-3 py-2 text-sm">
@@ -45,5 +47,5 @@ export default async function Prevision({ searchParams }: { searchParams: Promis
         'Sin contexto externo histórico verificable para esta evaluación. No se han supuesto sectores ni países ausentes.'}
         {' '}El escenario conservador representa la mediana, no una garantía ni una previsión de impago.</p>
     </section>
-  </div>
+  </>
 }
