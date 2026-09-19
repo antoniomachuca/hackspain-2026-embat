@@ -16,6 +16,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
+from backend.calendar import calendar_fields
 from backend.database import close_db_connection, get_db_connection
 from backend.routes.alerts import router as alerts_router
 from backend.routes.companies import router as companies_router
@@ -99,10 +100,12 @@ def root():
             "hackathon": "HackSpain 2026 · Track Embat",
             "version": "1.0.0",
             "status": "online",
+            "calendar": calendar_fields(),
             "docs": "/docs",
             "endpoints": {
                 "companies": "/api/companies",
                 "stats": "/api/stats",
+                "calendar": "/api/calendar",
                 "alerts": "/api/alerts",
                 "whatif": "/api/whatif",
                 "simulate": "/api/simulate",

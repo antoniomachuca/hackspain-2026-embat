@@ -6,6 +6,7 @@ import {
   apiEmpresa, apiHistoria, apiPeers, apiPalancas, apiRankings, apiWhatIf, apiEmpresasDeGrupo, apiGrupos, apiGrupo, apiEmpresas, apiSimular, apiPrevisionEstructural,
   BLOQUES, type ApiHistoria, type ApiReparto, type ApiEmpresa, type ApiSugerencia, type ApiPalanca, type ApiWhatIfResponse,
 } from "./api";
+import { LAST_CLOSED_MONTH, mesDePunto, mesCerradoDeAsOf } from "./calendar";
 import { eur, num } from "./format";
 import { pendiente, inflexionDe, EMPRESAS_CON_SCORE, simular } from "./data";
 import type { Driver, DriverMes, Empresa, Estado, Punto, Reparto } from "./data";
@@ -161,7 +162,7 @@ export async function cargarEmpresa(id: string): Promise<Empresa | null> {
   if (!e) return null;
 
   const trayectoria: Punto[] = (h?.history ?? []).map((p) => ({
-    mes: p.as_of.slice(0, 7), score: p.score, nivel: p.base_health,
+    mes: mesDePunto(p), score: p.score, nivel: p.base_health,
   }));
   const prev = trayectoria.length > 1 ? trayectoria[trayectoria.length - 2].score : e.score;
 
@@ -208,7 +209,7 @@ export async function cargarEmpresa(id: string): Promise<Empresa | null> {
     hhiClientes: e.customer_hhi ?? 0,
     trayectoria,
     peer: pr ? { etiqueta: pr.label, n: pr.n_companies } : undefined,
-    trayectoriaPeer: pr?.history ? pr.history.map((p) => ({ mes: p.mes, mediana: p.mediana })) : undefined,
+    trayectoriaPeer: pr?.history ? pr.history.map((p) => ({ mes: mesDePunto(p), mediana: p.mediana })) : undefined,
     reparto: mapReparto(h?.history, trayectoria),
     inflexion,
     drivers: driversDe(e.waterfall, e),
@@ -248,7 +249,7 @@ export async function cargarTrayectoriasFiliales(ids: string[], meses = 12) {
     ids.map(async (id) => {
       const h = await apiHistoria(id, meses);
       const puntos = (h?.history ?? []).map((p) => ({
-        mes: p.as_of.slice(0, 7), score: p.score, nivel: p.base_health,
+        mes: mesDePunto(p), score: p.score, nivel: p.base_health,
       }));
       return [id, puntos] as const;
     }),
@@ -346,7 +347,7 @@ export async function cargarGrupoDetalle(gid: string): Promise<GrupoDetalle | nu
     : undefined;
 
   const peorTrayectoria: Punto[] = (peorHist?.history ?? []).map((p) => ({
-    mes: p.as_of.slice(0, 7),
+    mes: mesDePunto(p),
     score: p.score,
     nivel: p.base_health,
   }));
@@ -355,7 +356,7 @@ export async function cargarGrupoDetalle(gid: string): Promise<GrupoDetalle | nu
     const isPeor = m.company_id === worstId;
     const hist = isPeor
       ? peorTrayectoria
-      : [{ mes: "2026-09", score: m.score, nivel: m.base_health }];
+      : [{ mes: LAST_CLOSED_MONTH.slice(0, 7), score: m.score, nivel: m.base_health }];
     return {
       id: m.company_id,
       nombre: nombreDe(m.company_id),
@@ -369,12 +370,12 @@ export async function cargarGrupoDetalle(gid: string): Promise<GrupoDetalle | nu
       trayectoria: hist,
       deteccion:
         isPeor && peorEp
-          ? { mes: peorEp.deteccion.slice(0, 7), direccion: peorEp.direccion }
+          ? { mes: mesCerradoDeAsOf(peorEp.deteccion), direccion: peorEp.direccion }
           : undefined,
       camino:
         isPeor && peorEp?.perspectiva
           ? {
-              mes: peorEp.perspectiva.as_of.slice(0, 7),
+              mes: mesCerradoDeAsOf(peorEp.perspectiva.as_of),
               scoreProyectado: peorEp.perspectiva.score_proyectado,
               familia: peorEp.familia,
             }

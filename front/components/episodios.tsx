@@ -1,12 +1,14 @@
 "use client";
 import { useState } from "react";
 import type { Episodio, Punto } from "@/lib/data";
+import { mesCerradoDeAsOf } from "@/lib/calendar";
 import { num } from "@/lib/format";
 import { Trayectoria } from "./charts";
 
 const MESES = ["ene", "feb", "mar", "abr", "may", "jun", "jul", "ago", "sep", "oct", "nov", "dic"];
 const mesAno = (iso: string) => {
-  const [a, m] = iso.split("-");
+  const cerrado = mesCerradoDeAsOf(iso);
+  const [a, m] = cerrado.split("-");
   return `${MESES[+m - 1]} ${a}`;
 };
 
@@ -88,12 +90,12 @@ export function EpisodiosPanel({ episodios, destacado, trayectoria }: {
         <Trayectoria
           datos={trayectoria}
           deteccion={{
-            mes: ep.deteccion.slice(0, 7),
+            mes: mesCerradoDeAsOf(ep.deteccion),
             direccion: ep.direccion,
             senales: ep.senales,
           }}
           camino={ep.perspectiva ? {
-            mes: ep.perspectiva.as_of.slice(0, 7),
+            mes: mesCerradoDeAsOf(ep.perspectiva.as_of),
             scoreProyectado: ep.perspectiva.score_proyectado,
             familia: ep.familia,
           } : undefined}

@@ -6,6 +6,7 @@ import { combinar, choca } from "@/lib/combinacion";
 
 type Ajuste = { id: string; calc: string; valor: number };
 import { senda, acota, volatilidad } from "@/lib/proyeccion";
+import { LAST_CLOSED_MONTH } from "@/lib/calendar";
 import { eur, num, mesCorto } from "@/lib/format";
 import { Card, Delta, ScoreBadge } from "@/components/ui";
 import { Deslizador } from "@/components/deslizador";
@@ -121,7 +122,7 @@ export function Combinado({ empresa: e, aplicables, palancas, inicial }:
     const MESES = 12;
     const hist = e.trayectoria.length
       ? e.trayectoria.slice(-12)
-      : [{ mes: "2026-09", score: e.score, nivel: e.nivelBase }];
+      : [{ mes: LAST_CLOSED_MONTH.slice(0, 7), score: e.score, nivel: e.nivelBase }];
     const hoy = hist[hist.length - 1].score;
     const vol = volatilidad(hist.map((p) => p.score));
     const sinActuar = acota(hoy + e.momentum * 14);

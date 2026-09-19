@@ -1,3 +1,5 @@
+import { mesCerradoDeAsOf } from "./calendar";
+
 export const eur = (n: number, compacto = false) =>
   new Intl.NumberFormat("es-ES", {
     style: "currency", currency: "EUR", maximumFractionDigits: 0,
@@ -11,6 +13,9 @@ export const mesCorto = (iso: string) => {
   const [a, m] = iso.split("-");
   return `${["ene","feb","mar","abr","may","jun","jul","ago","sep","oct","nov","dic"][+m - 1]} ${a.slice(2)}`;
 };
+
+/** Mes de actividad de un corte `as_of` (2026-09-01 → ago 26). */
+export const mesCortoCerrado = (asOf: string) => mesCorto(mesCerradoDeAsOf(asOf));
 
 /** Eje del score: rojo → morado → ámbar → verde. Tokens de Embat.
  *  El color nunca va solo: siempre lo acompaña la etiqueta o una flecha. */

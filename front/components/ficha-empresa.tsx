@@ -5,7 +5,8 @@
  */
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { MES_ACTUAL } from "@/lib/data";
+import { CORTE_AS_OF, MES_ACTUAL } from "@/lib/data";
+import { LAST_CLOSED_MONTH } from "@/lib/calendar";
 import { eur, num, mesCorto, banda } from "@/lib/format";
 import { cargarEmpresa, cargarRecomendaciones, cargarFiliales, cargarTrayectoriasFiliales, cargarPrevision, nombreDe } from "@/lib/motor";
 import { SEGMENTOS, segmentoDe } from "@/lib/cartera";
@@ -73,7 +74,7 @@ export async function FichaEmpresa({ id, vista }: { id: string; vista: Vista }) 
     momentum: f.momentum,
     estado: f.state,
     mesesHistoria: f.state_eligible ? 24 : 8,
-    trayectoria: [{ mes: "2026-09", score: f.score, nivel: f.base_health }],
+    trayectoria: [{ mes: LAST_CLOSED_MONTH.slice(0, 7), score: f.score, nivel: f.base_health }],
   }));
 
   const trayectorias = await cargarTrayectoriasFiliales(filiales.map((f) => f.id), 12);
@@ -117,7 +118,7 @@ export async function FichaEmpresa({ id, vista }: { id: string; vista: Vista }) 
         sub={
           <>
             {embat ? <>{e.id} · Grupo {e.grupo.replace("GROUP_", "")} · </> : <>{e.sector} · </>}
-            {mesCorto(MES_ACTUAL)} ·{" "}
+            {mesCorto(MES_ACTUAL)} · corte 1-sep ·{" "}
             <span className="tnum text-[var(--color-ink-4)]">
               motor conectado · {e.moneda}
               {rk?.modelVersion ? ` · ${rk.modelVersion.slice(0, 8)}` : ""}
@@ -240,7 +241,8 @@ export async function FichaEmpresa({ id, vista }: { id: string; vista: Vista }) 
               <Dato k="Días de Caja" v={`${num(e.diasCaja, 1)} días`} />
               <Dato k="DSO / DPO" v={`${num(e.dso, 1)} d / ${num(e.dpo, 1)} d`} />
               {e.utilizacionLinea > 0 && <Dato k="Utilización Línea" v={`${num(e.utilizacionLinea)}%`} />}
-              <Dato k="Corte Analítico" v={MES_ACTUAL} />
+              <Dato k="Corte analítico" v={CORTE_AS_OF} />
+              <Dato k="Último mes cerrado" v={MES_ACTUAL} />
               <Dato k="Grupo Corporativo" v={e.grupo} />
               <Dato k="Historia" v={`${e.mesesHistoria} meses`} />
             </div>

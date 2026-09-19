@@ -168,13 +168,15 @@ function rng(seed: number) {
 const MESES = (() => {
   const out: string[] = [];
   for (let i = 0; i < 24; i++) {
-    const d = new Date(Date.UTC(2024, 9 + i, 1));
+    const d = new Date(Date.UTC(2024, 8 + i, 1));
     out.push(d.toISOString().slice(0, 7));
   }
   return out;
 })();
 
+/** Último mes con ciclo completo (ago 2026). El corte oficial es 2026-09-01. */
 export const MES_ACTUAL = MESES[23];
+export { DATA_CUTOFF as CORTE_AS_OF, LAST_CLOSED_MONTH, PARTIAL_MONTH_LABEL } from "./calendar";
 
 /** Casos verificados contra el motor (respuestas_a_pedro.md). Los cinco
  *  primeros llevan score y estado reales; el resto son relleno de cartera. */
