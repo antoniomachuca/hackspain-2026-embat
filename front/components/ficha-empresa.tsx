@@ -248,9 +248,14 @@ export async function FichaEmpresa({ id, vista }: { id: string; vista: Vista }) 
         </Card>
 
         <Card className="min-w-0 px-6 py-5">
-          <div className="mb-3 flex items-center justify-between">
-            <h2 className="text-[15px] font-semibold tracking-tight">Histórico y proyección (24 meses)</h2>
-            <span className="text-[11px] text-[var(--color-ink-4)]">{e.id} · DuckDB Single Source of Truth</span>
+          <div className="mb-3 flex min-w-0 items-start justify-between gap-3">
+            <h2 className="min-w-0 flex-1 text-[15px] font-semibold tracking-tight">Histórico y proyección (24 meses)</h2>
+            <span
+              className="min-w-0 max-w-[48%] truncate text-right text-[11px] text-[var(--color-ink-4)]"
+              title={`${e.id} · DuckDB Single Source of Truth`}
+            >
+              {e.id} · DuckDB Single Source of Truth
+            </span>
           </div>
           <Prevision
             datos={e.trayectoria}
