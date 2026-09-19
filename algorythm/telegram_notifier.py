@@ -1,6 +1,7 @@
 import argparse
 import json
 import os
+import ssl
 import sys
 import urllib.parse
 import urllib.request
@@ -10,6 +11,14 @@ HERE = Path(__file__).resolve().parent
 ROOT = HERE.parent
 CONFIG_PATH = HERE / 'telegram_config.json'
 SUBSCRIBERS_PATH = HERE / 'telegram_subscribers.json'
+
+
+def get_ssl_context():
+    try:
+        import certifi
+        return ssl.create_default_context(cafile=certifi.where())
+    except Exception:
+        return ssl._create_unverified_context()
 
 
 def load_config():
@@ -81,7 +90,7 @@ def send_telegram_message(chat_id, text, parse_mode='HTML', bot_token=None):
     data = json.dumps(payload).encode('utf-8')
     req = urllib.request.Request(url, data=data, headers={'Content-Type': 'application/json'})
     try:
-        with urllib.request.urlopen(req, timeout=10) as response:
+        with urllib.request.urlopen(req, timeout=10, context=get_ssl_context()) as response:
             res_data = response.read().decode('utf-8')
             return json.loads(res_data)
     except Exception as error:
@@ -165,7 +174,7 @@ def sync_subscribers_from_updates(bot_token=None):
     url = f"https://api.telegram.org/bot{token}/getUpdates"
     try:
         req = urllib.request.Request(url, headers={'User-Agent': 'XRayMonitor/1.0'})
-        with urllib.request.urlopen(req, timeout=10) as response:
+        with urllib.request.urlopen(req, timeout=10, context=get_ssl_context()) as response:
             data = json.loads(response.read().decode('utf-8'))
             if not data.get('ok'):
                 return load_subscribers()

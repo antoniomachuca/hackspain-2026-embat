@@ -15,7 +15,8 @@ if not __package__:
 
 from algorythm.telegram_notifier import (
     load_config, add_subscriber, load_subscribers,
-    send_telegram_message, format_alert_html, broadcast_alert
+    send_telegram_message, format_alert_html, broadcast_alert,
+    get_ssl_context
 )
 from algorythm.score_monitor import monitor_once
 
@@ -293,7 +294,7 @@ def run_bot_polling(poll_interval=2.0, auto_monitor=True):
             # 2. Poll updates
             url = f"https://api.telegram.org/bot{token}/getUpdates?offset={offset}&timeout=10"
             req = urllib.request.Request(url, headers={'User-Agent': 'XRayBot/1.0'})
-            with urllib.request.urlopen(req, timeout=15) as resp:
+            with urllib.request.urlopen(req, timeout=15, context=get_ssl_context()) as resp:
                 data = json.loads(resp.read().decode('utf-8'))
                 if not data.get('ok'):
                     time.sleep(poll_interval)
