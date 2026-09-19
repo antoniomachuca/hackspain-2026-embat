@@ -1,5 +1,4 @@
 "use client";
-import { useState } from "react";
 import type { Empresa } from "@/lib/data";
 import type { ApiPalanca, ApiSugerencia, ApiWhatIfResponse, Familia } from "@/lib/api";
 import { eur, num } from "@/lib/format";
@@ -18,26 +17,12 @@ type Fila = {
  * caja de sitio. Enseñarlas mezcladas diría que ampliar el plazo de pago y
  * cobrar antes son la misma clase de decisión, y no lo son.
  */
-const MOTIVOS: Record<string, string> = {
-  sin_linea: "no tiene línea de crédito",
-  sin_factoring: "no usa factoring",
-  sin_leasing: "no tiene leasing",
-  sin_inversion: "no tiene inversiones que liquidar",
-  sin_confirming: "no usa confirming",
-  sin_interes: "no paga intereses observables",
-  sin_debt_service: "no tiene servicio de deuda",
-  sin_refunds: "no tiene devoluciones",
-  sin_hhi_usable: "sus facturas no permiten medir concentración",
-  sin_opex: "no tiene opex clasificable",
-};
 
 export function Palancas({ empresa, sugerencias, palancas, whatif, recomendado }:
   {
     empresa: Empresa; sugerencias?: ApiSugerencia[]; palancas?: ApiPalanca[];
     whatif?: ApiWhatIfResponse | null; recomendado?: ApiSugerencia | null;
   }) {
-  const [verDescartadas, setVerDescartadas] = useState(false);
-  const descartadas = (palancas ?? []).filter((p) => !p.es_aplicable);
   const aplicablesIds = (palancas ?? []).filter((p) => p.es_aplicable).map((p) => p.id);
 
   const detalle = (s: ApiSugerencia) => {
@@ -116,30 +101,6 @@ export function Palancas({ empresa, sugerencias, palancas, whatif, recomendado }
              dentro. Antes contaba las sugerencias y no cuadraba. */
           etiqueta={`Abrir el simulador · ${aplicablesIds.length || filas.length} palancas`}
         />
-      )}
-
-      {/* Por qué NO se propone el resto: REQ-B8.1 pide el motivo de rechazo,
-          y enseñarlo es lo que demuestra que el catálogo se ha recorrido entero. */}
-      {descartadas.length > 0 && (
-        <div className="mt-5 border-t border-[var(--color-line)] pt-4">
-          <button onClick={() => setVerDescartadas((v: boolean) => !v)}
-            className="text-[11.5px] text-[var(--color-ink-3)] transition-colors hover:text-[var(--color-ink)]">
-            {verDescartadas ? "Ocultar" : "Ver"} las {descartadas.length} palancas que no se le pueden aplicar
-            <span className="ml-1.5 text-[var(--color-ink-4)]">{verDescartadas ? "▴" : "▾"}</span>
-          </button>
-          {verDescartadas && (
-            <ul className="mt-3 flex flex-col gap-1.5">
-              {descartadas.map((d) => (
-                <li key={d.id} className="flex flex-wrap items-baseline gap-x-2 text-[11.5px]">
-                  <span className="text-[var(--color-ink-3)]">{d.id.replace(/_/g, " ")}</span>
-                  <span className="text-[var(--color-ink-4)]">
-                    — {MOTIVOS[d.motivo_rechazo ?? ""] ?? d.motivo_rechazo}
-                  </span>
-                </li>
-              ))}
-            </ul>
-          )}
-        </div>
       )}
 
     </>

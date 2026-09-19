@@ -1,11 +1,12 @@
 import Link from "next/link";
-import type { GrupoDetalle } from "@/lib/motor";
+import { cargarTrayectoriasFiliales, type GrupoDetalle } from "@/lib/motor";
 import { apiGrafo } from "@/lib/api";
 import { Grafo } from "@/components/grafo";
 import { num, eur } from "@/lib/format";
 import { Cabecera } from "@/components/shell";
-import { Trayectoria, Sparkline } from "@/components/charts";
-import { Card, CardHead, KPI, ScoreBadge, EstadoChip, Delta } from "@/components/ui";
+import { Trayectoria } from "@/components/charts";
+import { Card, CardHead, KPI } from "@/components/ui";
+import { ListaGrupo } from "@/components/grupo";
 
 /**
  * Detalle de un grupo corporativo. Lo usan dos rutas: /grupo/[id] (Embat mirando la
@@ -14,7 +15,18 @@ import { Card, CardHead, KPI, ScoreBadge, EstadoChip, Delta } from "@/components
  */
 export async function VistaGrupo({ g, base }: { g: GrupoDetalle; base: "" | "/embat" }) {
   const peor = g.peor;
-  const grafo = await apiGrafo(g.id);
+  const [grafo, trayectorias] = await Promise.all([
+    apiGrafo(g.id),
+    cargarTrayectoriasFiliales(g.miembros.map((m) => m.id), 12),
+  ]);
+
+  // El listado del grupo solo trae un punto por filial; la historia real la
+  // pide cada una por su lado, si no el minigráfico sería decorativo.
+  const filiales = g.miembros.map((m) => ({
+    id: m.id, nombre: m.nombre, score: m.score, momentum: m.momentum,
+    evaluable: m.mesesHistoria >= 12,
+    trayectoria: trayectorias[m.id]?.length ? trayectorias[m.id] : m.trayectoria,
+  }));
   const volumenInterno = grafo?.edges.reduce((s, e) => s + e.eur, 0) ?? 0;
 
   return (
@@ -65,25 +77,18 @@ export async function VistaGrupo({ g, base }: { g: GrupoDetalle; base: "" | "/em
         </Card>
 
         <Card className="mt-5 px-6 py-5">
-          <h2 className="mb-4 text-[16px] font-semibold tracking-tight">Filiales</h2>
-          <div className="flex flex-col gap-2">
-            {g.miembros.map((m) => (
-              <Link key={m.id} href={`${base}/${m.id}`}
-                className="fila grid grid-cols-2 items-center gap-4 px-4 py-3 lg:grid-cols-[1.9fr_.7fr_.6fr_.8fr_.9fr]">
-                <div className="col-span-2 min-w-0 lg:col-span-1">
-                  <p className="truncate text-[13.5px] font-medium">{m.nombre} <span className="text-[11px] text-[var(--color-ink-4)]">({m.id})</span></p>
-                  <p className="truncate text-[11px] text-[var(--color-ink-4)]">{m.sector}</p>
-                </div>
-                <div className="text-right">
-                  {m.mesesHistoria >= 12 ? <ScoreBadge score={m.score} size="sm" /> : <span className="text-[11.5px] text-[var(--color-ink-4)]">sin score</span>}
-                </div>
-                <div className="text-right">{m.mesesHistoria >= 12 && <Delta v={m.momentum} />}</div>
-                <div className="hidden lg:block">{m.mesesHistoria >= 12 && <Sparkline datos={m.trayectoria} />}</div>
-                <div className="hidden lg:block">{m.mesesHistoria >= 12 && <EstadoChip estado={m.estado} />}</div>
-              </Link>
-            ))}
+          <div>
+            <h2 className="text-[15px] font-semibold tracking-tight">Filiales</h2>
+            <p className="tnum mt-0.5 text-[11.5px] text-[var(--color-ink-4)]">
+              {g.miembros.length} sociedades · {filiales.filter((f) => f.evaluable).length} con score
+            </p>
+          </div>
+
+          <div className="mt-4 border-t border-[var(--color-line)] pt-2">
+            <ListaGrupo filiales={filiales} base={base} />
           </div>
         </Card>
+
       </div>
     </>
   );

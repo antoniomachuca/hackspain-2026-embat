@@ -134,9 +134,6 @@ export async function FichaEmpresa({ id, vista }: { id: string; vista: Vista }) 
             <Boton tono="plano" href={`/empresa/${e.id}/drivers`}>
               Ver drivers
             </Boton>
-            <Boton href={`/empresa/${e.id}/escenarios`}>
-              Simular mejoras
-            </Boton>
           </div>
         }
       />
