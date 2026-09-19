@@ -1,154 +1,137 @@
-import Link from 'next/link'
-import { notFound } from 'next/navigation'
-import { CodigosRazon, Drivers } from '@/components/Drivers'
-import { BandaScore, ConfianzaEtiqueta, EstadoEtiqueta, ScoreNumero } from '@/components/Score'
-import { Trayectoria } from '@/components/Trayectoria'
-import { ApiError, api } from '@/lib/api'
-import { colorScore, fmtMes, fmtMesLargo, fmtNum } from '@/lib/format'
-import { identidad, nombre, nombreGrupo } from '@/lib/identity'
+import Link from "next/link";
+import { notFound } from "next/navigation";
+import { empresa, recomendar, MES_ACTUAL } from "@/lib/data";
+import { eur, num, mesCorto, banda } from "@/lib/format";
+import { Cabecera } from "@/components/shell";
+import { Trayectoria, Waterfall } from "@/components/charts";
+import { Anillo } from "@/components/anillo";
+import { Card, CardHead, KPI, ScoreBadge, BandaChip, EstadoChip, Confianza, Delta, Boton, Vacio } from "@/components/ui";
 
 export default async function Ficha({ params }: { params: Promise<{ id: string }> }) {
-  const { id } = await params
+  const { id } = await params;
+  const e = empresa(id);
+  if (!e) notFound();
 
-  let s
-  try {
-    s = await api.getScore(id)
-  } catch (e) {
-    if (e instanceof ApiError) notFound()
-    throw e
-  }
-
-  const ident = identidad(id)
-  const alertas = await api.getAlerts()
-  const alerta = alertas.find((a) => a.entity_id === id)
-  const primero = s.trayectoria[0]
-
-  // RF-B11.9 · el 32 % de las empresas tiene menos de 12 meses y el jurado va a hacer clic
-  if (s.scoring_pendiente) {
-    return <ScoringPendiente id={id} meses={s.meses_historia} />
-  }
+  const sinDatos = e.mesesHistoria < 12;
+  const b = banda(e.score);
+  const recos = sinDatos ? [] : recomendar(e, 3);
 
   return (
-    <div>
-      <Cabecera id={id} grupo={ident.group_id} pais={ident.pais} peer={s.peer.etiqueta} n={s.peer.n_empresas} />
-
-      <div className="mt-8 grid gap-8 lg:grid-cols-[1.6fr_1fr]">
-        <section className="rounded-2xl border border-line p-7">
-          <div className="mb-7 flex flex-wrap items-end justify-between gap-5">
-            <div>
-              <ScoreNumero score={s.score} />
-              <p className="tabular mt-2 text-sm text-ink-2">
-                {fmtMes(primero.mes)} · {fmtNum(primero.score)} → hoy {fmtNum(s.score)}
-              </p>
-            </div>
-            <div className="flex flex-col items-end gap-2">
-              <EstadoEtiqueta estado={s.estado} tendencia={s.tendencia} />
-              <ConfianzaEtiqueta semaforo={s.confianza.semaforo} valor={s.confianza.valor} />
-            </div>
+    <>
+      <Cabecera
+        titulo={e.nombre}
+        sub={<>{e.sector} · <Link href={`/grupo/${e.grupo}`} className="underline decoration-[var(--color-line-2)] underline-offset-2 hover:text-[var(--color-aqua)]">{e.grupoNombre}</Link> · {e.id}</>}
+        extra={
+          <div className="flex items-center gap-2">
+            <Boton tono="plano" href={`/empresa/${e.id}/drivers`}>Ver drivers</Boton>
+            <Boton href={`/empresa/${e.id}/escenarios`}>Simular mejoras</Boton>
           </div>
+        }
+      />
 
-          <BandaScore score={s.score} />
-
-          <div className="mt-8">
-            <Trayectoria
-              puntos={s.trayectoria}
-              color={colorScore(s.score)}
-              mesDeteccion={alerta?.mes_deteccion}
-              alto={230}
-            />
-            <Link href={`/prevision?company=${encodeURIComponent(id)}`} className="mt-4 inline-block text-sm underline">
-              Explorar escenarios a 1, 3 y 6 meses →
-            </Link>
-          </div>
-
-          {s.frase && (
-            <p className="mt-7 border-l-2 border-agua pl-4 text-sm leading-relaxed text-ink-3">{s.frase}</p>
-          )}
-        </section>
-
-        <aside className="space-y-8">
-          {alerta && (
-            <section className="rounded-2xl border border-line bg-surface-2 p-6">
-              <h2 className="peso-medio mb-1 text-sm">Cuándo se vio venir</h2>
-              <p className="tabular mb-3 text-xs text-ink-2">
-                Detectado en {fmtMesLargo(alerta.mes_deteccion)} · {alerta.meses_anticipacion} meses de
-                anticipación
-              </p>
-              <p className="text-sm leading-relaxed text-ink-3">{alerta.frase}</p>
-            </section>
-          )}
-
-          <section>
-            <h2 className="peso-medio mb-4 text-sm">Por qué este número</h2>
-            <Drivers drivers={s.drivers} />
-          </section>
-
-          {s.codigos_razon.length > 0 && (
-            <section>
-              <h2 className="peso-medio mb-3 text-sm">Códigos de razón</h2>
-              <CodigosRazon codigos={s.codigos_razon} />
-            </section>
-          )}
-
-          <section className="rounded-2xl border border-dashed border-line-2 p-6">
-            <h2 className="peso-medio mb-2 text-sm">Qué pasaría si…</h2>
-            <p className="text-sm leading-relaxed text-ink-2">
-              El simulador traduce cada palanca a puntos de score y a euros. Pendiente de `/simulate` (B8).
-            </p>
-          </section>
-        </aside>
-      </div>
-
-      <p className="mt-10 text-xs text-ink-2">
-        Grupo <Link href={`/grupo/${ident.group_id}`} className="underline hover:text-ink">{nombreGrupo(ident.group_id)}</Link>
-      </p>
-    </div>
-  )
-}
-
-function Cabecera({ id, grupo, pais, peer, n }: { id: string; grupo: string; pais?: string; peer: string; n: number }) {
-  return (
-    <header>
-      <Link href="/cartera" className="text-xs text-ink-2 hover:text-ink">
-        ← Cartera
-      </Link>
-      <h1 className="mt-2 text-3xl peso-medio tracking-tight">{nombre(id)}</h1>
-      <p className="mt-1.5 text-sm text-ink-2">
-        {nombreGrupo(grupo)}
-        {pais && ` · ${pais}`} · comparada contra {peer.toLowerCase()} ({n} empresas)
-      </p>
-    </header>
-  )
-}
-
-/** Un estado vacío con contenido real, no un placeholder (research §8). */
-function ScoringPendiente({ id, meses }: { id: string; meses: number }) {
-  return (
-    <div className="mx-auto max-w-2xl py-10">
-      <Link href="/cartera" className="text-xs text-ink-2 hover:text-ink">
-        ← Cartera
-      </Link>
-      <h1 className="mt-2 text-3xl peso-medio tracking-tight">{nombre(id)}</h1>
-      <div className="mt-8 rounded-2xl border border-line bg-surface-2 p-8">
-        <p className="peso-medio mb-3">Scoring pendiente · datos insuficientes</p>
-        <p className="text-sm leading-relaxed text-ink-3">
-          Esta empresa lleva {meses} meses conectada. El motor necesita doce para medir trayectoria, y la
-          trayectoria es la mitad del score: emitir un número con seis meses sería fingir una precisión que
-          no tenemos.
-        </p>
-        <div className="tabular mt-6 border-t border-line pt-5 text-sm text-ink-2">
-          <p>
-            Historia conectada <span className="peso-medio text-ink">{meses} / 12 meses</span>
-          </p>
-          <div className="mt-2 h-1.5 w-full rounded-full bg-surface">
-            <div className="h-1.5 rounded-full bg-agua" style={{ width: `${(meses / 12) * 100}%` }} />
+      {sinDatos ? (
+        <div>
+          <Vacio
+            titulo="Datos insuficientes para publicar un score"
+            texto={`${e.nombre} tiene ${e.mesesHistoria} meses de historia. El motor necesita 12 para separar la tendencia del ruido estacional. Mostramos las señales disponibles, pero no una puntuación que no se sostiene.`}
+            accion={<Boton tono="plano" href="/">Volver a la cartera</Boton>}
+          />
+          <div className="mt-5 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+            <KPI etiqueta="Días de caja" valor={`${e.diasCaja}`} nota="cobertura operativa" />
+            <KPI etiqueta="DSO" valor={`${e.dso} días`} nota="días en cobrar" />
+            <KPI etiqueta="DPO" valor={`${e.dpo} días`} nota="días en pagar" />
+            <KPI etiqueta="Meses de historia" valor={`${e.mesesHistoria}`} nota="mínimo 12 para score" />
           </div>
         </div>
-        <p className="mt-6 text-xs text-ink-2">
-          En el dataset del reto, el 32 % de las empresas está en esta situación. Decirlo es parte del
-          producto.
-        </p>
-      </div>
+      ) : (
+        <div>
+          {e.alerta && (
+            <div className="mb-5 flex flex-wrap items-center gap-x-3 gap-y-1 rounded-xl border px-4 py-3"
+              style={{ borderColor: "rgba(229,159,94,.35)", background: "rgba(229,159,94,.10)", backdropFilter: "blur(16px)" }}>
+              <span className="text-[12px] font-medium" style={{ color: "var(--color-risk-2)" }}>
+                Detectado en {mesCorto(e.alerta.mesDeteccion)} · {e.alerta.mesesAnticipacion} meses de anticipación
+              </span>
+              <span className="text-[12px] text-[var(--color-ink-2)]">{e.alerta.texto}</span>
+            </div>
+          )}
+
+          <div className="grid gap-5 lg:grid-cols-[300px_1fr]">
+            <Card className="px-5 py-6">
+              <p className="text-center text-[12px] text-[var(--color-ink-3)]">Score de salud financiera</p>
+              <div className="mt-3 flex justify-center">
+                <Anillo score={e.score} delta={e.score - e.scorePrev} />
+              </div>
+              <div className="mt-4 flex items-center justify-center gap-2">
+                <EstadoChip estado={e.estado} />
+                <Confianza nivel={e.confianza} />
+              </div>
+              <div className="mt-5 space-y-2 border-t border-[var(--color-line)] pt-4 text-[12px]">
+                <Fila k="Historia" v={`${e.mesesHistoria} meses`} />
+                <Fila k="Facturación anual" v={eur(e.facturacionAnual, true)} />
+                <Fila k="Percentil en su grupo" v={`P${e.drivers[0].p_peer}`} />
+              </div>
+            </Card>
+
+            <Card>
+              <CardHead titulo="Trayectoria" sub="24 meses · el nivel de hoy y hacia dónde va"
+                extra={<span className="text-[11px] text-[var(--color-ink-4)]">{mesCorto(e.trayectoria[0].mes)} – {mesCorto(MES_ACTUAL)}</span>} />
+              <div className="px-3 py-4">
+                <Trayectoria datos={e.trayectoria} alerta={e.alerta?.mesDeteccion} />
+              </div>
+            </Card>
+          </div>
+
+          <div className="mt-3 grid gap-3 sm:grid-cols-2 xl:grid-cols-5">
+            <KPI etiqueta="Días de caja" valor={`${e.diasCaja}`} nota="si no cobrase nada más" />
+            <KPI etiqueta="DSO" valor={`${e.dso} d`} nota="días en cobrar" />
+            <KPI etiqueta="DPO" valor={`${e.dpo} d`} nota="días en pagar" />
+            <KPI etiqueta="Uso de línea" valor={`${e.utilizacionLinea}%`} nota="del límite concedido" />
+            <KPI etiqueta="Concentración" valor={num(e.hhiClientes, 2)} nota="HHI de clientes" />
+          </div>
+
+          <div className="mt-5 grid gap-5 lg:grid-cols-2">
+            <Card>
+              <CardHead titulo="Por qué este número" sub="Las contribuciones suman exactamente el score"
+                extra={<Link href={`/empresa/${e.id}/drivers`} className="text-[12px] text-[var(--color-aqua)] hover:underline">Detalle</Link>} />
+              <div className="px-3 py-4"><Waterfall drivers={e.drivers} /></div>
+            </Card>
+
+            <Card>
+              <CardHead titulo="Qué hacer" sub="Simulado contra el motor. Ninguna cifra viene de un modelo de lenguaje."
+                extra={<Link href={`/empresa/${e.id}/escenarios`} className="text-[12px] text-[var(--color-aqua)] hover:underline">Simulador</Link>} />
+              <ul className="divide-y divide-[var(--color-line)]">
+                {recos.map((r) => (
+                  <li key={r.palanca.id} className="px-5 py-3.5">
+                    <div className="flex items-start justify-between gap-3">
+                      <div>
+                        <p className="text-[13px] font-medium">
+                          {r.palanca.nombre} · <span className="tnum font-normal">{r.valor} {r.palanca.unidad}</span>
+                        </p>
+                        <p className="mt-0.5 text-[12px] text-[var(--color-ink-3)]">{r.palanca.descripcion}</p>
+                      </div>
+                      <Delta v={r.deltaScore} sufijo=" pts" className="shrink-0 pt-0.5" />
+                    </div>
+                    <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-[12px] text-[var(--color-ink-2)]">
+                      {r.cajaLiberada > 0 && <span className="tnum">Caja liberada <strong className="font-medium">{eur(r.cajaLiberada)}</strong></span>}
+                      {r.eurAnio > 0 && <span className="tnum">Ahorro financiero <strong className="font-medium">{eur(r.eurAnio)}/año</strong></span>}
+                      {r.anclada && <span className="text-[var(--color-ink-4)]">ataca tu driver más débil</span>}
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            </Card>
+          </div>
+        </div>
+      )}
+    </>
+  );
+}
+
+function Fila({ k, v }: { k: string; v: React.ReactNode }) {
+  return (
+    <div className="flex items-center justify-between gap-3">
+      <span className="text-[var(--color-ink-3)]">{k}</span>
+      <span className="tnum font-medium">{v}</span>
     </div>
-  )
+  );
 }
