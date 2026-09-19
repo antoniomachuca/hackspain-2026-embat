@@ -122,6 +122,28 @@ def test_get_company_history():
     # Comprobar orden cronológico ascendente
     dates = [p["as_of"] for p in data["history"]]
     assert dates == sorted(dates)
+    assert all(p.get("reparto") is not None for p in data["history"])
+
+
+def test_get_company_history_reparto_aligned_and_scores_untouched():
+    full = client.get("/api/companies/COMP_0010/history?months=24")
+    assert full.status_code == 200
+    data = full.json()
+    assert data["months"] == 24
+    history = data["history"]
+    assert history[0]["as_of"].startswith("2024-10")
+    assert history[-1]["as_of"].startswith("2026-09")
+    assert history[-1]["score"] == pytest.approx(45.56, abs=0.05)
+    assert history[0]["reparto"]["drivers"] == []
+    assert history[0]["reparto"]["pct_tendencia"] == 0
+    assert all(point["reparto"] is not None for point in history)
+    assert any(point["reparto"]["drivers"] for point in history)
+
+    cropped = client.get("/api/companies/COMP_0010/history?months=12").json()
+    assert cropped["history"][0]["as_of"] == history[12]["as_of"]
+    assert cropped["history"][0]["score"] == history[12]["score"]
+    assert cropped["history"][0]["reparto"] == history[12]["reparto"]
+    assert cropped["history"][0]["reparto"] != history[0]["reparto"]
 
 
 def test_get_company_peers():
