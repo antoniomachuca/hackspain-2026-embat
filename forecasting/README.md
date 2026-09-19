@@ -9,6 +9,10 @@ Probados: persistencia, media reciente, tendencia amortiguada, estacionalidad, R
 con/sin contexto externo, random forest, boosting por cuantiles y **ExtraTrees** (ejemplo de contribución independiente).
 Segunda tanda (v2): Ridge con alpha por GroupKFold, lineal Huber, lineal por mediana, reversión parcial
 a la media, boosting monótono, ensemble robusto y Huber con intervalos conformales (CQR).
+Tercera tanda: **estructural** (`structural_v2`): proyecta cobros, pagos y deuda (reversión a la media
+de la empresa, estacionalidad del mismo mes del año pasado, bandas √h) y aplica `calculate_scores`.
+No reaprende la fórmula. Informe: [benchmarks/structural-v2/REPORT.md](benchmarks/structural-v2/REPORT.md).
+Es el approach de producto; el ranking de abajo sigue siendo el laboratorio reducido sobre el Δscore.
 
 | Horizonte | Candidato según la regla común | MAE validación por grupo ↓ | MAE test por grupo* |
 |---|---|---:|---:|

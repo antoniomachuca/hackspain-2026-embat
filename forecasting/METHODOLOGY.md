@@ -180,6 +180,17 @@ Se generan previsiones para 1.008 empresas y abstención para 278: se requieren 
 consecutivos con actividad y calidad suficiente. Los puntos son 1/3/6 meses; entre ellos hay
 interpolación visual. API: 503 sin artefactos, 404 para identificador desconocido.
 
+## Previsión estructural (cuenta → score)
+
+En vez de aprender `Δscore`, se proyectan cobros, pagos y servicio de deuda y se aplica el motor
+congelado `calculate_scores`. El camino central revierte el run-rate a 3 meses hacia la media a 12
+de la empresa (φ=0,8); cada mes se escala por el mismo mes del año pasado si ya está observado
+(la regla `seasonal` del laboratorio, sobre flujos); las bandas crecen con √h. Reembolsos a ratio
+constante. Ejecuciones `pedro__structural-v1` (inercia amortiguada) y `pedro__structural-v2`
+(reversión + estación + abanico). A 1 mes el MAE de grupo (4,21) queda junto a Huber (4,17) con
+mejor dirección; a 3 y 6 meses el laboratorio reducido sigue mejor en MAE. El recall de deterioro
+a 3/6 meses pasa de ~10%/4% en v1 a ~46%/57% en v2. Ver `benchmarks/structural-v2/REPORT.md`.
+
 ## Segunda tanda de modelos (v2)
 
 Siete contribuciones nuevas en `experiments/`, registradas como ejecuciones independientes

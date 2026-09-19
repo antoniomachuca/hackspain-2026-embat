@@ -16,6 +16,7 @@ from threadpoolctl import threadpool_limits
 from forecasting.context import load_context
 from forecasting.data import (FEATURE_NAMES, INTERNAL_FEATURES, Samples, feature_panel,
                                     make_samples, partition_samples, split_groups)
+from forecasting.country import known_country
 from forecasting.models import CANDIDATES, Forecaster
 from forecasting.stress import PROFILES, generate_stress, stress_score_report, synthetic_erp
 from forecasting.registry import comparison_spec
@@ -23,6 +24,14 @@ from algorythm.score_data import load_bank_panel, month_edges, sha256
 from algorythm.score_monitor import atomic_json
 
 HERE = Path(__file__).resolve().parent
+
+
+def default_dataset():
+    root = HERE.parent
+    for name in ('data', 'dataset'):
+        if (root/name/'companies.csv').exists():
+            return root/name
+    return root/'data'
 
 
 def load_protocol():
@@ -166,9 +175,9 @@ def run(dataset, output, context_path=None, allow_assumed=False, stress_n=None):
     report = {'run_id': run_id, 'protocol': protocol, 'source_sha256': sources, 'input_sha256': inputs,
               'versions': versions,
               'companies': len(companies), 'months': len(as_of), 'groups': groups, 'bank_audit': audit,
-              'context': {'mode': 'assumed_publication_sensitivity' if allow_assumed else 'strict_point_in_time',
+              'context': {'mode': 'conservative_publication_lag' if allow_assumed else 'strict_point_in_time',
                           'rows': len(context), 'historical_value_coverage': float(np.mean(features[:, 5:, INTERNAL_FEATURES+1::3] == 0)),
-                          'country_known': sum(bool(c.get('country')) for c in companies),
+                          'country_known': sum(known_country(c.get('country')) for c in companies),
                           'sector_known': sum(bool(c.get('sector')) for c in companies)},
               'horizons': {}, 'stress': {'seed': protocol['stress_seed'], 'profiles': PROFILES,
                   'score_monitor': {}, 'forecast': {}, 'donor_source': 'Training groups, first 12 months only'}}
@@ -238,7 +247,7 @@ def run(dataset, output, context_path=None, allow_assumed=False, stress_n=None):
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('--dataset', type=Path, default=HERE.parent/'data')
+    parser.add_argument('--dataset', type=Path, default=default_dataset())
     parser.add_argument('--output', type=Path, default=HERE/'artifacts')
     parser.add_argument('--context', type=Path, default=HERE/'datasets/external/external_context.csv')
     parser.add_argument('--allow-assumed-publication', action='store_true')

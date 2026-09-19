@@ -5,6 +5,7 @@ from dataclasses import dataclass
 import numpy as np
 
 from forecasting.context import INDICATORS, context_features
+from forecasting.country import known_country
 from algorythm.score_engine import calculate_scores
 
 FEATURE_NAMES = (
@@ -53,7 +54,7 @@ def feature_panel(bank, companies, as_of, context=(), allow_assumed=False):
             np.nan_to_num(hhi), ~np.isfinite(hhi),
             np.full(n, np.sin(2*np.pi*calendar_month/12)),
             np.full(n, np.cos(2*np.pi*calendar_month/12)),
-            [not bool(c.get('country')) for c in companies],
+            [not known_country(c.get('country')) for c in companies],
             [not bool(c.get('sector')) for c in companies],
         ])
     features[:, :, INTERNAL_FEATURES:] = external
