@@ -174,7 +174,8 @@ export function Prevision({
         </div>
         <div className="flex gap-1.5">
           {RANGOS.map((r) => (
-            <button key={r} onClick={() => { setRango(r); setHover(null); }}
+            <button type="button" key={r} onClick={() => { setRango(r); setHover(null); }}
+              aria-pressed={r === rango}
               className={`pildora ${r === rango ? "on" : ""}`} style={{ padding: "5px 13px", fontSize: 12 }}>
               {r}M
             </button>
