@@ -32,10 +32,15 @@ export default function SplitScreen({
     router.push(`/comparar?sube=${sube.id}&baja=${id}`);
   }
 
-  const mesDetectBaja =
-    baja.alerta?.mesDeteccion ??
-    baja.trayectoria[Math.max(0, baja.trayectoria.length - 5)]?.mes ??
-    "2026-05";
+  // Último episodio de cada dirección; nunca se usa un episodio de mejora para hablar de deterioro.
+  const ultimo = (e: typeof baja, dir: "deterioro" | "mejora") =>
+    [...(e.episodios ?? [])].reverse().find((ep) => ep.direccion === dir);
+  const epBaja = ultimo(baja, "deterioro");
+  const epSube = ultimo(sube, "mejora");
+  const frase = (ep: NonNullable<typeof epBaja>, verbo: string) =>
+    ep.estado === "activo"
+      ? `lleva ${verbo} desde ${mesCorto(ep.deteccion.slice(0, 7))}, cuando detectamos las primeras señales.`
+      : `tuvo un episodio de ${ep.direccion} detectado en ${mesCorto(ep.deteccion.slice(0, 7))} y cerrado en ${mesCorto((ep.cierre ?? ep.deteccion).slice(0, 7))}.`;
 
   return (
     <>
@@ -73,9 +78,10 @@ export default function SplitScreen({
           <p className="text-[13px] leading-relaxed">
             {xray ? (
               <>
-                <strong className="font-medium">{sube.nombre}</strong> ({sube.id}) viene subiendo desde el mes 1.{" "}
-                <strong className="font-medium">{baja.nombre}</strong> ({baja.id}) lleva {baja.alerta?.mesesAnticipacion ?? 4} meses
-                torciéndose y lo vimos en {mesCorto(mesDetectBaja)}.
+                <strong className="font-medium">{sube.nombre}</strong> ({sube.id}){" "}
+                {epSube ? frase(epSube, "mejorando") : "no tiene un episodio de mejora detectado."}{" "}
+                <strong className="font-medium">{baja.nombre}</strong> ({baja.id}){" "}
+                {epBaja ? frase(epBaja, "torciéndose") : "no tiene un episodio de deterioro detectado."}{" "}
                 Una es mucho mejor riesgo que la otra, y ahora se distingue cuál.
               </>
             ) : (
@@ -94,6 +100,8 @@ export default function SplitScreen({
           ].map(({ emp: e, rol, opts, onSelect, label }) => {
             const primerScore = e.trayectoria[0]?.score ?? 50;
             const ultimoMes = e.trayectoria[e.trayectoria.length - 1]?.mes ?? "2026-09";
+            // El gráfico marca el mismo episodio que describe el texto: el último de la dirección del rol.
+            const ep = rol === "sube" ? epSube : epBaja;
             return (
               <Card key={e.id} className="overflow-hidden">
                 <div className="flex items-start justify-between gap-4 border-b border-[var(--color-line)] px-5 py-4">
@@ -137,7 +145,11 @@ export default function SplitScreen({
 
                 {xray ? (
                   <div className="px-3 py-4">
-                    <Trayectoria datos={e.trayectoria} alerta={e.alerta?.mesDeteccion} altura={200} />
+                    <Trayectoria
+                      datos={e.trayectoria}
+                      deteccion={ep ? { mes: ep.deteccion.slice(0, 7), direccion: ep.direccion, texto: ep.texto, senales: ep.senales } : undefined}
+                      altura={200}
+                    />
                     <div className="flex items-center justify-between px-3 pt-2 text-[12px]">
                       <span className="tnum text-[var(--color-ink-3)]">
                         mes 1: {num(primerScore)} → mes 24: {num(e.score)}

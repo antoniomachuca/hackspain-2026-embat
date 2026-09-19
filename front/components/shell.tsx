@@ -124,7 +124,7 @@ export function Shell({ children }: { children: React.ReactNode }) {
 
   // Se recuerda entre visitas; si el navegador no deja, se queda abierto.
   useEffect(() => {
-    try { const v = localStorage.getItem("xray:panel"); if (v !== null) setAbierto(v === "1"); } catch {}
+    try { const v = localStorage.getItem("xray:panel"); if (v !== null) queueMicrotask(() => setAbierto(v === "1")); } catch {}
   }, []);
   const alternar = () => {
     setAbierto((a) => { try { localStorage.setItem("xray:panel", a ? "0" : "1"); } catch {} return !a; });

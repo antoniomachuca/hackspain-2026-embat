@@ -16,6 +16,7 @@ import { Card, ScoreBadge, EstadoChip, Confianza, Delta, Boton, KPI } from "@/co
 import { Palancas } from "@/components/palancas";
 import { Desglose } from "@/components/desglose";
 import { ListaGrupo } from "@/components/grupo";
+import { EpisodiosPanel } from "@/components/episodios";
 
 export type Vista = "empresa" | "embat";
 
@@ -264,33 +265,16 @@ export async function FichaEmpresa({ id, vista }: { id: string; vista: Vista }) 
         </Card>
       </div>
 
-      {/* ── Aviso / Alerta Activa ──────────────────────────────────── */}
-      {e.alerta && (
+      {/* ── Episodio destacado: detección, explicación e histórico ── */}
+      {e.episodios?.length ? (
         <Card className="mt-5 px-6 py-5">
-          <div className="flex flex-wrap items-center justify-between gap-3">
-            <div>
-              <p className="text-[13.5px] font-medium text-[var(--color-risk-2)]">
-                {e.alerta.texto} · Detectado en {mesCorto(e.alerta.mesDeteccion)}
-                {e.alerta.mesesAnticipacion > 0 ? ` (${e.alerta.mesesAnticipacion} meses de anticipación)` : ""}
-              </p>
-              <p className="mt-1 text-[12px] leading-relaxed text-[var(--color-ink-3)]">
-                Severidad: <strong className="text-[var(--color-ink-1)]">{e.alerta.severidad}</strong>.
-                {e.alerta.driversMovidos.length > 0 && ` Drivers involucrados: ${e.alerta.driversMovidos.join(", ")}.`}
-              </p>
-            </div>
-            <div className="flex flex-wrap items-center gap-1.5">
-              {e.alerta.driversMovidos.map((d, i) => (
-                <span
-                  key={d}
-                  className="rounded-md bg-[rgba(255,255,255,.07)] px-2.5 py-1 text-[11px] text-[var(--color-ink-2)]"
-                >
-                  {d} <span className="tnum text-[var(--color-ink-4)]">{e.alerta?.codigosRazon[i] ?? "—"}</span>
-                </span>
-              ))}
-            </div>
-          </div>
+          <EpisodiosPanel
+            episodios={e.episodios}
+            destacado={e.episodioDestacado ?? null}
+            trayectoria={e.trayectoria}
+          />
         </Card>
-      )}
+      ) : null}
 
       {/* ── Por qué y qué hacer ────────────────────────────────────── */}
       <div className="mt-5 grid gap-5 lg:grid-cols-2">

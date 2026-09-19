@@ -1,0 +1,96 @@
+{
+  "empresas": 1286,
+  "empresas_con_episodio": 479,
+  "episodios": 837,
+  "direcciones": {
+    "deterioro": {
+      "episodios": 373,
+      "confirmacion": {
+        "no_confirmado": 124,
+        "confirmado": 229,
+        "pendiente": 20
+      },
+      "estado": {
+        "cerrado": 314,
+        "activo": 59
+      },
+      "criterio": {
+        "delta_10": 212,
+        "banda_70": 15,
+        "banda_40": 2
+      },
+      "anticipacion": {
+        "n": 229,
+        "histograma": {
+          "-1": 164,
+          "0": 43,
+          "1": 15,
+          "2": 5,
+          "3": 1,
+          "4": 1
+        },
+        "mediana": -1.0,
+        "aviso_antes": 0.09606986899563319,
+        "mismo_mes": 0.18777292576419213,
+        "aviso_tardio": 0.7161572052401747
+      },
+      "con_escalada": 4,
+      "senales": {
+        "liquidez": 353,
+        "cobros": 137,
+        "crecimiento": 165,
+        "deuda": 27,
+        "fragilidad": 29
+      },
+      "duracion_mediana_meses": 2.0,
+      "motivo_cierre": {
+        "estabilizacion": 309,
+        "sin_evaluacion": 5
+      }
+    },
+    "mejora": {
+      "episodios": 464,
+      "confirmacion": {
+        "no_confirmado": 143,
+        "confirmado": 280,
+        "pendiente": 41
+      },
+      "estado": {
+        "cerrado": 368,
+        "activo": 96
+      },
+      "criterio": {
+        "delta_10": 243,
+        "banda_40": 10,
+        "banda_70": 27
+      },
+      "anticipacion": {
+        "n": 280,
+        "histograma": {
+          "-1": 196,
+          "0": 47,
+          "1": 27,
+          "2": 9,
+          "3": 1
+        },
+        "mediana": -1.0,
+        "aviso_antes": 0.13214285714285715,
+        "mismo_mes": 0.16785714285714284,
+        "aviso_tardio": 0.7
+      },
+      "con_escalada": 0,
+      "senales": {
+        "liquidez": 437,
+        "cobros": 157,
+        "crecimiento": 250,
+        "fragilidad": 34,
+        "deuda": 22
+      },
+      "duracion_mediana_meses": 2.0,
+      "motivo_cierre": {
+        "estabilizacion": 359,
+        "sin_evaluacion": 9
+      }
+    }
+  }
+}
