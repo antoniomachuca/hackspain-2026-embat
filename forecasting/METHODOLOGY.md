@@ -196,7 +196,7 @@ ciclo de desarrollo con un nuevo test reservado.
 
 ## Verificación de esta entrega
 
-- Suite del laboratorio e integración: **124 tests aprobados** (`pytest forecasting/tests algorythm backend`, antes de incorporar otros cambios de `main`).
+- Suite completa tras integrar `main`: **172 tests aprobados** (`pytest forecasting/tests algorythm backend`).
 - Front: lint y build con `npm run build -- --webpack` aprobados. Turbopack no pudo abrir
   su puerto auxiliar en este entorno; se verificó la compilación de producción con webpack.
 - Navegador Chrome: cuatro curvas, botones 1/3/6, 30 filas de comparación y abstención por falta
@@ -204,4 +204,4 @@ ciclo de desarrollo con un nuevo test reservado.
 - Los tres endpoints de previsión responden 200 con los artefactos generados.
 
 Se añadió la dependencia `matplotlib` que ya importaba el backend y la detección de `data/`
-en el constructor DuckDB, manteniendo compatibilidad con `dataset/`.
+en el constructor DuckDB y los objetos de palancas, manteniendo compatibilidad con `dataset/`.
