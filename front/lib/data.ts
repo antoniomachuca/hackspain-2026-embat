@@ -447,9 +447,9 @@ export function inflexionDe(s: number[], tends: number[], peer: number[], meses:
       : Math.min(1, Math.round((Math.abs(dPeer) / Math.abs(dEmpresa)) * 100) / 100);
 
     ultima = {
-      mes: MESES[i], direccion: r, mesesRegimen: fin - i + 1,
+      mes: meses[i] ?? MESES[i], direccion: r, mesesRegimen: fin - i + 1,
       deltaEmpresa: dEmpresa, deltaPeer: dPeer, partePeer,
-      frase: fraseInflexion(r, MESES[i], fin - i + 1, dEmpresa, dPeer, partePeer),
+      frase: fraseInflexion(r, meses[i] ?? MESES[i], fin - i + 1, dEmpresa, dPeer, partePeer),
     };
   }
   return ultima;
@@ -485,7 +485,7 @@ export const EMPRESAS: Empresa[] = NOMBRES.map(([nombre, sector], i) => {
   let s = serie(perfil, r);
   // Las ancladas se reescalan para terminar en su score verificado
   if (ancla) {
-    const fin = s[23], ini = Math.max(3, Math.min(97, ancla.score - ancla.d3));
+    const ini = Math.max(3, Math.min(97, ancla.score - ancla.d3));
     s = s.map((_, k) => {
       const t = k / 23;
       const v = ini + (ancla.score - ini) * Math.pow(t, perfil === "bache" ? 1 : 1.25)

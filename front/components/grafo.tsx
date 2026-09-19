@@ -5,7 +5,7 @@
  * Arista = flujo inferido A → B (grosor por euros, opacidad por nº de coincidencias).
  * Layout con d3-force (una vez); el lienzo se mueve, hace zoom y deja arrastrar nodos.
  */
-import { useEffect, useId, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useId, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { forceSimulation, forceLink, forceManyBody, forceCenter, forceCollide, forceX, forceY, type SimulationNodeDatum } from "d3-force";
 import type { ApiGrafoNodo, ApiGrafoArista } from "@/lib/api";
@@ -54,7 +54,7 @@ export function Grafo({ nodos, aristas, vista = "auto", destacar, alto = 520 }: 
     if (zoomTxtRef.current) zoomTxtRef.current.textContent = `${Math.round(k * 100)}%`;
   };
 
-  const zoomEn = (clientX: number, clientY: number, factor: number) => {
+  const zoomEn = useCallback((clientX: number, clientY: number, factor: number) => {
     const svg = svgRef.current;
     if (!svg) return;
     const pt = pantallaAViewBox(svg, clientX, clientY);
@@ -64,7 +64,7 @@ export function Grafo({ nodos, aristas, vista = "auto", destacar, alto = 520 }: 
     v.y = pt.y - ((pt.y - v.y) / v.k) * nk;
     v.k = nk;
     aplicarCamara();
-  };
+  }, []);
 
   const zoomCentro = (factor: number) => {
     const svg = svgRef.current;
@@ -132,7 +132,7 @@ export function Grafo({ nodos, aristas, vista = "auto", destacar, alto = 520 }: 
     };
     svg.addEventListener("wheel", onWheel, { passive: false });
     return () => svg.removeEventListener("wheel", onWheel);
-  }, [layout]);
+  }, [layout, zoomEn]);
 
   const maxEurArista = useMemo(() => Math.max(1, ...aristas.map((a) => a.eur)), [aristas]);
   const rutaDe = (id: string) => (modo === "embat" ? `/embat/${id}` : `/${id}`);
@@ -223,8 +223,8 @@ export function Grafo({ nodos, aristas, vista = "auto", destacar, alto = 520 }: 
       if (!g.moved && Math.hypot(dx, dy) < UMBRAL_ARRASTRE) return;
       g.moved = true;
       const r = svg.getBoundingClientRect();
-      camara.current.x += dx * (W / r.width);
-      camara.current.y += dy * (H / r.height);
+      camara.current.x += (dx * W) / (r.width * camara.current.k);
+      camara.current.y += (dy * H) / (r.height * camara.current.k);
       g.lastX = ev.clientX;
       g.lastY = ev.clientY;
       aplicarCamara();
