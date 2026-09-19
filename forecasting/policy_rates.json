@@ -1,0 +1,20 @@
+{
+  "source_url": "https://www.ecb.europa.eu/stats/policy_and_exchange_rates/key_ecb_interest_rates/html/index.en.html",
+  "retrieved_at": "2026-09-19",
+  "availability_basis": "official_effective_date",
+  "unit": "percent_per_annum",
+  "note": "Dated administered deposit-facility decisions, not revised economic estimates. Known by effective date; keep in force until next decision. Snapshot must be refreshed for later forecasts.",
+  "observations": [
+    ["2023-09-20", 4.0],
+    ["2024-06-12", 3.75],
+    ["2024-09-18", 3.5],
+    ["2024-10-23", 3.25],
+    ["2024-12-18", 3.0],
+    ["2025-02-05", 2.75],
+    ["2025-03-12", 2.5],
+    ["2025-04-23", 2.25],
+    ["2025-06-11", 2.0],
+    ["2026-06-17", 2.25],
+    ["2026-09-16", 2.5]
+  ]
+}

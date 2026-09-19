@@ -1,0 +1,371 @@
+{
+  "scenario": "temporary_dip",
+  "companies": [
+    {
+      "company_id": "SYN_02_0000",
+      "group_id": "SYN_G_02_0000",
+      "country": "ES",
+      "sector": "hospitality",
+      "currency": "EUR",
+      "profile": "delivery_expansion",
+      "donor_id": "COMP_0250"
+    },
+    {
+      "company_id": "SYN_02_0001",
+      "group_id": "SYN_G_02_0000",
+      "country": "ES",
+      "sector": "construction",
+      "currency": "EUR",
+      "profile": "construction_projects",
+      "donor_id": "COMP_0610"
+    },
+    {
+      "company_id": "SYN_02_0002",
+      "group_id": "SYN_G_02_0000",
+      "country": "MX",
+      "sector": "services",
+      "currency": "EUR",
+      "profile": "international_services",
+      "donor_id": "COMP_0253"
+    },
+    {
+      "company_id": "SYN_02_0003",
+      "group_id": "SYN_G_02_0001",
+      "country": "ES",
+      "sector": "hospitality",
+      "currency": "EUR",
+      "profile": "delivery_expansion",
+      "donor_id": "COMP_1123"
+    },
+    {
+      "company_id": "SYN_02_0004",
+      "group_id": "SYN_G_02_0001",
+      "country": "ES",
+      "sector": "construction",
+      "currency": "EUR",
+      "profile": "construction_projects",
+      "donor_id": "COMP_0581"
+    },
+    {
+      "company_id": "SYN_02_0005",
+      "group_id": "SYN_G_02_0001",
+      "country": "MX",
+      "sector": "services",
+      "currency": "EUR",
+      "profile": "international_services",
+      "donor_id": "COMP_0703"
+    },
+    {
+      "company_id": "SYN_02_0006",
+      "group_id": "SYN_G_02_0002",
+      "country": "ES",
+      "sector": "hospitality",
+      "currency": "EUR",
+      "profile": "delivery_expansion",
+      "donor_id": "COMP_0813"
+    },
+    {
+      "company_id": "SYN_02_0007",
+      "group_id": "SYN_G_02_0002",
+      "country": "ES",
+      "sector": "construction",
+      "currency": "EUR",
+      "profile": "construction_projects",
+      "donor_id": "COMP_0610"
+    },
+    {
+      "company_id": "SYN_02_0008",
+      "group_id": "SYN_G_02_0002",
+      "country": "MX",
+      "sector": "services",
+      "currency": "EUR",
+      "profile": "international_services",
+      "donor_id": "COMP_0075"
+    },
+    {
+      "company_id": "SYN_02_0009",
+      "group_id": "SYN_G_02_0003",
+      "country": "ES",
+      "sector": "hospitality",
+      "currency": "EUR",
+      "profile": "delivery_expansion",
+      "donor_id": "COMP_0423"
+    },
+    {
+      "company_id": "SYN_02_0010",
+      "group_id": "SYN_G_02_0003",
+      "country": "ES",
+      "sector": "construction",
+      "currency": "EUR",
+      "profile": "construction_projects",
+      "donor_id": "COMP_1079"
+    },
+    {
+      "company_id": "SYN_02_0011",
+      "group_id": "SYN_G_02_0003",
+      "country": "MX",
+      "sector": "services",
+      "currency": "EUR",
+      "profile": "international_services",
+      "donor_id": "COMP_0491"
+    },
+    {
+      "company_id": "SYN_02_0012",
+      "group_id": "SYN_G_02_0004",
+      "country": "ES",
+      "sector": "hospitality",
+      "currency": "EUR",
+      "profile": "delivery_expansion",
+      "donor_id": "COMP_1250"
+    },
+    {
+      "company_id": "SYN_02_0013",
+      "group_id": "SYN_G_02_0004",
+      "country": "ES",
+      "sector": "construction",
+      "currency": "EUR",
+      "profile": "construction_projects",
+      "donor_id": "COMP_1138"
+    },
+    {
+      "company_id": "SYN_02_0014",
+      "group_id": "SYN_G_02_0004",
+      "country": "MX",
+      "sector": "services",
+      "currency": "EUR",
+      "profile": "international_services",
+      "donor_id": "COMP_0612"
+    },
+    {
+      "company_id": "SYN_02_0015",
+      "group_id": "SYN_G_02_0005",
+      "country": "ES",
+      "sector": "hospitality",
+      "currency": "EUR",
+      "profile": "delivery_expansion",
+      "donor_id": "COMP_0846"
+    },
+    {
+      "company_id": "SYN_02_0016",
+      "group_id": "SYN_G_02_0005",
+      "country": "ES",
+      "sector": "construction",
+      "currency": "EUR",
+      "profile": "construction_projects",
+      "donor_id": "COMP_0945"
+    },
+    {
+      "company_id": "SYN_02_0017",
+      "group_id": "SYN_G_02_0005",
+      "country": "MX",
+      "sector": "services",
+      "currency": "EUR",
+      "profile": "international_services",
+      "donor_id": "COMP_0595"
+    },
+    {
+      "company_id": "SYN_02_0018",
+      "group_id": "SYN_G_02_0006",
+      "country": "ES",
+      "sector": "hospitality",
+      "currency": "EUR",
+      "profile": "delivery_expansion",
+      "donor_id": "COMP_0555"
+    },
+    {
+      "company_id": "SYN_02_0019",
+      "group_id": "SYN_G_02_0006",
+      "country": "ES",
+      "sector": "construction",
+      "currency": "EUR",
+      "profile": "construction_projects",
+      "donor_id": "COMP_0595"
+    },
+    {
+      "company_id": "SYN_02_0020",
+      "group_id": "SYN_G_02_0006",
+      "country": "MX",
+      "sector": "services",
+      "currency": "EUR",
+      "profile": "international_services",
+      "donor_id": "COMP_0875"
+    },
+    {
+      "company_id": "SYN_02_0021",
+      "group_id": "SYN_G_02_0007",
+      "country": "ES",
+      "sector": "hospitality",
+      "currency": "EUR",
+      "profile": "delivery_expansion",
+      "donor_id": "COMP_0562"
+    },
+    {
+      "company_id": "SYN_02_0022",
+      "group_id": "SYN_G_02_0007",
+      "country": "ES",
+      "sector": "construction",
+      "currency": "EUR",
+      "profile": "construction_projects",
+      "donor_id": "COMP_0923"
+    },
+    {
+      "company_id": "SYN_02_0023",
+      "group_id": "SYN_G_02_0007",
+      "country": "MX",
+      "sector": "services",
+      "currency": "EUR",
+      "profile": "international_services",
+      "donor_id": "COMP_0092"
+    },
+    {
+      "company_id": "SYN_02_0024",
+      "group_id": "SYN_G_02_0008",
+      "country": "ES",
+      "sector": "hospitality",
+      "currency": "EUR",
+      "profile": "delivery_expansion",
+      "donor_id": "COMP_1130"
+    },
+    {
+      "company_id": "SYN_02_0025",
+      "group_id": "SYN_G_02_0008",
+      "country": "ES",
+      "sector": "construction",
+      "currency": "EUR",
+      "profile": "construction_projects",
+      "donor_id": "COMP_0639"
+    },
+    {
+      "company_id": "SYN_02_0026",
+      "group_id": "SYN_G_02_0008",
+      "country": "MX",
+      "sector": "services",
+      "currency": "EUR",
+      "profile": "international_services",
+      "donor_id": "COMP_0087"
+    },
+    {
+      "company_id": "SYN_02_0027",
+      "group_id": "SYN_G_02_0009",
+      "country": "ES",
+      "sector": "hospitality",
+      "currency": "EUR",
+      "profile": "delivery_expansion",
+      "donor_id": "COMP_0604"
+    },
+    {
+      "company_id": "SYN_02_0028",
+      "group_id": "SYN_G_02_0009",
+      "country": "ES",
+      "sector": "construction",
+      "currency": "EUR",
+      "profile": "construction_projects",
+      "donor_id": "COMP_0581"
+    },
+    {
+      "company_id": "SYN_02_0029",
+      "group_id": "SYN_G_02_0009",
+      "country": "MX",
+      "sector": "services",
+      "currency": "EUR",
+      "profile": "international_services",
+      "donor_id": "COMP_0773"
+    },
+    {
+      "company_id": "SYN_02_0030",
+      "group_id": "SYN_G_02_0010",
+      "country": "ES",
+      "sector": "hospitality",
+      "currency": "EUR",
+      "profile": "delivery_expansion",
+      "donor_id": "COMP_0659"
+    },
+    {
+      "company_id": "SYN_02_0031",
+      "group_id": "SYN_G_02_0010",
+      "country": "ES",
+      "sector": "construction",
+      "currency": "EUR",
+      "profile": "construction_projects",
+      "donor_id": "COMP_0405"
+    },
+    {
+      "company_id": "SYN_02_0032",
+      "group_id": "SYN_G_02_0010",
+      "country": "MX",
+      "sector": "services",
+      "currency": "EUR",
+      "profile": "international_services",
+      "donor_id": "COMP_0167"
+    },
+    {
+      "company_id": "SYN_02_0033",
+      "group_id": "SYN_G_02_0011",
+      "country": "ES",
+      "sector": "hospitality",
+      "currency": "EUR",
+      "profile": "delivery_expansion",
+      "donor_id": "COMP_1022"
+    },
+    {
+      "company_id": "SYN_02_0034",
+      "group_id": "SYN_G_02_0011",
+      "country": "ES",
+      "sector": "construction",
+      "currency": "EUR",
+      "profile": "construction_projects",
+      "donor_id": "COMP_0581"
+    },
+    {
+      "company_id": "SYN_02_0035",
+      "group_id": "SYN_G_02_0011",
+      "country": "MX",
+      "sector": "services",
+      "currency": "EUR",
+      "profile": "international_services",
+      "donor_id": "COMP_0646"
+    }
+  ],
+  "as_of": [
+    "2024-02-01",
+    "2024-03-01",
+    "2024-04-01",
+    "2024-05-01",
+    "2024-06-01",
+    "2024-07-01",
+    "2024-08-01",
+    "2024-09-01",
+    "2024-10-01",
+    "2024-11-01",
+    "2024-12-01",
+    "2025-01-01",
+    "2025-02-01",
+    "2025-03-01",
+    "2025-04-01",
+    "2025-05-01",
+    "2025-06-01",
+    "2025-07-01",
+    "2025-08-01",
+    "2025-09-01",
+    "2025-10-01",
+    "2025-11-01",
+    "2025-12-01",
+    "2026-01-01",
+    "2026-02-01",
+    "2026-03-01",
+    "2026-04-01",
+    "2026-05-01",
+    "2026-06-01",
+    "2026-07-01",
+    "2026-08-01",
+    "2026-09-01",
+    "2026-10-01",
+    "2026-11-01",
+    "2026-12-01",
+    "2027-01-01"
+  ],
+  "seed": 9401,
+  "change_index": 18,
+  "expected_direction": 0,
+  "synthetic": true
+}

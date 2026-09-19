@@ -14,7 +14,7 @@ from algorythm.bank_panels import load_bank_inputs
 
 HERE = Path(__file__).resolve().parent
 ROOT = HERE.parent
-DATASET = ROOT / 'dataset'
+DATASET = ROOT / 'data' if (ROOT / 'data' / 'invoices.csv').exists() else ROOT / 'dataset'
 PANELS_PATH = HERE / 'engine_results' / 'score_panels.npz'
 OBJECTS_PATH = HERE / 'engine_results' / 'lever_objects.npz'
 INVOICES_PATH = HERE / 'engine_results' / 'pending_invoices.npz'

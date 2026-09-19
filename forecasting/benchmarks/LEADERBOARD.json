@@ -1,0 +1,21 @@
+{
+  "comparison_key": "e96c8187e179a838ee426dc4c229761c3092040dc3cff5cfdebc3e2753ede6e7",
+  "candidates": {
+    "1": {
+      "model": "ridge",
+      "run_id": "db399a14836c57de",
+      "validation_macro_group_mae": 4.549597546130214
+    },
+    "3": {
+      "model": "trailing_mean",
+      "run_id": "db399a14836c57de",
+      "validation_macro_group_mae": 7.203968760640414
+    },
+    "6": {
+      "model": "ridge",
+      "run_id": "db399a14836c57de",
+      "validation_macro_group_mae": 9.866368412294225
+    }
+  },
+  "excluded": []
+}

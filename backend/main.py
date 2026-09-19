@@ -19,6 +19,7 @@ from fastapi.responses import JSONResponse
 from backend.database import close_db_connection, get_db_connection
 from backend.routes.alerts import router as alerts_router
 from backend.routes.companies import router as companies_router
+from backend.routes.forecasts import router as forecasts_router
 from backend.routes.stats import router as stats_router
 from backend.routes.whatif import router as whatif_router
 from backend.routes.simulate import router as simulate_router
@@ -83,6 +84,7 @@ app.include_router(simulate_router)
 app.include_router(palancas_router)
 app.include_router(alerts_router)
 app.include_router(stats_router)
+app.include_router(forecasts_router)
 
 
 @app.get("/", tags=["General"])

@@ -76,4 +76,5 @@ data/
 *.duckdb.wal
 *.log
 
-
+# Local demo exports/cache; frozen synthetic datasets and benchmark runs ARE versioned.
+/forecasting/artifacts/

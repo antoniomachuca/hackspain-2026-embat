@@ -49,6 +49,12 @@ A partir del rastro financiero de **250 empresas durante 24 meses**, construir:
 ---
 
 ## Por dónde empezar
+
+- **[Previsión, datos adversarios y benchmarks](forecasting/README.md)** — generador de estrés,
+  diez modelos a 1/3/6 meses, contexto BCE/Eurostat y demo `/prevision`.
+- **[Resultados de previsión](forecasting/benchmarks/LEADERBOARD.md)** — comparación ejecutada,
+  cobertura de escenarios y límites de generalización.
+
 - **[`PRODUCTO.md`](PRODUCTO.md)** — qué construimos encima del score, a quién se lo
   vendemos, el reparto en 3 ejes y el contrato entre ellos. Empieza por aquí.
 - **[`REQUISITOS.md`](REQUISITOS.md)** — la especificación ejecutable: qué construye cada
