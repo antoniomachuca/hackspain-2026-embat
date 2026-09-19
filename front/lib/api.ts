@@ -24,7 +24,14 @@ async function post<T>(ruta: string, cuerpo: unknown): Promise<T | null> {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(cuerpo),
     });
-    if (!r.ok) return null;
+    if (!r.ok) {
+      try {
+        const errJson = await r.json();
+        return errJson as T;
+      } catch {
+        return null;
+      }
+    }
     return (await r.json()) as T;
   } catch {
     return null;
@@ -58,6 +65,13 @@ export type ApiEmpresa = {
   total_pending_amount: number;
   latest_alert: ApiAlert | null;
   suggested_action: string | null;
+  dso?: number;
+  dpo?: number;
+  dias_caja?: number;
+  annual_revenue?: number;
+  line_utilization?: number;
+  customer_hhi?: number | null;
+  daily_burn?: number;
 };
 
 export type ApiHistoria = {
@@ -66,6 +80,16 @@ export type ApiHistoria = {
     as_of: string; score: number; base_health: number; state: string;
     momentum: number; data_confidence_index: number;
   } & Omit<ApiWaterfall, "clipping_points">>;
+};
+
+export type ApiPeerPoint = { mes: string; mediana: number };
+
+export type ApiPeersResponse = {
+  company_id: string;
+  quartile: number;
+  label: string;
+  n_companies: number;
+  history: ApiPeerPoint[];
 };
 
 export type ApiPalanca = {
@@ -84,6 +108,28 @@ export type ApiSugerencia = {
 export type ApiRankings = {
   ok: boolean; company_id: string; as_of: string; modo: string;
   model_version: string; n_sims: number; sugerencias: ApiSugerencia[];
+  opciones_circulante?: ApiSugerencia[];
+  recomendado?: ApiSugerencia | null;
+};
+
+export type ApiWhatIfResponse = {
+  company_id: string;
+  group_id: string;
+  as_of: string;
+  current_score: number;
+  current_state: string;
+  injection_amount: number;
+  is_optimal_computed: boolean;
+  delta_score: number;
+  projected_score: number;
+  projected_state: string;
+  liquidity_gain: number;
+  fragility_gain: number;
+  fragility_reduction: number;
+  collections_gain: number;
+  recommended_product: string;
+  product_rationale: string;
+  executive_message: string;
 };
 
 export type ApiStats = {
@@ -95,22 +141,101 @@ export type ApiStats = {
   total_transactions_count: number; total_alerts_count: number;
 };
 
+export type ApiGrupoCompany = {
+  company_id: string;
+  score: number;
+  base_health: number;
+  state: string;
+  momentum: number;
+  delta_3m: number;
+  erp: string | null;
+  has_erp: boolean;
+  state_eligible: boolean;
+};
+
+export type ApiGrupoDetalle = {
+  group_id: string;
+  erp: string | null;
+  company_count: number;
+  average_score: number;
+  consolidated_score: number;
+  contagion_penalty: number;
+  worst_company_id: string;
+  worst_company_score: number;
+  best_company_id: string;
+  best_company_score: number;
+  risk_companies_count: number;
+  data_coverage_percentage: number;
+  companies: ApiGrupoCompany[];
+};
+
 // ── Llamadas ─────────────────────────────────────────────────────────
 export const apiSalud     = () => get<{ status: string; tables_count: number }>("/api/health");
 export const apiStats     = () => get<ApiStats>("/api/stats");
 export const apiEmpresa   = (id: string) => get<ApiEmpresa>(`/api/companies/${id}`);
 export const apiHistoria  = (id: string, meses = 24) => get<ApiHistoria>(`/api/companies/${id}/history?months=${meses}`);
+export const apiPeers     = (id: string) => get<ApiPeersResponse>(`/api/companies/${id}/peers`);
 export const apiPalancas  = (id: string) => get<{ company_id: string; as_of: string; palancas: ApiPalanca[] }>(`/api/palancas?company_id=${id}`);
 export const apiRankings  = (id: string) => get<ApiRankings>(`/api/simulate/rankings?company_id=${id}`);
 export const apiAlertas   = (id?: string, limite = 20) =>
   get<{ total: number; alerts: ApiAlert[] }>(`/api/alerts?limit=${limite}${id ? `&company_id=${id}` : ""}`);
 export const apiGrupos    = (limite = 250) => get<{ total: number; groups: Array<{ group_id: string; erp: string | null; company_count: number; average_score: number; risk_companies_count: number }> }>(`/api/groups?limit=${limite}`);
+export const apiGrupo     = (gid: string) => get<ApiGrupoDetalle>(`/api/groups/${gid}`);
+export const apiEmpresas = (params?: { state?: string; limit?: number; offset?: number; order_by?: string; order_dir?: string }) => {
+  const q = new URLSearchParams();
+  if (params?.state) q.set("state", params.state);
+  if (params?.limit) q.set("limit", String(params.limit));
+  if (params?.offset) q.set("offset", String(params.offset));
+  if (params?.order_by) q.set("order_by", params.order_by);
+  if (params?.order_dir) q.set("order_dir", params.order_dir);
+  const qs = q.toString();
+  return get<{ total: number; items: ApiEmpresa[] }>(`/api/companies${qs ? `?${qs}` : ""}`);
+};
 export const apiEmpresasDeGrupo = (gid: string) =>
-  get<{ total: number; items: ApiEmpresa[] }>(`/api/companies?group_id=${gid}&limit=50`);
-export const apiSimular   = (id: string, levers: Array<Record<string, unknown>>) =>
-  post<Record<string, unknown>>("/api/simulate", { company_id: id, levers });
+  get<{ total: number; items: ApiEmpresa[] }>(`/api/companies?group_id=${gid}&limit=100`);
+export type ApiSimulateScore = {
+  score: number;
+  state?: string | null;
+  liquidity_points?: number | null;
+  collections_points?: number | null;
+  debt_points?: number | null;
+  momentum_points?: number | null;
+};
+
+export type ApiSimulateResponse = {
+  company_id?: string;
+  as_of?: string;
+  month_mutated?: number;
+  model_version?: string;
+  baseline?: ApiSimulateScore;
+  projected?: ApiSimulateScore;
+  delta_score?: number | null;
+  caja_liberada_eur?: number;
+  effects?: Array<{
+    lever_id: string;
+    family: string;
+    mutator: string;
+    euros: number;
+    eur_año?: number | null;
+    delta_score_allowed: boolean;
+    warnings?: string[];
+  }>;
+  warnings?: string[];
+  eur_año?: number | null;
+  delta_bps?: number | null;
+  efecto_score_informativo?: number | null;
+  detail?: {
+    ok?: boolean;
+    error?: string;
+    motivo_rechazo?: string;
+    lever_id?: string;
+  };
+};
+
+export const apiSimular = (id: string, levers: Array<Record<string, unknown>>) =>
+  post<ApiSimulateResponse>("/api/simulate", { company_id: id, levers });
 export const apiWhatIf    = (id: string, inyeccion?: number) =>
-  post<Record<string, unknown>>("/api/whatif", { company_id: id, ...(inyeccion ? { injection_amount: inyeccion } : {}) });
+  post<ApiWhatIfResponse>("/api/whatif", { company_id: id, ...(inyeccion ? { injection_amount: inyeccion } : {}) });
 
 /** Etiquetas legibles de los seis bloques del waterfall. */
 export const BLOQUES: Array<{ campo: keyof ApiWaterfall; etiqueta: string; codigo: string }> = [

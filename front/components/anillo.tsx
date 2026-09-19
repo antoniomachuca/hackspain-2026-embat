@@ -1,5 +1,16 @@
 import { banda, num } from "@/lib/format";
 
+/** Estados analíticos oficiales del motor y el bot de Telegram */
+export const ESTADOS_TELEGRAM: Record<string, { label: string; color: string }> = {
+  DETERIORO: { label: "Deterioro", color: "#e5775b" },       // Rojo (alerta crítica)
+  TORCIENDOSE: { label: "Torciéndose", color: "#e59f5e" },   // Naranja (aviso preventivo)
+  BACHE: { label: "Bache", color: "#dfb631" },               // Ámbar (bache transitorio de caja)
+  ESTABLE: { label: "Estable", color: "#9fe3b4" },           // Verde suave (solvente/estable)
+  MEJORANDO: { label: "Mejorando", color: "#80efa2" },       // Verde brillante (mejora operativa)
+  RECUPERACION: { label: "Recuperación", color: "#80efa2" }, // Verde brillante (recuperación de caja)
+  EVALUACION_PENDIENTE: { label: "En evaluación", color: "#afafbb" },
+};
+
 /** Paradas del eje del score, de peor a mejor. */
 const EJE: Array<[number, string]> = [
   [0.0, "#e5775b"],   // rojo
@@ -29,9 +40,12 @@ const hex = (c: string) => [1, 3, 5].map((i) => parseInt(c.slice(i, i + 2), 16))
  * no sigue la curva, y el rojo acababa donde no tocaba.
  */
 export function Anillo({
-  score, tam = 162, grosor = 9, etiqueta = true, delta,
-}: { score: number; tam?: number; grosor?: number; etiqueta?: boolean; delta?: number }) {
+  score, tam = 162, grosor = 9, etiqueta = true, delta, estado,
+}: { score: number; tam?: number; grosor?: number; etiqueta?: boolean; delta?: number; estado?: string }) {
   const b = banda(score);
+  const st = estado ? ESTADOS_TELEGRAM[estado.toUpperCase().trim()] : null;
+  const textoEtiqueta = st ? st.label : b.label;
+  const colorEtiqueta = st ? st.color : b.color;
   const r = (tam - grosor) / 2;
   const cx = tam / 2;
   const INICIO = 135, BARRIDO = 270;          // empieza abajo-izquierda
@@ -73,12 +87,12 @@ export function Anillo({
         style={{ left: px - 4, top: py - 4 }} />
 
       <div className="absolute flex flex-col items-center">
-        <span className="tnum text-[38px] font-semibold leading-none" style={{ color: b.color }}>
+        <span className="tnum text-[38px] font-semibold leading-none" style={{ color: colorEtiqueta }}>
           {num(score)}
         </span>
         {etiqueta && (
-          <span className="mt-1 text-[11px] font-medium tracking-wide" style={{ color: b.color }}>
-            {b.label}
+          <span className="mt-1 text-[11px] font-medium tracking-wide" style={{ color: colorEtiqueta }}>
+            {textoEtiqueta}
           </span>
         )}
         {delta !== undefined && (

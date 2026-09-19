@@ -1,27 +1,42 @@
 import Link from "next/link";
-import { GRUPOS_LISTA } from "@/lib/data";
-import { num } from "@/lib/format";
+import { cargarGrupos } from "@/lib/motor";
 import { Cabecera } from "@/components/shell";
 import { Card, ScoreBadge, BandaChip } from "@/components/ui";
 
-export default function Grupos() {
+export default async function Grupos() {
+  const grupos = await cargarGrupos();
+
   return (
     <>
-      <Cabecera titulo="Grupos" sub={`${GRUPOS_LISTA.length} grupos empresariales`} />
+      <Cabecera
+        titulo="Grupos Corporativos"
+        sub={`${grupos.length} grupos empresariales consolidados · motor DuckDB`}
+      />
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
-        {GRUPOS_LISTA.map((g) => (
+        {grupos.map((g) => (
           <Link key={g.id} href={`/grupo/${g.id}`}>
             <Card className="px-5 py-4 transition-colors hover:bg-[var(--color-surface-2)]">
               <div className="flex items-start justify-between">
                 <div>
                   <p className="text-[14px] font-medium">{g.nombre}</p>
-                  <p className="mt-0.5 text-[12px] text-[var(--color-ink-3)]">{g.miembros.length} filiales · {g.id}</p>
+                  <p className="mt-0.5 text-[12px] text-[var(--color-ink-3)]">
+                    {g.company_count} filiales · {g.id}
+                    {g.erp ? ` · ERP ${g.erp}` : ""}
+                  </p>
                 </div>
-                <ScoreBadge score={g.consolidado} />
+                <ScoreBadge score={g.average_score} />
               </div>
               <div className="mt-3 flex items-center justify-between">
-                <BandaChip score={g.consolidado} />
-                <span className="tnum text-[11px] text-[var(--color-ink-4)]">cobertura {g.cobertura}%</span>
+                <BandaChip score={g.average_score} />
+                <span className="tnum text-[11px] text-[var(--color-ink-4)]">
+                  {g.risk_companies_count > 0 ? (
+                    <span className="font-medium text-[var(--color-risk-3)]">
+                      {g.risk_companies_count} en riesgo
+                    </span>
+                  ) : (
+                    "0 en riesgo"
+                  )}
+                </span>
               </div>
             </Card>
           </Link>

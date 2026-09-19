@@ -76,6 +76,13 @@ class CompanyDetailResponse(BaseModel):
     total_pending_amount: float = Field(0.0, description="Volumen pendiente total de facturación")
     latest_alert: Optional[Dict[str, Any]] = Field(None, description="Última alerta de riesgo registrada")
     suggested_action: Optional[str] = Field(None, description="Recomendación o producto financiero sugerido")
+    dso: float = Field(0.0, description="Días de cobro pendientes (DSO)")
+    dpo: float = Field(0.0, description="Días de pago a proveedores (DPO)")
+    dias_caja: float = Field(0.0, description="Días de caja / Runway de liquidez")
+    annual_revenue: float = Field(0.0, description="Facturación anual estimada / observada")
+    line_utilization: float = Field(0.0, description="Utilización de línea de crédito (%)")
+    customer_hhi: Optional[float] = Field(None, description="Concentración de clientes (HHI)")
+    daily_burn: float = Field(0.0, description="Gasto operativo diario medio (€/día)")
 
 
 # -------------------------------------------------------------
@@ -101,6 +108,23 @@ class CompanyHistoryResponse(BaseModel):
     company_id: str
     months: int
     history: List[HistoryPoint]
+
+
+# -------------------------------------------------------------
+# 2b. Esquema de Grupo de Pares (Peer Benchmark)
+# -------------------------------------------------------------
+
+class PeerPoint(BaseModel):
+    mes: str = Field(..., json_schema_extra={"example": "2024-10"})
+    mediana: float = Field(..., json_schema_extra={"example": 57.3})
+
+
+class CompanyPeersResponse(BaseModel):
+    company_id: str
+    quartile: int = Field(..., description="Cuartil de tamaño por volumen de transacciones/facturación (1 a 4)")
+    label: str = Field(..., description="Etiqueta descriptiva del cuartil de pares")
+    n_companies: int = Field(..., description="Número de empresas en el cuartil")
+    history: List[PeerPoint] = Field(..., description="Serie histórica de 24 meses con la mediana del score del cuartil")
 
 
 # -------------------------------------------------------------
@@ -220,6 +244,34 @@ class GroupItem(BaseModel):
 class GroupListResponse(BaseModel):
     total: int
     groups: List[GroupItem]
+
+
+class GroupCompanyItem(BaseModel):
+    company_id: str
+    score: float
+    base_health: float
+    state: str
+    momentum: float
+    delta_3m: float
+    erp: Optional[str] = None
+    has_erp: bool = False
+    state_eligible: bool = True
+
+
+class GroupDetailResponse(BaseModel):
+    group_id: str
+    erp: Optional[str] = None
+    company_count: int
+    average_score: float
+    consolidated_score: float
+    contagion_penalty: float
+    worst_company_id: str
+    worst_company_score: float
+    best_company_id: str
+    best_company_score: float
+    risk_companies_count: int
+    data_coverage_percentage: float
+    companies: List[GroupCompanyItem]
 
 
 class HealthResponse(BaseModel):
