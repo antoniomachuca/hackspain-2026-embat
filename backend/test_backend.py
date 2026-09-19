@@ -51,6 +51,18 @@ def test_get_companies_default():
     assert "collections_points" in first
 
 
+def test_get_companies_filter_group_normalizes_short_ids():
+    """El filtro de empresas acepta las mismas formas de grupo que su endpoint de detalle."""
+    canonical = client.get("/api/companies?group_id=GROUP_0044&limit=100").json()
+    for group_id in ("44", "GROUP44"):
+        response = client.get(f"/api/companies?group_id={group_id}&limit=100")
+        assert response.status_code == 200
+        assert response.json()["total"] == canonical["total"]
+        assert [item["company_id"] for item in response.json()["items"]] == [
+            item["company_id"] for item in canonical["items"]
+        ]
+
+
 def test_get_companies_filter_state():
     """Verifica el filtrado de empresas por estado de riesgo."""
     response = client.get("/api/companies?state=DETERIORO&limit=20")
