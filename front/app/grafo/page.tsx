@@ -5,6 +5,7 @@
  */
 import Link from "next/link";
 import { apiGrafo, apiGrafoResumen } from "@/lib/api";
+import { normalizarGrupoId } from "@/lib/motor";
 import { eur, num, mesCorto } from "@/lib/format";
 import { Cabecera } from "@/components/shell";
 import { Grafo } from "@/components/grafo";
@@ -28,8 +29,8 @@ export default async function Flujos({ searchParams }: { searchParams: Promise<R
     );
   }
 
-  const pedido = uno("grupo").trim().toUpperCase();
-  const gid = pedido ? (pedido.startsWith("GROUP_") ? pedido : `GROUP_${pedido.padStart(4, "0")}`) : resumen.groups[0]?.group_id;
+  const pedido = uno("grupo");
+  const gid = pedido ? normalizarGrupoId(pedido) : resumen.groups[0]?.group_id;
   const grafo = gid ? await apiGrafo(gid, minimo) : null;
   const enLista = resumen.groups.find((g) => g.group_id === gid);
   const url = (cambios: { grupo?: string; min?: number }) => {
