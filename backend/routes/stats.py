@@ -3,10 +3,17 @@ Endpoints de estadísticas globales, KPIs de cartera, grupos corporativos y salu
 """
 
 from datetime import datetime
-from fastapi import APIRouter
+from fastapi import APIRouter, HTTPException
 
 from backend.database import DB_PATH, query_dicts, query_one
-from backend.schemas import GroupItem, GroupListResponse, HealthResponse, StatsResponse
+from backend.schemas import (
+    GroupCompanyItem,
+    GroupDetailResponse,
+    GroupItem,
+    GroupListResponse,
+    HealthResponse,
+    StatsResponse,
+)
 
 router = APIRouter(tags=["Estadísticas y Salud"])
 
@@ -107,6 +114,92 @@ def get_groups():
     ]
 
     return GroupListResponse(total=len(groups), groups=groups)
+
+
+def normalize_group_id(raw_id: str) -> str:
+    cleaned = raw_id.strip().upper()
+    if cleaned.startswith("GROUP_") and cleaned[6:].isdigit():
+        return f"GROUP_{cleaned[6:].zfill(4)}"
+    elif cleaned.startswith("GROUP") and cleaned[5:].isdigit():
+        return f"GROUP_{cleaned[5:].zfill(4)}"
+    elif cleaned.isdigit():
+        return f"GROUP_{cleaned.zfill(4)}"
+    return cleaned
+
+
+@router.get("/api/groups/{id}", response_model=GroupDetailResponse)
+def get_group_detail(id: str):
+    """
+    Ficha analítica completa de un grupo corporativo:
+    Score consolidado (65% media + 35% filial más débil), penalización por contagio y filiales.
+    """
+    gid = normalize_group_id(id)
+
+    # Verificar existencia del grupo
+    grp = query_one("SELECT group_id, erp FROM groups WHERE group_id = ?;", (gid,))
+    if not grp:
+        check_comp = query_one("SELECT 1 FROM companies WHERE group_id = ? LIMIT 1;", (gid,))
+        if not check_comp:
+            raise HTTPException(status_code=404, detail=f"Grupo '{gid}' no encontrado")
+        grp = {"group_id": gid, "erp": None}
+
+    # Obtener todas las filiales y sus scores en el último corte
+    rows = query_dicts("""
+        SELECT 
+            company_id, score, base_health, state, momentum, delta_3m,
+            erp, has_erp, state_eligible
+        FROM v_latest_company_scores
+        WHERE group_id = ?
+        ORDER BY score ASC;
+    """, (gid,))
+
+    if not rows:
+        raise HTTPException(status_code=404, detail=f"No hay empresas registradas para el grupo '{gid}'")
+
+    scores = [float(r["score"]) for r in rows]
+    avg_score = round(sum(scores) / len(scores), 2)
+    worst_row = rows[0]
+    best_row = rows[-1]
+
+    worst_score = float(worst_row["score"])
+    best_score = float(best_row["score"])
+    consolidated = round(0.65 * avg_score + 0.35 * worst_score, 2)
+    contagion_penalty = round(max(0.0, (40.0 - worst_score) * 0.25), 2) if worst_score < 40.0 else 0.0
+
+    risk_count = sum(1 for r in rows if str(r["state"]) in ('DETERIORO', 'TORCIENDOSE', 'BACHE'))
+    eligible_count = sum(1 for r in rows if bool(r.get("state_eligible", True)))
+    coverage_pct = round((eligible_count / len(rows)) * 100.0, 1)
+
+    companies = [
+        GroupCompanyItem(
+            company_id=r["company_id"],
+            score=round(float(r["score"]), 2),
+            base_health=round(float(r["base_health"]), 2),
+            state=str(r["state"]),
+            momentum=round(float(r["momentum"]), 4),
+            delta_3m=round(float(r["delta_3m"]), 2),
+            erp=r.get("erp"),
+            has_erp=bool(r.get("has_erp", False)),
+            state_eligible=bool(r.get("state_eligible", True)),
+        )
+        for r in rows
+    ]
+
+    return GroupDetailResponse(
+        group_id=gid,
+        erp=grp.get("erp"),
+        company_count=len(companies),
+        average_score=avg_score,
+        consolidated_score=consolidated,
+        contagion_penalty=contagion_penalty,
+        worst_company_id=worst_row["company_id"],
+        worst_company_score=round(worst_score, 2),
+        best_company_id=best_row["company_id"],
+        best_company_score=round(best_score, 2),
+        risk_companies_count=risk_count,
+        data_coverage_percentage=coverage_pct,
+        companies=companies,
+    )
 
 
 @router.get("/api/health", response_model=HealthResponse)

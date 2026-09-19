@@ -54,14 +54,36 @@ export function BandaChip({ score }: { score: number }) {
   );
 }
 
-export function EstadoChip({ estado }: { estado: Estado }) {
-  const neg = estado === "DETERIORO" || estado === "TORCIENDOSE";
-  const pos = estado === "MEJORANDO" || estado === "RECUPERACION";
-  const color = neg ? "var(--color-risk-2)" : pos ? "var(--color-risk-4)" : "var(--color-ink-3)";
-  const bg = neg ? "rgba(229,159,94,.16)" : pos ? "rgba(161,84,233,.20)" : "var(--color-surface-3)";
+export function EstadoChip({ estado }: { estado: Estado | string }) {
+  const st = (estado || "").toUpperCase();
+  const color =
+    st === "DETERIORO"
+      ? "#e5775b"
+      : st === "TORCIENDOSE"
+      ? "#e59f5e"
+      : st === "BACHE"
+      ? "#dfb631"
+      : st === "MEJORANDO" || st === "RECUPERACION"
+      ? "#80efa2"
+      : st === "ESTABLE"
+      ? "#9fe3b4"
+      : "var(--color-ink-3)";
+  const bg =
+    st === "DETERIORO"
+      ? "rgba(229,119,91,.16)"
+      : st === "TORCIENDOSE"
+      ? "rgba(229,159,94,.16)"
+      : st === "BACHE"
+      ? "rgba(223,182,49,.16)"
+      : st === "MEJORANDO" || st === "RECUPERACION"
+      ? "rgba(128,239,162,.16)"
+      : st === "ESTABLE"
+      ? "rgba(159,227,180,.16)"
+      : "var(--color-surface-3)";
+  const label = ESTADO_LABEL[estado as Estado] ?? estado;
   return (
     <span className="rounded-md px-2 py-0.5 text-[11px] font-medium" style={{ background: bg, color }}>
-      {ESTADO_LABEL[estado]}
+      {label}
     </span>
   );
 }

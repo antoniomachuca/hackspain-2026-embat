@@ -95,6 +95,34 @@ export type ApiStats = {
   total_transactions_count: number; total_alerts_count: number;
 };
 
+export type ApiGrupoCompany = {
+  company_id: string;
+  score: number;
+  base_health: number;
+  state: string;
+  momentum: number;
+  delta_3m: number;
+  erp: string | null;
+  has_erp: boolean;
+  state_eligible: boolean;
+};
+
+export type ApiGrupoDetalle = {
+  group_id: string;
+  erp: string | null;
+  company_count: number;
+  average_score: number;
+  consolidated_score: number;
+  contagion_penalty: number;
+  worst_company_id: string;
+  worst_company_score: number;
+  best_company_id: string;
+  best_company_score: number;
+  risk_companies_count: number;
+  data_coverage_percentage: number;
+  companies: ApiGrupoCompany[];
+};
+
 // ── Llamadas ─────────────────────────────────────────────────────────
 export const apiSalud     = () => get<{ status: string; tables_count: number }>("/api/health");
 export const apiStats     = () => get<ApiStats>("/api/stats");
@@ -105,8 +133,9 @@ export const apiRankings  = (id: string) => get<ApiRankings>(`/api/simulate/rank
 export const apiAlertas   = (id?: string, limite = 20) =>
   get<{ total: number; alerts: ApiAlert[] }>(`/api/alerts?limit=${limite}${id ? `&company_id=${id}` : ""}`);
 export const apiGrupos    = (limite = 250) => get<{ total: number; groups: Array<{ group_id: string; erp: string | null; company_count: number; average_score: number; risk_companies_count: number }> }>(`/api/groups?limit=${limite}`);
+export const apiGrupo     = (gid: string) => get<ApiGrupoDetalle>(`/api/groups/${gid}`);
 export const apiEmpresasDeGrupo = (gid: string) =>
-  get<{ total: number; items: ApiEmpresa[] }>(`/api/companies?group_id=${gid}&limit=50`);
+  get<{ total: number; items: ApiEmpresa[] }>(`/api/companies?group_id=${gid}&limit=100`);
 export const apiSimular   = (id: string, levers: Array<Record<string, unknown>>) =>
   post<Record<string, unknown>>("/api/simulate", { company_id: id, levers });
 export const apiWhatIf    = (id: string, inyeccion?: number) =>

@@ -3,7 +3,7 @@
  * Si el motor no responde, `cargar()` devuelve null y la página cae al modo demo.
  */
 import {
-  apiEmpresa, apiHistoria, apiPalancas, apiRankings, apiAlertas, apiEmpresasDeGrupo, apiGrupos,
+  apiEmpresa, apiHistoria, apiPalancas, apiRankings, apiAlertas, apiEmpresasDeGrupo, apiGrupos, apiGrupo,
   BLOQUES, type ApiEmpresa, type ApiSugerencia, type ApiPalanca,
 } from "./api";
 import { pendiente, repartir } from "./data";
@@ -158,20 +158,21 @@ export async function cargarGrupoDetalle(gid: string): Promise<GrupoDetalle | nu
     ? limpio
     : `GROUP_${limpio.padStart(4, "0")}`;
 
-  const r = await apiEmpresasDeGrupo(normGid);
-  const items = r?.items ?? [];
+  const [detail, r] = await Promise.all([
+    apiGrupo(normGid),
+    apiEmpresasDeGrupo(normGid),
+  ]);
+
+  const items = detail?.companies ?? r?.items ?? [];
   if (!items.length) return null;
 
-  let peorItem = items[0];
-  for (const item of items) {
-    if (item.score < peorItem.score) {
-      peorItem = item;
-    }
-  }
+  const worstId =
+    detail?.worst_company_id ??
+    items.reduce((a, b) => (a.score < b.score ? a : b), items[0]).company_id;
 
   const [peorHist, peorAlert] = await Promise.all([
-    apiHistoria(peorItem.company_id, 24),
-    apiAlertas(peorItem.company_id, 1),
+    apiHistoria(worstId, 24),
+    apiAlertas(worstId, 1),
   ]);
 
   const peorTrayectoria: Punto[] = (peorHist?.history ?? []).map((p) => ({
@@ -181,7 +182,7 @@ export async function cargarGrupoDetalle(gid: string): Promise<GrupoDetalle | nu
   }));
 
   const miembros: MiembroGrupo[] = items.map((m) => {
-    const isPeor = m.company_id === peorItem.company_id;
+    const isPeor = m.company_id === worstId;
     const hist = isPeor
       ? peorTrayectoria
       : [{ mes: "2026-09", score: m.score, nivel: m.base_health }];
@@ -203,15 +204,20 @@ export async function cargarGrupoDetalle(gid: string): Promise<GrupoDetalle | nu
     };
   });
 
-  const scores = miembros.map((m) => m.score);
-  const media = Math.round((scores.reduce((a, b) => a + b, 0) / scores.length) * 10) / 10;
-  const peorScore = Math.min(...scores);
-  const consolidado = Math.round((0.65 * media + 0.35 * peorScore) * 10) / 10;
-  const penalizacion = peorScore < 40 ? Math.round((40 - peorScore) * 0.25 * 10) / 10 : 0;
-  const elegibles = items.filter((x) => x.state_eligible).length;
-  const cobertura = Math.round((elegibles / items.length) * 100);
+  const media =
+    detail?.average_score ??
+    Math.round((miembros.reduce((a, b) => a + b.score, 0) / miembros.length) * 10) / 10;
+  const worstScore = detail?.worst_company_score ?? Math.min(...miembros.map((m) => m.score));
+  const consolidado =
+    detail?.consolidated_score ?? Math.round((0.65 * media + 0.35 * worstScore) * 10) / 10;
+  const penalizacion =
+    detail?.contagion_penalty ??
+    (worstScore < 40 ? Math.round((40 - worstScore) * 0.25 * 10) / 10 : 0);
+  const cobertura =
+    detail?.data_coverage_percentage ??
+    Math.round((items.filter((x) => x.state_eligible).length / items.length) * 100);
 
-  const peorMiembro = miembros.find((m) => m.id === peorItem.company_id) ?? null;
+  const peorMiembro = miembros.find((m) => m.id === worstId) ?? null;
 
   return {
     id: normGid,

@@ -222,6 +222,34 @@ class GroupListResponse(BaseModel):
     groups: List[GroupItem]
 
 
+class GroupCompanyItem(BaseModel):
+    company_id: str
+    score: float
+    base_health: float
+    state: str
+    momentum: float
+    delta_3m: float
+    erp: Optional[str] = None
+    has_erp: bool = False
+    state_eligible: bool = True
+
+
+class GroupDetailResponse(BaseModel):
+    group_id: str
+    erp: Optional[str] = None
+    company_count: int
+    average_score: float
+    consolidated_score: float
+    contagion_penalty: float
+    worst_company_id: str
+    worst_company_score: float
+    best_company_id: str
+    best_company_score: float
+    risk_companies_count: int
+    data_coverage_percentage: float
+    companies: List[GroupCompanyItem]
+
+
 class HealthResponse(BaseModel):
     status: str = "ok"
     database: str
