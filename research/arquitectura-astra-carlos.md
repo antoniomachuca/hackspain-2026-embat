@@ -30,8 +30,8 @@ La jerarquía existente sigue siendo enunciado → producto → brief de algorit
 
 Material reproducible de esta investigación:
 
-- [Auditoría completa](research/arquitectura_carlos/audit.py) y [resultados con hashes de los CSV](research/arquitectura_carlos/audit_results.json).
-- [Experimentos](research/arquitectura_carlos/experiments.py) y [métricas, configuración y versiones](research/arquitectura_carlos/experiment_results.json).
+- [Auditoría completa](arquitectura_carlos/audit.py) y [resultados con hashes de los CSV](arquitectura_carlos/audit_results.json).
+- [Experimentos](arquitectura_carlos/experiments.py) y [métricas, configuración y versiones](arquitectura_carlos/experiment_results.json).
 - Estos scripts son herramientas de investigación; no constituyen el motor de producción.
 
 ## 3. Radiografía real de los datos
@@ -563,6 +563,6 @@ Estas respuestas condicionan features y exportación, pero no bloquean la arquit
 
 La evidencia de cobertura, calidad y resultados numéricos proviene de los CSV locales y de los scripts enlazados. Las recomendaciones de arquitectura son decisiones de diseño. Los parámetros del score siguen siendo hipótesis; las pruebas de forecasting no validan el score financiero completo.
 
-Referencias locales de requisitos: [enunciado](.agents/ENUNCIADOTRACK.md), [producto](PRODUCTO.md), [requisitos](REQUISITOS.md), [brief del algoritmo](research/algo_research_pedro.md). Las páginas oficiales enlazadas en cada sección se consultaron durante esta investigación. Codat ofrece además una referencia de organización de señales de liquidez, deuda y pagos, sin que ello valide nuestros pesos: [Credit Model](https://docs.codat.io/lending/premium-products/credit-model-overview/).
+Referencias locales de requisitos: [enunciado](../.agents/ENUNCIADOTRACK.md), [producto](../PRODUCTO.md), [requisitos](../REQUISITOS.md), [brief del algoritmo](algo_research_pedro.md). Las páginas oficiales enlazadas en cada sección se consultaron durante esta investigación. Codat ofrece además una referencia de organización de señales de liquidez, deuda y pagos, sin que ello valide nuestros pesos: [Credit Model](https://docs.codat.io/lending/premium-products/credit-model-overview/).
 
 No he auditado las afirmaciones legales, cifras comerciales ni comparativas absolutas de todos los documentos de investigación; no se utilizan como fundamento técnico de esta propuesta. Tampoco se ha enviado nada al leaderboard ni desplegado una aplicación en esta tarea.
