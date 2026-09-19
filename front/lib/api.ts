@@ -82,6 +82,16 @@ export type ApiHistoria = {
   } & Omit<ApiWaterfall, "clipping_points">>;
 };
 
+export type ApiPeerPoint = { mes: string; mediana: number };
+
+export type ApiPeersResponse = {
+  company_id: string;
+  quartile: number;
+  label: string;
+  n_companies: number;
+  history: ApiPeerPoint[];
+};
+
 export type ApiPalanca = {
   id: string; familia: string; mutator: string; excluido_con: string[];
   es_aplicable: boolean; motivo_rechazo: string | null;
@@ -142,6 +152,7 @@ export const apiSalud     = () => get<{ status: string; tables_count: number }>(
 export const apiStats     = () => get<ApiStats>("/api/stats");
 export const apiEmpresa   = (id: string) => get<ApiEmpresa>(`/api/companies/${id}`);
 export const apiHistoria  = (id: string, meses = 24) => get<ApiHistoria>(`/api/companies/${id}/history?months=${meses}`);
+export const apiPeers     = (id: string) => get<ApiPeersResponse>(`/api/companies/${id}/peers`);
 export const apiPalancas  = (id: string) => get<{ company_id: string; as_of: string; palancas: ApiPalanca[] }>(`/api/palancas?company_id=${id}`);
 export const apiRankings  = (id: string) => get<ApiRankings>(`/api/simulate/rankings?company_id=${id}`);
 export const apiAlertas   = (id?: string, limite = 20) =>

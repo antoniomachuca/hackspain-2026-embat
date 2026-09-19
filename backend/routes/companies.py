@@ -3,20 +3,23 @@ Endpoints para la gestión, cartera analítica y detalle de empresas (X-Ray).
 """
 
 import json
-from typing import List, Optional
+import threading
+from typing import Any, Dict, List, Optional
 from fastapi import APIRouter, HTTPException, Query, Response
 
 from algorythm.telegram_charts import generate_company_chart
-from backend.database import normalize_company_id, query_dicts, query_one
+from backend.database import get_cursor, normalize_company_id, query_dicts, query_one
 from backend.schemas import (
     CompanyDetailResponse,
     CompanyHistoryResponse,
     CompanyInvoicesResponse,
     CompanyListItem,
     CompanyListResponse,
+    CompanyPeersResponse,
     CompanyWaterfall,
     HistoryPoint,
     InvoiceItem,
+    PeerPoint,
 )
 
 router = APIRouter(prefix="/api/companies", tags=["Empresas y Cartera"])
@@ -320,6 +323,124 @@ def get_company_history(
     ]
 
     return CompanyHistoryResponse(company_id=cid, months=len(history), history=history)
+
+
+# -------------------------------------------------------------
+# Cache y cálculo de Grupo de Pares (Peer Benchmark)
+# -------------------------------------------------------------
+
+_PEER_CACHE: Optional[Dict[str, Any]] = None
+_PEER_LOCK = threading.Lock()
+
+
+def _get_peer_data() -> Dict[str, Any]:
+    """
+    Carga y cachea la agrupación de cuartiles y la mediana mensual histórica
+    de cada cuartil a partir de transacciones e historial de scores en DuckDB.
+    """
+    global _PEER_CACHE
+    if _PEER_CACHE is not None:
+        return _PEER_CACHE
+
+    with _PEER_LOCK:
+        if _PEER_CACHE is not None:
+            return _PEER_CACHE
+
+        with get_cursor() as cur:
+            # 1. Cuartil por volumen de ingresos
+            q_rows = cur.execute("""
+                WITH comp_vol AS (
+                    SELECT 
+                        company_id,
+                        NTILE(4) OVER (ORDER BY sum(case when amount > 0 then amount else 0 end) ASC) as quartile
+                    FROM transactions
+                    GROUP BY company_id
+                )
+                SELECT company_id, CAST(quartile AS INTEGER) as quartile FROM comp_vol;
+            """).fetchall()
+            company_quartiles = {str(r[0]): int(r[1]) for r in q_rows}
+
+            # 2. Mediana mensual de scores por cuartil
+            series_rows = cur.execute("""
+                WITH comp_vol AS (
+                    SELECT 
+                        company_id,
+                        NTILE(4) OVER (ORDER BY sum(case when amount > 0 then amount else 0 end) ASC) as quartile
+                    FROM transactions
+                    GROUP BY company_id
+                )
+                SELECT 
+                    CAST(cv.quartile AS INTEGER) as quartile,
+                    strftime(cs.as_of, '%Y-%m') as mes,
+                    count(distinct cv.company_id) as n_companies,
+                    round(COALESCE(median(case when cs.score != 50.0 then cs.score end), 50.0), 1) as median_score
+                FROM company_scores cs
+                JOIN comp_vol cv ON cs.company_id = cv.company_id
+                GROUP BY cv.quartile, cs.as_of
+                ORDER BY cv.quartile, cs.as_of;
+            """).fetchall()
+
+            quartile_labels = {
+                1: "cuartil de tamaño Q1 (< 1M€)",
+                2: "cuartil de tamaño Q2 (1M€ - 5M€)",
+                3: "cuartil de tamaño Q3 (5M€ - 20M€)",
+                4: "cuartil de tamaño Q4 (> 20M€)",
+            }
+
+            quartile_series: Dict[int, Dict[str, Any]] = {}
+            for q_raw, mes, n, med in series_rows:
+                q = int(q_raw)
+                if q not in quartile_series:
+                    quartile_series[q] = {
+                        "n": int(n),
+                        "label": quartile_labels.get(q, f"cuartil Q{q}"),
+                        "history": [],
+                    }
+                quartile_series[q]["history"].append(PeerPoint(mes=str(mes), mediana=float(med)))
+
+            # Suavizado de meses iniciales pre-operativos (2024-10 y 2024-11)
+            for q, data in quartile_series.items():
+                pts = data["history"]
+                first_active = next((p.mediana for p in pts if p.mes >= "2024-12" and p.mediana != 50.0), 50.0)
+                for p in pts:
+                    if p.mes < "2024-12":
+                        p.mediana = first_active
+
+            _PEER_CACHE = {
+                "company_quartiles": company_quartiles,
+                "quartiles": quartile_series,
+            }
+            return _PEER_CACHE
+
+
+@router.get("/{id}/peers", response_model=CompanyPeersResponse)
+def get_company_peers(id: str):
+    """
+    Devuelve la trayectoria del grupo de pares (Peer Benchmark) para la empresa.
+    Determina su cuartil de tamaño por volumen de facturación y devuelve la serie
+    mensual de medianas agregada en DuckDB sobre las 1.286 empresas.
+    """
+    cid = normalize_company_id(id)
+    cache = _get_peer_data()
+
+    quartile = cache["company_quartiles"].get(cid)
+    if quartile is None:
+        comp = query_one("SELECT company_id FROM companies WHERE company_id = ?", (cid,))
+        if not comp:
+            raise HTTPException(status_code=404, detail=f"Empresa '{cid}' no encontrada")
+        quartile = 1
+
+    q_data = cache["quartiles"].get(quartile)
+    if not q_data:
+        raise HTTPException(status_code=404, detail=f"No hay datos de pares para el cuartil {quartile}")
+
+    return CompanyPeersResponse(
+        company_id=cid,
+        quartile=quartile,
+        label=q_data["label"],
+        n_companies=q_data["n"],
+        history=q_data["history"],
+    )
 
 
 @router.get("/{id}/invoices", response_model=CompanyInvoicesResponse)

@@ -290,7 +290,7 @@ export function repartir(s: number[], tends: number[], i: number, mes: string): 
 }
 
 /** La última inflexión, que es la que importa hoy. */
-function inflexionDe(s: number[], tends: number[], peer: number[]): Inflexion | undefined {
+export function inflexionDe(s: number[], tends: number[], peer: number[], meses: string[] = MESES): Inflexion | undefined {
   const regimen = (i: number) =>
     [0, 1, 2].every((k) => (tends[i - k] ?? 0) < -0.4) ? "deterioro" as const
     : [0, 1, 2].every((k) => (tends[i - k] ?? 0) > 0.4) ? "mejora" as const

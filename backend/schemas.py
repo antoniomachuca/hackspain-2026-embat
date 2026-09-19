@@ -111,6 +111,23 @@ class CompanyHistoryResponse(BaseModel):
 
 
 # -------------------------------------------------------------
+# 2b. Esquema de Grupo de Pares (Peer Benchmark)
+# -------------------------------------------------------------
+
+class PeerPoint(BaseModel):
+    mes: str = Field(..., json_schema_extra={"example": "2024-10"})
+    mediana: float = Field(..., json_schema_extra={"example": 57.3})
+
+
+class CompanyPeersResponse(BaseModel):
+    company_id: str
+    quartile: int = Field(..., description="Cuartil de tamaño por volumen de transacciones/facturación (1 a 4)")
+    label: str = Field(..., description="Etiqueta descriptiva del cuartil de pares")
+    n_companies: int = Field(..., description="Número de empresas en el cuartil")
+    history: List[PeerPoint] = Field(..., description="Serie histórica de 24 meses con la mediana del score del cuartil")
+
+
+# -------------------------------------------------------------
 # 3. Esquemas de Facturas e Impagos
 # -------------------------------------------------------------
 

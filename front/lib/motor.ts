@@ -3,10 +3,10 @@
  * Si el motor no responde, `cargar()` devuelve null y la página cae al modo demo.
  */
 import {
-  apiEmpresa, apiHistoria, apiPalancas, apiRankings, apiAlertas, apiEmpresasDeGrupo, apiGrupos, apiGrupo, apiEmpresas, apiSimular,
+  apiEmpresa, apiHistoria, apiPeers, apiPalancas, apiRankings, apiAlertas, apiEmpresasDeGrupo, apiGrupos, apiGrupo, apiEmpresas, apiSimular,
   BLOQUES, type ApiEmpresa, type ApiSugerencia, type ApiPalanca, type ApiSimulateResponse,
 } from "./api";
-import { pendiente, repartir, EMPRESAS_CON_SCORE, simular } from "./data";
+import { pendiente, repartir, inflexionDe, EMPRESAS_CON_SCORE, simular } from "./data";
 import type { Driver, Empresa, Estado, Punto, Severidad } from "./data";
 
 const ESTADOS: Record<string, Estado> = {
@@ -37,7 +37,12 @@ function driversDe(w: ApiEmpresa["waterfall"]): Driver[] {
 }
 
 export async function cargarEmpresa(id: string): Promise<Empresa | null> {
-  const [e, h, al] = await Promise.all([apiEmpresa(id), apiHistoria(id, 24), apiAlertas(id, 5)]);
+  const [e, h, al, pr] = await Promise.all([
+    apiEmpresa(id),
+    apiHistoria(id, 24),
+    apiAlertas(id, 5),
+    apiPeers(id),
+  ]);
   if (!e) return null;
 
   const trayectoria: Punto[] = (h?.history ?? []).map((p) => ({
@@ -45,6 +50,14 @@ export async function cargarEmpresa(id: string): Promise<Empresa | null> {
   }));
   const prev = trayectoria.length > 1 ? trayectoria[trayectoria.length - 2].score : e.score;
   const alerta = al?.alerts?.[0] ?? e.latest_alert ?? null;
+
+  const serie = trayectoria.map((p) => p.score);
+  const tends = serie.map((_, k) => pendiente(serie, k));
+  const peerSerie = pr?.history?.map((p) => p.mediana) ?? [];
+  const meses = trayectoria.map((p) => p.mes);
+  const inflexion = (peerSerie.length === serie.length && serie.length > 0)
+    ? inflexionDe(serie, tends, peerSerie, meses)
+    : undefined;
 
   return {
     id: e.company_id,
@@ -69,14 +82,10 @@ export async function cargarEmpresa(id: string): Promise<Empresa | null> {
     utilizacionLinea: e.line_utilization ?? 0,
     hhiClientes: e.customer_hhi ?? 0,
     trayectoria,
-    // El motor todavía no sirve el reparto tendencia/bache (ni el peer group).
-    // Se deriva aquí de la serie real: la pendiente vigente es la parte
-    // estructural del movimiento, el resto es pulso. Misma regla que en demo.
-    reparto: (() => {
-      const serie = trayectoria.map((p) => p.score);
-      const tends = serie.map((_, k) => pendiente(serie, k));
-      return trayectoria.map((p, k) => repartir(serie, tends, k, p.mes));
-    })(),
+    peer: pr ? { etiqueta: pr.label, n: pr.n_companies } : undefined,
+    trayectoriaPeer: pr?.history ? pr.history.map((p) => ({ mes: p.mes, mediana: p.mediana })) : undefined,
+    reparto: trayectoria.map((p, k) => repartir(serie, tends, k, p.mes)),
+    inflexion,
     drivers: driversDe(e.waterfall),
     alerta: alerta
       ? {

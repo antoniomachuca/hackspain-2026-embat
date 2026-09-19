@@ -124,6 +124,21 @@ def test_get_company_history():
     assert dates == sorted(dates)
 
 
+def test_get_company_peers():
+    """Verifica el benchmark de pares y mediana mensual de cuartil."""
+    response = client.get("/api/companies/COMP_0010/peers")
+    assert response.status_code == 200
+    data = response.json()
+    assert data["company_id"] == "COMP_0010"
+    assert data["quartile"] in (1, 2, 3, 4)
+    assert data["n_companies"] > 0
+    assert len(data["history"]) == 24
+    assert data["history"][0]["mes"] == "2024-10"
+    assert data["history"][-1]["mes"] == "2026-09"
+    assert all("mediana" in p for p in data["history"])
+
+
+
 def test_get_company_invoices():
     """Verifica el detalle de facturación ERP."""
     response = client.get("/api/companies/COMP_0010/invoices?limit=5")
