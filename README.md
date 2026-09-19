@@ -5,6 +5,11 @@
 
 ---
 
+> ⭐ **El documento maestro del producto es [`PRODUCTO-MAESTRO.md`](PRODUCTO-MAESTRO.md)**
+> (acordado por el equipo el 19-sep-2026). Prevalece sobre el resto de documentos.
+
+---
+
 ## 🎯 Objetivo del Reto
 A partir del rastro financiero de **250 empresas durante 24 meses**, construir:
 1. **Motor de Score de Salud Financiera:** Capturar la trayectoria continua de la empresa (anticipando mejoras y deterioros en ambas direcciones).
@@ -31,6 +36,8 @@ A partir del rastro financiero de **250 empresas durante 24 meses**, construir:
 │   ├── algo_research_pedro.md  # Brief del algoritmo: features, nivel, tendencia, estados
 │   ├── informe_exploracion.md  # Exploración del dataset (B0): decisiones tomadas con el dato
 │   └── *_carlos.md, *_quirce.md # Research de mercado, algoritmos y producto
+├── PRODUCTO-MAESTRO.md         # ⭐ Documento maestro del producto: las 6 preguntas y las 3 pantallas
+├── front/                      # Front de producto (Next.js) que implementa el maestro
 ├── PRODUCTO.md                 # Producto, comprador, arquitectura, reparto y pitch
 ├── REQUISITOS.md               # Requisitos por bloques de arquitectura (B0–B13) y trazabilidad
 ├── README.md

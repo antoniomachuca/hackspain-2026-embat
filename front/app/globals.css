@@ -1,0 +1,92 @@
+/* General Sans — sustituto libre de Haffer SQXH, la tipografía real de Embat.
+   Dos pesos, 400 y 500, como carga embat.io. La contención es parte del look.
+   TODO antes del pitch: auto-hospedar el woff2 (RF-B11.5, cero dependencia de red). */
+@import url('https://api.fontshare.com/v2/css?f[]=general-sans@400,500,600&display=swap');
+@import 'tailwindcss';
+
+/**
+ * Sistema visual · tokens literales del CSS de embat.io
+ * (research/producto_research_quirce.md §1). Si la demo usa marino + aguamarina y dos
+ * pesos de una geométrica, el jurado la ve como suya.
+ */
+:root {
+  /* Tinta y superficies — modo claro */
+  --content-primary: #050b2c;
+  --content-secondary: #6e707c;
+  --content-tertiary: #42444c;
+  --bg-primary: #ffffff;
+  --bg-secondary: #f3f4f6;
+  --bg-tertiary: #fbfbfc;
+  --border-primary: #e8e8ed;
+  --border-secondary: #d2d2db;
+
+  /* Superficies invertidas — el hero oscuro a todo el ancho de su web */
+  --inv-bg-primary: #050b2c;
+  --inv-bg-secondary: #232845;
+  --inv-bg-tertiary: #41465f;
+  --inv-border: #373c56;
+  --inv-content-primary: #ffffff;
+  --inv-content-secondary: #d2d2db;
+
+  /* Acentos de Embat */
+  --agua-claro: #c5f8fc;
+  --agua: #5ed3e5;
+  --agua-oscuro: #007b93;
+  --rosa: #e05a8a;
+  --rosa-oscuro: #920036;
+  --morado: #a154e9;
+
+  /**
+   * Eje del score: ámbar → aguamarina, continuo y con un solo gradiente.
+   * NO es un semáforo. El rojo/verde puro falla para el ~8 % de los hombres, y el
+   * estado siempre se acompaña de texto (research §5).
+   */
+  --score-alto: #007b93;
+  --score-medio: #5ed3e5;
+  --score-bajo: #e8a33d;
+  --score-critico: #c2410c;
+
+  /* Dirección del movimiento: azul/ámbar, no verde/rojo */
+  --positivo: #007b93;
+  --negativo: #c2410c;
+  --neutro: #6e707c;
+}
+
+@theme inline {
+  --color-ink: var(--content-primary);
+  --color-ink-2: var(--content-secondary);
+  --color-ink-3: var(--content-tertiary);
+  --color-surface: var(--bg-primary);
+  --color-surface-2: var(--bg-secondary);
+  --color-surface-3: var(--bg-tertiary);
+  --color-line: var(--border-primary);
+  --color-line-2: var(--border-secondary);
+  --color-navy: var(--inv-bg-primary);
+  --color-navy-2: var(--inv-bg-secondary);
+  --color-navy-3: var(--inv-bg-tertiary);
+  --color-navy-line: var(--inv-border);
+  --color-agua: var(--agua);
+  --color-agua-claro: var(--agua-claro);
+  --color-agua-oscuro: var(--agua-oscuro);
+  --color-positivo: var(--positivo);
+  --color-negativo: var(--negativo);
+  --font-sans: 'General Sans', ui-sans-serif, system-ui, -apple-system, sans-serif;
+}
+
+body {
+  background: var(--bg-primary);
+  color: var(--content-primary);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Las cifras alinean en columna. Innegociable en una tabla financiera. */
+.tabular {
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: 'tnum' 1;
+}
+
+/* Dos pesos, no cinco. */
+.peso-medio {
+  font-weight: 500;
+}

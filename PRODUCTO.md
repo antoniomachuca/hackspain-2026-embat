@@ -1,5 +1,9 @@
 # Producto · Qué construimos encima del score y a quién se lo vendemos
 
+> ⚠️ **Documento superado en lo que se contradiga.** El maestro del producto es
+> [`PRODUCTO-MAESTRO.md`](PRODUCTO-MAESTRO.md) (19-sep-2026). Este documento se mantiene
+> como contexto de comprador, arquitectura, reparto y pitch.
+
 **Alcance:** el producto, el comprador y la narrativa.
 El algoritmo vive en [`research/algo_research_pedro.md`](research/algo_research_pedro.md).
 **Última actualización:** 2026-09-18 (rev. 2, con el dataset explorado — ver
