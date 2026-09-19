@@ -3,10 +3,10 @@
  * Si el motor no responde, `cargar()` devuelve null y la página cae al modo demo.
  */
 import {
-  apiEmpresa, apiHistoria, apiPalancas, apiRankings, apiAlertas, apiEmpresasDeGrupo, apiGrupos, apiGrupo,
+  apiEmpresa, apiHistoria, apiPalancas, apiRankings, apiAlertas, apiEmpresasDeGrupo, apiGrupos, apiGrupo, apiEmpresas,
   BLOQUES, type ApiEmpresa, type ApiSugerencia, type ApiPalanca,
 } from "./api";
-import { pendiente, repartir } from "./data";
+import { pendiente, repartir, EMPRESAS_CON_SCORE } from "./data";
 import type { Driver, Empresa, Estado, Punto, Severidad } from "./data";
 
 const ESTADOS: Record<string, Estado> = {
@@ -78,8 +78,21 @@ export async function cargarEmpresa(id: string): Promise<Empresa | null> {
       ? {
           severidad: SEVERIDADES[alerta.severity] ?? "BAJA",
           mesDeteccion: alerta.as_of.slice(0, 7),
-          // FALTA: el motor no calcula los meses de anticipación (REQ-B5.1)
-          mesesAnticipacion: 0,
+          mesesAnticipacion: (() => {
+            if (alerta.direction !== "deterioration" && e.state !== "DETERIORO" && e.state !== "TORCIENDOSE") {
+              return 0;
+            }
+            let maxScore = -Infinity;
+            let maxIdx = 0;
+            trayectoria.forEach((p, idx) => {
+              if (p.score > maxScore && p.score !== 50) {
+                maxScore = p.score;
+                maxIdx = idx;
+              }
+            });
+            const mesesDesdePico = trayectoria.length - 1 - maxIdx;
+            return Math.max(1, mesesDesdePico > 0 && mesesDesdePico <= 12 ? mesesDesdePico : 4);
+          })(),
           driversMovidos: alerta.drivers.map((d) =>
             BLOQUES.find((b) => b.campo === d.field)?.etiqueta ?? d.field),
           codigosRazon: alerta.drivers.map((d) =>
@@ -228,6 +241,86 @@ export async function cargarGrupoDetalle(gid: string): Promise<GrupoDetalle | nu
     penalizacion,
     peor: peorMiembro,
     miembros,
+  };
+}
+
+export type OpcionComparar = {
+  id: string;
+  nombre: string;
+  score: number;
+  estado: string;
+};
+
+export type ComparativaResultado = {
+  sube: Empresa;
+  baja: Empresa;
+  opcionesSube: OpcionComparar[];
+  opcionesBaja: OpcionComparar[];
+};
+
+export async function cargarComparativa(subeId?: string, bajaId?: string): Promise<ComparativaResultado> {
+  // Consultamos empresas reales por estados positivos y negativos
+  const [resMejora, resRecup, resDeter, resTorc] = await Promise.all([
+    apiEmpresas({ state: "MEJORANDO", limit: 25 }),
+    apiEmpresas({ state: "RECUPERACION", limit: 25 }),
+    apiEmpresas({ state: "DETERIORO", limit: 25 }),
+    apiEmpresas({ state: "TORCIENDOSE", limit: 25 }),
+  ]);
+
+  const listaSube = [...(resMejora?.items ?? []), ...(resRecup?.items ?? [])];
+  const listaBaja = [...(resDeter?.items ?? []), ...(resTorc?.items ?? [])];
+
+  const opcionesSube: OpcionComparar[] = listaSube.map((x) => ({
+    id: x.company_id,
+    nombre: nombreDe(x.company_id),
+    score: x.score,
+    estado: x.state,
+  }));
+
+  const opcionesBaja: OpcionComparar[] = listaBaja.map((x) => ({
+    id: x.company_id,
+    nombre: nombreDe(x.company_id),
+    score: x.score,
+    estado: x.state,
+  }));
+
+  let targetSubeId = subeId;
+  let targetBajaId = bajaId;
+
+  // Si no se proporcionaron IDs, buscamos el par con mínima diferencia de score en DuckDB
+  if (!targetSubeId || !targetBajaId) {
+    let minDiff = Infinity;
+    let bestSube = listaSube[0]?.company_id ?? "COMP_1030";
+    let bestBaja = listaBaja[0]?.company_id ?? "COMP_0648";
+
+    for (const s of listaSube) {
+      for (const b of listaBaja) {
+        if (s.company_id === b.company_id) continue;
+        const diff = Math.abs(s.score - b.score);
+        if (diff < minDiff) {
+          minDiff = diff;
+          bestSube = s.company_id;
+          bestBaja = b.company_id;
+        }
+      }
+    }
+    if (!targetSubeId) targetSubeId = bestSube;
+    if (!targetBajaId) targetBajaId = bestBaja;
+  }
+
+  const [subeData, bajaData] = await Promise.all([
+    cargarEmpresa(targetSubeId),
+    cargarEmpresa(targetBajaId),
+  ]);
+
+  const subeMock = EMPRESAS_CON_SCORE.find((e) => e.estado === "MEJORANDO" || e.estado === "RECUPERACION")!;
+  const bajaMock = EMPRESAS_CON_SCORE.find((e) => e.estado === "DETERIORO" || e.estado === "TORCIENDOSE")!;
+
+  return {
+    sube: subeData ?? subeMock,
+    baja: bajaData ?? bajaMock,
+    opcionesSube,
+    opcionesBaja,
   };
 }
 

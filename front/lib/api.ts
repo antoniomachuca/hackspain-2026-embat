@@ -134,6 +134,16 @@ export const apiAlertas   = (id?: string, limite = 20) =>
   get<{ total: number; alerts: ApiAlert[] }>(`/api/alerts?limit=${limite}${id ? `&company_id=${id}` : ""}`);
 export const apiGrupos    = (limite = 250) => get<{ total: number; groups: Array<{ group_id: string; erp: string | null; company_count: number; average_score: number; risk_companies_count: number }> }>(`/api/groups?limit=${limite}`);
 export const apiGrupo     = (gid: string) => get<ApiGrupoDetalle>(`/api/groups/${gid}`);
+export const apiEmpresas = (params?: { state?: string; limit?: number; offset?: number; order_by?: string; order_dir?: string }) => {
+  const q = new URLSearchParams();
+  if (params?.state) q.set("state", params.state);
+  if (params?.limit) q.set("limit", String(params.limit));
+  if (params?.offset) q.set("offset", String(params.offset));
+  if (params?.order_by) q.set("order_by", params.order_by);
+  if (params?.order_dir) q.set("order_dir", params.order_dir);
+  const qs = q.toString();
+  return get<{ total: number; items: ApiEmpresa[] }>(`/api/companies${qs ? `?${qs}` : ""}`);
+};
 export const apiEmpresasDeGrupo = (gid: string) =>
   get<{ total: number; items: ApiEmpresa[] }>(`/api/companies?group_id=${gid}&limit=100`);
 export const apiSimular   = (id: string, levers: Array<Record<string, unknown>>) =>
