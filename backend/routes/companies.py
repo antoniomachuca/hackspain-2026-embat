@@ -3,7 +3,10 @@ Endpoints para la gestión, cartera analítica y detalle de empresas (X-Ray).
 """
 
 import json
+import os
 import threading
+from functools import lru_cache
+from pathlib import Path
 from typing import Any, Dict, List, Optional
 from fastapi import APIRouter, HTTPException, Query, Response
 
@@ -23,6 +26,22 @@ from backend.schemas import (
 )
 
 router = APIRouter(prefix="/api/companies", tags=["Empresas y Cartera"])
+
+RESULTS_DIR = Path(__file__).resolve().parents[2] / "algorythm" / "engine_results"
+
+
+@lru_cache(maxsize=4)
+def _read_episodes(path: str, modified_ns: int) -> Dict[str, Any]:
+    return json.loads(Path(path).read_text())
+
+
+def _episodes_for(cid: str) -> Dict[str, Any]:
+    """Episodios del snapshot del motor; vacío si el artefacto no existe."""
+    path = Path(os.environ.get("XRAY_RESULTS_DIR", str(RESULTS_DIR))) / "episodes.json"
+    try:
+        return _read_episodes(str(path), path.stat().st_mtime_ns)["companies"].get(cid) or {}
+    except (FileNotFoundError, KeyError, ValueError, OSError):
+        return {}
 
 
 @router.get("", response_model=CompanyListResponse)
@@ -233,6 +252,9 @@ def get_company_detail(id: str):
     except Exception:
         pass
 
+    # 7. Episodios de cambio (snapshot del motor; ausente → vacío, nunca 500)
+    ep_data = _episodes_for(cid)
+
     return CompanyDetailResponse(
         company_id=comp["company_id"],
         group_id=comp["group_id"],
@@ -272,6 +294,11 @@ def get_company_detail(id: str):
         line_utilization=line_utilization,
         customer_hhi=customer_hhi,
         daily_burn=daily_burn,
+        episodios=ep_data.get("episodios", []),
+        episodio_destacado=ep_data.get("episodio_destacado"),
+        perspectivas_sin_aviso=ep_data.get("perspectivas_sin_aviso", []),
+        trayectoria_marcas=ep_data.get("trayectoria_marcas"),
+        parametros_episodios=ep_data.get("parametros"),
     )
 
 

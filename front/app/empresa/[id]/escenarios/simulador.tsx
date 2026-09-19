@@ -45,9 +45,9 @@ export default function Simulador({
   // Recomputar contrafactualmente en el backend ante movimientos del slider
   useEffect(() => {
     let activo = true;
-    setCargando(true);
 
     const timer = setTimeout(async () => {
+      setCargando(true);
       try {
         const res = await simularPalanca(e.id, palancaId, valor, e);
         if (activo) {

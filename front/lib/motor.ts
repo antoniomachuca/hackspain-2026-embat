@@ -3,22 +3,18 @@
  * Si el motor no responde, `cargar()` devuelve null y la página cae al modo demo.
  */
 import {
-  apiEmpresa, apiHistoria, apiPeers, apiPalancas, apiRankings, apiWhatIf, apiAlertas, apiEmpresasDeGrupo, apiGrupos, apiGrupo, apiEmpresas, apiSimular,
+  apiEmpresa, apiHistoria, apiPeers, apiPalancas, apiRankings, apiWhatIf, apiEmpresasDeGrupo, apiGrupos, apiGrupo, apiEmpresas, apiSimular,
   BLOQUES, type ApiEmpresa, type ApiSugerencia, type ApiPalanca, type ApiSimulateResponse, type ApiWhatIfResponse,
 } from "./api";
 import { eur, num } from "./format";
 import { pendiente, repartir, inflexionDe, EMPRESAS_CON_SCORE, simular } from "./data";
-import type { Driver, Empresa, Estado, Punto, Severidad } from "./data";
+import type { Driver, Empresa, Estado, Punto } from "./data";
 
 const ESTADOS: Record<string, Estado> = {
   MEJORANDO: "MEJORANDO", ESTABLE: "ESTABLE", TORCIENDOSE: "TORCIENDOSE",
   DETERIORO: "DETERIORO", BACHE: "BACHE", RECUPERACION: "RECUPERACION",
   // El motor emite un séptimo estado que el enunciado no contempla
   EVALUACION_PENDIENTE: "ESTABLE",
-};
-
-const SEVERIDADES: Record<string, Severidad> = {
-  ALTA: "ALTA", MEDIA: "MEDIA", BAJA: "BAJA", INFORMATIVA: "BAJA",
 };
 
 /** Nombre comercial: el dataset no trae razón social, solo el identificador. */
@@ -145,10 +141,9 @@ export function driversDe(w: ApiEmpresa["waterfall"], e?: ApiEmpresa): Driver[] 
 }
 
 export async function cargarEmpresa(id: string): Promise<Empresa | null> {
-  const [e, h, al, pr] = await Promise.all([
+  const [e, h, pr] = await Promise.all([
     apiEmpresa(id),
     apiHistoria(id, 24),
-    apiAlertas(id, 5),
     apiPeers(id),
   ]);
   if (!e) return null;
@@ -157,7 +152,15 @@ export async function cargarEmpresa(id: string): Promise<Empresa | null> {
     mes: p.as_of.slice(0, 7), score: p.score, nivel: p.base_health,
   }));
   const prev = trayectoria.length > 1 ? trayectoria[trayectoria.length - 2].score : e.score;
-  const alerta = al?.alerts?.[0] ?? e.latest_alert ?? null;
+
+  const SENAL_A_CAMPO: Record<string, string> = {
+    liquidez: "liquidity_points", cobros: "collections_points",
+    deuda: "debt_points", crecimiento: "growth_points", fragilidad: "fragility_points",
+  };
+  const episodios = e.episodios ?? [];
+  const ep = episodios.length
+    ? episodios[e.episodio_destacado ?? episodios.length - 1]
+    : undefined;
 
   const serie = trayectoria.map((p) => p.score);
   const tends = serie.map((_, k) => pendiente(serie, k));
@@ -197,30 +200,22 @@ export async function cargarEmpresa(id: string): Promise<Empresa | null> {
     reparto: trayectoria.map((p, k) => repartir(serie, tends, k, p.mes)),
     inflexion,
     drivers: driversDe(e.waterfall, e),
-    alerta: alerta
+    episodios: e.episodios,
+    episodioDestacado: e.episodio_destacado,
+    alerta: ep
       ? {
-          severidad: SEVERIDADES[alerta.severity] ?? "BAJA",
-          mesDeteccion: alerta.as_of.slice(0, 7),
-          mesesAnticipacion: (() => {
-            if (alerta.direction !== "deterioration" && e.state !== "DETERIORO" && e.state !== "TORCIENDOSE") {
-              return 0;
-            }
-            let maxScore = -Infinity;
-            let maxIdx = 0;
-            trayectoria.forEach((p, idx) => {
-              if (p.score > maxScore && p.score !== 50) {
-                maxScore = p.score;
-                maxIdx = idx;
-              }
-            });
-            const mesesDesdePico = trayectoria.length - 1 - maxIdx;
-            return Math.max(1, mesesDesdePico > 0 && mesesDesdePico <= 12 ? mesesDesdePico : 4);
-          })(),
-          driversMovidos: alerta.drivers.map((d) =>
-            BLOQUES.find((b) => b.campo === d.field)?.etiqueta ?? d.field),
-          codigosRazon: alerta.drivers.map((d) =>
-            BLOQUES.find((b) => b.campo === d.field)?.codigo ?? "—"),
-          texto: alerta.direction === "deterioration" ? "Deterioro detectado" : "Mejora detectada",
+          severidad: ep.estado_deteccion === "DETERIORO" || ep.estado_deteccion === "RECUPERACION"
+            ? "ALTA"
+            : ep.estado_deteccion === "TORCIENDOSE" || ep.estado_deteccion === "MEJORANDO"
+              ? "MEDIA"
+              : "BAJA",
+          mesDeteccion: ep.deteccion.slice(0, 7),
+          mesesAnticipacion: ep.meses_anticipacion ?? undefined,
+          driversMovidos: ep.senales.map((s) =>
+            BLOQUES.find((b) => b.campo === SENAL_A_CAMPO[s.senal])?.etiqueta ?? s.senal),
+          codigosRazon: ep.senales.map((s) =>
+            BLOQUES.find((b) => b.campo === SENAL_A_CAMPO[s.senal])?.codigo ?? "—"),
+          texto: ep.texto,
         }
       : undefined,
   };
@@ -299,7 +294,7 @@ export type MiembroGrupo = {
   mesesHistoria: number;
   facturacionAnual: number;
   trayectoria: Punto[];
-  alerta?: { mesDeteccion: string };
+  deteccion?: { mes: string; direccion: "deterioro" | "mejora" };
 };
 
 export type GrupoDetalle = {
@@ -331,10 +326,14 @@ export async function cargarGrupoDetalle(gid: string): Promise<GrupoDetalle | nu
     detail?.worst_company_id ??
     items.reduce((a, b) => (a.score < b.score ? a : b), items[0]).company_id;
 
-  const [peorHist, peorAlert] = await Promise.all([
+  const [peorHist, peorEmp] = await Promise.all([
     apiHistoria(worstId, 24),
-    apiAlertas(worstId, 1),
+    apiEmpresa(worstId),
   ]);
+
+  const peorEp = peorEmp?.episodios?.length
+    ? peorEmp.episodios[peorEmp.episodio_destacado ?? peorEmp.episodios.length - 1]
+    : undefined;
 
   const peorTrayectoria: Punto[] = (peorHist?.history ?? []).map((p) => ({
     mes: p.as_of.slice(0, 7),
@@ -358,9 +357,9 @@ export async function cargarGrupoDetalle(gid: string): Promise<GrupoDetalle | nu
       mesesHistoria: m.state_eligible ? 24 : 8,
       facturacionAnual: 0,
       trayectoria: hist,
-      alerta:
-        isPeor && peorAlert?.alerts?.[0]
-          ? { mesDeteccion: peorAlert.alerts[0].as_of.slice(0, 7) }
+      deteccion:
+        isPeor && peorEp
+          ? { mes: peorEp.deteccion.slice(0, 7), direccion: peorEp.direccion }
           : undefined,
     };
   });
