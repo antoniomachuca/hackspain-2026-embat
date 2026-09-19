@@ -183,7 +183,7 @@ export async function FichaEmpresa({ id, vista }: { id: string; vista: Vista }) 
           {whatif && (
             <p className="mt-3 border-t border-[var(--color-line)] pt-3 text-[12px] text-[var(--color-ink-3)]">
               Producto Embat con más efecto sobre su score:{" "}
-              <strong className="font-medium text-[var(--color-ink-1)]">{whatif.recommended_product}</strong>
+              <strong className="font-medium text-[var(--color-ink)]">{whatif.recommended_product}</strong>
               {" "}· {eur(whatif.injection_amount)} → {num(whatif.projected_score)} pts ({whatif.delta_score >= 0 ? "+" : ""}{num(whatif.delta_score)}).
             </p>
           )}
