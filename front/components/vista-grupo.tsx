@@ -43,49 +43,64 @@ export async function VistaGrupo({ g, base }: { g: GrupoDetalle; base: "" | "/em
           <KPI etiqueta="Filiales con score" valor={`${g.miembros.filter(m => m.mesesHistoria >= 12).length} de ${g.miembros.length}`} nota="el resto, sin historia suficiente" />
         </div>
 
-        {peor && g.consolidado < g.media - 1 && (
-          <Card className="mt-5 px-5 py-4">
-            <p className="text-[13px] leading-relaxed">
-              El grupo saca <strong className="tnum font-medium">{num(g.consolidado)}</strong>, pero{" "}
-              <Link href={`${base}/${peor.id}`} className="font-medium underline decoration-[var(--color-line-2)] underline-offset-2 hover:text-[var(--color-aqua)]">{peor.nombre}</Link>{" "}
-              saca <strong className="tnum font-medium">{num(peor.score)}</strong> y arrastra al consolidado.
-            </p>
-            <p className="mt-1.5 text-[11px] text-[var(--color-ink-4)]">
-              Penalización por contagio activa según el modelo de grupo de X-Ray ({num(g.penalizacion)} pts).
-            </p>
-          </Card>
-        )}
+        {/* El contagio y la peor filial en una columna estrecha, y a su lado el
+            mapa de flujos, que es lo que pide sitio de verdad. */}
+        <div className="mt-5 grid gap-5 xl:grid-cols-[minmax(0,392px)_1fr]">
+          <div className="flex flex-col gap-5">
+            {peor && g.consolidado < g.media - 1 && (
+              <Card className="px-5 py-4">
+                <p className="text-[13px] leading-relaxed">
+                  El grupo saca <strong className="tnum font-medium">{num(g.consolidado)}</strong>, pero{" "}
+                  <Link href={`${base}/${peor.id}`} className="font-medium underline decoration-[var(--color-line-2)] underline-offset-2 hover:text-[var(--color-aqua)]">{peor.nombre}</Link>{" "}
+                  saca <strong className="tnum font-medium">{num(peor.score)}</strong> y arrastra al consolidado.
+                </p>
+                <p className="mt-1.5 text-[11px] text-[var(--color-ink-4)]">
+                  Penalización por contagio activa según el modelo de grupo de X-Ray ({num(g.penalizacion)} pts).
+                </p>
+              </Card>
+            )}
 
-        {grafo && grafo.edges.length > 0 && (
-          <Card className="mt-5 px-6 py-5">
-            <div className="flex flex-wrap items-center justify-between gap-3">
+            <Card className="flex flex-1 flex-col px-6 py-5">
               <div>
-                <h2 className="text-[16px] font-semibold tracking-tight">Flujos entre sociedades</h2>
-                <p className="mt-0.5 text-[11.5px] text-[var(--color-ink-4)]">
-                  {grafo.edges.length} flujos inferidos · {eur(volumenInterno, true)} · zoom, arrastre y clic en una sociedad
+                <h2 className="text-[15px] font-semibold tracking-tight">Filiales</h2>
+                <p className="tnum mt-0.5 text-[11.5px] text-[var(--color-ink-4)]">
+                  {g.miembros.length} sociedades · {filiales.filter((f) => f.evaluable).length} con score
                 </p>
               </div>
-              <Link href={`/grafo?grupo=${g.id}`} className="pildora">Ver en el mapa</Link>
-            </div>
-            <div className="mt-3"><Grafo nodos={grafo.nodes} aristas={grafo.edges} destacar={peor?.id} alto={440} /></div>
-          </Card>
-        )}
+              <div className="mt-3 border-t border-[var(--color-line)] pt-2">
+                <ListaGrupo filiales={filiales} base={base} visibles={6} />
+              </div>
+            </Card>
+          </div>
+
+          {grafo && grafo.edges.length > 0 ? (
+            <Card className="flex flex-col px-6 py-5">
+              <div className="flex flex-wrap items-center justify-between gap-3">
+                <div>
+                  <h2 className="text-[16px] font-semibold tracking-tight">Flujos entre sociedades</h2>
+                  <p className="mt-0.5 text-[11.5px] text-[var(--color-ink-4)]">
+                    {grafo.edges.length} flujos inferidos · {eur(volumenInterno, true)} · zoom, arrastre y clic en una sociedad
+                  </p>
+                </div>
+                <Link href={`/grafo?grupo=${g.id}`} className="pildora">Ver en el mapa</Link>
+              </div>
+              <div className="mt-3 flex-1">
+                <Grafo nodos={grafo.nodes} aristas={grafo.edges} destacar={peor?.id} alto={396} />
+              </div>
+            </Card>
+          ) : (
+            <Card className="flex items-center justify-center px-6 py-5">
+              <p className="text-[12px] text-[var(--color-ink-4)]">
+                Sin flujos detectados entre sus sociedades
+              </p>
+            </Card>
+          )}
+        </div>
 
         <Card className="mt-5">
           <CardHead titulo="Filial más débil" sub={peor ? `${peor.nombre} (${peor.id}) · Score: ${num(peor.score)}` : "Sin datos"} />
-          <div className="px-3 py-4">{peor && <Trayectoria datos={peor.trayectoria} deteccion={peor.deteccion} altura={190} />}</div>
-        </Card>
-
-        <Card className="mt-5 px-6 py-5">
-          <div>
-            <h2 className="text-[15px] font-semibold tracking-tight">Filiales</h2>
-            <p className="tnum mt-0.5 text-[11.5px] text-[var(--color-ink-4)]">
-              {g.miembros.length} sociedades · {filiales.filter((f) => f.evaluable).length} con score
-            </p>
-          </div>
-
-          <div className="mt-4 border-t border-[var(--color-line)] pt-2">
-            <ListaGrupo filiales={filiales} base={base} />
+          <div className="px-3 py-4">
+            {peor && <Trayectoria datos={peor.trayectoria} deteccion={peor.deteccion} altura={230} />}
           </div>
         </Card>
 

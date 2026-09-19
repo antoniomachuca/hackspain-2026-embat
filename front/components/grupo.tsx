@@ -14,9 +14,9 @@ const VISIBLES = 4;
 
 /** Las filiales del grupo. Se enseñan unas pocas y el resto se despliega. */
 /** `base` es el prefijo de ruta de la vista: "" para la empresa, "/embat" para Embat. */
-export function ListaGrupo({ filiales, base = "" }: { filiales: Filial[]; base?: string }) {
+export function ListaGrupo({ filiales, base = "", visibles = VISIBLES }: { filiales: Filial[]; base?: string; visibles?: number }) {
   const [todas, setTodas] = useState(false);
-  const lista = todas ? filiales : filiales.slice(0, VISIBLES);
+  const lista = todas ? filiales : filiales.slice(0, visibles);
 
   return (
     <div>
@@ -41,7 +41,7 @@ export function ListaGrupo({ filiales, base = "" }: { filiales: Filial[]; base?:
         ))}
       </div>
 
-      {filiales.length > VISIBLES && (
+      {filiales.length > visibles && (
         <button onClick={() => setTodas((v) => !v)}
           className="mt-3 w-full rounded-lg py-2 text-[12px] text-[var(--color-ink-3)] transition-colors hover:bg-[rgba(255,255,255,.05)] hover:text-[var(--color-ink)]">
           {todas ? "Ver menos" : `Ver las ${filiales.length} sociedades`}

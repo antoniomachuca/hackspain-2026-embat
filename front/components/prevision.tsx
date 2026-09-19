@@ -29,7 +29,7 @@ const RANGOS = [6, 12, 24] as const;
 
 export function Prevision({
   datos: datosTodos, momentum, proyeccion, peer, datosPeer: peerTodos, reparto: repartoTodo, inflexion,
-  meses = 12, alto = 320, ancho = 1120,
+  meses = 12, alto = 430, ancho = 1120,
 }: {
   datos: Punto[];
   momentum: number;
@@ -86,7 +86,7 @@ export function Prevision({
   const abajo = sendas.Bajo[meses];
 
   // El margen inferior guarda sitio para la tira; el área de trazado no cambia.
-  const padL = 56, padR = 210, padT = 20, padB = 44;
+  const padL = 48, padR = 206, padT = 14, padB = 40;
   const w = ancho - padL - padR;
   const h = alto - padT - padB;
   const nHist = datos.length;

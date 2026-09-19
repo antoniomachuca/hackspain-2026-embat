@@ -140,11 +140,14 @@ export async function FichaEmpresa({ id, vista }: { id: string; vista: Vista }) 
 
       {/* ── Lectura para Embat: qué hacer con este cliente ────────── */}
       {embat && (
-        <Card className="mb-5 px-6 py-5">
-          <div className="flex flex-wrap items-start justify-between gap-4">
-            <div className="min-w-0">
+        <Card className="mb-5 px-6 py-4">
+          {/* Dos columnas, no dos filas: el texto a la izquierda y las cifras
+              centradas contra su alto. En vertical la card se comía media
+              pantalla para decir tres números. */}
+          <div className="flex flex-wrap items-center justify-between gap-x-8 gap-y-3">
+            <div className="min-w-0 flex-1">
               <div className="flex flex-wrap items-center gap-2">
-                <p className="text-[15px] font-semibold tracking-tight">Lectura para Embat</p>
+                <p className="text-[14px] font-semibold tracking-tight">Lectura para Embat</p>
                 {seg ? (
                   <span className="rounded-md px-2 py-0.5 text-[11px] font-medium" style={{ background: seg.bg, color: seg.color }}>
                     {seg.label}
@@ -155,60 +158,59 @@ export async function FichaEmpresa({ id, vista }: { id: string; vista: Vista }) 
                   </span>
                 )}
                 {e.elegible === false && (
-                  <span className="text-[11px] text-[var(--color-ink-4)]">historia insuficiente para estado</span>
+                  <span className="text-[11px] text-[var(--color-ink-4)]">historia insuficiente</span>
                 )}
               </div>
-              <p className="mt-1.5 max-w-2xl text-[12.5px] leading-relaxed text-[var(--color-ink-2)]">
-                {seg?.accion ?? "Cliente estable sin señal de cambio. No hay motivo para mover ficha: se sigue observando."}
+              <p className="mt-1.5 text-[12.5px] leading-relaxed text-[var(--color-ink-2)]">
+                {seg?.accion ?? "Estable, sin señal de cambio: solo observar."}
+                {whatif && (
+                  <span className="text-[var(--color-ink-3)]">
+                    {" "}<strong className="font-medium text-[var(--color-ink-1)]">{whatif.recommended_product}</strong>
+                    {" "}· {eur(whatif.injection_amount)} → {whatif.delta_score >= 0 ? "+" : "−"}{num(Math.abs(whatif.delta_score))} pts.
+                  </span>
+                )}
               </p>
             </div>
-            <div className="tnum grid grid-cols-3 gap-5 text-center">
-              <div>
-                <p className="text-[10.5px] uppercase tracking-wider text-[var(--color-ink-4)]">Score</p>
-                <p className="mt-1"><ScoreBadge score={e.score} /></p>
-              </div>
-              <div>
-                <p className="text-[10.5px] uppercase tracking-wider text-[var(--color-ink-4)]">Δ 3 meses</p>
-                <p className="mt-2"><Delta v={e.delta3m ?? 0} sufijo=" pts" /></p>
-              </div>
-              <div>
-                <p className="text-[10.5px] uppercase tracking-wider text-[var(--color-ink-4)]">Estado</p>
-                <p className="mt-2"><EstadoChip estado={e.estado} /></p>
-              </div>
+
+            <div className="flex flex-none items-center gap-5">
+              <span className="flex items-baseline gap-1.5">
+                <ScoreBadge score={e.score} />
+                <span className="text-[10.5px] uppercase tracking-wider text-[var(--color-ink-4)]">score</span>
+              </span>
+              <span className="flex items-baseline gap-1.5">
+                <Delta v={e.delta3m ?? 0} sufijo=" pts" />
+                <span className="text-[10.5px] uppercase tracking-wider text-[var(--color-ink-4)]">3 m</span>
+              </span>
+              <EstadoChip estado={e.estado} />
             </div>
           </div>
-          {whatif && (
-            <p className="mt-3 border-t border-[var(--color-line)] pt-3 text-[12px] text-[var(--color-ink-3)]">
-              Producto Embat con más efecto sobre su score:{" "}
-              <strong className="font-medium text-[var(--color-ink)]">{whatif.recommended_product}</strong>
-              {" "}· {eur(whatif.injection_amount)} → {num(whatif.projected_score)} pts ({whatif.delta_score >= 0 ? "+" : ""}{num(whatif.delta_score)}).
-            </p>
-          )}
         </Card>
       )}
 
       {/* ── Métricas Operativas de Circulante y Tesorería ───────────── */}
-      <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4 mb-5">
+      <div className="mb-5 grid gap-5 xl:grid-cols-[296px_1fr]">
         <KPI
           etiqueta="Días de Caja (Runway)"
           valor={`${num(e.diasCaja, 1)} d`}
           nota={e.diasCaja < 15 ? "Liquidez tensionada (<15d)" : "Colchón de tesorería suficiente"}
         />
-        <KPI
-          etiqueta="DSO (Plazo medio cobro)"
-          valor={`${num(e.dso, 1)} d`}
-          nota="Periodo medio clientes"
-        />
-        <KPI
-          etiqueta="DPO (Plazo medio pago)"
-          valor={`${num(e.dpo, 1)} d`}
-          nota="Periodo medio proveedores"
-        />
-        <KPI
-          etiqueta="Facturación Anual"
-          valor={eur(e.facturacionAnual)}
-          nota="Volumen anualizado observado"
-        />
+        <div className="grid gap-5 sm:grid-cols-3">
+          <KPI
+            etiqueta="DSO (Plazo medio cobro)"
+            valor={`${num(e.dso, 1)} d`}
+            nota="Periodo medio clientes"
+          />
+          <KPI
+            etiqueta="DPO (Plazo medio pago)"
+            valor={`${num(e.dpo, 1)} d`}
+            nota="Periodo medio proveedores"
+          />
+          <KPI
+            etiqueta="Facturación Anual"
+            valor={eur(e.facturacionAnual)}
+            nota="Volumen anualizado observado"
+          />
+        </div>
       </div>
 
       {/* ── Score de la Empresa y Trayectoria ─────────────────────── */}
@@ -261,7 +263,7 @@ export async function FichaEmpresa({ id, vista }: { id: string; vista: Vista }) 
             reparto={e.reparto}
             inflexion={e.inflexion}
           />
-          <p className="mt-6 text-center text-[11px] leading-relaxed text-[var(--color-ink-4)]">
+          <p className="mt-3 text-center text-[11px] leading-relaxed text-[var(--color-ink-4)]">
             Serie temporal directa de <code className="text-[10px]">xray.duckdb</code> calculada con el motor aditivo.
           </p>
         </Card>

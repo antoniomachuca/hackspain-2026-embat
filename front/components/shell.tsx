@@ -63,7 +63,6 @@ const seccionesDe = (modo: Modo, empresa: string): Seccion[] => [
               { href: "/", label: "Cartera", icono: I.panel },
               { href: "/grupos", label: "Grupos", icono: I.grupo },
               { href: "/grafo", label: "Flujos intragrupo", icono: I.nodos },
-              { href: "/comparar", label: "Escenarios", icono: I.rayos },
             ],
           }
         : {
@@ -71,7 +70,6 @@ const seccionesDe = (modo: Modo, empresa: string): Seccion[] => [
             hijos: [
               { href: `/${empresa}`, label: "Resumen", icono: I.panel },
               { href: `/${empresa}/grupo`, label: "Mi grupo", icono: I.grupo },
-              { href: "/comparar", label: "Escenarios", icono: I.rayos },
             ],
           },
       { label: "Gestión de contrapartes", nota: "Gestiona tus relaciones financieras", icono: I.escudo },
