@@ -118,6 +118,7 @@ export function Shell({ children }: { children: React.ReactNode }) {
   // sessionStorage solo existe tras hidratar; leerlo en el effect evita un desajuste con el servidor.
   /* eslint-disable react-hooks/set-state-in-effect */
   useEffect(() => {
+    setMovilAbierto(false);
     const m = modoDe(path);
     const id = empresaDe(path);
     try {
