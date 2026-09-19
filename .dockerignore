@@ -1,0 +1,23 @@
+.git
+.venv
+.pytest_cache
+__pycache__
+*.pyc
+
+# Los datos llegan por el volumen, no por la imagen.
+dataset/
+data/
+*.duckdb
+*.duckdb.wal
+
+# El front es otro servicio; el resto no pinta en la API.
+front/
+front-dashboard/
+node_modules/
+video/
+slides/
+ejemplos/
+runtime/
+research/
+*.md
+!README.md
