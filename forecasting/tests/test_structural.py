@@ -5,9 +5,9 @@ import pytest
 
 from forecasting.experiments.structural_v1 import MODEL_INFO, make_model
 from forecasting.structural import (
-    PHI, StructuralForecaster, band_width, build_projected_bank, long_rate,
-    mean_reverting_path, refund_rate, run_rate, scenario_paths, seasonal_factors,
-    volatility_m,
+    PHI, StructuralForecaster, as_of_from_origin, band_width, build_projected_bank, long_rate,
+    mean_reverting_path, refund_rate, run_rate, scenario_paths, score_named_path_series,
+    score_named_paths, seasonal_factors, structural_prevision, volatility_m,
 )
 
 ORIGIN, HORIZON, CID = 8, 3, 'c0'
@@ -126,3 +126,55 @@ def test_make_model_metadata():
     assert MODEL_INFO['name'] == 'structural_v2'
     assert MODEL_INFO['complexity_rank'] == 3
     assert make_model(3, 419).name == 'structural_v2'
+
+
+def _named(paths):
+    return {name: {k: paths[name][k] for k in FLOW_KEYS}
+            for name in ('pessimistic', 'central', 'optimistic')}
+
+
+def _long_bank():
+    n = 24
+    receipts = 100. + 4. * np.arange(n)
+    expenses, debt = np.full(n, 80.), np.full(n, 10.)
+    refunds = 0.1 * receipts
+    return {k: v[None].copy() for k, v in dict(
+        receipts=receipts, expenses=expenses, debt_service=debt, refunds=refunds,
+        quality=np.ones(n), gross_receipts=receipts + refunds,
+    ).items()}
+
+
+def test_monthly_series_matches_horizon_score():
+    bank = _bank()
+    named = _named(scenario_paths(*_series(), ORIGIN, HORIZON))
+    last = score_named_paths(bank, 0, ORIGIN, HORIZON, named)
+    current, series = score_named_path_series(bank, 0, ORIGIN, HORIZON, named)
+    assert 0 <= current <= 100
+    for name in named:
+        assert series[name].shape == (HORIZON,)
+        assert ((0 <= series[name]) & (series[name] <= 100)).all()
+        np.testing.assert_allclose(series[name][-1], last[name])
+
+
+def test_structural_prevision_product_payload():
+    banks = {CID: (_long_bank(), 0)}
+    payload = structural_prevision(CID, meses=12, banks=banks)
+    assert payload['model'] == 'structural_v2'
+    assert payload['status'] == 'available'
+    assert payload['meses'] == 12
+    assert payload['as_of'] == '2026-08-01'
+    for key in ('alto', 'medio', 'bajo'):
+        assert len(payload[key]) == 12
+        assert all(0 <= v <= 100 for v in payload[key])
+    assert 0 <= payload['current_score'] <= 100
+    assert structural_prevision('missing', banks=banks) is None
+    short = structural_prevision(CID, meses=12, banks=banks, origin=0)
+    assert short['status'] == 'insufficient_history'
+    assert short['alto'] == []
+    via_model = StructuralForecaster(12, 419, banks=banks).prevision(CID)
+    assert via_model['medio'] == payload['medio']
+
+
+def test_as_of_from_origin_calendar():
+    assert as_of_from_origin(0) == '2024-09-01'
+    assert as_of_from_origin(23) == '2026-08-01'

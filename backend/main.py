@@ -49,6 +49,7 @@ app = FastAPI(
     - **Simulador What-If (/api/whatif):** Modelado contrafactual de inyecciones de tesorería y anticipo de facturas.
     - **Feed de Alertas (/api/alerts):** Detección temprana de deterioros y riesgos de impago.
     - **KPIs Globales (/api/stats):** Métricas consolidadas de la cartera empresarial.
+    - **Previsión estructural (/api/companies/{id}/prevision-estructural):** 12 meses de score en tres escenarios, proyectando cobros/gastos/deuda y aplicando el motor de score.
     """,
     version="1.0.0",
     docs_url="/docs",
@@ -105,6 +106,7 @@ def root():
                 "simulate": "/api/simulate",
                 "palancas": "/api/palancas",
                 "groups": "/api/groups",
+                "prevision_estructural": "/api/companies/{id}/prevision-estructural",
                 "health": "/api/health",
             },
         }

@@ -56,6 +56,8 @@ Una vez arrancado el servidor, abre en tu navegador:
 | `GET` | `/api/alerts` | Feed de eventos y alertas de riesgo emitidas por el monitor de solvencia. |
 | `GET` | `/api/stats` | KPIs globales: total analizado, tasa de riesgo, score medio/mediano y volumen en mora. |
 | `GET` | `/api/groups` | Desglose por grupos corporativos y empresas vinculadas. |
+| `GET` | `/api/companies/{id}/prevision-estructural` | 12 meses de score estructural (`alto` / `medio` / `bajo`). Proyecta cobros, gastos y deuda y aplica `calculate_scores`. No usa artefactos del benchmark. |
+| `GET` | `/api/companies/{id}/forecast` | Puntos 1/3/6 meses del laboratorio (`forecasting/artifacts/forecasts.json`). No es el gráfico principal. |
 
 ---
 

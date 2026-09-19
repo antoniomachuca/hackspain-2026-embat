@@ -10,7 +10,7 @@ from pathlib import Path
 
 import numpy as np
 
-from algorythm.score_data import load_bank_panel
+from algorythm.score_data import load_bank_panel, month_edges
 from algorythm.score_engine import calculate_scores
 from forecasting.stress import SCENARIOS
 
@@ -202,6 +202,85 @@ def score_named_paths(bank, row, origin, horizon, named):
     return {name: float(score) for name, score in zip(names, scores)}
 
 
+def score_named_path_series(bank, row, origin, horizon, named):
+    """Score every projected month (t+1 … t+horizon), plus the observed score at origin."""
+    names = list(named)
+    panels = [build_projected_bank(bank, row, origin, horizon, named[name]) for name in names]
+    stacked = {key: np.concatenate([panel[key] for panel in panels], axis=0) for key in panels[0]}
+    scored = calculate_scores(stacked)['score']
+    future = np.clip(scored[:, origin + 1: origin + 1 + horizon], 0, 100)
+    current = float(np.clip(scored[0, origin], 0, 100))
+    return current, {name: future[i] for i, name in enumerate(names)}
+
+
+def as_of_from_origin(origin, start='2024-09-01', end='2026-09-01'):
+    from datetime import date
+    edges = month_edges(start, end)
+    if 0 <= origin < len(edges):
+        return edges[origin].isoformat()
+    first = date.fromisoformat(start)
+    total = first.year * 12 + (first.month - 1) + int(origin)
+    year, month = divmod(total, 12)
+    return date(year, month + 1, 1).isoformat()
+
+
+def _rounded(values):
+    return [round(float(value), 2) for value in values]
+
+
+def _named_flows(paths):
+    return {name: {k: paths[name][k] for k in ('receipts', 'expenses', 'debt_service', 'refunds')}
+            for name in ('pessimistic', 'central', 'optimistic')}
+
+
+_PREVISION_CACHE = {}
+
+
+def structural_prevision(company_id, meses=12, banks=None, dataset=None, origin=None):
+    """Product payload: 12 (or `meses`) monthly scores per scenario, not a single horizon."""
+    tables = banks if banks is not None else load_company_banks(dataset)
+    if company_id not in tables:
+        return None
+    bank, row = tables[company_id]
+    receipts = bank['receipts']
+    last = int(receipts.shape[1] - 1)
+    origin = last if origin is None else min(int(origin), last)
+    meses = int(meses)
+    if origin < RUN_WINDOW - 1 or meses < 1:
+        return {
+            'company_id': company_id,
+            'model': 'structural_v2',
+            'status': 'insufficient_history',
+            'as_of': as_of_from_origin(max(origin, 0)),
+            'meses': meses,
+            'current_score': None,
+            'alto': [],
+            'medio': [],
+            'bajo': [],
+        }
+    cache_key = (company_id, origin, meses, id(tables))
+    if cache_key in _PREVISION_CACHE:
+        return _PREVISION_CACHE[cache_key]
+    refunds = bank['refunds'][row] if 'refunds' in bank else np.zeros(receipts.shape[1])
+    paths = scenario_paths(
+        receipts[row], bank['expenses'][row], bank['debt_service'][row],
+        refunds, origin, meses)
+    current, series = score_named_path_series(bank, row, origin, meses, _named_flows(paths))
+    payload = {
+        'company_id': company_id,
+        'model': 'structural_v2',
+        'status': 'available',
+        'as_of': as_of_from_origin(origin),
+        'meses': meses,
+        'current_score': round(current, 2),
+        'alto': _rounded(series['optimistic']),
+        'medio': _rounded(series['central']),
+        'bajo': _rounded(series['pessimistic']),
+    }
+    _PREVISION_CACHE[cache_key] = payload
+    return payload
+
+
 class StructuralForecaster:
     """Account-path forecaster. Does not learn the score formula."""
 
@@ -238,8 +317,7 @@ class StructuralForecaster:
         if cache_key in self._score_cache:
             return self._score_cache[cache_key]
         bank, row, paths = self._paths(company_id, origin)
-        named = {name: {k: paths[name][k] for k in ('receipts', 'expenses', 'debt_service', 'refunds')}
-                 for name in ('pessimistic', 'central', 'optimistic')}
+        named = _named_flows(paths)
         scored = score_named_paths(bank, row, origin, self.horizon, named)
         low, median, high = (np.clip(scored[name], 0, 100) for name in ('pessimistic', 'central', 'optimistic'))
         result = (np.array([min(low, median), median, max(high, median)], dtype=float), paths, bank, row)
@@ -300,3 +378,8 @@ class StructuralForecaster:
             'diagnostics': paths['diagnostics'],
             'reconstruction_error': median - (explained + clipping),
         }
+
+    def prevision(self, company_id, origin=None):
+        """Monthly alto/medio/bajo paths for the product chart."""
+        return structural_prevision(
+            company_id, meses=self.horizon, banks=self.banks, origin=origin)
