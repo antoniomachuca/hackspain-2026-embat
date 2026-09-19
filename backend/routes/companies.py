@@ -10,8 +10,11 @@ from pathlib import Path
 from typing import Any, Dict, List, Optional
 from fastapi import APIRouter, HTTPException, Query, Response
 
+from algorythm.score_decompose import history_with_reparto
 from algorythm.telegram_charts import generate_company_chart
 from backend.database import get_cursor, normalize_company_id, query_dicts, query_one
+from backend.routes.forecasts import _load_banks
+from backend.routes.stats import normalize_group_id
 from backend.schemas import (
     CompanyDetailResponse,
     CompanyHistoryResponse,
@@ -24,6 +27,7 @@ from backend.schemas import (
     InvoiceItem,
     PeerPoint,
 )
+from forecasting.structural import as_of_from_origin
 
 router = APIRouter(prefix="/api/companies", tags=["Empresas y Cartera"])
 
@@ -75,7 +79,7 @@ def get_companies(
         params.append(max_score)
     if group_id:
         conditions.append("group_id = ?")
-        params.append(group_id.strip().upper())
+        params.append(normalize_group_id(group_id))
     if has_erp is not None:
         conditions.append("has_erp = ?")
         params.append(has_erp)
@@ -97,7 +101,7 @@ def get_companies(
         SELECT *
         FROM v_latest_company_scores
         {where_clause}
-        ORDER BY {order_by} {safe_order_dir}
+        ORDER BY {order_by} {safe_order_dir}, company_id ASC
         LIMIT ? OFFSET ?;
     """
     query_params = tuple(params + [limit, offset])
@@ -302,6 +306,56 @@ def get_company_detail(id: str):
     )
 
 
+_REPARTO_CACHE: Dict[str, Dict[str, Any]] = {}
+_REPARTO_LOCK = threading.Lock()
+
+
+def _as_of_key(value) -> str:
+    return str(value)[:10]
+
+
+def _company_panel(bank, row):
+    panel = {}
+    for key, value in bank.items():
+        ndim = getattr(value, "ndim", 0)
+        panel[key] = value[row:row + 1].copy() if ndim == 2 else value
+    return panel
+
+
+def _reparto_lookup(cid: str, rows, banks=None):
+    """DuckDB as_of → reparto, paired by series index.
+
+    The bank panel labels months at the start of each interval (2024-09 … 2026-08);
+    company_scores uses the following first-of-month (2024-10 … 2026-09). Same 24
+    cuts, last score 45.6 both ways. Join with DuckDB dates so the chart mes matches.
+    """
+    tables = banks if banks is not None else _load_banks()
+    if cid not in tables or not rows:
+        return {}
+    bank, row = tables[cid]
+    panel = _company_panel(bank, row)
+    n_bank = int(panel["receipts"].shape[1])
+    duck = [_as_of_key(item["as_of"]) for item in rows]
+    if len(duck) >= n_bank:
+        labels = duck[-n_bank:]
+    else:
+        pad = n_bank - len(duck)
+        labels = [as_of_from_origin(step) for step in range(pad)] + duck
+    body = history_with_reparto(panel, labels, company_id=cid, row=0)
+    return {point["as_of"]: point["reparto"] for point in body["history"]}
+
+
+def _cached_reparto_lookup(cid: str, rows):
+    with _REPARTO_LOCK:
+        hit = _REPARTO_CACHE.get(cid)
+    if hit is not None:
+        return hit
+    found = _reparto_lookup(cid, rows)
+    with _REPARTO_LOCK:
+        _REPARTO_CACHE[cid] = found
+    return found
+
+
 @router.get("/{id}/history", response_model=CompanyHistoryResponse)
 def get_company_history(
     id: str,
@@ -309,7 +363,7 @@ def get_company_history(
 ):
     """
     Devuelve la serie temporal mensual del score, componentes y momentum.
-    Diseñado para alimentar directamente gráficos de líneas/área en Recharts o Chart.js.
+    Cada punto anida `reparto` (bache vs tendencia) calculado sobre el panel bancario.
     """
     cid = normalize_company_id(id)
 
@@ -327,13 +381,15 @@ def get_company_history(
     if not rows:
         raise HTTPException(status_code=404, detail=f"Empresa '{cid}' no encontrada")
 
+    by_as_of = _cached_reparto_lookup(cid, rows)
+
     # Tomar los últimos N meses solicitados
     if len(rows) > months:
         rows = rows[-months:]
 
     history = [
         HistoryPoint(
-            as_of=str(row["as_of"]),
+            as_of=_as_of_key(row["as_of"]),
             score=round(float(row["score"]), 2),
             base_health=round(float(row["base_health"]), 2),
             state=str(row["state"]),
@@ -345,6 +401,7 @@ def get_company_history(
             growth_points=round(float(row["growth_points"]), 2),
             fragility_points=round(float(row["fragility_points"]), 2),
             data_confidence_index=round(float(row["data_confidence_index"]), 4),
+            reparto=by_as_of.get(_as_of_key(row["as_of"])),
         )
         for row in rows
     ]
@@ -521,7 +578,7 @@ def get_company_invoices(
             total_amount, pending_amount, currency, status, concept, counterparty_id
         FROM invoices
         {where_clause}
-        ORDER BY due_date DESC, issue_date DESC
+        ORDER BY due_date DESC, issue_date DESC, invoice_id ASC
         LIMIT ? OFFSET ?;
     """
     rows = query_dicts(inv_sql, tuple(params + [limit, offset]))

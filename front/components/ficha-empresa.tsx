@@ -21,7 +21,12 @@ import { EpisodiosPanel } from "@/components/episodios";
 export type Vista = "empresa" | "embat";
 
 export function normalizarId(raw: string): string | null {
-  const limpio = decodeURIComponent(raw).trim().toUpperCase();
+  let limpio: string;
+  try {
+    limpio = decodeURIComponent(raw).trim().toUpperCase();
+  } catch {
+    return null;
+  }
   if (limpio.includes(".") || limpio.startsWith("_") || limpio === "FAVICON.ICO") {
     return null;
   }

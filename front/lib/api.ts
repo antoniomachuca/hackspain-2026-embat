@@ -295,7 +295,7 @@ export type ApiSimulateResponse = {
 export const apiSimular = (id: string, levers: Array<Record<string, unknown>>) =>
   post<ApiSimulateResponse>("/api/simulate", { company_id: id, levers });
 export const apiWhatIf    = (id: string, inyeccion?: number) =>
-  post<ApiWhatIfResponse>("/api/whatif", { company_id: id, ...(inyeccion ? { injection_amount: inyeccion } : {}) });
+  post<ApiWhatIfResponse>("/api/whatif", { company_id: id, ...(inyeccion !== undefined ? { injection_amount: inyeccion } : {}) });
 
 /** Etiquetas legibles de los seis bloques del waterfall. */
 export const BLOQUES: Array<{ campo: keyof ApiWaterfall; etiqueta: string; codigo: string }> = [

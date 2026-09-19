@@ -4,7 +4,7 @@
  */
 import {
   apiEmpresa, apiHistoria, apiPeers, apiPalancas, apiRankings, apiWhatIf, apiEmpresasDeGrupo, apiGrupos, apiGrupo, apiEmpresas, apiSimular, apiPrevisionEstructural,
-  BLOQUES, type ApiHistoria, type ApiReparto, type ApiEmpresa, type ApiSugerencia, type ApiPalanca, type ApiSimulateResponse, type ApiWhatIfResponse,
+  BLOQUES, type ApiHistoria, type ApiReparto, type ApiEmpresa, type ApiSugerencia, type ApiPalanca, type ApiWhatIfResponse,
 } from "./api";
 import { eur, num } from "./format";
 import { pendiente, inflexionDe, EMPRESAS_CON_SCORE, simular } from "./data";
@@ -19,6 +19,18 @@ const ESTADOS: Record<string, Estado> = {
 
 /** Nombre comercial: el dataset no trae razón social, solo el identificador. */
 export const nombreDe = (id: string) => id.replace("COMP_", "Sociedad ");
+
+export function normalizarGrupoId(raw: string): string {
+  const limpio = decodeURIComponent(raw).trim().toUpperCase();
+  if (limpio.startsWith("GROUP_") && limpio.slice(6).match(/^\d+$/)) {
+    return `GROUP_${limpio.slice(6).padStart(4, "0")}`;
+  }
+  if (limpio.startsWith("GROUP") && limpio.slice(5).match(/^\d+$/)) {
+    return `GROUP_${limpio.slice(5).padStart(4, "0")}`;
+  }
+  if (/^\d+$/.test(limpio)) return `GROUP_${limpio.padStart(4, "0")}`;
+  return limpio;
+}
 
 export function driversDe(w: ApiEmpresa["waterfall"], e?: ApiEmpresa): Driver[] {
   return BLOQUES.map((b) => {
@@ -309,10 +321,7 @@ export type GrupoDetalle = {
 };
 
 export async function cargarGrupoDetalle(gid: string): Promise<GrupoDetalle | null> {
-  const limpio = decodeURIComponent(gid).trim().toUpperCase();
-  const normGid = limpio.startsWith("GROUP_")
-    ? limpio
-    : `GROUP_${limpio.padStart(4, "0")}`;
+  const normGid = normalizarGrupoId(gid);
 
   const [detail, r] = await Promise.all([
     apiGrupo(normGid),

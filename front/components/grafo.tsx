@@ -5,26 +5,14 @@
  * Arista = flujo inferido A → B (grosor por euros, opacidad por nº de coincidencias).
  * Layout con d3-force (una vez); el lienzo se mueve, hace zoom y deja arrastrar nodos.
  */
-import { useEffect, useId, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useId, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { useRouter } from "next/navigation";
 import { forceSimulation, forceLink, forceManyBody, forceCenter, forceCollide, forceX, forceY, type SimulationNodeDatum } from "d3-force";
 import type { ApiGrafoNodo, ApiGrafoArista } from "@/lib/api";
 import { banda, eur, num, mesCorto } from "@/lib/format";
 
-type Nodo = ApiGrafoNodo & SimulationNodeDatum & { r: number };
-type Arista = { source: Nodo; target: Nodo; matches: number; eur: number; last_date: string };
-type Camara = { x: number; y: number; k: number };
-type Gesto =
-  | { tipo: "pan"; lastX: number; lastY: number; moved: boolean }
-  | { tipo: "nodo"; id: string; moved: boolean; ox: number; oy: number; sx: number; sy: number }
-  | { tipo: "pinch"; dist: number }
-  | null;
-
-const W = 900, H = 520;
-const K_MIN = 0.28, K_MAX = 6;
-const UMBRAL_ARRASTRE = 4;
-
+type Vista = "embat" | "empresa" | "auto";
 const FONDO_LIENZO = [16, 12, 24];   // el rgba(0,0,0,.22) del lienzo sobre el panel
 
 /** Acerca un color al fondo: 0 lo deja igual, 1 lo apaga del todo. */
@@ -35,14 +23,29 @@ function apagar(hex: string, cantidad: number) {
   return `rgb(${m[0]},${m[1]},${m[2]})`;
 }
 
+type Nodo = ApiGrafoNodo & SimulationNodeDatum & { r: number };
+type Arista = { source: Nodo; target: Nodo; matches: number; eur: number; last_date: string };
+type Camara = { x: number; y: number; k: number };
+type Gesto =
+  | { tipo: "pan"; lastX: number; lastY: number; moved: boolean }
+  | { tipo: "nodo"; id: string; moved: boolean; startX: number; startY: number; ox: number; oy: number }
+  | { tipo: "pinch"; dist: number }
+  | null;
+
+const W = 900, H = 520;
+const K_MIN = 0.28, K_MAX = 6;
+const UMBRAL_ARRASTRE = 8;
+
 const ORIGEN: Camara = { x: 0, y: 0, k: 1 };
 
-export function Grafo({ nodos, aristas, destacar, alto = 520 }: {
-  nodos: ApiGrafoNodo[]; aristas: ApiGrafoArista[]; destacar?: string; alto?: number;
+export function Grafo({ nodos, aristas, vista = "auto", destacar, alto = 520 }: {
+  nodos: ApiGrafoNodo[]; aristas: ApiGrafoArista[]; vista?: Vista; destacar?: string; alto?: number;
 }) {
   const [layout, setLayout] = useState<{ nodos: Nodo[]; aristas: Arista[] } | null>(null);
   const [hover, setHover] = useState<{ x: number; y: number; texto: React.ReactNode } | null>(null);
+  const [modo, setModo] = useState<"embat" | "empresa">("empresa");
   const [gestoUi, setGestoUi] = useState<"pan" | "nodo" | null>(null);
+  const router = useRouter();
 
   const svgRef = useRef<SVGSVGElement>(null);
   const gRef = useRef<SVGGElement>(null);
@@ -50,10 +53,11 @@ export function Grafo({ nodos, aristas, destacar, alto = 520 }: {
   const camara = useRef<Camara>({ ...ORIGEN });
   const gesto = useRef<Gesto>(null);
   const punteros = useRef(new Map<number, { x: number; y: number }>());
-  const router = useRouter();
+  const nodoMovido = useRef<string | null>(null);
+  const clicConsumido = useRef(false);
 
   const uid = useId().replace(/:/g, "");
-  const marcador = `grafo-${uid}`;   // prefijo de los degradados de cada arista
+  const marcador = `flecha-${uid}`;
 
   const aplicarCamara = () => {
     const { x, y, k } = camara.current;
@@ -61,7 +65,7 @@ export function Grafo({ nodos, aristas, destacar, alto = 520 }: {
     if (zoomTxtRef.current) zoomTxtRef.current.textContent = `${Math.round(k * 100)}%`;
   };
 
-  const zoomEn = (clientX: number, clientY: number, factor: number) => {
+  const zoomEn = useCallback((clientX: number, clientY: number, factor: number) => {
     const svg = svgRef.current;
     if (!svg) return;
     const pt = pantallaAViewBox(svg, clientX, clientY);
@@ -71,7 +75,7 @@ export function Grafo({ nodos, aristas, destacar, alto = 520 }: {
     v.y = pt.y - ((pt.y - v.y) / v.k) * nk;
     v.k = nk;
     aplicarCamara();
-  };
+  }, []);
 
   const zoomCentro = (factor: number) => {
     const svg = svgRef.current;
@@ -127,6 +131,11 @@ export function Grafo({ nodos, aristas, destacar, alto = 520 }: {
   // en el navegador, y calcularlos en el servidor daría una hidratación distinta.
   /* eslint-disable react-hooks/set-state-in-effect */
   useEffect(() => {
+    if (vista !== "auto") { setModo(vista); return; }
+    try { const v = sessionStorage.getItem("xray:modo"); if (v === "embat" || v === "empresa") setModo(v); } catch {}
+  }, [vista]);
+
+  useEffect(() => {
     const maxEur = Math.max(1, ...nodos.map((n) => n.eur_in + n.eur_out));
     const ns: Nodo[] = nodos.map((n) => ({
       ...n,
@@ -172,7 +181,7 @@ export function Grafo({ nodos, aristas, destacar, alto = 520 }: {
     };
     svg.addEventListener("wheel", onWheel, { passive: false });
     return () => svg.removeEventListener("wheel", onWheel);
-  }, [layout]);
+  }, [layout, zoomEn]);
 
   const maxEurArista = useMemo(() => Math.max(1, ...aristas.map((a) => a.eur)), [aristas]);
   // Un clic en una sociedad abre siempre su ficha principal, venga el grafo de
@@ -223,16 +232,17 @@ export function Grafo({ nodos, aristas, destacar, alto = 520 }: {
         tipo: "nodo",
         id: idNodo,
         moved: false,
+        startX: ev.clientX,
+        startY: ev.clientY,
         ox: mundo.x - (nodo?.x ?? 0),
         oy: mundo.y - (nodo?.y ?? 0),
-        sx: ev.clientX,
-        sy: ev.clientY,
       };
-    } else {
-      gesto.current = { tipo: "pan", lastX: ev.clientX, lastY: ev.clientY, moved: false };
-      setGestoUi("pan");
-      setHover(null);
+      nodoMovido.current = null;
+      return;
     }
+    gesto.current = { tipo: "pan", lastX: ev.clientX, lastY: ev.clientY, moved: false };
+    setGestoUi("pan");
+    setHover(null);
     svg.setPointerCapture(ev.pointerId);
   };
 
@@ -264,8 +274,8 @@ export function Grafo({ nodos, aristas, destacar, alto = 520 }: {
       if (!g.moved && Math.hypot(dx, dy) < UMBRAL_ARRASTRE) return;
       g.moved = true;
       const r = svg.getBoundingClientRect();
-      camara.current.x += dx * (W / r.width);
-      camara.current.y += dy * (H / r.height);
+      camara.current.x += (dx * W) / (r.width * camara.current.k);
+      camara.current.y += (dy * H) / (r.height * camara.current.k);
       g.lastX = ev.clientX;
       g.lastY = ev.clientY;
       aplicarCamara();
@@ -275,12 +285,14 @@ export function Grafo({ nodos, aristas, destacar, alto = 520 }: {
     if (g.tipo === "nodo") {
       const svg = svgRef.current;
       if (!svg) return;
-      const dist = Math.hypot(ev.clientX - g.sx, ev.clientY - g.sy);
+      const dist = Math.hypot(ev.clientX - g.startX, ev.clientY - g.startY);
       if (!g.moved && dist < UMBRAL_ARRASTRE) return;
       if (!g.moved) {
         g.moved = true;
+        nodoMovido.current = g.id;
         setGestoUi("nodo");
         setHover(null);
+        svg.setPointerCapture(ev.pointerId);
       }
       moverNodo(g.id, ev.clientX, ev.clientY, g.ox, g.oy);
     }
@@ -288,9 +300,7 @@ export function Grafo({ nodos, aristas, destacar, alto = 520 }: {
 
   const soltarPuntero = (ev: React.PointerEvent<SVGSVGElement>) => {
     const g = gesto.current;
-    if (g?.tipo === "nodo" && !g.moved && ev.type === "pointerup" && !ev.ctrlKey && !ev.metaKey && ev.button === 0) {
-      router.push(rutaDe(g.id));
-    }
+    const idClick = g?.tipo === "nodo" && !g.moved ? g.id : null;
     punteros.current.delete(ev.pointerId);
     if (punteros.current.size < 2 && gesto.current?.tipo === "pinch") {
       gesto.current = null;
@@ -300,6 +310,14 @@ export function Grafo({ nodos, aristas, destacar, alto = 520 }: {
       gesto.current = null;
       setGestoUi(null);
     }
+    if (!idClick || ev.button === 2) return;
+    const ruta = rutaDe(idClick);
+    clicConsumido.current = true;
+    if (ev.button === 1 || ev.metaKey || ev.ctrlKey) {
+      window.open(ruta, "_blank", "noopener,noreferrer");
+      return;
+    }
+    router.push(ruta);
   };
 
   const onKeyDown = (ev: React.KeyboardEvent<SVGSVGElement>) => {
@@ -323,9 +341,9 @@ export function Grafo({ nodos, aristas, destacar, alto = 520 }: {
     <div className="relative">
       <div
         className="relative overflow-hidden rounded-[18px]"
-        style={{ height: alto, background: "rgba(0,0,0,.22)", boxShadow: "inset 0 0 0 1px rgba(255,255,255,.05)" }}
         onPointerEnter={cancelarRecentrado}
         onPointerLeave={programarRecentrado}
+        style={{ height: alto, background: "rgba(0,0,0,.22)", boxShadow: "inset 0 0 0 1px rgba(255,255,255,.05)" }}
       >
         <svg
           ref={svgRef}
@@ -368,17 +386,9 @@ export function Grafo({ nodos, aristas, destacar, alto = 520 }: {
               const opacidad = (0.26 + 0.44 * Math.min(1, a.matches / 12)) * denso;
               const toca = destacar && (a.source.company_id === destacar || a.target.company_id === destacar);
               return (
-                <g key={i}>
-                <linearGradient id={`${marcador}-g${i}`} gradientUnits="userSpaceOnUse"
-                  x1={sx} y1={sy} x2={tx} y2={ty}>
-                  <stop offset="0%" stopColor="#6d6a86" stopOpacity={0.18} />
-                  <stop offset="100%" stopColor="#8d88ab" stopOpacity={0.62} />
-                </linearGradient>
-                <path d={`M${sx},${sy} Q${mx},${my} ${tx},${ty}`} fill="none"
-                  stroke={toca ? "#b9b2d6" : `url(#${marcador}-g${i})`} strokeWidth={grosor}
-                  strokeOpacity={opacidad} strokeLinecap="round"
-                  markerEnd={`url(#${marcador})`}
-                  style={{ cursor: "help", pointerEvents: gestoUi ? "none" : "stroke" }}
+                <path key={i} d={`M${sx},${sy} Q${mx},${my} ${tx},${ty}`} fill="none"
+                  stroke={toca ? "#b9b2d6" : "#8d88ab"} strokeWidth={grosor} strokeOpacity={opacidad} strokeLinecap="round"
+                  markerEnd={`url(#${marcador})`} style={{ cursor: "help", pointerEvents: gestoUi ? "none" : "stroke" }}
                   onMouseMove={(e) => {
                     if (gesto.current) return;
                     setHover({ x: e.clientX, y: e.clientY, texto: (
@@ -389,7 +399,6 @@ export function Grafo({ nodos, aristas, destacar, alto = 520 }: {
                     ) });
                   }}
                   onMouseLeave={() => setHover(null)} />
-                </g>
               );
             })}
 
@@ -400,8 +409,13 @@ export function Grafo({ nodos, aristas, destacar, alto = 520 }: {
               const suelto = n.eur_in + n.eur_out === 0;
               return (
                 <a key={n.company_id} href={rutaDe(n.company_id)} data-nodo={n.company_id}
-                  style={{ cursor: gestoUi === "nodo" ? "grabbing" : "grab" }}
-                  onClick={(e) => { if (!e.ctrlKey && !e.metaKey) e.preventDefault(); }}
+                  style={{ cursor: gestoUi === "nodo" ? "grabbing" : "pointer" }}
+                  onClick={(e) => {
+                    if (clicConsumido.current || nodoMovido.current === n.company_id) {
+                      e.preventDefault();
+                      clicConsumido.current = false;
+                    }
+                  }}
                   onDragStart={(e) => e.preventDefault()}
                   onMouseMove={(e) => {
                     if (gesto.current) return;
@@ -417,8 +431,9 @@ export function Grafo({ nodos, aristas, destacar, alto = 520 }: {
                   }}
                   onMouseLeave={() => setHover(null)}>
                   {esDestacado && <circle cx={n.x} cy={n.y} r={n.r + 7} fill="none" stroke="rgba(255,255,255,.22)" strokeWidth={1} />}
-                  <circle cx={n.x} cy={n.y} r={n.r} fill="#14101f" fillOpacity={suelto ? 0.7 : 0.9} />
-                  <circle cx={n.x} cy={n.y} r={n.r - 1.5} fill="none"
+                  <circle cx={n.x} cy={n.y} r={n.r} data-nodo={n.company_id}
+                    fill="#14101f" fillOpacity={suelto ? 0.7 : 0.9} />
+                  <circle cx={n.x} cy={n.y} r={n.r - 1.5} data-nodo={n.company_id} fill="none"
                     stroke={activo ? apagar(b.color, 0.42) : "#33374d"} strokeOpacity={activo ? 0.9 : 0.65}
                     strokeWidth={esDestacado ? 2.6 : 1.8} />
                   <text x={n.x} y={n.y! - (n.r >= 20 ? 4.5 : 0)} textAnchor="middle" dominantBaseline="central"

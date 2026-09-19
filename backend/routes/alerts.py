@@ -60,7 +60,7 @@ def get_alerts(
             score, delta_score, momentum, drivers_json, created_at
         FROM alerts
         {where_clause}
-        ORDER BY as_of DESC, score ASC
+        ORDER BY as_of DESC, score ASC, alert_id ASC
         LIMIT ? OFFSET ?;
     """
     rows = query_dicts(data_sql, tuple(params + [limit, offset]))
