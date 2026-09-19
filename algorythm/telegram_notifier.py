@@ -84,7 +84,8 @@ def build_alert_keyboard(company_id):
                 {"text": "🔍 Desglose CFO", "callback_data": f"cb_drivers:{cid}"}
             ],
             [
-                {"text": "💡 Simular What-If", "callback_data": f"cb_whatif:{cid}"}
+                {"text": "💡 Simular What-If", "callback_data": f"cb_whatif:{cid}"},
+                {"text": "⚙️ Palancas", "callback_data": f"cb_pal:{cid}"}
             ]
         ]
     }
