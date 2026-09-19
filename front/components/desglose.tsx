@@ -32,16 +32,16 @@ export function Desglose({ drivers, score }: { drivers: Driver[]; score: number 
             <div key={d.feature} className="border-b border-[var(--color-line)] last:border-0">
               <button
                 onClick={() => setAbierto(on ? null : d.feature)}
-                className="group flex w-full items-center gap-4 py-3 text-left"
+                className="group flex w-full items-center gap-2 py-3 text-left sm:gap-4"
                 aria-expanded={on}
               >
-                <span className="w-[104px] flex-none text-[12.5px] font-medium">{d.etiqueta}</span>
+                <span className="w-[84px] flex-none text-[12.5px] font-medium sm:w-[104px]">{d.etiqueta}</span>
 
-                <span className="tnum w-[128px] flex-none truncate text-[11.5px] text-[var(--color-ink-3)]">
+                <span className="tnum w-[96px] flex-none truncate text-[11.5px] text-[var(--color-ink-3)] sm:w-[128px]">
                   {cero ? "sin efecto" : d.valor}
                 </span>
 
-                <span className="tnum w-[52px] flex-none text-right text-[13px] font-semibold"
+                <span className="tnum w-[48px] flex-none text-right text-[13px] font-semibold sm:w-[52px]"
                   style={{ color: cero ? "var(--color-ink-4)" : neg ? NEG : "var(--color-ink)" }}>
                   {neg ? "−" : ""}{num(Math.abs(d.contribucion), 2)}
                 </span>
@@ -69,7 +69,7 @@ export function Desglose({ drivers, score }: { drivers: Driver[]; score: number 
               </button>
 
               {on && detalle && (
-                <p className="pb-3 pl-[104px] pr-4 text-[11.5px] leading-relaxed text-[var(--color-ink-2)]">
+                <p className="pb-3 pl-[84px] pr-4 text-[11.5px] leading-relaxed text-[var(--color-ink-2)] sm:pl-[104px]">
                   {detalle}
                   {d.rango && <span className="text-[var(--color-ink-4)]"> · rango {d.rango}</span>}
                 </p>
@@ -79,10 +79,10 @@ export function Desglose({ drivers, score }: { drivers: Driver[]; score: number 
         })}
       </div>
 
-      <div className="mt-3 flex items-center gap-4 border-t border-[var(--color-line-2)] pt-3">
-        <span className="w-[104px] flex-none text-[12.5px] font-semibold">Score</span>
-        <span className="w-[128px] flex-none text-[11px] text-[var(--color-ink-4)]">suma exacta</span>
-        <span className="tnum w-[52px] flex-none text-right text-[15px] font-semibold"
+      <div className="mt-3 flex items-center gap-2 border-t border-[var(--color-line-2)] pt-3 sm:gap-4">
+        <span className="w-[84px] flex-none text-[12.5px] font-semibold sm:w-[104px]">Score</span>
+        <span className="w-[96px] flex-none text-[11px] text-[var(--color-ink-4)] sm:w-[128px]">suma exacta</span>
+        <span className="tnum w-[48px] flex-none text-right text-[15px] font-semibold sm:w-[52px]"
           style={{ color: "var(--color-purple)" }}>
           {num(score)}
         </span>
