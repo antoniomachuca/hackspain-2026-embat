@@ -85,8 +85,9 @@ body::before {
 ::selection { background: rgba(176,131,232,.34); color: #fff; }
 
 /* ---------- cristal ---------- */
+/* Tooltips de gráficos y grafo: fondo casi opaco para que la barra de debajo no se lea a través. */
 .glass {
-  background: linear-gradient(158deg, rgba(255,255,255,.075), rgba(255,255,255,.028));
+  background: linear-gradient(158deg, rgba(38,30,60,.97), rgba(24,18,38,.97));
   border: 1px solid var(--glass-2);
   backdrop-filter: blur(22px) saturate(150%);
   -webkit-backdrop-filter: blur(22px) saturate(150%);

@@ -171,16 +171,19 @@ flowchart TD
     R_GRP["/api/groups<br>Consolidación y contagio"]
     R_STAT["/api/stats<br>KPIs globales de cartera"]
     R_PORT["/api/portfolio<br>Cartera Embat: rankings y segmentos"]
+    R_GRAPH["/api/graph<br>Flujos intragrupo inferidos"]
     FAST --> R_COMP
     FAST --> R_SIM
     FAST --> R_GRP
     FAST --> R_STAT
     FAST --> R_PORT
+    FAST --> R_GRAPH
   end
 
   subgraph FRONT["Frontend Producto (Next.js 16)"]
     DASH["/ · Cartera Embat: todos los clientes, rankings y dónde actuar"]
     CLIENTE["/embat/[id] · Ficha de un cliente leída desde Embat"]
+    GRAFO["/grafo · Mapa de flujos entre sociedades de un grupo"]
     FICHA["/[id] · Ficha 360° de la propia empresa (X-Ray como módulo)"]
     SIM["/empresa/[id]/escenarios · Simulador What-If Reactivo"]
     COMP["/comparar · Comparador Dinámico de Empresas"]
@@ -211,6 +214,7 @@ flowchart TD
      - `POST /api/simulate`: recomputación contrafactual completa aplicando variaciones en días de cobro, pago o inyecciones de tesorería.
      - `GET /api/groups` y `GET /api/groups/{id}`: métricas consolidadas de grupo y penalización por contagio.
      - `GET /api/stats`: distribución global de la cartera (empresas sólidas, intermedias, débiles).
+     - `GET /api/graph` y `GET /api/graph/{group_id}`: flujos de caja entre sociedades de un grupo. El dataset no dice quién paga a quién (contrapartes anonimizadas por sociedad), así que se infieren emparejando una salida de A y una entrada de B del mismo grupo, el mismo día y por el mismo importe (≥ 500 €). Dentro del grupo ocurre 24 veces más que entre grupos (4,5 frente a 0,19 coincidencias por par), y un par con ≥ 2 coincidencias tiene un 1,6 % de probabilidad de ser ruido.
      - `GET /api/portfolio`: la cartera para Embat en una llamada: KPIs, histograma, trayectoria media a 24 meses, rankings (mejor score, más crecen, más caen) y segmentos de acción (Apostar / Vigilar / Acompañar).
 
 3. **Frontend Next.js (`front/`):**
@@ -220,6 +224,7 @@ flowchart TD
      - **Una empresa** que compra X-Ray como módulo entra por `/[id]` y se ve solo a sí misma.
    - Pantallas:
      - **Cartera Embat (`/`):** KPIs de los 1.286 clientes, histograma y trayectoria media del score, rankings (mejor score, más crecen, más caen), segmentos de acción —*Apostar* (sana y creciendo: candidata a línea de crédito o módulo sin coste), *Vigilar* (se tuerce: retención), *Acompañar* (bache: seguimiento)— y tabla completa con búsqueda, filtro por estado, ordenación y paginación.
+     - **Flujos intragrupo (`/grafo`, y dentro de `/grupo/[id]`):** grafo de fuerzas (d3-force) con las sociedades de un grupo como nodos —id en el centro, color por banda de score, tamaño por euros movidos— y los flujos inferidos como flechas del que paga al que cobra. Pulsar un nodo abre la ficha. Sirve para ver de quién depende la caja del grupo y si la filial débil es la que sostiene o la que drena.
      - **Ficha de cliente (`/embat/[id]`):** la ficha de empresa con la lectura para Embat encima: segmento, Δ 3 meses y el producto Embat con más efecto sobre su score.
      - **Ficha de Empresa (`/[id]`):** velocímetro de score, anillo de estado analítico oficial (`MEJORANDO`, `TORCIENDOSE`, etc.), gráfico *waterfall* con diagnósticos causales específicos por factor, ratios de tesorería y posición en la curva de pares.
      - **Simulador What-If (`/empresa/[id]/escenarios`):** sliders interactivos que invocan el motor contrafactual y ordenan las palancas por impacto en puntos de score y euros de liquidez liberada.

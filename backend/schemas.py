@@ -286,6 +286,55 @@ class PortfolioResponse(BaseModel):
     segments: List[PortfolioSegment]
 
 
+# -------------------------------------------------------------
+# Mapa de flujos intragrupo (inferidos por emparejamiento)
+# -------------------------------------------------------------
+
+class GraphNode(BaseModel):
+    company_id: str
+    score: float
+    state: str
+    health_band: Optional[str] = None
+    state_eligible: bool
+    delta_3m: float
+    segment: Optional[str] = None
+    eur_out: float = Field(0.0, description="Euros que salen hacia otras sociedades del grupo")
+    eur_in: float = Field(0.0, description="Euros que llegan desde otras sociedades del grupo")
+
+
+class GraphEdge(BaseModel):
+    source: str
+    target: str
+    matches: int = Field(..., description="Movimientos emparejados (mismo día, mismo importe)")
+    eur: float
+    last_date: str
+
+
+class GraphResponse(BaseModel):
+    group_id: str
+    min_matches: int
+    nodes: List[GraphNode]
+    edges: List[GraphEdge]
+
+
+class GraphGroupSummary(BaseModel):
+    group_id: str
+    companies: int
+    edges: int
+    matches: int
+    eur: float
+    average_score: float
+    worst_score: float
+
+
+class GraphSummaryResponse(BaseModel):
+    min_matches: int
+    groups_with_flows: int
+    total_edges: int
+    total_eur: float
+    groups: List[GraphGroupSummary]
+
+
 class GroupItem(BaseModel):
     group_id: str
     erp: Optional[str] = None

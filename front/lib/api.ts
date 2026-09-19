@@ -276,3 +276,21 @@ export type ApiPortfolio = {
 
 export const apiPortfolio = (top = 10, porSegmento = 8) =>
   get<ApiPortfolio>(`/api/portfolio?top=${top}&per_segment=${porSegmento}`);
+
+// ── Flujos intragrupo (inferidos: mismo día, mismo importe, mismo grupo) ──
+export type ApiGrafoNodo = {
+  company_id: string; score: number; state: string; health_band: string | null;
+  state_eligible: boolean; delta_3m: number; segment: string | null;
+  eur_out: number; eur_in: number;
+};
+export type ApiGrafoArista = { source: string; target: string; matches: number; eur: number; last_date: string };
+export type ApiGrafo = { group_id: string; min_matches: number; nodes: ApiGrafoNodo[]; edges: ApiGrafoArista[] };
+export type ApiGrafoResumen = {
+  min_matches: number; groups_with_flows: number; total_edges: number; total_eur: number;
+  groups: Array<{ group_id: string; companies: number; edges: number; matches: number; eur: number; average_score: number; worst_score: number }>;
+};
+
+export const apiGrafoResumen = (limite = 30, minCoincidencias = 2) =>
+  get<ApiGrafoResumen>(`/api/graph?limit=${limite}&min_matches=${minCoincidencias}`);
+export const apiGrafo = (gid: string, minCoincidencias = 2) =>
+  get<ApiGrafo>(`/api/graph/${gid}?min_matches=${minCoincidencias}`);

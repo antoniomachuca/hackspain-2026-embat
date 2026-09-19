@@ -16,7 +16,7 @@ function Caja({ active, payload, label }: any) {
       {texto && <p className="text-[11px] text-[var(--color-ink-3)]">{texto}</p>}
       {payload.map((p: any) => (
         <p key={p.name} className="tnum text-[13px] font-medium" style={{ color: p.color }}>
-          {p.name}: {num(p.value)}
+          {p.name}: {Number.isInteger(p.value) ? num(p.value, 0) : num(p.value)}
         </p>
       ))}
     </div>
@@ -143,8 +143,10 @@ export function Waterfall({ drivers, altura = 240 }: { drivers: Driver[]; altura
 
 export function Sparkline({ datos, w = 92, h = 26 }: { datos: Punto[]; w?: number; h?: number }) {
   const vals = datos.map((d) => d.score);
+  if (vals.length === 0) return null;
   const min = Math.min(...vals), max = Math.max(...vals), span = max - min || 1;
-  const pts = vals.map((v, i) => `${(i / (vals.length - 1)) * w},${h - ((v - min) / span) * (h - 4) - 2}`).join(" ");
+  const pasos = Math.max(1, vals.length - 1);   // con un solo punto, solo el círculo final
+  const pts = vals.map((v, i) => `${(i / pasos) * w},${h - ((v - min) / span) * (h - 4) - 2}`).join(" ");
   const color = banda(vals[vals.length - 1]).color;
   return (
     <svg width={w} height={h} className="overflow-visible" aria-hidden>
