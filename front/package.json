@@ -9,11 +9,16 @@
     "lint": "eslint"
   },
   "dependencies": {
+    "@ai-sdk/mcp": "^2.0.54",
+    "@ai-sdk/openai": "^4.0.71",
+    "@ai-sdk/react": "^4.0.110",
     "@types/d3-force": "^3.0.10",
+    "ai": "^7.0.107",
     "d3-force": "^3.0.0",
     "next": "16.3.5",
     "react": "19.2.8",
     "react-dom": "19.2.8",
+    "react-markdown": "^10.1.0",
     "recharts": "^2.15.4"
   },
   "devDependencies": {

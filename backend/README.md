@@ -64,7 +64,19 @@ Una vez arrancado el servidor, abre en tu navegador:
 
 ---
 
-## 4. Ejecución de la Suite de Pruebas
+## 4. Servidor MCP para el asistente
+
+La API monta en **`/mcp/`** (con barra final) un servidor MCP (`backend/mcp_server.py`, paquete `mcp>=2.2`) con catorce herramientas de lectura y cálculo: cartera, búsqueda, alertas, ficha, historia, episodios, comparables, facturas, grupo, flujos intragrupo, what-if, palancas, simulación de palancas y previsión estructural. Cada herramienta llama a la propia API en proceso, así que devuelve los mismos números que los endpoints REST. Lo consume el asistente de la vista Embat (`front/app/agente`); es interno, no un producto en sí.
+
+Transporte HTTP sin sesión con respuesta JSON. Para verlo con el inspector de MCP:
+
+```bash
+npx @modelcontextprotocol/inspector --transport http --server-url http://127.0.0.1:8000/mcp/
+```
+
+Pruebas: `PYTHONPATH=. pytest backend/test_mcp_server.py -v`.
+
+## 5. Ejecución de la Suite de Pruebas
 
 Para validar el 100% de los endpoints y contratos:
 ```bash

@@ -45,6 +45,9 @@ ninguna clave. Después, redespliega `api` para que siembre el volumen.
 | api | `XRAY_DATA_DIR` | `/data` |
 | api | `XRAY_WARMUP` | `1` — precarga el panel bancario al arrancar |
 | web | `NEXT_PUBLIC_API_URL` | dominio público de `api` |
+| web | `OPENAI_API_KEY` | clave de OpenAI para el asistente (`/agente`). Solo la lee el servidor de Next |
+| web | `OPENAI_MODEL` | modelo del asistente; si falta, `gpt-5-mini` |
+| web | `XRAY_API_URL` | base de la API vista desde el servidor de Next (puede ser la red privada de Railway). Si falta, usa `NEXT_PUBLIC_API_URL` |
 
 `NEXT_PUBLIC_API_URL` se inlinea en el bundle **en build**: si cambia el dominio
 de la API hay que redesplegar el front, no basta con reiniciarlo.

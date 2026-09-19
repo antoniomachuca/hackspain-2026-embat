@@ -31,7 +31,10 @@ from backend.routes.palancas import router as palancas_router
 async def lifespan(app: FastAPI):
     # Inicialización: verificar o abrir conexión compartida DuckDB
     con = get_db_connection()
-    yield
+    # El transporte HTTP del MCP necesita su gestor de sesiones vivo mientras
+    # sirva la API. Se monta más abajo; aquí solo se arranca.
+    async with app.state.mcp.session_manager.run():
+        yield
     # Limpieza al apagar el servidor
     close_db_connection()
 
@@ -89,6 +92,15 @@ app.include_router(stats_router)
 app.include_router(graph_router)
 app.include_router(forecasts_router)
 
+# -------------------------------------------------------------
+# Servidor MCP: el núcleo como herramientas para el asistente
+# -------------------------------------------------------------
+from backend.mcp_server import build_mcp  # noqa: E402  (necesita la app con sus routers)
+
+_mcp, _mcp_asgi = build_mcp(app)
+app.state.mcp = _mcp
+app.mount("/mcp", _mcp_asgi)
+
 
 @app.get("/", tags=["General"])
 def root():
@@ -110,6 +122,7 @@ def root():
                 "groups": "/api/groups",
                 "prevision_estructural": "/api/companies/{id}/prevision-estructural",
                 "health": "/api/health",
+                "mcp": "/mcp",
             },
         }
     )
