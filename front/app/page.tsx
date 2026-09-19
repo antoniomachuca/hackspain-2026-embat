@@ -4,7 +4,7 @@ import {
   ANTICIPACION_MEDIANA, MODEL_VERSION,
 } from "@/lib/data";
 import { eur, num, mesCorto } from "@/lib/format";
-import { cargarEmpresa, cargarRecomendaciones } from "@/lib/motor";
+import { cargarEmpresa, cargarRecomendaciones, cargarFiliales, nombreDe } from "@/lib/motor";
 import { Cabecera } from "@/components/shell";
 import { Waterfall, Sparkline } from "@/components/charts";
 import { Anillo } from "@/components/anillo";
@@ -14,12 +14,36 @@ import { Card, ScoreBadge, BandaChip, EstadoChip, Confianza, Delta, Boton } from
 export default async function Resumen() {
   // El motor manda; si no responde, el front sigue con los datos de demostración.
   const real = await cargarEmpresa(MI_EMPRESA);
-  const rk = real ? await cargarRecomendaciones(MI_EMPRESA) : null;
   const e = real ?? empresa(MI_EMPRESA) ?? EMPRESAS_CON_SCORE[1];
+
+  const [rk, rawFiliales] = await Promise.all([
+    cargarRecomendaciones(e.id),
+    cargarFiliales(e.grupo, e.id),
+  ]);
+
   const g = grupo(e.grupo);
+  const filiales = (rawFiliales && rawFiliales.length > 0)
+    ? rawFiliales.map((f) => ({
+        id: f.company_id,
+        nombre: nombreDe(f.company_id),
+        sector: f.erp ? `ERP ${f.erp}` : "Sin ERP",
+        score: f.score,
+        momentum: f.momentum,
+        estado: f.state as any,
+        mesesHistoria: f.state_eligible ? 24 : 8,
+        trayectoria: [{ mes: "2026-09", score: f.score, nivel: f.base_health }],
+      }))
+    : g.miembros.filter((m) => m.id !== e.id);
+
+  const todosScores = [e.score, ...filiales.map((f) => f.score)];
+  const mediaGrupo = todosScores.reduce((a, b) => a + b, 0) / (todosScores.length || 1);
+  const peorScore = Math.min(...todosScores);
+  const consolidado = Math.round((0.65 * mediaGrupo + 0.35 * peorScore) * 10) / 10;
+  const penalizacion = peorScore < 40 ? Math.round((40 - peorScore) * 0.25 * 10) / 10 : 0;
+
+  const sugerencias = rk?.sugerencias ?? [];
   const recos = recomendar(empresa(MI_EMPRESA) ?? EMPRESAS_CON_SCORE[1], 3);
-  const filiales = g.miembros.filter((m) => m.id !== e.id);
-  const percentil = e.drivers[0].p_peer;
+  const percentil = e.drivers?.[0]?.p_peer ?? 50;
 
   return (
     <>
@@ -109,28 +133,60 @@ export default async function Resumen() {
         </Card>
 
         <Card className="px-6 py-6">
-          <h2 className="text-[15px] font-semibold tracking-tight">Qué puedes hacer</h2>
+          <h2 className="text-[15px] font-semibold tracking-tight">Qué puedes hacer (Simulador What-If)</h2>
           <p className="mt-0.5 text-[11.5px] text-[var(--color-ink-4)]">
-            Simulado contra el motor. Ninguna cifra sale de un modelo de lenguaje.
+            Palancas de liquidez calculadas directamente sobre el balance de {e.id}.
           </p>
           <div className="mt-4 flex flex-col gap-2.5">
-            {recos.map((r) => (
-              <Link key={r.palanca.id} href={`/empresa/${e.id}/escenarios`} className="fila px-4 py-3.5">
-                <div className="flex items-start justify-between gap-3">
-                  <div className="min-w-0">
-                    <p className="text-[13px] font-medium">
-                      {r.palanca.nombre} · <span className="tnum font-normal">{r.valor} {r.palanca.unidad}</span>
-                    </p>
-                    <p className="mt-0.5 text-[11.5px] text-[var(--color-ink-3)]">{r.palanca.descripcion}</p>
+            {sugerencias.length > 0 ? (
+              sugerencias.slice(0, 3).map((s, idx) => (
+                <Link
+                  key={`${s.id}-${idx}`}
+                  href={`/empresa/${e.id}/escenarios`}
+                  className="fila px-4 py-3.5"
+                >
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="min-w-0">
+                      <p className="text-[13px] font-medium text-[var(--color-ink-1)]">
+                        {s.label}
+                      </p>
+                      <p className="mt-0.5 text-[11.5px] text-[var(--color-ink-3)]">
+                        Familia: <span className="capitalize">{s.familia.replace("_", " ")}</span>
+                        {s.days ? ` · Ajuste: ${s.days} días` : ""}
+                        {s.pct ? ` · Inyección: ${s.pct}%` : ""}
+                      </p>
+                    </div>
+                    <Delta v={s.delta_score} sufijo=" pts" className="shrink-0 pt-0.5" />
                   </div>
-                  <Delta v={r.deltaScore} sufijo=" pts" className="shrink-0 pt-0.5" />
-                </div>
-                <div className="tnum mt-2 flex flex-wrap gap-x-4 gap-y-1 text-[11.5px] text-[var(--color-ink-2)]">
-                  {r.cajaLiberada > 0 && <span>Caja <strong className="font-medium">{eur(r.cajaLiberada)}</strong></span>}
-                  {r.eurAnio > 0 && <span>Ahorro <strong className="font-medium">{eur(r.eurAnio)}/año</strong></span>}
-                </div>
-              </Link>
-            ))}
+                  <div className="tnum mt-2 flex flex-wrap gap-x-4 gap-y-1 text-[11.5px] text-[var(--color-ink-2)]">
+                    {s.caja_liberada_eur && s.caja_liberada_eur > 0 && (
+                      <span>Caja liberada: <strong className="font-medium">{eur(s.caja_liberada_eur)}</strong></span>
+                    )}
+                    {s.eur_año && s.eur_año > 0 && (
+                      <span>Impacto anual: <strong className="font-medium">{eur(s.eur_año)}/año</strong></span>
+                    )}
+                  </div>
+                </Link>
+              ))
+            ) : (
+              recos.map((r) => (
+                <Link key={r.palanca.id} href={`/empresa/${e.id}/escenarios`} className="fila px-4 py-3.5">
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="min-w-0">
+                      <p className="text-[13px] font-medium">
+                        {r.palanca.nombre} · <span className="tnum font-normal">{r.valor} {r.palanca.unidad}</span>
+                      </p>
+                      <p className="mt-0.5 text-[11.5px] text-[var(--color-ink-3)]">{r.palanca.descripcion}</p>
+                    </div>
+                    <Delta v={r.deltaScore} sufijo=" pts" className="shrink-0 pt-0.5" />
+                  </div>
+                  <div className="tnum mt-2 flex flex-wrap gap-x-4 gap-y-1 text-[11.5px] text-[var(--color-ink-2)]">
+                    {r.cajaLiberada > 0 && <span>Caja <strong className="font-medium">{eur(r.cajaLiberada)}</strong></span>}
+                    {r.eurAnio > 0 && <span>Ahorro <strong className="font-medium">{eur(r.eurAnio)}/año</strong></span>}
+                  </div>
+                </Link>
+              ))
+            )}
           </div>
         </Card>
       </div>
@@ -139,17 +195,17 @@ export default async function Resumen() {
       <Card className="mt-5 px-6 py-6">
         <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
           <div>
-            <h2 className="text-[16px] font-semibold tracking-tight">{g.nombre}</h2>
+            <h2 className="text-[16px] font-semibold tracking-tight">{e.grupoNombre}</h2>
             <p className="mt-0.5 text-[11.5px] text-[var(--color-ink-4)]">
-              Tus {g.miembros.length} sociedades · consolidado {num(g.consolidado)} · penalización por contagio {num(g.penalizacion)}
+              Tus {todosScores.length} sociedades · consolidado {num(consolidado)} · penalización por contagio {num(penalizacion)}
             </p>
           </div>
-          <Link href={`/grupo/${g.id}`} className="pildora">Ver el grupo</Link>
+          <Link href={`/grupo/${e.grupo}`} className="pildora">Ver el grupo</Link>
         </div>
 
         <div className="flex flex-col gap-2">
           {filiales.map((m) => (
-            <Link key={m.id} href={`/empresa/${m.id}`}
+            <Link key={m.id} href={`/${m.id}`}
               className="fila grid grid-cols-2 items-center gap-4 px-4 py-3.5 lg:grid-cols-[2fr_.6fr_.7fr_.8fr_.9fr]">
               <div className="col-span-2 min-w-0 lg:col-span-1">
                 <p className="truncate text-[13.5px] font-medium">{m.nombre}</p>
