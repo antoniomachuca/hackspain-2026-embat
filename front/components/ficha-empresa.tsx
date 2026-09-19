@@ -7,7 +7,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { MES_ACTUAL } from "@/lib/data";
 import { eur, num, mesCorto, banda } from "@/lib/format";
-import { cargarEmpresa, cargarRecomendaciones, cargarFiliales, cargarTrayectoriasFiliales, nombreDe } from "@/lib/motor";
+import { cargarEmpresa, cargarRecomendaciones, cargarFiliales, cargarTrayectoriasFiliales, cargarPrevision, nombreDe } from "@/lib/motor";
 import { SEGMENTOS, segmentoDe } from "@/lib/cartera";
 import { Cabecera } from "@/components/shell";
 import { Anillo } from "@/components/anillo";
@@ -51,9 +51,10 @@ export async function FichaEmpresa({ id, vista }: { id: string; vista: Vista }) 
   const segmento = segmentoDe(e);
   const seg = segmento ? SEGMENTOS[segmento] : null;
 
-  const [rk, rawFiliales] = await Promise.all([
+  const [rk, rawFiliales, proyeccion] = await Promise.all([
     cargarRecomendaciones(e.id),
     cargarFiliales(e.grupo, e.id),
+    cargarPrevision(e.id),
   ]);
 
   const percentil = e.drivers?.[0]?.p_peer ?? 50;
@@ -252,6 +253,7 @@ export async function FichaEmpresa({ id, vista }: { id: string; vista: Vista }) 
           <Prevision
             datos={e.trayectoria}
             momentum={e.momentum}
+            proyeccion={proyeccion}
             peer={e.peer}
             datosPeer={e.trayectoriaPeer}
             reparto={e.reparto}

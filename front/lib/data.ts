@@ -73,7 +73,35 @@ export type PuntoPeer = { mes: string; mediana: number };
 
 /** Bache o tendencia: el movimiento del mes, partido en la parte que persiste
  *  y la que revierte. `pctTendencia + pctBache = 100` salvo en los meses planos. */
-export type Reparto = { mes: string; delta: number; pctTendencia: number; pctBache: number };
+/**
+ * El reparto mes a mes entre lo que se queda (tendencia) y lo que revierte
+ * (bache). Lo calcula el motor congelando los flujos del mes anterior y
+ * descongelando campo a campo; el front solo lo pinta. Al usuario nunca se le
+ * dicen las palabras internas: `estructural` es «tendencia» y `coyuntural`,
+ * «bache».
+ */
+export type KindMes = "estructural" | "coyuntural";
+export type FamilyMes = "salud" | "circulante" | "dato" | "formula";
+
+export type DriverMes = {
+  field: string;
+  etiqueta: string;     // ya traducida por el motor
+  points: number;       // puntos de score, con signo; suman ≈ delta
+  kind: KindMes;
+  family: FamilyMes;
+  reason: string;       // clave estable
+  razon: string;        // frase corta ya traducida: se pinta tal cual
+};
+
+export type Reparto = {
+  mes: string;
+  delta: number;
+  pctTendencia: number;
+  pctBache: number;
+  structPts: number;
+  circPts: number;
+  drivers: DriverMes[];
+};
 
 /** El mes en que la serie cambió de régimen, con el juicio de si fue la empresa
  *  o fue su cuartil. Ese juicio es el producto. */
@@ -370,12 +398,12 @@ export function pendiente(s: number[], i: number, w = 6): number {
 export function repartir(s: number[], tends: number[], i: number, mes: string): Reparto {
   const delta = i === 0 ? 0 : Math.round((s[i] - s[i - 1]) * 10) / 10;
   // Un mes plano no se reparte: no hay movimiento que atribuir.
-  if (Math.abs(delta) < 0.15) return { mes, delta, pctTendencia: 0, pctBache: 0 };
+  if (Math.abs(delta) < 0.15) return { mes, delta, pctTendencia: 0, pctBache: 0, structPts: 0, circPts: 0, drivers: [] };
   // La tendencia vigente no puede explicar más movimiento del que hubo.
   const explicado = Math.sign(delta) === Math.sign(tends[i])
     ? Math.min(Math.abs(tends[i]), Math.abs(delta)) : 0;
   const pctTendencia = Math.round((explicado / Math.abs(delta)) * 100);
-  return { mes, delta, pctTendencia, pctBache: 100 - pctTendencia };
+  return { mes, delta, pctTendencia, pctBache: 100 - pctTendencia, structPts: 0, circPts: 0, drivers: [] };
 }
 
 /** La última inflexión, que es la que importa hoy. */

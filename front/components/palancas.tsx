@@ -101,7 +101,7 @@ export function Palancas({ empresa, sugerencias, palancas, whatif, recomendado }
 
           <div className="mt-5 flex flex-wrap gap-x-10 gap-y-3 border-t border-[var(--color-line)] pt-4">
             <Dato k="Tramo óptimo" v={eur(whatif.injection_amount)} />
-            <Dato k="Estado proyectado" v={whatif.projected_state.toLowerCase()} />
+            <Dato k="Estado proyectado" v={(whatif.projected_state ?? "—").toLowerCase()} />
             <Dato k="Ganancia de liquidez" v={`${num(whatif.liquidity_gain)} pts`} />
             <Dato k="Menos fragilidad" v={`${num(whatif.fragility_reduction)} pts`} />
           </div>

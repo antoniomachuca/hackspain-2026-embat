@@ -3,12 +3,12 @@
  * Si el motor no responde, `cargar()` devuelve null y la página cae al modo demo.
  */
 import {
-  apiEmpresa, apiHistoria, apiPeers, apiPalancas, apiRankings, apiWhatIf, apiEmpresasDeGrupo, apiGrupos, apiGrupo, apiEmpresas, apiSimular,
-  BLOQUES, type ApiEmpresa, type ApiSugerencia, type ApiPalanca, type ApiSimulateResponse, type ApiWhatIfResponse,
+  apiEmpresa, apiHistoria, apiPeers, apiPalancas, apiRankings, apiWhatIf, apiEmpresasDeGrupo, apiGrupos, apiGrupo, apiEmpresas, apiSimular, apiPrevisionEstructural,
+  BLOQUES, type ApiHistoria, type ApiReparto, type ApiEmpresa, type ApiSugerencia, type ApiPalanca, type ApiSimulateResponse, type ApiWhatIfResponse,
 } from "./api";
 import { eur, num } from "./format";
-import { pendiente, repartir, inflexionDe, EMPRESAS_CON_SCORE, simular } from "./data";
-import type { Driver, Empresa, Estado, Punto } from "./data";
+import { pendiente, inflexionDe, EMPRESAS_CON_SCORE, simular } from "./data";
+import type { Driver, DriverMes, Empresa, Estado, Punto, Reparto } from "./data";
 
 const ESTADOS: Record<string, Estado> = {
   MEJORANDO: "MEJORANDO", ESTABLE: "ESTABLE", TORCIENDOSE: "TORCIENDOSE",
@@ -197,7 +197,7 @@ export async function cargarEmpresa(id: string): Promise<Empresa | null> {
     trayectoria,
     peer: pr ? { etiqueta: pr.label, n: pr.n_companies } : undefined,
     trayectoriaPeer: pr?.history ? pr.history.map((p) => ({ mes: p.mes, mediana: p.mediana })) : undefined,
-    reparto: trayectoria.map((p, k) => repartir(serie, tends, k, p.mes)),
+    reparto: mapReparto(h?.history, trayectoria),
     inflexion,
     drivers: driversDe(e.waterfall, e),
     episodios: e.episodios,
@@ -557,3 +557,50 @@ export async function simularPalanca(
   };
 }
 
+/** Las tres sendas estructurales del motor, o null para que el gráfico caiga a la inercia. */
+export type Proyeccion = { alto: number[]; medio: number[]; bajo: number[] };
+
+export async function cargarPrevision(id: string, meses = 12): Promise<Proyeccion | null> {
+  const r = await apiPrevisionEstructural(id, meses);
+  const completa = (v?: number[]) => Array.isArray(v) && v.length === meses && v.every(Number.isFinite);
+  if (!r || !completa(r.alto) || !completa(r.medio) || !completa(r.bajo)) return null;
+  return { alto: r.alto, medio: r.medio, bajo: r.bajo };
+}
+
+/**
+ * El reparto viene calculado del motor: aquí solo se cambia de nombre de campo
+ * y se ata cada punto a su mes. Si el API todavía no lo sirve, o la malla no
+ * coincide con la trayectoria, se devuelve `undefined` y el anillo no aparece.
+ * Nunca se sustituye por `repartir()`: el cálculo del cliente es una regresión
+ * sobre el score y no distingue un recorte de gasto de un cobro adelantado.
+ */
+export function mapReparto(
+  history: ApiHistoria["history"] | undefined,
+  trayectoria: Punto[],
+): Reparto[] | undefined {
+  if (!history || history.length !== trayectoria.length) return undefined;
+  if (!history.some((p) => p.reparto)) return undefined;
+
+  return history.map((p, i) => {
+    const r: ApiReparto | undefined = p.reparto;
+    const mes = trayectoria[i].mes;
+    if (!r) return { mes, delta: 0, pctTendencia: 0, pctBache: 0, structPts: 0, circPts: 0, drivers: [] };
+    return {
+      mes,
+      delta: r.delta,
+      pctTendencia: r.pct_tendencia,
+      pctBache: r.pct_bache,
+      structPts: r.struct_pts,
+      circPts: r.circ_pts,
+      drivers: (r.drivers ?? []).map((d): DriverMes => ({
+        field: d.field,
+        etiqueta: d.etiqueta,
+        points: d.points,
+        kind: d.kind,
+        family: d.family,
+        reason: d.reason,
+        razon: d.razon,
+      })),
+    };
+  });
+}

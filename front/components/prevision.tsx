@@ -28,11 +28,12 @@ import type { Punto, PuntoPeer, Reparto, Inflexion } from "@/lib/data";
 const RANGOS = [6, 12, 24] as const;
 
 export function Prevision({
-  datos: datosTodos, momentum, peer, datosPeer: peerTodos, reparto: repartoTodo, inflexion,
+  datos: datosTodos, momentum, proyeccion, peer, datosPeer: peerTodos, reparto: repartoTodo, inflexion,
   meses = 12, alto = 320, ancho = 1120,
 }: {
   datos: Punto[];
   momentum: number;
+  proyeccion?: { alto: number[]; medio: number[]; bajo: number[] } | null;
   peer?: { etiqueta: string; n: number };
   datosPeer?: PuntoPeer[];
   reparto?: Reparto[];
@@ -47,11 +48,39 @@ export function Prevision({
   const reparto = repartoTodo?.slice(-rango);
   const hoy = datos[datos.length - 1].score;
 
+  // Con previsión estructural el camino lo dicta el motor: proyecta la cuenta
+  // y puntúa cada mes con el mismo score de producción. Sin ella, lo único
+  // honesto que queda es prolongar la inercia observada.
+  const completa = (v?: number[]) => Array.isArray(v) && v.length === meses;
+  const estructural = !!proyeccion && completa(proyeccion.alto) && completa(proyeccion.medio) && completa(proyeccion.bajo);
+
+  // Sin estructural la proyección no es una recta: se mueve con la volatilidad
+  // observada y cada escenario tiene su forma de llegar. Alto remonta pronto
+  // (ease-out), medio sigue la inercia, bajo aguanta y se desploma al final.
+  const saltos = datos.slice(1).map((d, i) => d.score - datos[i].score);
+  const mediaSalto = saltos.reduce((a, b) => a + b, 0) / (saltos.length || 1);
+  const vol = Math.min(4.5, Math.sqrt(saltos.reduce((a, b) => a + (b - mediaSalto) ** 2, 0) / (saltos.length || 1)));
+
+  // Las sendas del motor se pegan al último punto observado y se pintan tal
+  // cual: si un mes el pesimista queda por encima del central, así se dibuja.
+  // Reordenarlas a mano sería maquillar el resultado.
   const deriva = momentum * 14;
-  const central = clamp(hoy + deriva);
+  const inercia = clamp(hoy + deriva);
   const amplitud = 9 + Math.abs(momentum) * 13;
-  const arriba = clamp(central + amplitud);
-  const abajo = clamp(central - amplitud);
+  const sendas = estructural
+    ? {
+        Alto:  [hoy, ...proyeccion!.alto.map(clamp)],
+        Medio: [hoy, ...proyeccion!.medio.map(clamp)],
+        Bajo:  [hoy, ...proyeccion!.bajo.map(clamp)],
+      }
+    : {
+        Alto:  senda(hoy, clamp(inercia + amplitud), meses, 0.62, vol, 9001),
+        Medio: senda(hoy, inercia,                   meses, 0.92, vol, 9002),
+        Bajo:  senda(hoy, clamp(inercia - amplitud), meses, 1.45, vol, 9003),
+      };
+  const arriba = sendas.Alto[meses];
+  const central = sendas.Medio[meses];
+  const abajo = sendas.Bajo[meses];
 
   // El margen inferior guarda sitio para la tira; el área de trazado no cambia.
   const padL = 56, padR = 210, padT = 20, padB = 44;
@@ -63,7 +92,11 @@ export function Prevision({
   // Dominio vertical ajustado, con un respiro del 12 % a cada lado. Entra
   // también la mediana del cuartil: si se calcula solo con la empresa, la
   // línea de referencia se sale del lienzo justo cuando más se separan.
-  const valores = [...datos.map((d) => d.score), ...(datosPeer?.map((p) => p.mediana) ?? []), arriba, abajo];
+  const valores = [
+    ...datos.map((d) => d.score),
+    ...(datosPeer?.map((p) => p.mediana) ?? []),
+    ...sendas.Alto, ...sendas.Medio, ...sendas.Bajo,
+  ];
   const vMin = Math.min(...valores), vMax = Math.max(...valores);
   const margen = Math.max(6, (vMax - vMin) * 0.12);
   const lo = Math.max(0, vMin - margen), hi = Math.min(100, vMax + margen);
@@ -78,17 +111,6 @@ export function Prevision({
 
   const linea = datos.map((d, i) => `${i ? "L" : "M"}${x(i).toFixed(1)},${y(d.score).toFixed(1)}`).join(" ");
 
-  // La proyección no es una recta: se mueve con la volatilidad observada y
-  // cada escenario tiene su forma de llegar. Alto remonta pronto (ease-out),
-  // medio sigue la inercia, bajo aguanta y se desploma al final (ease-in).
-  const saltos = datos.slice(1).map((d, i) => d.score - datos[i].score);
-  const mediaSalto = saltos.reduce((a, b) => a + b, 0) / (saltos.length || 1);
-  const vol = Math.min(4.5, Math.sqrt(saltos.reduce((a, b) => a + (b - mediaSalto) ** 2, 0) / (saltos.length || 1)));
-  const sendas = {
-    Alto:  senda(hoy, arriba,  meses, 0.62, vol, 9001),
-    Medio: senda(hoy, central, meses, 0.92, vol, 9002),
-    Bajo:  senda(hoy, abajo,   meses, 1.45, vol, 9003),
-  };
   const pts = (vs: number[]) => vs.map((v, k) => `${x(nHist - 1 + k).toFixed(1)},${y(v).toFixed(1)}`);
   const traza = (vs: number[]) => `M${pts(vs).join(" L")}`;
   const cono = `M${pts(sendas.Alto).join(" L")} L${pts(sendas.Bajo).reverse().join(" L")} Z`;
@@ -140,6 +162,11 @@ export function Prevision({
           </div>
           <p className="mt-1 text-[12px] text-[var(--color-ink-3)]">
             Proyección a {meses} meses · escenario central
+          </p>
+          <p className="mt-0.5 text-[11px] text-[var(--color-ink-4)]">
+            {estructural
+              ? "Las tres sendas proyectan cobros, gastos y deuda, y puntúan cada mes"
+              : "Prolongación de la inercia observada: el motor no sirve previsión"}
           </p>
         </div>
         <div className="flex gap-1.5">
@@ -304,6 +331,26 @@ export function Prevision({
                   </p>
                 </div>
               </div>
+            )}
+            {/* Los tres factores que más movieron el mes. El anillo dice cuánto
+                se queda; esto dice de dónde sale, con las palabras del motor. */}
+            {hRep && hRep.drivers.length > 0 && (
+              <ul className="mt-1.5 space-y-0.5">
+                {[...hRep.drivers]
+                  .sort((a, b) => Math.abs(b.points) - Math.abs(a.points))
+                  .slice(0, 3)
+                  .map((d) => (
+                    <li key={d.field} className="flex items-baseline justify-between gap-4 text-[11px]">
+                      <span className="text-[var(--color-ink-2)]">
+                        {d.etiqueta}
+                        <span className="ml-1 text-[var(--color-ink-4)]">{d.razon || d.reason}</span>
+                      </span>
+                      <span className="tnum" style={{ color: d.kind === "estructural" ? "#b083e8" : "#dfb631" }}>
+                        {d.points >= 0 ? "+" : "−"}{num(Math.abs(d.points))}
+                      </span>
+                    </li>
+                  ))}
+              </ul>
             )}
           </div>
           );
