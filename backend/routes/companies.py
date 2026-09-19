@@ -578,7 +578,7 @@ def get_company_invoices(
             total_amount, pending_amount, currency, status, concept, counterparty_id
         FROM invoices
         {where_clause}
-        ORDER BY due_date DESC, issue_date DESC
+        ORDER BY due_date DESC, issue_date DESC, invoice_id ASC
         LIMIT ? OFFSET ?;
     """
     rows = query_dicts(inv_sql, tuple(params + [limit, offset]))
