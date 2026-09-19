@@ -61,9 +61,13 @@ export async function cargarEmpresa(id: string): Promise<Empresa | null> {
     estado: ESTADOS[e.state] ?? "ESTABLE",
     confianza: e.data_confidence_index >= 80 ? "ALTA" : e.data_confidence_index >= 40 ? "MEDIA" : "BAJA",
     mesesHistoria: trayectoria.filter((p) => p.score !== 50).length || trayectoria.length,
-    facturacionAnual: e.total_pending_amount * 12,   // FALTA: no hay facturación anual
-    dso: 0, dpo: 0, diasCaja: 0,                     // FALTA: no se exponen
-    utilizacionLinea: 0, hhiClientes: 0,             // FALTA: no se exponen
+    facturacionAnual: e.annual_revenue && e.annual_revenue > 0 ? e.annual_revenue : (e.total_pending_amount * 12),
+    saldoBancario: e.total_balance ?? undefined,
+    dso: e.dso ?? 0,
+    dpo: e.dpo ?? 0,
+    diasCaja: e.dias_caja ?? 0,
+    utilizacionLinea: e.line_utilization ?? 0,
+    hhiClientes: e.customer_hhi ?? 0,
     trayectoria,
     // El motor todavía no sirve el reparto tendencia/bache (ni el peer group).
     // Se deriva aquí de la serie real: la pendiente vigente es la parte

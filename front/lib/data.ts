@@ -70,6 +70,7 @@ export type Empresa = {
   confianza: "ALTA" | "MEDIA" | "BAJA";
   mesesHistoria: number;
   facturacionAnual: number;
+  saldoBancario?: number;
   dso: number;
   dpo: number;
   diasCaja: number;

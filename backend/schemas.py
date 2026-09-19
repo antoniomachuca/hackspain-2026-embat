@@ -76,6 +76,13 @@ class CompanyDetailResponse(BaseModel):
     total_pending_amount: float = Field(0.0, description="Volumen pendiente total de facturación")
     latest_alert: Optional[Dict[str, Any]] = Field(None, description="Última alerta de riesgo registrada")
     suggested_action: Optional[str] = Field(None, description="Recomendación o producto financiero sugerido")
+    dso: float = Field(0.0, description="Días de cobro pendientes (DSO)")
+    dpo: float = Field(0.0, description="Días de pago a proveedores (DPO)")
+    dias_caja: float = Field(0.0, description="Días de caja / Runway de liquidez")
+    annual_revenue: float = Field(0.0, description="Facturación anual estimada / observada")
+    line_utilization: float = Field(0.0, description="Utilización de línea de crédito (%)")
+    customer_hhi: Optional[float] = Field(None, description="Concentración de clientes (HHI)")
+    daily_burn: float = Field(0.0, description="Gasto operativo diario medio (€/día)")
 
 
 # -------------------------------------------------------------

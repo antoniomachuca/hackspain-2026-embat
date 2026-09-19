@@ -65,6 +65,13 @@ export type ApiEmpresa = {
   total_pending_amount: number;
   latest_alert: ApiAlert | null;
   suggested_action: string | null;
+  dso?: number;
+  dpo?: number;
+  dias_caja?: number;
+  annual_revenue?: number;
+  line_utilization?: number;
+  customer_hhi?: number | null;
+  daily_burn?: number;
 };
 
 export type ApiHistoria = {

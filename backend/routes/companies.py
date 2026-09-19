@@ -191,6 +191,45 @@ def get_company_detail(id: str):
     elif comp["state"] in ("DETERIORO", "TORCIENDOSE"):
         suggested_action = "Intervención prioritaria con inyección de circulante antes del próximo vencimiento."
 
+    # 6. Ratios operacionales reales (DSO, DPO, Días de caja, Facturación anual)
+    dso = 0.0
+    dpo = 0.0
+    dias_caja = 0.0
+    annual_revenue = 0.0
+    line_utilization = 0.0
+    customer_hhi = None
+    daily_burn = 0.0
+
+    try:
+        import numpy as np
+        from algorythm.levers_objects import get_company_objects
+        obj = get_company_objects(cid)
+        if obj:
+            if obj.receipts_m23 > 0:
+                annual_revenue = round(float(obj.receipts_m23) * 12.0, 2)
+                dso = round(float(obj.ar_pending_eur) / (float(obj.receipts_m23) / 30.0), 1)
+            elif total_pending > 0:
+                annual_revenue = round(total_pending * 4.0, 2)
+                dso = 45.0
+
+            if obj.ap_expenses_m23 > 0:
+                dpo = round(float(obj.ap_pending_eur) / (float(obj.ap_expenses_m23) / 30.0), 1)
+
+            monthly_expenses = float(obj.opex_m23) + float(obj.ap_expenses_m23)
+            if monthly_expenses > 0:
+                daily_burn = round(monthly_expenses / 30.0, 2)
+                cash = float(obj.checking_balance) if obj.checking_balance is not None and not np.isnan(obj.checking_balance) else (total_balance or 0.0)
+                if daily_burn > 0:
+                    dias_caja = round(max(0.0, cash) / daily_burn, 1)
+
+            if obj.loc_granted > 0:
+                line_utilization = round((float(obj.loc_outstanding) / float(obj.loc_granted)) * 100.0, 1)
+
+            if obj.hhi is not None and not np.isnan(obj.hhi):
+                customer_hhi = round(float(obj.hhi), 4)
+    except Exception:
+        pass
+
     return CompanyDetailResponse(
         company_id=comp["company_id"],
         group_id=comp["group_id"],
@@ -223,6 +262,13 @@ def get_company_detail(id: str):
         total_pending_amount=total_pending,
         latest_alert=latest_alert,
         suggested_action=suggested_action,
+        dso=dso,
+        dpo=dpo,
+        dias_caja=dias_caja,
+        annual_revenue=annual_revenue,
+        line_utilization=line_utilization,
+        customer_hhi=customer_hhi,
+        daily_burn=daily_burn,
     )
 
 

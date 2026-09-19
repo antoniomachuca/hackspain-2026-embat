@@ -10,7 +10,7 @@ import { Cabecera } from "@/components/shell";
 import { Waterfall, Sparkline } from "@/components/charts";
 import { Anillo } from "@/components/anillo";
 import { Prevision } from "@/components/prevision";
-import { Card, ScoreBadge, EstadoChip, Confianza, Delta, Boton } from "@/components/ui";
+import { Card, ScoreBadge, EstadoChip, Confianza, Delta, Boton, KPI } from "@/components/ui";
 
 function normalizarId(raw: string): string | null {
   const limpio = decodeURIComponent(raw).trim().toUpperCase();
@@ -98,6 +98,30 @@ export default async function EmpresaPage({
         }
       />
 
+      {/* ── Métricas Operativas de Circulante y Tesorería ───────────── */}
+      <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4 mb-5">
+        <KPI
+          etiqueta="Días de Caja (Runway)"
+          valor={`${num(e.diasCaja, 1)} d`}
+          nota={e.diasCaja < 15 ? "Liquidez tensionada (<15d)" : "Colchón de tesorería suficiente"}
+        />
+        <KPI
+          etiqueta="DSO (Plazo medio cobro)"
+          valor={`${num(e.dso, 1)} d`}
+          nota="Periodo medio clientes"
+        />
+        <KPI
+          etiqueta="DPO (Plazo medio pago)"
+          valor={`${num(e.dpo, 1)} d`}
+          nota="Periodo medio proveedores"
+        />
+        <KPI
+          etiqueta="Facturación Anual"
+          valor={eur(e.facturacionAnual)}
+          nota="Volumen anualizado observado"
+        />
+      </div>
+
       {/* ── Score de la Empresa y Trayectoria ─────────────────────── */}
       <div className="grid gap-5 xl:grid-cols-[296px_1fr]">
         <Card className="relative flex flex-col items-center overflow-hidden px-6 py-6">
@@ -123,7 +147,10 @@ export default async function EmpresaPage({
             </div>
 
             <div className="mt-4 w-full space-y-2 border-t border-[var(--color-line)] pt-4">
-              <Dato k="Saldo Bancario" v={eur(e.facturacionAnual > 0 ? e.facturacionAnual / 12 : 0)} />
+              <Dato k="Saldo Bancario" v={eur(e.saldoBancario ?? (e.facturacionAnual > 0 ? e.facturacionAnual / 12 : 0))} />
+              <Dato k="Días de Caja" v={`${num(e.diasCaja, 1)} días`} />
+              <Dato k="DSO / DPO" v={`${num(e.dso, 1)} d / ${num(e.dpo, 1)} d`} />
+              {e.utilizacionLinea > 0 && <Dato k="Utilización Línea" v={`${num(e.utilizacionLinea)}%`} />}
               <Dato k="Corte Analítico" v={MES_ACTUAL} />
               <Dato k="Grupo Corporativo" v={e.grupo} />
               <Dato k="Historia" v={`${e.mesesHistoria} meses`} />
