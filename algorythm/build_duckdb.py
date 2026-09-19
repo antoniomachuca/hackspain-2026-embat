@@ -25,7 +25,8 @@ import duckdb
 
 ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_DB_PATH = ROOT / "xray.duckdb"
-DATA_DIR = ROOT / "dataset"
+# The supplied challenge files live in data/; retain compatibility with older checkouts.
+DATA_DIR = ROOT / "data" if (ROOT / "data" / "companies.csv").exists() else ROOT / "dataset"
 RESULTS_DIR = ROOT / "algorythm" / "engine_results"
 
 

@@ -21,6 +21,7 @@ from backend.routes.alerts import router as alerts_router
 from backend.routes.companies import router as companies_router
 from backend.routes.stats import router as stats_router
 from backend.routes.whatif import router as whatif_router
+from backend.routes.forecasts import router as forecasts_router
 
 
 @asynccontextmanager
@@ -79,6 +80,7 @@ app.include_router(companies_router)
 app.include_router(whatif_router)
 app.include_router(alerts_router)
 app.include_router(stats_router)
+app.include_router(forecasts_router)
 
 
 @app.get("/", tags=["General"])

@@ -1,0 +1,13 @@
+{
+  "retrieved_at": "2026-09-19",
+  "rows": 135,
+  "response_sha256": {
+    "policy_rate": "c976fb7bc0f54e4d2a6a32cc9c0e8c5b280b36cb5313aca504dae15066e0c939",
+    "usd_eur": "d47446a20480b0290e955e5f204a8c501e2cec1bc86d1999d47888d0fa12c7de",
+    "industrial_production": "99f46ae76ca382452e3f7bcbc5fde8caecdf3487e8fbcb5f1d1c98f0f32edbeb",
+    "construction": "772d91b2e22ea95c661cd02c9089a1505601d5b3c708221166fc01ebc24c4496",
+    "retail": "829b6e77b6fe9773db4963de3a106e33edec44ecda859010a0a681cd143b6661"
+  },
+  "errors": [],
+  "strict_historical_use": "Dated ECB rate decisions eligible; FX lag assumptions excluded; revised Eurostat series available from retrieval."
+}

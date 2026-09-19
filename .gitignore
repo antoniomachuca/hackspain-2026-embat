@@ -76,4 +76,8 @@ data/
 *.duckdb.wal
 *.log
 
+# Reproducible forecast exports (large company panels); compact reports remain versioned.
+/algorythm/forecast_results/forecasts.json
+/algorythm/forecast_results/synthetic/
+/algorythm/forecast_sensitivity/
 

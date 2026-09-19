@@ -13,6 +13,7 @@ export const metadata: Metadata = {
 const NAV = [
   { href: '/', texto: 'La paradoja' },
   { href: '/cartera', texto: 'Cartera' },
+  { href: '/prevision', texto: 'Previsión' },
   { href: '/grupo/GROUP_0162', texto: 'Grupo' },
 ]
 
@@ -21,18 +22,18 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="es">
       <body>
         <header className="sticky top-0 z-50 border-b border-line bg-surface/85 backdrop-blur">
-          <div className="mx-auto flex h-14 max-w-6xl items-center gap-8 px-6">
+          <div className="mx-auto flex min-h-14 max-w-6xl flex-wrap items-center gap-x-6 gap-y-2 px-6 py-3 sm:flex-nowrap">
             <Link href="/" className="peso-medio tracking-tight">
               X<span className="text-agua-oscuro">-</span>Ray
             </Link>
-            <nav className="flex items-center gap-6 text-sm text-ink-2">
+            <nav className="flex flex-wrap items-center gap-4 text-sm text-ink-2">
               {NAV.map((n) => (
                 <Link key={n.href} href={n.href} className="transition-colors hover:text-ink">
                   {n.texto}
                 </Link>
               ))}
             </nav>
-            <span className="ml-auto rounded-full border border-line px-2.5 py-1 text-[11px] text-ink-2">
+            <span className="ml-auto hidden rounded-full border border-line px-2.5 py-1 text-[11px] text-ink-2 sm:block">
               {modoApi() === 'live' ? 'motor conectado' : 'datos de demostración'}
             </span>
           </div>

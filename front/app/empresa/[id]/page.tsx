@@ -56,6 +56,9 @@ export default async function Ficha({ params }: { params: Promise<{ id: string }
               mesDeteccion={alerta?.mes_deteccion}
               alto={230}
             />
+            <Link href={`/prevision?company=${encodeURIComponent(id)}`} className="mt-4 inline-block text-sm underline">
+              Explorar escenarios a 1, 3 y 6 meses →
+            </Link>
           </div>
 
           {s.frase && (
