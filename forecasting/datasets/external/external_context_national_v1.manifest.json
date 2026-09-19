@@ -1,0 +1,13 @@
+{
+  "retrieved_at": "2026-09-19",
+  "rows": 128,
+  "response_sha256": {
+    "policy_rate": "c976fb7bc0f54e4d2a6a32cc9c0e8c5b280b36cb5313aca504dae15066e0c939",
+    "usd_eur": "d47446a20480b0290e955e5f204a8c501e2cec1bc86d1999d47888d0fa12c7de",
+    "industrial_production": "99f46ae76ca382452e3f7bcbc5fde8caecdf3487e8fbcb5f1d1c98f0f32edbeb",
+    "hicp": "2c82a9c2ea1ba9b34e78491665b1163352d47e3f1772d95db5bfad597cdb9f22",
+    "unemployment": "14b5021cdfb7ec947869d0626eb310042683a8d7065b4439393b6711cc892c29"
+  },
+  "errors": [],
+  "note": "Eurostat values are the latest revision dated with assumed publication lags, not archived vintages. available_at is first day of the month after the observation month plus lag_days (45 for Eurostat monthly series, 7 for ECB FX)."
+}

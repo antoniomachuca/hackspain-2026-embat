@@ -1,0 +1,26 @@
+{
+  "comparison_key": "ddaff17380bc72b3a2ff861bc30972a5aa5eae3b9c93bfc7ee1a5b9ca68b82a8",
+  "candidates": {
+    "1": {
+      "model": "ridge",
+      "run_id": "53880df7cd3ee3f2",
+      "validation_macro_group_mae": 4.549597546130206
+    },
+    "3": {
+      "model": "trailing_mean",
+      "run_id": "53880df7cd3ee3f2",
+      "validation_macro_group_mae": 7.203968760640414
+    },
+    "6": {
+      "model": "ridge",
+      "run_id": "53880df7cd3ee3f2",
+      "validation_macro_group_mae": 9.866368412294227
+    }
+  },
+  "excluded": [
+    [
+      "equipo__extra-trees-v1.json",
+      "protocolo, datos, evaluaci\u00f3n o contexto diferentes"
+    ]
+  ]
+}

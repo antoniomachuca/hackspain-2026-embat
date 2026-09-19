@@ -22,6 +22,14 @@ from forecasting.registry import HOME, comparison_spec, digest
 from forecasting.stress import SCENARIOS
 
 
+def default_dataset():
+    root = HOME.parent
+    for name in ('data', 'dataset'):
+        if (root/name/'companies.csv').exists():
+            return root/name
+    return root/'data'
+
+
 def blind(samples):
     """Inference receives no future labels, including when explaining predictions."""
     return Samples(**{k: np.full_like(v, np.nan) if k == 'y' else v.copy() for k, v in vars(samples).items()})
@@ -96,7 +104,7 @@ def load_frozen_stress(directory):
     return panels, sha256(directory/'MANIFEST.json')
 
 
-def run(factory_spec, author, run_name, dataset, context, output, final_test=False):
+def run(factory_spec, author, run_name, dataset, context, output, final_test=False, allow_assumed=False):
     if not re.fullmatch(r'[a-zA-Z0-9_-]+', run_name) or not re.fullmatch(r'[a-zA-Z0-9_-]+', author):
         raise ValueError('author and run-name allow only letters, digits, underscores and hyphens')
     path = output/f'{author}__{run_name}.json'
@@ -114,10 +122,11 @@ def run(factory_spec, author, run_name, dataset, context, output, final_test=Fal
     companies, edges, bank, _ = load_bank_panel(dataset)
     dates = [d.isoformat() for d in edges[1:]]
     groups = split_groups(companies, protocol['seed'])
-    x, scores, eligible = feature_panel(bank, companies, dates, load_context(context))
+    x, scores, eligible = feature_panel(bank, companies, dates, load_context(context), allow_assumed)
     inputs = {name: sha256(dataset/name) for name in ('companies.csv', 'transactions.csv', 'banking_products.csv', 'debt_products.csv')}
     inputs['external_context'] = sha256(context)
-    comparison = comparison_spec(protocol, inputs, 'strict_point_in_time', groups)
+    mode = 'conservative_publication_lag' if allow_assumed else 'strict_point_in_time'
+    comparison = comparison_spec(protocol, inputs, mode, groups)
     stress, stress_hash = load_frozen_stress(HOME/'datasets/synthetic/v1')
     source = Path(inspect.getfile(module))
     source_hash = sha256(source)
@@ -169,7 +178,7 @@ def run(factory_spec, author, run_name, dataset, context, output, final_test=Fal
     for relative, recorded in shared_code.items():
         if sha256(HOME.parent/relative) != recorded:
             raise RuntimeError('Shared model code changed during training; rerun')
-    if comparison_spec(protocol, inputs, 'strict_point_in_time', groups) != comparison:
+    if comparison_spec(protocol, inputs, mode, groups) != comparison:
         raise RuntimeError('Common evaluation code changed during training; rerun')
     report['result_sha256'] = digest(report)
     output.mkdir(parents=True, exist_ok=True)
@@ -184,10 +193,13 @@ if __name__ == '__main__':
     parser.add_argument('--factory', required=True, help='Local Python module:function; see experiments/extra_trees.py')
     parser.add_argument('--author', required=True)
     parser.add_argument('--run-name', required=True)
-    parser.add_argument('--dataset', type=Path, default=HOME.parent/'data')
+    parser.add_argument('--dataset', type=Path, default=default_dataset())
     parser.add_argument('--context', type=Path, default=HOME/'datasets/external/external_context.csv')
     parser.add_argument('--output', type=Path, default=HOME/'benchmarks/runs')
     parser.add_argument('--final-test', action='store_true', help='Report diagnostic v1 test; never used for model selection')
+    parser.add_argument('--allow-assumed-publication', action='store_true',
+                        help='Include assumed_lag series (conservative_publication_lag mode)')
     args = parser.parse_args()
     with threadpool_limits(limits=2):
-        run(args.factory, args.author, args.run_name, args.dataset, args.context, args.output, args.final_test)
+        run(args.factory, args.author, args.run_name, args.dataset, args.context, args.output,
+            args.final_test, args.allow_assumed_publication)
