@@ -227,3 +227,107 @@ class HealthResponse(BaseModel):
     database: str
     tables_count: int
     timestamp: str
+
+
+# -------------------------------------------------------------
+# 7. Simulador de palancas (rescoring honesto · capa intermedia)
+# -------------------------------------------------------------
+
+class SimulateLeverItem(BaseModel):
+    id: str = Field(..., description="Id de palanca del catálogo", json_schema_extra={"example": "adelantar_cobros"})
+    amount_eur: Optional[float] = Field(None, description="Euros a adelantar / liberar")
+    pct: Optional[float] = Field(None, description="Fracción 0..1 para opex/refi/dpo/refunds")
+    haircut: Optional[float] = Field(None, description="Descuento / haircut sobre cobros")
+    descuento_pct: Optional[float] = None
+    opex_pct: Optional[float] = None
+    refi_pct: Optional[float] = None
+    dpo_pct: Optional[float] = None
+    couple_interest_pct: Optional[float] = Field(
+        None, description="Si amortizar_linea: fracción de debt_service a bajar"
+    )
+    agreement_type: Optional[str] = Field(
+        None, description="D2C/D3C: grupo_intragrupo | presion_comercial | contrato_ya_firmado | descuento | ..."
+    )
+    proposed_cost_pct: Optional[float] = None
+    euros: Optional[float] = None
+    days: Optional[int] = Field(None, description="Días de adelanto 7/15/30")
+    dias: Optional[int] = None
+    clientes: Optional[List[str]] = None
+    tasa_descuento: Optional[float] = None
+
+
+class SimulateRequest(BaseModel):
+    company_id: str = Field(..., json_schema_extra={"example": "COMP_0010"})
+    levers: List[SimulateLeverItem] = Field(..., min_length=1)
+
+
+class SimulateScoreSnapshot(BaseModel):
+    score: float
+    state: Optional[Any] = None
+    liquidity_points: Optional[float] = None
+    collections_points: Optional[float] = None
+    debt_points: Optional[float] = None
+    momentum_points: Optional[float] = None
+    is_prior: Optional[bool] = None
+
+
+class SimulateResponse(BaseModel):
+    company_id: str
+    as_of: str
+    month_mutated: int
+    model_version: str
+    baseline: SimulateScoreSnapshot
+    projected: SimulateScoreSnapshot
+    delta_score: Optional[float] = None
+    caja_liberada_eur: float
+    effects: List[Dict[str, Any]]
+    levers: List[Dict[str, Any]]
+    modo: Optional[str] = "contrafactual_de_corte"
+    warnings: Optional[List[str]] = None
+    eur_año: Optional[float] = None
+    delta_bps: Optional[float] = None
+    efecto_score_informativo: Optional[float] = None
+    assumptions: Optional[Dict[str, Any]] = None
+
+
+class PalancaItem(BaseModel):
+    id: str
+    familia: str
+    mutator: str
+    excluido_con: List[str] = []
+    es_aplicable: bool
+    motivo_rechazo: Optional[str] = None
+    needs_agreement: bool = False
+    agreement_types: List[str] = []
+
+
+class PalancasResponse(BaseModel):
+    company_id: str
+    as_of: str = "2026-09-01"
+    palancas: List[PalancaItem]
+
+
+class RankingRow(BaseModel):
+    id: str
+    familia: str
+    delta_score: Optional[float] = None
+    caja_liberada_eur: float = 0.0
+    eur_año: Optional[float] = None
+    days: Optional[int] = None
+    pct: Optional[float] = None
+    haircut: Optional[float] = None
+    agreement_type: Optional[str] = None
+    warnings: Optional[List[str]] = None
+    label: Optional[str] = None
+
+
+class RankingsResponse(BaseModel):
+    ok: bool = True
+    company_id: str
+    as_of: str
+    modo: Optional[str] = None
+    model_version: Optional[str] = None
+    n_sims: int = 0
+    sugerencias: List[Dict[str, Any]] = []
+    opciones_circulante: List[Dict[str, Any]] = []
+    recomendado: Optional[Dict[str, Any]] = None

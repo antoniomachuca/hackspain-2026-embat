@@ -22,6 +22,7 @@ from algorythm.telegram_notifier import (
 from algorythm.score_monitor import monitor_once
 from algorythm.telegram_charts import generate_company_chart
 from algorythm.score_whatif import simulate_whatif
+from algorythm.telegram_levers import apply_recommended, palancas_message, rankings_message
 
 
 def load_latest_scores():
@@ -64,6 +65,8 @@ def handle_start(chat_id, user_name=""):
         f"• 🔍 <code>/score &lt;ID&gt;</code> : Ficha financiera y waterfall de factores.\n"
         f"• 📊 <code>/grafica &lt;ID&gt;</code> : Evolución temporal en modo oscuro (24 meses).\n"
         f"• 💡 <code>/whatif &lt;ID&gt; [monto]</code> : Simulación contrafactual de rescate/factoring.\n"
+        f"• ⚙️ <code>/palancas &lt;ID&gt;</code> : Catálogo de palancas aplicables.\n"
+        f"• 🧪 <code>/simulate &lt;ID&gt;</code> : Rankings salud vs circulante (rescore real).\n"
         f"• 📜 <code>/alertas</code> : Ver las últimas 5 alertas emitidas por el monitor.\n"
         f"• ⚡ <code>/simular_alerta</code> : Probar alerta crítica con botones táctiles.\n"
         f"• ℹ️ <code>/status</code> : Estado de la cartera y cobertura de datos.\n"
@@ -83,6 +86,8 @@ def handle_help(chat_id):
         f"• <code>/score COMP_XXXX</code> - Ver ficha financiera, score (0-100), momentum y waterfall de factores.\n"
         f"• <code>/grafica COMP_XXXX</code> - Ver gráfico temporal de 24 meses en dark mode.\n"
         f"• <code>/whatif COMP_XXXX [monto]</code> - Simular inyección de liquidez / factoring Embat.\n"
+        f"• <code>/palancas COMP_XXXX</code> - Catálogo de palancas con es_aplicable.\n"
+        f"• <code>/simulate COMP_XXXX</code> - Rankings de palancas (ΔS vs caja).\n"
         f"• <code>/alertas</code> - Histórico de las 5 alertas más recientes del feed.\n"
         f"• <code>/simular_alerta</code> - Enviar una alerta de prueba con botones táctiles.\n"
         f"• <code>/status</code> - Estadísticas del monitor y cartera auditada.\n"
@@ -470,6 +475,36 @@ def handle_whatif_query(chat_id, company_id, amount=None):
     return send_telegram_message(chat_id, res['summary_html'], reply_markup=markup)
 
 
+def handle_palancas_query(chat_id, company_id):
+    send_chat_action(chat_id, action="typing")
+    cid = company_id.strip().upper()
+    try:
+        text, markup = palancas_message(cid)
+    except KeyError:
+        return send_telegram_message(chat_id, f"❌ Empresa <code>{cid}</code> no encontrada en el catálogo.")
+    return send_telegram_message(chat_id, text, reply_markup=markup)
+
+
+def handle_levers_rankings(chat_id, company_id):
+    send_chat_action(chat_id, action="typing")
+    cid = company_id.strip().upper()
+    try:
+        text, markup = rankings_message(cid)
+    except KeyError:
+        return send_telegram_message(chat_id, f"❌ Empresa <code>{cid}</code> no encontrada en el catálogo.")
+    return send_telegram_message(chat_id, text, reply_markup=markup)
+
+
+def handle_apply_recommended(chat_id, company_id):
+    send_chat_action(chat_id, action="typing")
+    cid = company_id.strip().upper()
+    try:
+        text, markup = apply_recommended(cid)
+    except KeyError:
+        return send_telegram_message(chat_id, f"❌ Empresa <code>{cid}</code> no encontrada en el catálogo.")
+    return send_telegram_message(chat_id, text, reply_markup=markup)
+
+
 def handle_callback_query(callback_query):
     cb_id = callback_query.get('id')
     data = callback_query.get('data', '')
@@ -490,6 +525,15 @@ def handle_callback_query(callback_query):
         chat_action = "upload_photo"
     elif action == 'cb_whatif':
         toast = f"⏳ Calculando simulación What-If de {cid}..."
+        chat_action = "typing"
+    elif action == 'cb_pal':
+        toast = f"⏳ Cargando palancas de {cid}..."
+        chat_action = "typing"
+    elif action == 'cb_rank':
+        toast = f"⏳ Rankeando palancas de {cid}..."
+        chat_action = "typing"
+    elif action == 'cb_rec':
+        toast = f"⏳ Aplicando palanca recomendada de {cid}..."
         chat_action = "typing"
     elif action == 'cb_drivers':
         toast = f"⏳ Extrayendo desglose Waterfall de {cid}..."
@@ -512,6 +556,12 @@ def handle_callback_query(callback_query):
         handle_score_query(chat_id, cid)
     elif action == 'cb_whatif' and cid:
         handle_whatif_query(chat_id, cid, None)
+    elif action == 'cb_pal' and cid:
+        handle_palancas_query(chat_id, cid)
+    elif action == 'cb_rank' and cid:
+        handle_levers_rankings(chat_id, cid)
+    elif action == 'cb_rec' and cid:
+        handle_apply_recommended(chat_id, cid)
     else:
         send_telegram_message(chat_id, f"Acción interactiva no reconocida: <code>{action}</code>")
 
@@ -609,6 +659,16 @@ def run_bot_polling(poll_interval=2.0, auto_monitor=True):
                             handle_whatif_query(chat_id, parts[1], amt)
                         else:
                             send_telegram_message(chat_id, "💡 Indica la empresa y opcionalmente el importe. Ejemplo: <code>/whatif COMP_0010</code> o <code>/whatif COMP_0010 50000</code>")
+                    elif cmd in ('/palancas', '/levers', '/palanca'):
+                        if len(parts) > 1:
+                            handle_palancas_query(chat_id, parts[1])
+                        else:
+                            send_telegram_message(chat_id, "⚙️ Indica el ID. Ejemplo: <code>/palancas COMP_0031</code>")
+                    elif cmd in ('/simulate', '/simular_palancas', '/rankings'):
+                        if len(parts) > 1:
+                            handle_levers_rankings(chat_id, parts[1])
+                        else:
+                            send_telegram_message(chat_id, "🧪 Indica el ID. Ejemplo: <code>/simulate COMP_0031</code>")
                     elif cmd.startswith('/score'):
                         if len(parts) > 1:
                             handle_score_query(chat_id, parts[1])

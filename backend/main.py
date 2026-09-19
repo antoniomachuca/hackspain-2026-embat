@@ -21,6 +21,8 @@ from backend.routes.alerts import router as alerts_router
 from backend.routes.companies import router as companies_router
 from backend.routes.stats import router as stats_router
 from backend.routes.whatif import router as whatif_router
+from backend.routes.simulate import router as simulate_router
+from backend.routes.palancas import router as palancas_router
 
 
 @asynccontextmanager
@@ -77,6 +79,8 @@ app.add_middleware(
 # -------------------------------------------------------------
 app.include_router(companies_router)
 app.include_router(whatif_router)
+app.include_router(simulate_router)
+app.include_router(palancas_router)
 app.include_router(alerts_router)
 app.include_router(stats_router)
 
@@ -96,6 +100,8 @@ def root():
                 "stats": "/api/stats",
                 "alerts": "/api/alerts",
                 "whatif": "/api/whatif",
+                "simulate": "/api/simulate",
+                "palancas": "/api/palancas",
                 "groups": "/api/groups",
                 "health": "/api/health",
             },
