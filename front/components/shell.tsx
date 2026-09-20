@@ -24,6 +24,7 @@ const I = {
             <rect x="3" y="13.5" width="7.5" height="7.5" rx="2" /><rect x="13.5" y="13.5" width="7.5" height="7.5" rx="2" /></>,
   grupo:  <><circle cx="12" cy="6" r="2.6" /><circle cx="5.5" cy="17" r="2.6" /><circle cx="18.5" cy="17" r="2.6" />
             <path d="M12 8.6v3.2M10 13.5 7.4 15.4M14 13.5l2.6 1.9" /></>,
+  chispa: <><path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8z" /><path d="M19 16l.7 1.8 1.8.7-1.8.7L19 21l-.7-1.8-1.8-.7 1.8-.7z" /></>,
 };
 
 type Modulo = { label: string; nota: string; icono: React.ReactNode; href?: string; hijos?: { href: string; label: string; icono: React.ReactNode }[] };
@@ -33,7 +34,7 @@ type Seccion = { titulo: string; modulos: Modulo[] };
 type Modo = "embat" | "empresa";
 
 function modoDe(path: string): Modo | null {
-  if (path === "/" || path.startsWith("/embat")) return "embat";
+  if (path === "/" || path.startsWith("/embat") || path.startsWith("/agente")) return "embat";
   if (/^\/(COMP_)?\d{1,4}(\/|$)/i.test(path) || path.startsWith("/empresa/")) return "empresa";
   return null;   // /grupos, /comparar… valen para los dos
 }
@@ -63,6 +64,7 @@ const seccionesDe = (modo: Modo, empresa: string): Seccion[] => [
             hijos: [
               { href: "/", label: "Cartera", icono: I.panel },
               { href: "/grupos", label: "Grupos", icono: I.grupo },
+              { href: "/agente", label: "Asistente", icono: I.chispa },
             ],
           }
         : {
@@ -70,6 +72,7 @@ const seccionesDe = (modo: Modo, empresa: string): Seccion[] => [
             hijos: [
               { href: `/${empresa}`, label: "Resumen", icono: I.panel },
               { href: `/${empresa}/grupo`, label: "Mi grupo", icono: I.grupo },
+              { href: `/${empresa}/asistente`, label: "Asistente", icono: I.chispa },
             ],
           },
       { label: "Gestión de contrapartes", nota: "Gestiona tus relaciones financieras", icono: I.escudo },
@@ -99,6 +102,7 @@ const seccionesDe = (modo: Modo, empresa: string): Seccion[] => [
 /** Qué entrada del submenú se enciende. Las raíces ("/" y "/COMP_xxxx") solo en exacto o en sus fichas. */
 function activoHijo(href: string, path: string, empresa: string): boolean {
   if (href === "/") return path === "/" || path.startsWith("/embat");
+  if (href === "/agente") return path.startsWith("/agente");
   if (href === `/${empresa}`) return path === href || path.startsWith("/empresa/");
   return path.startsWith(href);
 }
