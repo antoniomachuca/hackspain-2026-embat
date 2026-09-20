@@ -4,10 +4,10 @@ Documento de conocimiento interno. Lo leen agentes (y humanos que implementan o 
 
 **Maestro de alcance (seis preguntas):** [`PRODUCTO-MAESTRO.md`](PRODUCTO-MAESTRO.md) — prevalece sobre [`PRODUCTO.md`](PRODUCTO.md) y [`REQUISITOS.md`](REQUISITOS.md) en lo que se contradiga.  
 **Comprador, hueco y narrativa (contexto):** [`PRODUCTO.md`](PRODUCTO.md).  
-**Demo / integridad de cifras:** [`.agents/factorwow.md`](.agents/factorwow.md).  
+**Demo / integridad de cifras:** [`.agents/factorwow.md`](../.agents/factorwow.md).  
 **Front (rutas y modos):** `front/components/shell.tsx`, `front/lib/cartera.ts`, `front/components/ficha-empresa.tsx`.  
 **API:** `backend/routes/` (`companies`, `stats`, `simulate`, `palancas`, `graph`, `forecasts`, `alerts`).  
-**Palancas (contrato de dominio):** `research/capa_intermedia_mejoras.md`, `research/capa_intermedia_decisiones.md`, `respuestas_a_pedro.md`.  
+**Palancas (contrato de dominio):** `research/capa_intermedia_mejoras.md`, `research/capa_intermedia_decisiones.md`, `docs/respuestas_a_pedro.md`.  
 **Marcas en trayectoria:** `research/dos_puntos_trayectoria.md`, `algorythm/EPISODIOS.md`.  
 **Anillo bache/tendencia (front):** `research/guia_front_reparto_bache_tendencia.md`.  
 **Abanico estructural (front):** `forecasting/GUIA_FRONT_ESTRUCTURAL.md`.
@@ -252,7 +252,7 @@ Research: `research/producto_research_quirce.md`.
 
 ## 14. Demo e integridad (factorwow)
 
-Reglas no negociables ([`.agents/factorwow.md`](.agents/factorwow.md)):
+Reglas no negociables ([`.agents/factorwow.md`](../.agents/factorwow.md)):
 
 1. Todo número en pantalla sale de `/score`, `/simulate`, `/alerts` o history/forecast API.
 2. Una sola fuente: si dos pantallas discrepan, es bug.

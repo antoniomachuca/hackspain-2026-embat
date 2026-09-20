@@ -72,7 +72,7 @@
   > "En el mes 24, ambas empresas presentan notas estáticas parecidas (65 vs 68). Sin embargo, nuestro motor incorpora el componente de **Momentum ($M \in [-1, 1]$)** y el filtro de persistencia temporal:  
   > - **Northbrook Foods** asciende de 45 a 65 y se clasifica en `RECUPERACION` (o `MEJORANDO`): acumula tres meses consecutivos con momentum positivo ($M > +0.10$), lo que le otorga una bonificación de hasta $+8$ puntos sobre su base, consolidando la expansión de sus flujos netos trimestrales.  
   > - **Velasco Industrial** cae de 82 a 68 y se clasifica en `TORCIENDOSE`: a pesar de conservar un nivel aceptable ($\ge 60$), arrastra tres meses consecutivos de momentum negativo ($M < -0.10$) y tensión de circulante.  
-  > En la pantalla de [Comparador (`/comparar`)](front/app/comparar/page.tsx) se visualizan frente a frente: una foto fija no las distingue, pero nuestra curva temporal y anillo de estado evidencian que Northbrook es una oportunidad y Velasco un riesgo inminente."
+  > En la pantalla de [Comparador (`/comparar`)](../front/app/comparar/page.tsx) se visualizan frente a frente: una foto fija no las distingue, pero nuestra curva temporal y anillo de estado evidencian que Northbrook es una oportunidad y Velasco un riesgo inminente."
 
 ---
 
@@ -122,7 +122,7 @@
   > "En `algorythm/build_duckdb.py` y `backend/routes/companies.py`, el score consolidado del grupo combina la media ponderada de las filiales con la situación del eslabón más vulnerable:  
   > $$S_{\text{grupo}} = 0.65 \cdot \bar{S}_{\text{filiales}} + 0.35 \cdot \min(S_{\text{filiales}})$$  
   > Si cualquier filial desciende a zona crítica ($S < 40$), el motor aplica una **penalización adicional por riesgo de contagio intragrupo**.  
-  > Esto permite que en la [Ficha de Grupo (`/grupo/[id]`)](front/app/grupo/%5Bid%5D/page.tsx) se distinga de inmediato si un holding sólido tiene una filial drenando recursos de las demás."
+  > Esto permite que en la [Ficha de Grupo (`/grupo/[id]`)](../front/app/grupo/%5Bid%5D/page.tsx) se distinga de inmediato si un holding sólido tiene una filial drenando recursos de las demás."
 
 ---
 
@@ -131,7 +131,7 @@
 * **Respuesta exacta:**
   > "Las contrapartes en `transactions.csv` son hashes anonimizados que no cruzan directamente entre entidades ($0.0\%$ de cruce por ID).  
   > Por ello, en `backend/routes/graph.py` implementamos un **algoritmo de inferencia determinista por emparejamiento de tesorería**: detectamos transacciones donde una filial A presenta una salida de caja y una filial B del mismo holding registra una entrada exactamente el mismo día y por el mismo importe ($\ge 500$ €).  
-  > Estadísticamente, este patrón ocurre **24 veces más frecuentemente dentro del mismo grupo que entre grupos no vinculados** (4,5 frente a 0,19 coincidencias por par). Un par con $\ge 2$ coincidencias tiene únicamente un **1,6% de probabilidad de ser ruido**. Con estas conexiones inferidas renderizamos el grafo interactivo D3 en la pantalla [`/grafo`](front/app/grafo/page.tsx)."
+  > Estadísticamente, este patrón ocurre **24 veces más frecuentemente dentro del mismo grupo que entre grupos no vinculados** (4,5 frente a 0,19 coincidencias por par). Un par con $\ge 2$ coincidencias tiene únicamente un **1,6% de probabilidad de ser ruido**. Con estas conexiones inferidas renderizamos el grafo interactivo D3 en la pantalla [`/grafo`](../front/app/grafo/page.tsx)."
 
 ---
 

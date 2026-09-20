@@ -172,11 +172,11 @@ Este documento formaliza los requisitos funcionales y no funcionales del sistema
 
 ## 4. Módulo B3 · Motor de Scoring Continuo, Momentum y Estados
 
-> **Estado de Implementación:** El motor algorítmico y la formulación matemática ya están **100% implementados, validados y testeados en producción interna** en [`algorythm/score_engine.py`](algorythm/score_engine.py), con especificación formal en [`algorythm/formula/score_financiero.pdf`](algorythm/formula/score_financiero.pdf) y benchmark reproducible en [`algorythm/engine_results/`](algorythm/engine_results/) pasando 30/30 tests de contrato. No es una propuesta futura: es código operativo en `main`.
+> **Estado de Implementación:** El motor algorítmico y la formulación matemática ya están **100% implementados, validados y testeados en producción interna** en [`algorythm/score_engine.py`](../algorythm/score_engine.py), con especificación formal en [`algorythm/formula/score_financiero.pdf`](../algorythm/formula/score_financiero.pdf) y benchmark reproducible en [`algorythm/engine_results/`](../algorythm/engine_results/) pasando 30/30 tests de contrato. No es una propuesta futura: es código operativo en `main`.
 
 ### REQ-B3.1: Formulación Global del Score Axiomático
 - **Descripción:** Ejecutar la ecuación maestra que integra el nivel base, la inercia temporal, el crecimiento de calidad y la penalización de fragilidad.
-- **Estado:** **IMPLEMENTADO Y VALIDADO** en [`algorythm/score_engine.py`](algorythm/score_engine.py).
+- **Estado:** **IMPLEMENTADO Y VALIDADO** en [`algorythm/score_engine.py`](../algorythm/score_engine.py).
 - **Prioridad:** P0
 - **Dependencias:** REQ-B1.2 a REQ-B1.5, REQ-B2.2.
 - **Entradas:** Vectores normalizados $L_t, C_t, D_t, M_t, G_t, F_t$.
@@ -214,7 +214,7 @@ Este documento formaliza los requisitos funcionales y no funcionales del sistema
 
 ### REQ-B4.1: Descomposición Aditiva Exacta sin Cajas Negras
 - **Descripción:** Descomponer el score mensual en sus seis contribuciones exactas en puntos sin utilizar aproximaciones locales opacas (SHAP o LIME).
-- **Estado:** **IMPLEMENTADO Y VALIDADO** en [`algorythm/score_engine.py`](algorythm/score_engine.py) (campo `clipping_points` y sumatorio exacto).
+- **Estado:** **IMPLEMENTADO Y VALIDADO** en [`algorythm/score_engine.py`](../algorythm/score_engine.py) (campo `clipping_points` y sumatorio exacto).
 - **Prioridad:** P0
 - **Dependencias:** REQ-B3.1.
 - **Entradas:** Componentes del score y residuo de clipping.

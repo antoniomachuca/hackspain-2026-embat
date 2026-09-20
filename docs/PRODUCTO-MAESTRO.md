@@ -3,7 +3,7 @@
 > **Este es el documento maestro del producto.** Lo acordó el equipo el 19-sep-2026 y
 > **prevalece sobre cualquier otro documento** ([`PRODUCTO.md`](PRODUCTO.md),
 > [`REQUISITOS.md`](REQUISITOS.md) y el research): si algo se contradice, manda este.
-> El front que lo implementa vive en [`front/`](front/README.md).
+> El front que lo implementa vive en [`front/`](../front/README.md).
 
 **Última actualización:** 2026-09-19
 
@@ -72,7 +72,7 @@ el sistema.
 **Cómo:** un gráfico que muestra la probabilidad de que la empresa suba o baje su score
 financiero en los próximos meses, en base a la tendencia de la empresa y la del sector.
 
-![Gráfico de previsión del score](front/public/grafico-preveer.png)
+![Gráfico de previsión del score](../front/public/grafico-preveer.png)
 
 ---
 

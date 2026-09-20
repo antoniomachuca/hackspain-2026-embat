@@ -7,7 +7,7 @@ Documento de conocimiento interno. Lo leen agentes (y humanos que implementan o 
 **Código canónico del score:** `algorythm/score_engine.py` (`calculate_scores`, `ScoreConfig`).  
 **Ingesta del panel:** `algorythm/score_data.py`.  
 **Estados:** `algorythm/score_states.py` (`classify_states`, `StateConfig`).  
-**Firma congelada y 41 claves de salida:** `respuestas_a_pedro.md`.  
+**Firma congelada y 41 claves de salida:** `docs/respuestas_a_pedro.md`.  
 **Whitepaper (intención + fórmulas, a veces stale):** `algorythm/formula/score_financiero.tex`.  
 **Brief original (lo que se diseñó antes de ver el dato):** `research/algo_research_pedro.md`.  
 **Exploración que tumba varias piezas del brief:** `research/informe_exploracion.md`.  

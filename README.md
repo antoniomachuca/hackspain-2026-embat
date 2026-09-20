@@ -4,6 +4,8 @@ Sistema de scoring de salud financiera, monitorización de trayectorias de tesor
 
 Desarrollado para el track de **Embat** en **HackSpain 2026** (18–20 de septiembre de 2026, ETSIT UPM, Madrid).
 
+Fuentes internas (mates, producto, contrato del motor, guía del jurado): [`docs/`](docs/README.md).
+
 ---
 
 ## 1. Enunciado del Track
@@ -246,6 +248,9 @@ flowchart TD
 
 ```text
 .
+├── docs/                       # Fuentes internas: mates, producto, jurado
+├── research/                   # Investigación previa y decisiones de diseño
+├── .agents/                    # Enunciado, factor WOW e ideas para agentes
 ├── algorythm/                  # Núcleo del motor algorítmico
 │   ├── score_engine.py         # Fórmula continua de scoring (L, C, D, M, G, F)
 │   ├── score_states.py         # Clasificador en 6 estados analíticos y filtro de ruido

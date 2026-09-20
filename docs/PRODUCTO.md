@@ -5,9 +5,9 @@
 > como contexto de comprador, arquitectura, reparto y pitch.
 
 **Alcance:** el producto, el comprador y la narrativa.
-El algoritmo vive en [`research/algo_research_pedro.md`](research/algo_research_pedro.md).
+El algoritmo vive en [`research/algo_research_pedro.md`](../research/algo_research_pedro.md).
 **Última actualización:** 2026-09-18 (rev. 2, con el dataset explorado — ver
-[`research/informe_exploracion.md`](research/informe_exploracion.md))
+[`research/informe_exploracion.md`](../research/informe_exploracion.md))
 
 ---
 

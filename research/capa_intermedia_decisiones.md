@@ -794,7 +794,7 @@ Orden de construcción sugerido (todo acaba en el producto):
 
 ## 11. Contrato con el motor · respuestas verificadas Carlos/Antonio (2026-09-19)
 
-Fuente canónica en repo: [`respuestas_a_pedro.md`](../respuestas_a_pedro.md). Congelado aquí lo que afecta a implementación.
+Fuente canónica en repo: [`respuestas_a_pedro.md`](../docs/respuestas_a_pedro.md). Congelado aquí lo que afecta a implementación.
 
 ### 11.0 Tabla rápida
 

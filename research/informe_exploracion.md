@@ -2,7 +2,7 @@
 
 **Fecha:** 2026-09-18 · **Fuente:** los nueve ficheros de `dataset/` (2.526.598 movimientos,
 897.894 facturas, 1.286 empresas, 250 grupos). Cifras calculadas, no estimadas.
-Cumple RF-B0.3 y RF-B0.4 de [`REQUISITOS.md`](../REQUISITOS.md).
+Cumple RF-B0.3 y RF-B0.4 de [`REQUISITOS.md`](../docs/REQUISITOS.md).
 
 ---
 
