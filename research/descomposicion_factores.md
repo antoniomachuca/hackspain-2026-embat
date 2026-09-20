@@ -1,7 +1,7 @@
 # Descomposición estructural vs coyuntural
 
 **Rama:** `feat/descomposicion-factores`  
-**Algoritmo:** `algorythm/score_decompose.py`  
+**Algoritmo:** `algorithm/score_decompose.py`  
 **Guía para implementar el gráfico (front):** [`guia_front_reparto_bache_tendencia.md`](guia_front_reparto_bache_tendencia.md)
 
 Esta nota es el research. La guía de front es el contrato de producto. No reimplementar esto en TypeScript.
@@ -49,7 +49,7 @@ El estructural v2 (`φ=0.8` hacia la media a 12) también es un suavizado, pero 
 | `fotocopia_3m` | run-rate a 3m vs observado, ambos por `f` | flujos, no taxonomía |
 | `factor_formula` | contrafactual secuencial por campo + prior salud/circulante + overrides | `f` + taxonomía + DSO/YoY/conservación de suma |
 
-Código: `algorythm/score_decompose.py`. Tests: `algorythm/test_score_decompose.py`.
+Código: `algorithm/score_decompose.py`. Tests: `algorithm/test_score_decompose.py`.
 
 Overrides del prior:
 
@@ -105,12 +105,12 @@ mar · −5,5 pts · cobros −10,1 (agujero) · arrastre +4,6 (ventana)
 
 ## 6. Si esto sale del laboratorio
 
-El cálculo y el JSON ya están: `history_with_reparto` / `factor_to_reparto` en `algorythm/score_decompose.py`. Fixture de contrato: `research/fixtures/reparto_demo.json`. Guía de front: [`guia_front_reparto_bache_tendencia.md`](guia_front_reparto_bache_tendencia.md).
+El cálculo y el JSON ya están: `history_with_reparto` / `factor_to_reparto` en `algorithm/score_decompose.py`. Fixture de contrato: `research/fixtures/reparto_demo.json`. Guía de front: [`guia_front_reparto_bache_tendencia.md`](guia_front_reparto_bache_tendencia.md).
 
 Este PR no toca FastAPI a propósito. Quien tenga `companies.py`, el gancho es anidar el dict en cada `HistoryPoint`:
 
 ```python
-from algorythm.score_decompose import factor_to_reparto, attribute_month, empty_reparto
+from algorithm.score_decompose import factor_to_reparto, attribute_month, empty_reparto
 # por mes t>0: HistoryPoint(..., reparto=factor_to_reparto(attribute_month(bank, t, ...)))
 # mes 0: empty_reparto()
 ```

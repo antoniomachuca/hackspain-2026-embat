@@ -55,8 +55,8 @@
         "forecasting/context.py": "ae78c8b465db6ed4b9c3954ea6d397a7f9a1b614bd72191a5fc027393466f801",
         "forecasting/country.py": "36f74ce711c050a89a01842a239f0686df0ad3b7d829b57db240b41f72fd01e6",
         "forecasting/benchmark.py": "4579eb16c28b8cb23f0c6463587c6df4a976772e6b3744126708b1f50c9beec0",
-        "algorythm/score_engine.py": "f65e2bea2acb625e667769086c470cd537702bf59c7b1e7a77d1612f733d4370",
-        "algorythm/score_data.py": "c5b950723c22033d24155faca8dfaeb3335062e871ffa8f239061ffa2c9e5a87"
+        "algorithm/score_engine.py": "f65e2bea2acb625e667769086c470cd537702bf59c7b1e7a77d1612f733d4370",
+        "algorithm/score_data.py": "c5b950723c22033d24155faca8dfaeb3335062e871ffa8f239061ffa2c9e5a87"
       }
     }
   },

@@ -46,11 +46,11 @@
     "forecasting/context.py": "234d5e942d82f5b37eb42164ec709e09e87c8053a80c72139af4662a1e4a3fe2",
     "forecasting/data.py": "9a10a4292615276869d5cb05390efcd9ff9f6790ccfe09bb95fbf98e454a7870",
     "forecasting/adapters.py": "7713e077e9aa873c78646dcad03fb1ef414060dbe4a0cabb8c25427989774db2",
-    "algorythm/score_engine.py": "f65e2bea2acb625e667769086c470cd537702bf59c7b1e7a77d1612f733d4370",
-    "algorythm/score_data.py": "c5b950723c22033d24155faca8dfaeb3335062e871ffa8f239061ffa2c9e5a87",
-    "algorythm/score_states.py": "94440bb14157cd65e61a5f171770918fff4d4c57d11a4b3c733c454ec16b4072",
-    "algorythm/score_monitor.py": "d0e2b42e7eebd5dd620a17a5b2f17fd5fd5c95ec2b0072a25c9d42a974911641",
-    "algorythm/behavior_benchmark.py": "de6819d27e483c991046249cc1466a633e6d0fae1058296eea5ab4ef6d49de84",
+    "algorithm/score_engine.py": "f65e2bea2acb625e667769086c470cd537702bf59c7b1e7a77d1612f733d4370",
+    "algorithm/score_data.py": "c5b950723c22033d24155faca8dfaeb3335062e871ffa8f239061ffa2c9e5a87",
+    "algorithm/score_states.py": "94440bb14157cd65e61a5f171770918fff4d4c57d11a4b3c733c454ec16b4072",
+    "algorithm/score_monitor.py": "d0e2b42e7eebd5dd620a17a5b2f17fd5fd5c95ec2b0072a25c9d42a974911641",
+    "algorithm/behavior_benchmark.py": "de6819d27e483c991046249cc1466a633e6d0fae1058296eea5ab4ef6d49de84",
     "forecasting/protocol.json": "829485e14def2374c2d5d938d32686a4f61a433292c4bcbbfb949dbb50af87eb",
     "forecasting/policy_rates.json": "c976fb7bc0f54e4d2a6a32cc9c0e8c5b280b36cb5313aca504dae15066e0c939"
   },
@@ -17822,8 +17822,8 @@
         "forecasting/data.py": "9a10a4292615276869d5cb05390efcd9ff9f6790ccfe09bb95fbf98e454a7870",
         "forecasting/context.py": "234d5e942d82f5b37eb42164ec709e09e87c8053a80c72139af4662a1e4a3fe2",
         "forecasting/benchmark.py": "a1f13cfc80a06b0a72b023329dfbc6d7bcce20a644872862e123b8d12c46564e",
-        "algorythm/score_engine.py": "f65e2bea2acb625e667769086c470cd537702bf59c7b1e7a77d1612f733d4370",
-        "algorythm/score_data.py": "c5b950723c22033d24155faca8dfaeb3335062e871ffa8f239061ffa2c9e5a87"
+        "algorithm/score_engine.py": "f65e2bea2acb625e667769086c470cd537702bf59c7b1e7a77d1612f733d4370",
+        "algorithm/score_data.py": "c5b950723c22033d24155faca8dfaeb3335062e871ffa8f239061ffa2c9e5a87"
       }
     }
   },

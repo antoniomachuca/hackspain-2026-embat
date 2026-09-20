@@ -40,12 +40,12 @@ que ya está construido** y no se estaba enseñando.
 
 ## 2. Lo que ya está construido y la v1 no usaba
 
-Esto no hay que inventarlo: está en `algorythm/` y se puede abrir en pantalla si alguien
+Esto no hay que inventarlo: está en `algorithm/` y se puede abrir en pantalla si alguien
 pregunta. Es la munición del WOW.
 
 | Ya existe | Dónde | Qué habilita en la demo |
 | :--- | :--- | :--- |
-| **La paradoja del mes 24, resuelta numéricamente**: a niveles casi idénticos (65 vs 68), la trayectoria separa las dos empresas | `algorythm/test_score_engine.py:141` (`test_named_opposite_trajectories_overcome_similar_final_levels`) | Acto 1 sin inventar nada |
+| **La paradoja del mes 24, resuelta numéricamente**: a niveles casi idénticos (65 vs 68), la trayectoria separa las dos empresas | `algorithm/test_score_engine.py:141` (`test_named_opposite_trajectories_overcome_similar_final_levels`) | Acto 1 sin inventar nada |
 | **Descomposición exacta**: `score = Σ contribuciones`, y `Δscore = Σ Δbloques` con error 0, **incluido el recorte en los bordes** (`clipping_points`) | `score_engine.py:241-247`, test `test_score_range_finiteness_and_exact_waterfall` (`test_score_engine.py:19`) | Acto 2: el "por qué" es el propio modelo, no un SHAP |
 | **Momentum simétrico y con puerta de persistencia**: sube y baja igual, y un mes suelto no lo activa | `bounded_momentum` (`score_engine.py:103`), tests `:105` y `:111` | Actos 3 y 4: dos caras y *bache ≠ deterioro* |
 | **Estado de datos insuficientes**: `is_prior` marca la empresa como "scoring pendiente" en vez de emitir un número falso | `score_engine.py:252`, test `:43` | El 32 % de empresas con <12 meses no rompe la demo (§3, acto 1) |
@@ -108,7 +108,7 @@ especialista de datos de Embat va a comprobar.
 nuestro, y se puede reconstruir."*
 **Regla de integridad.** Se mide **solo sobre las 373 empresas con 24 meses** (29 %,
 `informe_exploracion.md` §1) y se dice. El test del control exige `lead_months >= 3`
-(`test_score_engine.py:129`); ojo, ese test importa `algorythm.validate_score`, que **no está
+(`test_score_engine.py:129`); ojo, ese test importa `algorithm.validate_score`, que **no está
 en el árbol** (§7).
 
 ### Acto 5 · El what-if en euros — de "sé que estás mal" a "esto es lo que ganas"
@@ -248,10 +248,10 @@ reescribe: se dice el del motor.
 
 | Aviso | Evidencia | Acción |
 | :--- | :--- | :--- |
-| **`algorythm/validate_score.py` no está en el árbol** y el test de anticipación lo importa | `test_score_engine.py:130` importa `algorythm.validate_score.stress_control`; solo hay `__pycache__/validate_score...pyc` | Commitearlo o el acto 4 no es reproducible y el test cae |
+| **`algorithm/validate_score.py` no está en el árbol** y el test de anticipación lo importa | `test_score_engine.py:130` importa `algorithm.validate_score.stress_control`; solo hay `__pycache__/validate_score...pyc` | Commitearlo o el acto 4 no es reproducible y el test cae |
 | **El ERP solo se calcula como snapshot a 2026-09-01** y está desactivado por defecto | `calc_score.py:26-29` (`erp_snapshot=False`, `'disabled_without_verified_direction_and_historical_states'`) | No enseñar drivers de DSO/retraso de pago **antes** de sep-2026 como si fueran mensuales. Si el acto 1 quiere DSO en el mes 18, es trabajo de B1 |
 | **Simetría parcial**: crecimiento unilateral `max(x,0)`, fragilidad solo resta, recorte 0–100 | `score_engine.py:221-233` | Montar el CA de simetría (RF-B13.6) antes de vender "dos caras"; si sale mal, matizarlo en el acto 3 |
-| **Los ficheros del benchmark (`score_v2.py`, `quant_analysis.py`…) citados en `__pycache__` no están versionados** | `algorythm/benchmark/__pycache__/*` sin fuentes | Confirmar qué es la versión buena antes de que el jurado abra el repo |
+| **Los ficheros del benchmark (`score_v2.py`, `quant_analysis.py`…) citados en `__pycache__` no están versionados** | `algorithm/benchmark/__pycache__/*` sin fuentes | Confirmar qué es la versión buena antes de que el jurado abra el repo |
 | **La demo en vivo no puede depender de red** | RNF-1, RF-B7.7 | Fixture offline + PDF/captura de respaldo del dossier y del resultado de `/simulate` |
 
 ---

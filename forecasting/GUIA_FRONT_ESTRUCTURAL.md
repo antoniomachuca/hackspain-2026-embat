@@ -67,8 +67,8 @@ Alto = cuenta que **ayuda** al score (más cobros, menos gastos, menos deuda). B
 |---|---|---|
 | Algoritmo | `forecasting/structural.py` | Proyecta flujos + puntúa |
 | Factory del lab | `forecasting/experiments/structural_v1.py` | Nombre `structural_v2` |
-| Motor de score (congelado) | `algorythm/score_engine.py` → `calculate_scores` | Convierte un mes de cuenta en score 0–100 |
-| Panel bancario | `algorythm/score_data.py` → `load_bank_panel` | Cobros, pagos, deuda, refunds, quality… |
+| Motor de score (congelado) | `algorithm/score_engine.py` → `calculate_scores` | Convierte un mes de cuenta en score 0–100 |
+| Panel bancario | `algorithm/score_data.py` → `load_bank_panel` | Cobros, pagos, deuda, refunds, quality… |
 | Runs del lab | `forecasting/benchmarks/runs/pedro__structural-v2.json` | Métricas 1/3/6 meses, **no** series para el gráfico |
 | Informe | `forecasting/benchmarks/structural-v2/REPORT.md` | Qué ganó/perdió vs Ridge |
 
@@ -188,7 +188,7 @@ Esqueleto conceptual (nombres reales del repo):
 from forecasting.structural import (
     StructuralForecaster, build_projected_bank, scenario_paths,
 )
-from algorythm.score_engine import calculate_scores
+from algorithm.score_engine import calculate_scores
 
 horizon = 12
 model = StructuralForecaster(horizon)          # carga panel de data/ o dataset/

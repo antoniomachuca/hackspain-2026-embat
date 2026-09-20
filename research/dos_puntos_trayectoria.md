@@ -43,7 +43,7 @@ Las hipótesis que **no** entran como marca: pendiente que “baja mucho”, cru
 
 ### 2.1 Estados observados (congelados)
 
-Siguen saliendo de `classify_states` (`algorythm/score_states.py`). **No se añaden hermanos a `NEGATIVE_STATES`.**
+Siguen saliendo de `classify_states` (`algorithm/score_states.py`). **No se añaden hermanos a `NEGATIVE_STATES`.**
 
 | `state` | Uso en este sistema |
 | :--- | :--- |
@@ -80,7 +80,7 @@ No añadir el estado `PERSPECTIVA_ADVERSA` en v1. Si más adelante el front no p
 
 ### 2.4 Familias (el texto)
 
-La misma del catálogo `algorythm/levers_catalog.py`:
+La misma del catálogo `algorithm/levers_catalog.py`:
 
 | Familia | Qué es | Palancas | Cómo se proyecta |
 | :--- | :--- | :--- | :--- |
@@ -93,7 +93,7 @@ Nunca un texto que trate las dos como lo mismo.
 
 ## 3. Contrato de datos (qué calcula el dominio)
 
-Nuevo módulo sugerido: `algorythm/score_outlook.py`. Lo llaman el monitor, la API y el bot. El front **no** recalcula `Ŝ`.
+Nuevo módulo sugerido: `algorithm/score_outlook.py`. Lo llaman el monitor, la API y el bot. El front **no** recalcula `Ŝ`.
 
 ### 3.1 Por empresa (serie mensual, misma malla que `score`)
 
@@ -178,8 +178,8 @@ Front hoy: `Trayectoria` ya recibe `alerta={mesDeteccion}` y pinta un `Reference
 Piezas reutilizables:
 
 - `forecasting/structural.py`: `run_rate`, `long_rate`, `build_projected_bank`, `score_at_horizon`, `HOLD_FIELDS`.
-- `algorythm/levers_objects.py`: `ap_pending_eur`.
-- `algorythm/score_engine.calculate_scores`: la `f` congelada.
+- `algorithm/levers_objects.py`: `ap_pending_eur`.
+- `algorithm/score_engine.calculate_scores`: la `f` congelada.
 
 **No** usar el camino central del estructural v2 (`φ=0,8` hacia la media de 12 meses) para el test de salud. Esa reversión dice “ya se le pasará”. Aquí “si no haces nada” = el régimen de 3 meses **se queda**.
 
@@ -332,12 +332,12 @@ Filtros visuales: si `EVALUACION_PENDIENTE` o `annual_pattern_match` en el mes d
 
 | Pieza | Archivo | Qué hacer |
 | :--- | :--- | :--- |
-| Outlook + búsqueda del primer `t` | `algorythm/score_outlook.py` **nuevo** | Dominio puro. Sin HTTP, sin Telegram. |
-| Tests del test §5.6 y del “hueco < rojo” | `algorythm/test_score_outlook.py` **nuevo** | Fixtures sintéticos: rampa salud, solo AP, bache, estación, AP=0. |
-| Enganchar al snapshot | `algorythm/calc_score.py` (o el job que ya escribe `score_panels.npz`) | Guardar `outlook*` en el npz **o** un `outlook_panels.npz` versionado. Preferible el mismo snapshot para no desincronizar `as_of`. |
-| Confirmación = evento ya existente | `algorythm/score_monitor.py` `directional_event_matrix` | No duplicar. |
-| AP | `algorythm/levers_objects.py` `get_company_bank_slice` / cache `ap_pending_eur` | Leer en `t`. Si el objeto es snapshot final y no hay vintage mensual, v1: usar el AP del corte actual en **todos** los `t` es una mentira suave — documentar `ap_sin_vintage`. Mejor: AP=0 en `t` si no hay historia, y el camino circulante no dispara en histórico. **Decisión v1:** circulante solo en el último mes del panel (corte vivo). Histórico del hueco = **solo salud**. El hueco circulante aparece, como mucho, en el corte actual. Así no inventamos vintages de facturas. |
-| Proyección | Reusar helpers de `forecasting/structural.py` **o** copiar `run_rate` / `build_projected_bank` al dominio `algorythm/` para que el monitor no importe el lab. Preferible **mover o extraer** funciones de panel a `algorythm/score_project.py` y que el lab las importe. No al revés (el motor no depende de `forecasting`). |
+| Outlook + búsqueda del primer `t` | `algorithm/score_outlook.py` **nuevo** | Dominio puro. Sin HTTP, sin Telegram. |
+| Tests del test §5.6 y del “hueco < rojo” | `algorithm/test_score_outlook.py` **nuevo** | Fixtures sintéticos: rampa salud, solo AP, bache, estación, AP=0. |
+| Enganchar al snapshot | `algorithm/calc_score.py` (o el job que ya escribe `score_panels.npz`) | Guardar `outlook*` en el npz **o** un `outlook_panels.npz` versionado. Preferible el mismo snapshot para no desincronizar `as_of`. |
+| Confirmación = evento ya existente | `algorithm/score_monitor.py` `directional_event_matrix` | No duplicar. |
+| AP | `algorithm/levers_objects.py` `get_company_bank_slice` / cache `ap_pending_eur` | Leer en `t`. Si el objeto es snapshot final y no hay vintage mensual, v1: usar el AP del corte actual en **todos** los `t` es una mentira suave — documentar `ap_sin_vintage`. Mejor: AP=0 en `t` si no hay historia, y el camino circulante no dispara en histórico. **Decisión v1:** circulante solo en el último mes del panel (corte vivo). Histórico del hueco = **solo salud**. El hueco circulante aparece, como mucho, en el corte actual. Así no inventamos vintages de facturas. |
+| Proyección | Reusar helpers de `forecasting/structural.py` **o** copiar `run_rate` / `build_projected_bank` al dominio `algorithm/` para que el monitor no importe el lab. Preferible **mover o extraer** funciones de panel a `algorithm/score_project.py` y que el lab las importe. No al revés (el motor no depende de `forecasting`). |
 | API | `backend/schemas.py`, ruta de empresa | Campo `trayectoria_marcas`. |
 | Front | `charts.tsx`, `motor.ts`, ficha, comparar | §6. |
 | Bot | `telegram_notifier.py` | El rojo sigue igual. El hueco **no** es alerta `ALTA`. Si se menciona, una línea INFORMATIVA. |

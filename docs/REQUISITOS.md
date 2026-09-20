@@ -172,11 +172,11 @@ Este documento formaliza los requisitos funcionales y no funcionales del sistema
 
 ## 4. Módulo B3 · Motor de Scoring Continuo, Momentum y Estados
 
-> **Estado de Implementación:** El motor algorítmico y la formulación matemática ya están **100% implementados, validados y testeados en producción interna** en [`algorythm/score_engine.py`](../algorythm/score_engine.py), con especificación formal en [`algorythm/formula/score_financiero.pdf`](../algorythm/formula/score_financiero.pdf) y benchmark reproducible en [`algorythm/engine_results/`](../algorythm/engine_results/) pasando 30/30 tests de contrato. No es una propuesta futura: es código operativo en `main`.
+> **Estado de Implementación:** El motor algorítmico y la formulación matemática ya están **100% implementados, validados y testeados en producción interna** en [`algorithm/score_engine.py`](../algorithm/score_engine.py), con especificación formal en [`algorithm/formula/score_financiero.pdf`](../algorithm/formula/score_financiero.pdf) y benchmark reproducible en [`algorithm/engine_results/`](../algorithm/engine_results/) pasando 30/30 tests de contrato. No es una propuesta futura: es código operativo en `main`.
 
 ### REQ-B3.1: Formulación Global del Score Axiomático
 - **Descripción:** Ejecutar la ecuación maestra que integra el nivel base, la inercia temporal, el crecimiento de calidad y la penalización de fragilidad.
-- **Estado:** **IMPLEMENTADO Y VALIDADO** en [`algorythm/score_engine.py`](../algorythm/score_engine.py).
+- **Estado:** **IMPLEMENTADO Y VALIDADO** en [`algorithm/score_engine.py`](../algorithm/score_engine.py).
 - **Prioridad:** P0
 - **Dependencias:** REQ-B1.2 a REQ-B1.5, REQ-B2.2.
 - **Entradas:** Vectores normalizados $L_t, C_t, D_t, M_t, G_t, F_t$.
@@ -214,7 +214,7 @@ Este documento formaliza los requisitos funcionales y no funcionales del sistema
 
 ### REQ-B4.1: Descomposición Aditiva Exacta sin Cajas Negras
 - **Descripción:** Descomponer el score mensual en sus seis contribuciones exactas en puntos sin utilizar aproximaciones locales opacas (SHAP o LIME).
-- **Estado:** **IMPLEMENTADO Y VALIDADO** en [`algorythm/score_engine.py`](../algorythm/score_engine.py) (campo `clipping_points` y sumatorio exacto).
+- **Estado:** **IMPLEMENTADO Y VALIDADO** en [`algorithm/score_engine.py`](../algorithm/score_engine.py) (campo `clipping_points` y sumatorio exacto).
 - **Prioridad:** P0
 - **Dependencias:** REQ-B3.1.
 - **Entradas:** Componentes del score y residuo de clipping.
@@ -459,14 +459,14 @@ Este documento formaliza los requisitos funcionales y no funcionales del sistema
 
 | Entregable Oficial del Reto | Estado en el Proyecto | Bloques y Requisitos que lo Satisfacen | Artefacto de Código / Implementación |
 | :--- | :---: | :--- | :--- |
-| **Predicción sobre el test oculto** | **Obligatorio** | REQ-B2.2, REQ-B3.1, REQ-B13.1 | `algorythm/calc_score.py`<br>`algorythm/engine_results/` |
-| **Señal en las dos direcciones** | **Obligatorio** | REQ-B3.2, REQ-B3.3, REQ-B13.1 | `algorythm/score_engine.py` (`bounded_momentum`) |
-| **Trayectoria, no foto fija** | **Obligatorio** | REQ-B3.1, REQ-B3.2, REQ-B11.1 | `algorythm/score_engine.py`<br>`algorythm/formula/score_financiero.pdf` |
-| **Explicabilidad sin cajas negras** | **Obligatorio** | REQ-B4.1, REQ-B4.2 | `algorythm/score_engine.py` (descomposición aditiva) |
+| **Predicción sobre el test oculto** | **Obligatorio** | REQ-B2.2, REQ-B3.1, REQ-B13.1 | `algorithm/calc_score.py`<br>`algorithm/engine_results/` |
+| **Señal en las dos direcciones** | **Obligatorio** | REQ-B3.2, REQ-B3.3, REQ-B13.1 | `algorithm/score_engine.py` (`bounded_momentum`) |
+| **Trayectoria, no foto fija** | **Obligatorio** | REQ-B3.1, REQ-B3.2, REQ-B11.1 | `algorithm/score_engine.py`<br>`algorithm/formula/score_financiero.pdf` |
+| **Explicabilidad sin cajas negras** | **Obligatorio** | REQ-B4.1, REQ-B4.2 | `algorithm/score_engine.py` (descomposición aditiva) |
 | **Producto encima del score** | **Obligatorio** | REQ-B8.1, REQ-B9.1, REQ-B10.1, REQ-B10.2 | `Simulador`, `PuenteEuros`, `Agente` |
 | **Comprador identificado (Embat)** | **Obligatorio** | REQ-B12.1 | `PRODUCTO.md` §2, `factorwow.md` |
 | **Demo navegable en vivo** | **Obligatorio** | REQ-B11.1, REQ-B11.2 | `Frontend Next.js / API FastAPI` |
-| **Anticipación medida en meses** | **Bonus** | REQ-B5.1 | `algorythm/validate_score.py` (8 meses medidos) |
+| **Anticipación medida en meses** | **Bonus** | REQ-B5.1 | `algorithm/validate_score.py` (8 meses medidos) |
 | **Monitor proactivo de alertas** | **Bonus** | REQ-B5.2, REQ-B5.3 | `Monitor`, integración Exa API (`exa-py`) |
 | **Ejecución transaccional en 1 clic** | **Factor WOW** | REQ-B10.2, REQ-B7.1 | `POST /action/generate` (artefactos de cobro y deuda) |
 | **Pasaporte Financiero Móvil por QR** | **Factor WOW** | REQ-B11.2, REQ-B7.1 | `GET /passport/{token}` (vista responsive jurado) |

@@ -6,7 +6,7 @@ import math
 import os
 from pathlib import Path
 
-from algorythm.score_data import sha256
+from algorithm.score_data import sha256
 from forecasting.models import CANDIDATES
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -20,7 +20,7 @@ def digest(value):
 def comparison_spec(protocol, inputs, mode, groups):
     # Model implementations are deliberately excluded: these are what contributors change.
     files = ('forecasting/data.py', 'forecasting/context.py', 'forecasting/country.py',
-             'forecasting/benchmark.py', 'algorythm/score_engine.py', 'algorythm/score_data.py')
+             'forecasting/benchmark.py', 'algorithm/score_engine.py', 'algorithm/score_data.py')
     definition = {'schema': 1, 'protocol': protocol, 'input_sha256': inputs, 'context_mode': mode,
                   'split_sha256': digest(groups), 'evaluation_sha256': {p: sha256(ROOT/p) for p in files}}
     return {'key': digest(definition), 'definition': definition}

@@ -1,7 +1,7 @@
 # Respuestas Técnicas Verificadas para Pedro y Carlos · X-Ray Engine & What-If
 
 **Contexto:** Integración de la capa de palancas y simulación contrafactual (`/simulate`) sobre el motor analítico de solvencia bancaria de **X-Ray** (HackSpain 2026 · Track Embat).  
-Documento auditado y verificado línea a línea contra el código fuente real del repositorio (`algorythm/score_engine.py`, `algorythm/score_data.py`, `algorythm/score_whatif.py`, `algorythm/calc_score.py`, `backend/main.py`, `backend/routes/whatif.py`, `algorythm/engine_results/score_manifest.json` y `xray.duckdb`).
+Documento auditado y verificado línea a línea contra el código fuente real del repositorio (`algorithm/score_engine.py`, `algorithm/score_data.py`, `algorithm/score_whatif.py`, `algorithm/calc_score.py`, `backend/main.py`, `backend/routes/whatif.py`, `algorithm/engine_results/score_manifest.json` y `xray.duckdb`).
 
 ---
 
@@ -9,7 +9,7 @@ Documento auditado y verificado línea a línea contra el código fuente real de
 
 #### 1. ¿Congeláis la firma `calculate_scores(bank, erp=None, config=None)` y los nombres de salida (`score`, `liquidity_points`, `collections_points`, `debt_points`, `momentum_points`, `is_prior`, `cash_known`, `erp_used`, `debt_service_observed`, …)?
 **SÍ, 100% congelada.**
-* **Firma exacta en código** ([`algorythm/score_engine.py`](file:///Users/antoniomachuca/Documents/REPO%20HACKATHON/algorythm/score_engine.py#L139)):
+* **Firma exacta en código** ([`algorithm/score_engine.py`](file:///Users/antoniomachuca/Documents/REPO%20HACKATHON/algorithm/score_engine.py#L139)):
   ```python
   def calculate_scores(
       bank: Mapping[str, np.ndarray],
@@ -28,11 +28,11 @@ Documento auditado y verificado línea a línea contra el código fuente real de
 * **Requeridos estrictos:** `receipts` (debe existir en el dict), `expenses`, `debt_service`. Matrices 2D NumPy `float` de forma `(N, M)` con importes no negativos o `NaN`. `quality` con valores en $[0, 1]$ (si se omite, default es 1.0).
 * **Opcionales evaluados del motor bancario:** `gross_receipts` ($\ge 0$), `refunds` ($\ge 0$), `funding_gap` ($\ge 0$), `hhi` ($[0, 1]$), `hhi_quality` ($[0, 1]$). Si se omiten, el motor aplica default `np.nan` (o 0).
 * **Opcionales de caja (inactivos este fin de semana):** `cash_balance`, `commitments_30d`, `negative_balance_fraction`.
-* **Validación interna:** [`validate_optional_fields`](file:///Users/antoniomachuca/Documents/REPO%20HACKATHON/algorythm/score_engine.py#L71) exige que todos compartan forma `(N, M)` y cumplan sus cotas matemáticas.
+* **Validación interna:** [`validate_optional_fields`](file:///Users/antoniomachuca/Documents/REPO%20HACKATHON/algorithm/score_engine.py#L71) exige que todos compartan forma `(N, M)` y cumplan sus cotas matemáticas.
 
 #### 3. ¿`debt_service` sigue saliendo solo de `debt_repayment` + `interest_charge` (no de `outstanding`)?
 **SÍ.**
-* **Código fuente exacto** ([`algorythm/score_data.py`](file:///Users/antoniomachuca/Documents/REPO%20HACKATHON/algorythm/score_data.py#L14-L57)):
+* **Código fuente exacto** ([`algorithm/score_data.py`](file:///Users/antoniomachuca/Documents/REPO%20HACKATHON/algorithm/score_data.py#L14-L57)):
   ```python
   DEBT_CATEGORIES = {'debt_repayment', 'interest_charge'}
   # ...
@@ -48,7 +48,7 @@ Documento auditado y verificado línea a línea contra el código fuente real de
 
 #### 4. ¿`/score` (y cualquier artefacto oficial) sigue con ERP off y `cash_known=0` este fin de semana?
 **SÍ.**
-* **Evidencia oficial congelada** en [`algorythm/engine_results/score_manifest.json`](file:///Users/antoniomachuca/Documents/REPO%20HACKATHON/algorythm/engine_results/score_manifest.json#L34-L68):
+* **Evidencia oficial congelada** en [`algorithm/engine_results/score_manifest.json`](file:///Users/antoniomachuca/Documents/REPO%20HACKATHON/algorithm/engine_results/score_manifest.json#L34-L68):
   ```json
   "audit": {
     "erp": {
@@ -63,13 +63,13 @@ Documento auditado y verificado línea a línea contra el código fuente real de
 
 #### 5. Si en algún momento encendéis caja u ERP, ¿lo haréis en score y simulate a la vez con bump de `model_version` (nunca solo en simulate)?
 **SÍ, 100% de acuerdo.**
-* **Mecanismo técnico** ([`algorythm/calc_score.py`](file:///Users/antoniomachuca/Documents/REPO%20HACKATHON/algorythm/calc_score.py#L102-L105)):
+* **Mecanismo técnico** ([`algorithm/calc_score.py`](file:///Users/antoniomachuca/Documents/REPO%20HACKATHON/algorithm/calc_score.py#L102-L105)):
   `model_version` se computa como el SHA-256 de los hashes de código del motor, `ScoreConfig`, `StateConfig` y el modo de auditoría ERP (`audit['erp']['mode']`).
 * Cualquier activación de ERP o Caja altera la identidad algorítmica del sistema, obligando a generar un nuevo `model_version` tanto para la baseline oficial como para las proyecciones. Jamás existirá divergencia entre `/score` y la línea base de `/simulate`.
 
 #### 6. ¿Vais a meter percentiles/peers (B2) en el motor a corto plazo, o seguimos en Hill/tanh como ahora?
 **NO hay peers; SEGUIMOS 100% en Hill/tanh.**
-* **Justificación técnica:** Todas las sub-puntuaciones de [`algorythm/score_engine.py`](file:///Users/antoniomachuca/Documents/REPO%20HACKATHON/algorythm/score_engine.py) están calibradas analíticamente por empresa de forma univariada:
+* **Justificación técnica:** Todas las sub-puntuaciones de [`algorithm/score_engine.py`](file:///Users/antoniomachuca/Documents/REPO%20HACKATHON/algorithm/score_engine.py) están calibradas analíticamente por empresa de forma univariada:
   - Liquidez: $L = 0.5 + 0.5 \cdot \tanh(\text{flow\_margin} / 0.50)$
   - Regularidad: $1 / (1 + \text{CV}(r))$
   - Endeudamiento: $D = 0.5 - 0.5 \cdot \tanh(\text{debt\_burden} / 0.25)$
@@ -113,7 +113,7 @@ Documento auditado y verificado línea a línea contra el código fuente real de
 
 #### 10. ¿OK mutar `expenses` solo en categorías `salary` ∪ `utility` (opex) y `payment`/`bulk_payment` (DPO / circulante)?
 **SÍ.**
-* En [`algorythm/score_data.py`](file:///Users/antoniomachuca/Documents/REPO%20HACKATHON/algorythm/score_data.py#L13), `EXPENSE_CATEGORIES` está definida como:
+* En [`algorithm/score_data.py`](file:///Users/antoniomachuca/Documents/REPO%20HACKATHON/algorithm/score_data.py#L13), `EXPENSE_CATEGORIES` está definida como:
   ```python
   EXPENSE_CATEGORIES = {'payment', 'bulk_payment', 'salary', 'social_security', 'tax', 'utility', 'fee'}
   ```
@@ -123,7 +123,7 @@ Documento auditado y verificado línea a línea contra el código fuente real de
 
 #### 11. ¿OK bajar `debt_service` / `interest_charge` recurrente para refinanciar (nunca vender un repayment one-shot como mejora de D)?
 **SÍ, absolutamente rotundo y crucial.**
-* En [`algorythm/score_engine.py`](file:///Users/antoniomachuca/Documents/REPO%20HACKATHON/algorythm/score_engine.py#L176):
+* En [`algorithm/score_engine.py`](file:///Users/antoniomachuca/Documents/REPO%20HACKATHON/algorithm/score_engine.py#L176):
   $$\text{debt\_burden} = \frac{h_3}{r_3 + h_3}, \quad D = 0.5 - 0.5 \cdot \tanh\left(\frac{\text{debt\_burden}}{0.25}\right)$$
 * En extractos bancarios, una amortización de golpe (*one-shot repayment*) entra como `debt_repayment` saliente, lo cual **aumenta** `debt_service` puntual y penalizaría gravemente el ratio de solvencia $D$.
 * La refinanciación real alarga plazos o negocia mejores tipos, lo que **reduce la cuota periódica mensual** de amortización e intereses. Reducir `debt_service[:, 23]` recurrente es la forma exacta de simular una mejora en $D$.
@@ -152,12 +152,12 @@ Documento auditado y verificado línea a línea contra el código fuente real de
 * En [`backend/main.py`](file:///Users/antoniomachuca/Documents/REPO%20HACKATHON/backend/main.py) ya está desplegado el servidor FastAPI con CORS configurado, DuckDB conectado y documentación interactiva Swagger en `/docs`.
 * Actualmente ya existe un endpoint en [`backend/routes/whatif.py`](file:///Users/antoniomachuca/Documents/REPO%20HACKATHON/backend/routes/whatif.py) con la ruta `POST /api/whatif`.
 * **Cómo nos coordinamos:**
-  - **Opción A (Recomendada):** Escribís vuestro dominio de palancas en un módulo (ej. `algorythm/levers.py` o `backend/levers.py`) con una función limpia `simulate_levers(payload: dict) -> dict`. Nosotros la conectamos al endpoint.
+  - **Opción A (Recomendada):** Escribís vuestro dominio de palancas en un módulo (ej. `algorithm/levers.py` o `backend/levers.py`) con una función limpia `simulate_levers(payload: dict) -> dict`. Nosotros la conectamos al endpoint.
   - **Opción B (Router FastAPI independiente):** Si preferís implementar el router vosotros, cread `backend/routes/simulate.py` con `router = APIRouter(prefix="/api/simulate")`. Antonio sólo tendrá que añadir `app.include_router(simulate_router)` en [`backend/main.py`](file:///Users/antoniomachuca/Documents/REPO%20HACKATHON/backend/main.py) y quedará integrado de inmediato.
 
 #### 15. ¿Hay ya (o habrá hoy) un `model_version` / hash de motor+datos que yo deba devolver en cada `/simulate`?
 **SÍ, YA EXISTE.**
-* El hash oficial actual registrado en [`algorythm/engine_results/score_manifest.json`](file:///Users/antoniomachuca/Documents/REPO%20HACKATHON/algorythm/engine_results/score_manifest.json#L48) es:
+* El hash oficial actual registrado en [`algorithm/engine_results/score_manifest.json`](file:///Users/antoniomachuca/Documents/REPO%20HACKATHON/algorithm/engine_results/score_manifest.json#L48) es:
   ```
   "model_version": "7c92ba879e37066fcbb1f8e3d3974026d370eb48f5c091238f31865bdcc684a8"
   ```

@@ -9,7 +9,7 @@ from forecasting.context import context_features
 from forecasting.data import feature_panel, make_samples, partition_samples, split_groups
 from forecasting.models import CANDIDATES, Forecaster
 from forecasting.stress import generate_stress, stress_score_report, synthetic_erp
-from algorythm.score_data import month_edges
+from algorithm.score_data import month_edges
 
 
 @pytest.fixture

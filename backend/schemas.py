@@ -61,7 +61,7 @@ class CompanyListResponse(BaseModel):
 
 
 # -------------------------------------------------------------
-# 1b. Episodios de cambio (ver algorythm/EPISODIOS.md)
+# 1b. Episodios de cambio (ver algorithm/EPISODIOS.md)
 # -------------------------------------------------------------
 
 class EpisodeSignal(BaseModel):

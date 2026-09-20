@@ -2,8 +2,8 @@
 
 from fastapi import APIRouter, HTTPException, Query
 
-from algorythm.levers_catalog import AS_OF
-from algorythm.levers_gates import evaluate_catalog
+from algorithm.levers_catalog import AS_OF
+from algorithm.levers_gates import evaluate_catalog
 from backend.database import normalize_company_id
 from backend.schemas import PalancaItem, PalancasResponse
 

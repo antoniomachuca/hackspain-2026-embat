@@ -1,4 +1,4 @@
-# Revisión del motor de scoring (`algorythm/`)
+# Revisión del motor de scoring (`algorithm/`)
 
 **Fecha:** 2026-09-19 · **Commit revisado:** `2d0a17e` · **Autor:** Hugo Oliva (con análisis asistido por Claude)
 **Alcance:** `score_engine.py`, `score_data.py`, `calc_score.py`, `validate_score.py`, tests, whitepaper y resultados en `engine_results/` y `engine_results_erp/`.
@@ -190,6 +190,6 @@ Orden sugerido si el tiempo aprieta: 1 → 2 → 5 → 3 → 4.
 
 ## 6. Reproducibilidad de esta revisión
 
-- Tests: `python -m unittest algorythm.test_score_engine algorythm.test_score_data algorythm.test_score_outputs` (30 OK, Python 3.12.14, numpy 2.x).
-- Análisis sobre `algorythm/engine_results/score_panels.npz` y los CSV de `dataset/`. Estabilidad y correlaciones con `scipy.stats.spearmanr`; AUC con `mannwhitneyu`; correlación parcial por residuo de regresión de rangos.
+- Tests: `python -m unittest algorithm.test_score_engine algorithm.test_score_data algorithm.test_score_outputs` (30 OK, Python 3.12.14, numpy 2.x).
+- Análisis sobre `algorithm/engine_results/score_panels.npz` y los CSV de `dataset/`. Estabilidad y correlaciones con `scipy.stats.spearmanr`; AUC con `mannwhitneyu`; correlación parcial por residuo de regresión de rangos.
 - Caja terminal: suma de `balances.csv` para productos `checking` y `saving`; salidas mensuales = media de `expenses + debt_service` de los últimos 3 meses del panel bancario del propio motor.

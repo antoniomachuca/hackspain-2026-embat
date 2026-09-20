@@ -27,7 +27,7 @@ a `load_bank_panel()` sobre `transactions.csv` para la previsión estructural.
 
 ## Subir o refrescar los datos
 
-Desde tu máquina, con el DuckDB ya construido (`python algorythm/build_duckdb.py`):
+Desde tu máquina, con el DuckDB ya construido (`python algorithm/build_duckdb.py`):
 
 ```bash
 railway link            # proyecto xray-embat, entorno production

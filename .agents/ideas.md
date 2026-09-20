@@ -7,7 +7,7 @@ Documento estratégico de mejoras y factores WOW para la presentación final y d
 ## 1. Diagnóstico del Estado Actual del Repositorio (Calificación: 9/10)
 
 El proyecto cuenta con una base de artesanía técnica muy superior a la media de un hackathon de 36 horas:
-* **Sin cifras inventadas ni mocks:** motor de scoring analítico real en NumPy (`algorythm/score_engine.py`) procesando paneles mensuales continuos sin *lookahead bias*.
+* **Sin cifras inventadas ni mocks:** motor de scoring analítico real en NumPy (`algorithm/score_engine.py`) procesando paneles mensuales continuos sin *lookahead bias*.
 * **Fuente única de verdad analítica:** base de datos columnar DuckDB de ~400 MB (`xray.duckdb`) con más de 30.000 cortes mensuales y agregaciones instantáneas (<10 ms).
 * **Backend validado y probado:** FastAPI con 20/20 tests unitarios pasando en Pytest (`backend/test_backend.py`), cubriendo endpoints de empresas, histórico, ratios de circulante (DSO, DPO), benchmark de pares sectoriales, simulaciones contrafactuales y consolidación de grupos.
 * **Frontend funcional y tipado:** Next.js 16 (App Router + Tailwind CSS) con páginas activas para dashboard (`/`), ficha 360° (`/empresa/[id]`), simulador what-if (`/empresa/[id]/escenarios`), comparador (`/comparar`), grupos corporativos (`/grupos`, `/grupo/[id]`) y laboratorio de previsión (`/prevision`).
@@ -76,7 +76,7 @@ En la cabecera de la ficha de empresa (`/empresa/[id]`), incorporar una acción 
 > **Impacto:** Conquista directamente el **Bonus oficial del Bloque 2 ("Monitor que avisa solo, sin que nadie pregunte")**.
 
 #### Concepto
-El repositorio ya dispone de la infraestructura de monitorización en `algorythm/score_monitor.py` y el bot `@XRAY_EMBA_BOT` (`algorythm/score_telegram_bot.py`, `telegram_notifier.py`).
+El repositorio ya dispone de la infraestructura de monitorización en `algorithm/score_monitor.py` y el bot `@XRAY_EMBA_BOT` (`algorithm/score_telegram_bot.py`, `telegram_notifier.py`).
 * En lugar de limitar la demo a un dashboard web pasivo, dedicar 15 segundos a enseñar una notificación real de Telegram:
   - *"🚨 ALERTA X-RAY: Velasco Industrial SL"*
   - *"Cambio de régimen detectado: ESTABLE ➔ TORCIENDOSE"*

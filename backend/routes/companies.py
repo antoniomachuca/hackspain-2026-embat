@@ -10,9 +10,9 @@ from pathlib import Path
 from typing import Any, Dict, List, Optional
 from fastapi import APIRouter, HTTPException, Query, Response
 
-from algorythm.score_decompose import history_with_reparto
-from algorythm.score_episodes import empty_company_episodes, episodes_for_company
-from algorythm.telegram_charts import generate_company_chart
+from algorithm.score_decompose import history_with_reparto
+from algorithm.score_episodes import empty_company_episodes, episodes_for_company
+from algorithm.telegram_charts import generate_company_chart
 from backend.database import get_cursor, normalize_company_id, query_dicts, query_one
 from backend.routes.forecasts import _load_banks
 from backend.routes.stats import normalize_group_id
@@ -33,7 +33,7 @@ from forecasting.structural import as_of_from_origin
 
 router = APIRouter(prefix="/api/companies", tags=["Empresas y Cartera"])
 
-RESULTS_DIR = Path(__file__).resolve().parents[2] / "algorythm" / "engine_results"
+RESULTS_DIR = Path(__file__).resolve().parents[2] / "algorithm" / "engine_results"
 
 
 @lru_cache(maxsize=4)
@@ -57,13 +57,13 @@ def _episodes_for(cid: str) -> Dict[str, Any]:
     bank = None
     ap = None
     try:
-        from algorythm.bank_panels import get_company_bank_slice
+        from algorithm.bank_panels import get_company_bank_slice
         bank_path = _results_dir() / "bank_inputs.npz"
         bank = get_company_bank_slice(cid, path=bank_path if bank_path.exists() else None)
     except (FileNotFoundError, KeyError, OSError):
         bank = None
     try:
-        from algorythm.levers_objects import OBJECTS_PATH, ap_pending_vector
+        from algorithm.levers_objects import OBJECTS_PATH, ap_pending_vector
         if OBJECTS_PATH.exists():
             ap = ap_pending_vector([cid])
     except (FileNotFoundError, KeyError, OSError):
@@ -254,7 +254,7 @@ def get_company_detail(id: str):
 
     try:
         import numpy as np
-        from algorythm.levers_objects import get_company_objects
+        from algorithm.levers_objects import get_company_objects
         obj = get_company_objects(cid)
         if obj:
             if obj.receipts_m23 > 0:

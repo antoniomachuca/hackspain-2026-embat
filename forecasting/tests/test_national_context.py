@@ -2,7 +2,7 @@ from pathlib import Path
 
 import numpy as np
 
-from algorythm.score_data import month_edges
+from algorithm.score_data import month_edges
 from forecasting.context import INDICATORS, assumed_available_at, context_features, load_context
 from forecasting.data import INTERNAL_FEATURES, feature_panel
 
