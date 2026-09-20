@@ -201,7 +201,7 @@ body::before {
   margin: 0 10px; padding: 12px 8px;
   border-top: 1px solid rgba(255,255,255,.09);
 }
-.panel-lat.cerrado .pl-pie { justify-content: center; gap: 0; }
+.pl-pie { display: block; padding: 10px 0; }
 
 /* Etiqueta emergente cuando está plegado */
 .pl-modulo .tip {
@@ -521,3 +521,38 @@ input[type="range"]::-moz-range-thumb {
   box-shadow: 0 0 0 1.5px rgba(176,131,232,.55), 0 1px 3px rgba(0,0,0,.5);
 }
 input[type="range"]:focus-visible { outline: 2px solid var(--color-purple); outline-offset: 4px; border-radius: 6px; }
+
+/* ---------- la cuenta, en el pie del panel ---------- */
+.cuenta-boton {
+  display: flex; align-items: center; gap: 10px; width: 100%;
+  padding: 7px 8px; text-align: left;
+}
+.panel-lat.cerrado .cuenta-boton { justify-content: center; gap: 0; padding: 7px 0; }
+
+.cuenta-avatar {
+  display: grid; place-items: center; flex: none;
+  height: 34px; width: 34px; border-radius: 999px; color: #0d0416;
+  background: linear-gradient(145deg, var(--color-purple-mid), var(--color-purple-deep));
+}
+
+/* El menú sube desde el pie: abajo no hay sitio para desplegarlo. */
+.cuenta-menu {
+  position: absolute; bottom: calc(100% + 8px); left: 0; z-index: 60;
+  min-width: 248px; padding: 6px; border-radius: 14px;
+  background: #140f20; border: 1px solid rgba(255,255,255,.12);
+  box-shadow: 0 18px 46px rgba(0,0,0,.62);
+}
+.panel-lat.cerrado .cuenta-menu { left: 8px; }
+
+.cuenta-opcion {
+  display: block; width: 100%; padding: 9px 11px; border-radius: 10px;
+  text-align: left; font-size: 12.5px; color: var(--color-ink);
+  transition: background .16s ease;
+}
+.cuenta-opcion:hover { background: rgba(255,255,255,.08); }
+.cuenta-opcion span {
+  display: block; margin-top: 2px; font-size: 10.5px; color: var(--color-ink-4);
+}
+/* El punto de vista activo, marcado en el desplegable de la cuenta. */
+.cuenta-opcion.on { color: var(--color-purple); }
+.cuenta-opcion.on span { color: rgba(176,131,232,.62); }
