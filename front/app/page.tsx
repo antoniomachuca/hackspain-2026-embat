@@ -10,10 +10,12 @@ import { LAST_CLOSED_MONTH, mesDePunto } from "@/lib/calendar";
 import { num, mesCorto } from "@/lib/format";
 import { SEGMENTOS, segmentoDe, type Segmento } from "@/lib/cartera";
 import { Cabecera } from "@/components/shell";
+import { GaleriaEmpresas } from "@/components/galeria-empresas";
 import { Histograma, Trayectoria } from "@/components/charts";
 import { Card, KPI, ScoreBadge, EstadoChip, Delta, Vacio } from "@/components/ui";
 
 const POR_PAGINA = 25;
+const VISTA_PREVIA = 3;   // dos enteros y el tercero difuminado
 const ORDENES = ["score", "delta_3m", "momentum", "company_id", "group_id"] as const;
 const ESTADOS_FILTRO = ["MEJORANDO", "RECUPERACION", "ESTABLE", "BACHE", "TORCIENDOSE", "DETERIORO", "EVALUACION_PENDIENTE"];
 
@@ -193,11 +195,14 @@ export default async function Cartera({ searchParams }: { searchParams: Promise<
         </div>
 
         <div className="mt-2 flex flex-col gap-1.5">
-          {(lista?.items ?? []).map((c) => {
+          {(lista?.items ?? []).slice(0, VISTA_PREVIA).map((c, i) => {
             const segmento = segmentoDe({ score: c.score, estado: c.state, delta3m: c.delta_3m, elegible: c.state_eligible });
             return (
               <Link key={c.company_id} href={`/embat/${c.company_id}`}
-                className="fila grid grid-cols-2 items-center gap-3 px-4 py-3 lg:grid-cols-[2fr_1fr_.6fr_.7fr_.7fr_.9fr_.9fr] lg:gap-4">
+                aria-hidden={i === VISTA_PREVIA - 1 || undefined}
+                tabIndex={i === VISTA_PREVIA - 1 ? -1 : undefined}
+                className={`fila grid grid-cols-2 items-center gap-3 px-4 py-3 lg:grid-cols-[2fr_1fr_.6fr_.7fr_.7fr_.9fr_.9fr] lg:gap-4 ${
+                  i === VISTA_PREVIA - 1 ? "difuminada" : ""}`}>
                 <div className="min-w-0">
                   <p className="truncate text-[13.5px] font-medium">{nombreDe(c.company_id)}</p>
                   <p className="truncate text-[11px] text-[var(--color-ink-4)]">{c.company_id}{c.erp ? ` · ERP ${c.erp}` : ""}</p>
@@ -218,13 +223,8 @@ export default async function Cartera({ searchParams }: { searchParams: Promise<
           )}
         </div>
 
-        {paginas > 1 && (
-          <div className="mt-4 flex items-center justify-between border-t border-[var(--color-line)] pt-4 text-[12.5px]">
-            {f.pagina > 1 ? <Link href={urlCon(f, { pagina: f.pagina - 1 })} className="pildora">← Anterior</Link> : <span />}
-            <span className="tnum text-[var(--color-ink-3)]">{(f.pagina - 1) * POR_PAGINA + 1}–{Math.min(f.pagina * POR_PAGINA, totalLista)} de {num(totalLista, 0)}</span>
-            {f.pagina < paginas ? <Link href={urlCon(f, { pagina: f.pagina + 1 })} className="pildora">Siguiente →</Link> : <span />}
-          </div>
-        )}
+        <GaleriaEmpresas etiqueta={`Ver los ${num(totalLista, 0)} clientes`} total={totalLista} />
+
       </Card>
     </>
   );
