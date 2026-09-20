@@ -54,7 +54,8 @@ Una vez arrancado el servidor, abre en tu navegador:
 | `GET` | `/api/companies/{id}/chart` | Imagen PNG generada en servidor con la trayectoria de 24 meses y umbrales de solvencia. |
 | `POST` | `/api/whatif` | Simulador contrafactual: proyecta el impacto de una inyección de circulante o calcula el tramo óptimo mínimo. |
 | `GET` | `/api/alerts` | Feed de eventos y alertas de riesgo emitidas por el monitor de solvencia. |
-| `GET` | `/api/stats` | KPIs globales: total analizado, tasa de riesgo, score medio/mediano y volumen en mora. |
+| `GET` | `/api/stats` | KPIs globales: total analizado, tasa de riesgo, score medio/mediano y volumen en mora. Incluye `calendar` (agosto 2026 cerrado; 1-sep es foto de 1 día). |
+| `GET` | `/api/calendar` | Tres relojes del dataset: `as_of`, `last_closed_month` (2026-08-01) y `partial_month` (foto 1-sep). |
 | `GET` | `/api/graph` | Grupos con flujos internos detectados (`min_matches`, `limit`), ordenados por volumen. |
 | `GET` | `/api/graph/{group_id}` | Nodos (sociedades con score, € que entran/salen) y aristas (A → B: `matches`, `eur`, `last_date`) de un grupo. Flujos inferidos: mismo día, mismo importe, mismo grupo. |
 | `GET` | `/api/portfolio` | Cartera Embat en una llamada: KPIs, histograma, trayectoria media 24 m, rankings (`top_score`, `top_growth`, `top_decline`, solo `state_eligible`) y segmentos `APOSTAR` / `VIGILAR` / `ACOMPANAR` (regla determinista, `SEGMENT_SQL`). Parámetros `top` y `per_segment`. |

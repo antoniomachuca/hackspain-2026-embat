@@ -5,7 +5,8 @@
  */
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { MES_ACTUAL } from "@/lib/data";
+import { CORTE_AS_OF, MES_ACTUAL } from "@/lib/data";
+import { LAST_CLOSED_MONTH } from "@/lib/calendar";
 import { eur, num, mesCorto, banda } from "@/lib/format";
 import { cargarEmpresa, cargarRecomendaciones, cargarFiliales, cargarTrayectoriasFiliales, cargarPrevision, nombreDe } from "@/lib/motor";
 import { SEGMENTOS, segmentoDe } from "@/lib/cartera";
@@ -73,7 +74,7 @@ export async function FichaEmpresa({ id, vista }: { id: string; vista: Vista }) 
     momentum: f.momentum,
     estado: f.state,
     mesesHistoria: f.state_eligible ? 24 : 8,
-    trayectoria: [{ mes: "2026-09", score: f.score, nivel: f.base_health }],
+    trayectoria: [{ mes: LAST_CLOSED_MONTH.slice(0, 7), score: f.score, nivel: f.base_health }],
   }));
 
   const trayectorias = await cargarTrayectoriasFiliales(filiales.map((f) => f.id), 12);
@@ -90,25 +91,8 @@ export async function FichaEmpresa({ id, vista }: { id: string; vista: Vista }) 
   const consolidado = Math.round((0.65 * mediaGrupo + 0.35 * peorScore) * 10) / 10;
   const penalizacion = peorScore < 40 ? Math.round((40 - peorScore) * 0.25 * 10) / 10 : 0;
 
-  // Sugerencias contrafactuales del motor y What-If
   const recomendada = rk?.recomendado ?? null;
-  const rawSugerencias = rk?.sugerencias ?? [];
-  const vistas = new Set<string>();
-  const palancasSalud: typeof rawSugerencias = [];
-
-  if (recomendada?.id) {
-    vistas.add(recomendada.id);
-    palancasSalud.push(recomendada);
-  }
-
-  for (const s of rawSugerencias) {
-    if (!vistas.has(s.id)) {
-      vistas.add(s.id);
-      palancasSalud.push(s);
-    }
-  }
-
-  const whatif = rk?.whatif ?? null;
+  const circulante = rk?.opcionesCirculante ?? [];
 
   return (
     <>
@@ -117,7 +101,7 @@ export async function FichaEmpresa({ id, vista }: { id: string; vista: Vista }) 
         sub={
           <>
             {embat ? <>{e.id} · Grupo {e.grupo.replace("GROUP_", "")} · </> : <>{e.sector} · </>}
-            {mesCorto(MES_ACTUAL)} ·{" "}
+            {mesCorto(MES_ACTUAL)} · corte 1-sep ·{" "}
             <span className="tnum text-[var(--color-ink-4)]">
               {e.moneda}
               {rk?.modelVersion ? ` · ${rk.modelVersion.slice(0, 8)}` : ""}
@@ -140,11 +124,14 @@ export async function FichaEmpresa({ id, vista }: { id: string; vista: Vista }) 
 
       {/* ── Lectura para Embat: qué hacer con este cliente ────────── */}
       {embat && (
-        <Card className="mb-5 px-6 py-5">
-          <div className="flex flex-wrap items-start justify-between gap-4">
-            <div className="min-w-0">
+        <Card className="mb-5 px-6 py-4">
+          {/* Dos columnas, no dos filas: el texto a la izquierda y las cifras
+              centradas contra su alto. En vertical la card se comía media
+              pantalla para decir tres números. */}
+          <div className="flex flex-wrap items-center justify-between gap-x-8 gap-y-3">
+            <div className="min-w-0 flex-1">
               <div className="flex flex-wrap items-center gap-2">
-                <p className="text-[15px] font-semibold tracking-tight">Lectura para Embat</p>
+                <p className="text-[14px] font-semibold tracking-tight">Lectura para Embat</p>
                 {seg ? (
                   <span className="rounded-md px-2 py-0.5 text-[11px] font-medium" style={{ background: seg.bg, color: seg.color }}>
                     {seg.label}
@@ -155,60 +142,65 @@ export async function FichaEmpresa({ id, vista }: { id: string; vista: Vista }) 
                   </span>
                 )}
                 {e.elegible === false && (
-                  <span className="text-[11px] text-[var(--color-ink-4)]">historia insuficiente para estado</span>
+                  <span className="text-[11px] text-[var(--color-ink-4)]">historia insuficiente</span>
                 )}
               </div>
-              <p className="mt-1.5 max-w-2xl text-[12.5px] leading-relaxed text-[var(--color-ink-2)]">
-                {seg?.accion ?? "Cliente estable sin señal de cambio. No hay motivo para mover ficha: se sigue observando."}
+              <p className="mt-1.5 text-[12.5px] leading-relaxed text-[var(--color-ink-2)]">
+                {seg?.accion ?? "Estable, sin señal de cambio: solo observar."}
               </p>
             </div>
-            <div className="tnum grid grid-cols-3 gap-5 text-center">
-              <div>
-                <p className="text-[10.5px] uppercase tracking-wider text-[var(--color-ink-4)]">Score</p>
-                <p className="mt-1"><ScoreBadge score={e.score} /></p>
-              </div>
-              <div>
-                <p className="text-[10.5px] uppercase tracking-wider text-[var(--color-ink-4)]">Δ 3 meses</p>
-                <p className="mt-2"><Delta v={e.delta3m ?? 0} sufijo=" pts" /></p>
-              </div>
-              <div>
-                <p className="text-[10.5px] uppercase tracking-wider text-[var(--color-ink-4)]">Estado</p>
-                <p className="mt-2"><EstadoChip estado={e.estado} /></p>
-              </div>
+
+            <div className="flex flex-none items-center gap-5">
+              <span className="flex items-baseline gap-1.5">
+                <ScoreBadge score={e.score} />
+                <span className="text-[10.5px] uppercase tracking-wider text-[var(--color-ink-4)]">score</span>
+              </span>
+              <span className="flex items-baseline gap-1.5">
+                <Delta v={e.delta3m ?? 0} sufijo=" pts" />
+                <span className="text-[10.5px] uppercase tracking-wider text-[var(--color-ink-4)]">3 m</span>
+              </span>
+              <EstadoChip estado={e.estado} />
             </div>
           </div>
-          {whatif && (
-            <p className="mt-3 border-t border-[var(--color-line)] pt-3 text-[12px] text-[var(--color-ink-3)]">
-              Producto Embat con más efecto sobre su score:{" "}
-              <strong className="font-medium text-[var(--color-ink)]">{whatif.recommended_product}</strong>
-              {" "}· {eur(whatif.injection_amount)} → {num(whatif.projected_score)} pts ({whatif.delta_score >= 0 ? "+" : ""}{num(whatif.delta_score)}).
+          {recomendada && (
+            <p className="mt-2 text-[11.5px] text-[var(--color-ink-3)]">
+              Palanca del motor:{" "}
+              <strong className="font-medium text-[var(--color-ink-2)]">{recomendada.label.replace(/\s*\(.*\)$/, "")}</strong>
+              {recomendada.caja_liberada_eur != null && recomendada.caja_liberada_eur > 0 && (
+                <> · {eur(recomendada.caja_liberada_eur)} caja</>
+              )}
+              {recomendada.delta_score != null
+                ? <> · {recomendada.delta_score >= 0 ? "+" : ""}{num(recomendada.delta_score)} pts</>
+                : " · circulante, no mueve el score"}
             </p>
           )}
         </Card>
       )}
 
       {/* ── Métricas Operativas de Circulante y Tesorería ───────────── */}
-      <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4 mb-5">
+      <div className="mb-5 grid gap-5 xl:grid-cols-[296px_1fr]">
         <KPI
           etiqueta="Días de Caja (Runway)"
           valor={`${num(e.diasCaja, 1)} d`}
           nota={e.diasCaja < 15 ? "Liquidez tensionada (<15d)" : "Colchón de tesorería suficiente"}
         />
-        <KPI
-          etiqueta="DSO (Plazo medio cobro)"
-          valor={`${num(e.dso, 1)} d`}
-          nota="Periodo medio clientes"
-        />
-        <KPI
-          etiqueta="DPO (Plazo medio pago)"
-          valor={`${num(e.dpo, 1)} d`}
-          nota="Periodo medio proveedores"
-        />
-        <KPI
-          etiqueta="Facturación Anual"
-          valor={eur(e.facturacionAnual)}
-          nota="Volumen anualizado observado"
-        />
+        <div className="grid gap-5 sm:grid-cols-3">
+          <KPI
+            etiqueta="DSO (Plazo medio cobro)"
+            valor={`${num(e.dso, 1)} d`}
+            nota="Periodo medio clientes"
+          />
+          <KPI
+            etiqueta="DPO (Plazo medio pago)"
+            valor={`${num(e.dpo, 1)} d`}
+            nota="Periodo medio proveedores"
+          />
+          <KPI
+            etiqueta="Facturación Anual"
+            valor={eur(e.facturacionAnual)}
+            nota="Volumen anualizado observado"
+          />
+        </div>
       </div>
 
       {/* ── Score de la Empresa y Trayectoria ─────────────────────── */}
@@ -240,7 +232,8 @@ export async function FichaEmpresa({ id, vista }: { id: string; vista: Vista }) 
               <Dato k="Días de Caja" v={`${num(e.diasCaja, 1)} días`} />
               <Dato k="DSO / DPO" v={`${num(e.dso, 1)} d / ${num(e.dpo, 1)} d`} />
               {e.utilizacionLinea > 0 && <Dato k="Utilización Línea" v={`${num(e.utilizacionLinea)}%`} />}
-              <Dato k="Corte Analítico" v={MES_ACTUAL} />
+              <Dato k="Corte analítico" v={CORTE_AS_OF} />
+              <Dato k="Último mes cerrado" v={MES_ACTUAL} />
               <Dato k="Grupo Corporativo" v={e.grupo} />
               <Dato k="Historia" v={`${e.mesesHistoria} meses`} />
             </div>
@@ -266,6 +259,7 @@ export async function FichaEmpresa({ id, vista }: { id: string; vista: Vista }) 
             reparto={e.reparto}
             inflexion={e.inflexion}
           />
+
         </Card>
       </div>
 
@@ -308,8 +302,8 @@ export async function FichaEmpresa({ id, vista }: { id: string; vista: Vista }) 
             <Palancas
               empresa={e}
               sugerencias={rk?.sugerencias}
+              circulante={circulante}
               palancas={rk?.palancas}
-              whatif={whatif}
               recomendado={recomendada}
             />
           </div>

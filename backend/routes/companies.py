@@ -28,6 +28,7 @@ from backend.schemas import (
     InvoiceItem,
     PeerPoint,
 )
+from backend.calendar import LAST_CLOSED_MONTH, closed_month_iso
 from forecasting.structural import as_of_from_origin
 
 router = APIRouter(prefix="/api/companies", tags=["Empresas y Cartera"])
@@ -87,8 +88,8 @@ def get_companies(
     offset: int = Query(0, ge=0, description="Desplazamiento para paginación"),
 ):
     """
-    Lista paginada y filtrable de empresas en el último corte mensual analítico (2026-09-01).
-    Utilizada para alimentar la tabla de cartera del CFO.
+    Lista paginada y filtrable de empresas en el último corte analítico (as_of=2026-09-01).
+    Ese corte cierra el mes de agosto de 2026; septiembre es foto de 1 día y no entra aquí.
     """
     conditions = []
     params = []
@@ -328,6 +329,7 @@ def get_company_detail(id: str):
         perspectivas_sin_aviso=ep_data.get("perspectivas_sin_aviso", []),
         trayectoria_marcas=ep_data.get("trayectoria_marcas"),
         parametros_episodios=ep_data.get("parametros"),
+        last_closed_month=LAST_CLOSED_MONTH.isoformat(),
     )
 
 
@@ -353,6 +355,8 @@ def _reparto_lookup(cid: str, rows, banks=None):
     The bank panel labels months at the start of each interval (2024-09 … 2026-08);
     company_scores uses the following first-of-month (2024-10 … 2026-09). Same 24
     cuts, last score 45.6 both ways. Join with DuckDB dates so the chart mes matches.
+    The public series also expose `closed_month` (bank-panel clock) so the UI never
+    paints September 2026 as a complete month.
     """
     tables = banks if banks is not None else _load_banks()
     if cid not in tables or not rows:
@@ -415,6 +419,7 @@ def get_company_history(
     history = [
         HistoryPoint(
             as_of=_as_of_key(row["as_of"]),
+            closed_month=closed_month_iso(row["as_of"]),
             score=round(float(row["score"]), 2),
             base_health=round(float(row["base_health"]), 2),
             state=str(row["state"]),
@@ -431,7 +436,12 @@ def get_company_history(
         for row in rows
     ]
 
-    return CompanyHistoryResponse(company_id=cid, months=len(history), history=history)
+    return CompanyHistoryResponse(
+        company_id=cid,
+        months=len(history),
+        last_closed_month=LAST_CLOSED_MONTH.isoformat(),
+        history=history,
+    )
 
 
 # -------------------------------------------------------------
@@ -505,7 +515,9 @@ def _get_peer_data() -> Dict[str, Any]:
                         "label": quartile_labels.get(q, f"cuartil Q{q}"),
                         "history": [],
                     }
-                quartile_series[q]["history"].append(PeerPoint(mes=str(mes), mediana=float(med)))
+                quartile_series[q]["history"].append(
+                    PeerPoint(mes=str(mes), closed_month=closed_month_iso(f"{mes}-01"), mediana=float(med))
+                )
 
             # Suavizado de meses iniciales pre-operativos (2024-10 y 2024-11)
             for q, data in quartile_series.items():
@@ -548,6 +560,7 @@ def get_company_peers(id: str):
         quartile=quartile,
         label=q_data["label"],
         n_companies=q_data["n"],
+        last_closed_month=LAST_CLOSED_MONTH.isoformat(),
         history=q_data["history"],
     )
 

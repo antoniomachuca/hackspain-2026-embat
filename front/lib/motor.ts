@@ -3,11 +3,13 @@
  * Si el motor no responde, `cargar()` devuelve null y la página cae al modo demo.
  */
 import {
-  apiEmpresa, apiHistoria, apiPeers, apiPalancas, apiRankings, apiWhatIf, apiEmpresasDeGrupo, apiGrupos, apiGrupo, apiEmpresas, apiSimular, apiPrevisionEstructural,
-  BLOQUES, type ApiHistoria, type ApiReparto, type ApiEmpresa, type ApiSugerencia, type ApiPalanca, type ApiWhatIfResponse,
+  apiEmpresa, apiHistoria, apiPeers, apiPalancas, apiRankings, apiWhatIf, apiEmpresasDeGrupo, apiGrupos, apiGrupo, apiEmpresas, apiSimular, apiPrevisionEstructural, apiGrafoResumen,
+  BLOQUES, type ApiGrupoDetalle, type ApiHistoria, type ApiReparto, type ApiEmpresa, type ApiSugerencia, type ApiPalanca, type ApiWhatIfResponse,
 } from "./api";
+import { LAST_CLOSED_MONTH, mesDePunto, mesCerradoDeAsOf } from "./calendar";
+import { payloadPalanca } from "./palanca-payload";
 import { eur, num } from "./format";
-import { pendiente, inflexionDe, EMPRESAS_CON_SCORE, simular } from "./data";
+import { pendiente, inflexionDe, EMPRESAS_CON_SCORE } from "./data";
 import type { Driver, DriverMes, Empresa, Estado, Punto, Reparto } from "./data";
 
 const ESTADOS: Record<string, Estado> = {
@@ -161,7 +163,7 @@ export async function cargarEmpresa(id: string): Promise<Empresa | null> {
   if (!e) return null;
 
   const trayectoria: Punto[] = (h?.history ?? []).map((p) => ({
-    mes: p.as_of.slice(0, 7), score: p.score, nivel: p.base_health,
+    mes: mesDePunto(p), score: p.score, nivel: p.base_health,
   }));
   const prev = trayectoria.length > 1 ? trayectoria[trayectoria.length - 2].score : e.score;
 
@@ -208,7 +210,7 @@ export async function cargarEmpresa(id: string): Promise<Empresa | null> {
     hhiClientes: e.customer_hhi ?? 0,
     trayectoria,
     peer: pr ? { etiqueta: pr.label, n: pr.n_companies } : undefined,
-    trayectoriaPeer: pr?.history ? pr.history.map((p) => ({ mes: p.mes, mediana: p.mediana })) : undefined,
+    trayectoriaPeer: pr?.history ? pr.history.map((p) => ({ mes: mesDePunto(p), mediana: p.mediana })) : undefined,
     reparto: mapReparto(h?.history, trayectoria),
     inflexion,
     drivers: driversDe(e.waterfall, e),
@@ -248,7 +250,7 @@ export async function cargarTrayectoriasFiliales(ids: string[], meses = 12) {
     ids.map(async (id) => {
       const h = await apiHistoria(id, meses);
       const puntos = (h?.history ?? []).map((p) => ({
-        mes: p.as_of.slice(0, 7), score: p.score, nivel: p.base_health,
+        mes: mesDePunto(p), score: p.score, nivel: p.base_health,
       }));
       return [id, puntos] as const;
     }),
@@ -346,7 +348,7 @@ export async function cargarGrupoDetalle(gid: string): Promise<GrupoDetalle | nu
     : undefined;
 
   const peorTrayectoria: Punto[] = (peorHist?.history ?? []).map((p) => ({
-    mes: p.as_of.slice(0, 7),
+    mes: mesDePunto(p),
     score: p.score,
     nivel: p.base_health,
   }));
@@ -355,7 +357,7 @@ export async function cargarGrupoDetalle(gid: string): Promise<GrupoDetalle | nu
     const isPeor = m.company_id === worstId;
     const hist = isPeor
       ? peorTrayectoria
-      : [{ mes: "2026-09", score: m.score, nivel: m.base_health }];
+      : [{ mes: LAST_CLOSED_MONTH.slice(0, 7), score: m.score, nivel: m.base_health }];
     return {
       id: m.company_id,
       nombre: nombreDe(m.company_id),
@@ -369,12 +371,12 @@ export async function cargarGrupoDetalle(gid: string): Promise<GrupoDetalle | nu
       trayectoria: hist,
       deteccion:
         isPeor && peorEp
-          ? { mes: peorEp.deteccion.slice(0, 7), direccion: peorEp.direccion }
+          ? { mes: mesCerradoDeAsOf(peorEp.deteccion), direccion: peorEp.direccion }
           : undefined,
       camino:
         isPeor && peorEp?.perspectiva
           ? {
-              mes: peorEp.perspectiva.as_of.slice(0, 7),
+              mes: mesCerradoDeAsOf(peorEp.perspectiva.as_of),
               scoreProyectado: peorEp.perspectiva.score_proyectado,
               familia: peorEp.familia,
             }
@@ -490,11 +492,10 @@ export async function cargarComparativa(subeId?: string, bajaId?: string): Promi
 }
 
 export type ResultadoSimulacion = {
-  scoreNuevo: number;
-  deltaScore: number;
+  scoreNuevo: number | null;
+  deltaScore: number | null;
   cajaLiberada: number;
-  deltaBps: number;
-  eurAnio: number;
+  eurAnio: number | null;
   inaplicable: boolean;
   motivoRechazo?: string;
   advertencias?: string[];
@@ -507,70 +508,40 @@ export async function simularPalanca(
   valor: number,
   empresaBase: Empresa
 ): Promise<ResultadoSimulacion> {
-  // Construir payload según la palanca para simulate_levers del backend
-  let leverPayload: Record<string, unknown> = { id: palancaId };
-  if (palancaId === "reducir_dso" || palancaId === "adelantar_cobros") {
-    leverPayload = { id: "reducir_dso", days: valor, agreement_type: "presion_comercial" };
-  } else if (palancaId === "pronto_pago" || palancaId === "descuento_pronto_pago") {
-    leverPayload = { id: "descuento_pronto_pago", days: 15, haircut: valor / 100, agreement_type: "descuento_pronto_pago" };
-  } else if (palancaId === "recortar_opex") {
-    leverPayload = { id: "recortar_opex", pct: valor / 100 };
-  } else if (palancaId === "refinanciar") {
-    leverPayload = { id: "refinanciar", pct: valor / 100 };
-  } else if (palancaId === "ampliar_dpo") {
-    leverPayload = { id: "ampliar_dpo", pct: valor / 100, agreement_type: "acuerdo_negociado" };
-  } else if (palancaId === "bajar_linea") {
-    leverPayload = { id: "bajar_utilizacion_linea", pct: valor / 100 };
-  } else if (palancaId === "reducir_concent") {
-    leverPayload = { id: "reducir_concentracion", pct: valor / 100 };
-  } else if (palancaId === "sustituir_fact") {
-    leverPayload = { id: "sustituir_factoring", pct: valor / 100 };
-  }
-
-  const res = await apiSimular(cid, [leverPayload]);
+  const res = await apiSimular(cid, [payloadPalanca(palancaId, valor)]);
 
   if (res?.detail && !res.projected) {
-    const motivo = res.detail.motivo_rechazo ?? res.detail.error ?? "Inaplicable para el perfil actual";
     return {
-      scoreNuevo: empresaBase.score,
-      deltaScore: 0,
+      scoreNuevo: null,
+      deltaScore: null,
       cajaLiberada: 0,
-      deltaBps: 0,
-      eurAnio: 0,
+      eurAnio: null,
       inaplicable: true,
-      motivoRechazo: motivo,
+      motivoRechazo: res.detail.motivo_rechazo ?? res.detail.error ?? "Inaplicable para el perfil actual",
       esReal: true,
     };
   }
 
-  if (res && res.projected) {
-    const rawDelta =
-      res.delta_score ??
-      res.efecto_score_informativo ??
-      (res.projected.score - (res.baseline?.score ?? empresaBase.score));
-    const deltaScore = Math.round(rawDelta * 10) / 10;
-    const scoreNuevo = Math.round(res.projected.score * 10) / 10;
-    const cajaLiberada = Math.round(res.caja_liberada_eur ?? 0);
-    const eurAnio = Math.round(res.eur_año ?? (res.effects?.[0]?.eur_año ?? 0));
-    const deltaBps = Math.round(res.delta_bps ?? (deltaScore * 7.5));
-
+  if (res?.projected) {
+    const delta = res.delta_score;
     return {
-      scoreNuevo,
-      deltaScore,
-      cajaLiberada,
-      deltaBps,
-      eurAnio,
+      scoreNuevo: delta == null ? null : Math.round(res.projected.score * 10) / 10,
+      deltaScore: delta == null ? null : Math.round(delta * 10) / 10,
+      cajaLiberada: Math.round(res.caja_liberada_eur ?? 0),
+      eurAnio: res.eur_año == null ? null : Math.round(res.eur_año),
       inaplicable: false,
       advertencias: res.warnings,
       esReal: true,
     };
   }
 
-  // Fallback con simular() local si el backend no responde
-  const fallback = simular(empresaBase, palancaId, valor);
   return {
-    ...fallback,
+    scoreNuevo: null,
+    deltaScore: null,
+    cajaLiberada: 0,
+    eurAnio: null,
     inaplicable: false,
+    motivoRechazo: "El motor no responde",
     esReal: false,
   };
 }
@@ -619,6 +590,89 @@ export function mapReparto(
         reason: d.reason,
         razon: d.razon,
       })),
+    };
+  });
+}
+
+/* ── La cartera de grupos, con el motivo por el que cada uno pide algo ─── */
+
+export type MotivoGrupo = "CONTAGIO" | "DETERIORO" | "DISPERSION" | "OPORTUNIDAD" | "SIN_SENAL";
+
+export type GrupoCartera = {
+  id: string;
+  nombre: string;
+  erp: string | null;
+  filiales: number;
+  media: number;
+  consolidado: number;
+  penalizacion: number;
+  peor: { id: string; score: number };
+  mejor: { id: string; score: number };
+  enRiesgo: number;
+  cobertura: number;
+  flujoInterno: number;      // euros que se mueven entre sus sociedades
+  motivo: MotivoGrupo;
+  /** Cuánto duele, para ordenar dentro de su motivo. */
+  gravedad: number;
+};
+
+/**
+ * El motivo es una regla, no un modelo, y se evalúa en orden: lo que se mira
+ * primero es lo que ningún score por empresa puede ver —que una filial
+ * arrastre al grupo entero—, y solo después lo que se repite en varias.
+ */
+function motivoDe(g: ApiGrupoDetalle): MotivoGrupo {
+  const pctRiesgo = g.risk_companies_count / Math.max(1, g.company_count);
+  if (g.contagion_penalty > 0) return "CONTAGIO";
+  if (g.risk_companies_count >= 3 || pctRiesgo >= 0.3) return "DETERIORO";
+  if (g.best_company_score - g.worst_company_score >= 30) return "DISPERSION";
+  if (g.consolidated_score >= 65 && g.risk_companies_count === 0) return "OPORTUNIDAD";
+  return "SIN_SENAL";
+}
+
+function gravedadDe(g: ApiGrupoDetalle, motivo: MotivoGrupo) {
+  switch (motivo) {
+    case "CONTAGIO":    return g.contagion_penalty;
+    case "DETERIORO":   return g.risk_companies_count;
+    case "DISPERSION":  return g.best_company_score - g.worst_company_score;
+    case "OPORTUNIDAD": return g.consolidated_score;
+    default:            return 0;
+  }
+}
+
+export async function cargarCarteraGrupos(): Promise<GrupoCartera[]> {
+  const lista = await apiGrupos(250);
+  if (!lista?.groups?.length) return [];
+
+  // El detalle va uno por grupo, pero son 250 llamadas de ~1,5 ms contra el
+  // motor local: en lotes sale en menos de medio segundo y trae lo único que
+  // justifica esta pantalla —consolidado, contagio, mejor y peor filial—.
+  const detalles: (ApiGrupoDetalle | null)[] = [];
+  const ids = lista.groups.map((g) => g.group_id);
+  for (let i = 0; i < ids.length; i += 40) {
+    detalles.push(...await Promise.all(ids.slice(i, i + 40).map((id) => apiGrupo(id))));
+  }
+
+  const flujos = await apiGrafoResumen(250, 1);
+  const porGrupo = new Map((flujos?.groups ?? []).map((g) => [g.group_id, g.eur]));
+
+  return detalles.filter((d): d is ApiGrupoDetalle => !!d).map((g) => {
+    const motivo = motivoDe(g);
+    return {
+      id: g.group_id,
+      nombre: g.group_id.replace("GROUP_", "Grupo "),
+      erp: g.erp,
+      filiales: g.company_count,
+      media: g.average_score,
+      consolidado: g.consolidated_score,
+      penalizacion: g.contagion_penalty,
+      peor: { id: g.worst_company_id, score: g.worst_company_score },
+      mejor: { id: g.best_company_id, score: g.best_company_score },
+      enRiesgo: g.risk_companies_count,
+      cobertura: g.data_coverage_percentage,
+      flujoInterno: porGrupo.get(g.group_id) ?? 0,
+      motivo,
+      gravedad: gravedadDe(g, motivo),
     };
   });
 }
