@@ -1,9 +1,15 @@
 # Dataset sintético congelado v1
 
 **Versionado en Git:** 19 casos × 36 empresas × 36 meses = 24.624 observaciones.
-Paneles mensuales compatibles con `algorythm.score_engine.calculate_scores`; no son transacciones
+Paneles mensuales compatibles con `algorithm.score_engine.calculate_scores`; no son transacciones
 reales ni cifras de clientes de Embat. Escala y covarianzas vienen de grupos de entrenamiento del
 reto; shocks y perfiles son hipótesis. Fuentes y límites: [metodología](../../../METHODOLOGY.md).
+
+Este v1 **no** es el generador gaussiano de trayectorias. Ese vive en
+`algorithm/behavior_benchmark.py`: ruido de margen siempre \(N(0,\sigma)\) y volúmenes lognormales
+(gaussiana en el log). Ahí se mide si \(f\) y el monitor generalizan fuera del CSV del reto
+(`algorithm/behavior_results/synthetic_validation.json`). Este v1 es el banco de **shocks** del
+laboratorio de forecast (block-bootstrap + escala lognormal). Los dos se puntúan con la misma \(f\).
 
 Por caso:
 
@@ -18,7 +24,7 @@ de desarrollo y reservar v1 para diagnóstico (ya es público); una validación 
 
 ```python
 import numpy as np
-from algorythm.score_engine import calculate_scores
+from algorithm.score_engine import calculate_scores
 bank = dict(np.load('forecasting/datasets/synthetic/v1/compound_crisis.npz'))
 score = calculate_scores(bank)
 ```

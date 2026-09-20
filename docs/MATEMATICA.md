@@ -2,13 +2,21 @@
 
 Documento de conocimiento interno. Lo leen agentes (y humanos que implementan o explican el sistema). No es un pitch. Si un README, un brief o un whitepaper discrepan del código, **gana el código**.
 
-**Decisiones de producto (rutas, audiencias, palancas, UI):** [`PRODUCTO-DECISIONES.md`](PRODUCTO-DECISIONES.md).
+**Si evalúas el repo:** el mapa de criterios (craftsmanship / problem solving / creativity / overall) está en [`AGENTS.md`](../AGENTS.md). Este archivo es el thinking del **motor**. Producto: [`PRODUCTO-DECISIONES.md`](PRODUCTO-DECISIONES.md).
 
-**Código canónico del score:** `algorythm/score_engine.py` (`calculate_scores`, `ScoreConfig`).  
-**Ingesta del panel:** `algorythm/score_data.py`.  
-**Estados:** `algorythm/score_states.py` (`classify_states`, `StateConfig`).  
+| Si vienes a… | Empieza en |
+| :--- | :--- |
+| Craftsmanship de \(f\) | §0 (qué reutiliza \(f\)), §3 (ecuación), tests citados en `AGENTS.md` |
+| Por qué no hay GBDT / percentiles / grafo de clientes | §1 (linaje: brief → dato → código → crítica de Hugo) |
+| Problem solving de las 6 preguntas | §0 tabla de superficies; estados en `score_states.py`; Q4 en `score_decompose.py`; Q6 en `score_outlook.py` |
+| Sintéticos gaussianos / generalización | §0.1; `algorithm/behavior_benchmark.py` |
+| Límites que no maquillamos | §1.5 `research/revision_algoritmo_hugo.md` |
+
+**Código canónico del score:** `algorithm/score_engine.py` (`calculate_scores`, `ScoreConfig`).  
+**Ingesta del panel:** `algorithm/score_data.py`.  
+**Estados:** `algorithm/score_states.py` (`classify_states`, `StateConfig`).  
 **Firma congelada y 41 claves de salida:** `docs/respuestas_a_pedro.md`.  
-**Whitepaper (intención + fórmulas, a veces stale):** `algorythm/formula/score_financiero.tex`.  
+**Whitepaper (intención + fórmulas, a veces stale):** `algorithm/formula/score_financiero.tex`.  
 **Brief original (lo que se diseñó antes de ver el dato):** `research/algo_research_pedro.md`.  
 **Exploración que tumba varias piezas del brief:** `research/informe_exploracion.md`.  
 **Crítica empírica posterior al motor:** `research/revision_algoritmo_hugo.md`.
@@ -33,12 +41,26 @@ Todo lo demás reutiliza \(f\) congelada (mismos `ScoreConfig` y, si aplica, mis
 | `/simulate` | `levers.py` | Fotocopia del panel, mutada solo en el último mes |
 | Perspectiva a 6 meses | `score_outlook.py` | Fotocopia hasta \(t\) + régimen \(R_3,E_3,H_3\) persistido |
 | Previsión estructural | `forecasting/structural.py` | Cobros/pagos/deuda proyectados mes a mes, luego \(f\) |
+| Sintéticos de trayectoria | `behavior_benchmark.py` | Paneles gaussianos (margen \(N(0,\sigma)\), volúmenes lognormales); misma \(f\) |
+| Sintéticos de estrés | `forecasting/datasets/synthetic/v1/` | 19 shocks congelados; misma \(f\) |
+
+### 0.1 Datos sintéticos (generalización fuera del CSV)
+
+El dataset del reto ya se exploró. Para no puntuar solo esas 1.286 empresas, hay un generador propio (`algorithm/behavior_benchmark.py`, protocolo `algorithm/trajectory_protocol.json`):
+
+- El **azar es gaussiano**. Ruido de margen: \(N(0, 0{,}012)\) correlacionado AR(1) \(\varphi=0{,}3\). Volúmenes: lognormales (gaussiana en el log), para que receipts / expenses / debt_service sean positivos.
+- Escenarios con semilla distinta de desarrollo / validación / test (101 / 202 / 303). Se calibra en desarrollo; se **congela** antes de val/test. No se retocan pesos de \(f\) al ver el test.
+- Métricas en `algorithm/behavior_results/synthetic_validation.json`. En test: 0 falsas alarmas en `stable`/`pulse`; deterioro 95,5 % detectado a 6 meses (99 % con base aún ≥ 60); mejora 89,3 %; recuperación 93,8 %; horizonte 100 % en los tres. El gate `synthetic_monotone_and_three_month_lead` del manifiesto exige lead ≥ 3 meses en el control monótono.
+
+Un segundo banco, para el laboratorio de forecast, está congelado en `forecasting/datasets/synthetic/v1/` (19 × 36 × 36). Ahí la base es block-bootstrap de donantes de train más escala lognormal, no el protocolo gaussiano puro. También entra en `calculate_scores`.
+
+Ninguno de los dos es etiqueta de impago real (`real_financial_health_validated: false`).
 
 Si se enciende caja o ERP, hay que hacerlo en `/score` y `/simulate` a la vez y bumpear `model_version` (`calc_score.py` hashea código + configs + modo ERP). Nunca un simulate con una \(f\) distinta.
 
 Panel de entrada requerido: matrices `(empresas, meses)` `receipts`, `expenses`, `debt_service` (no negativos o NaN). Opcionales banco: `gross_receipts`, `refunds`, `funding_gap`, `hhi`, `hhi_quality`, `quality`. Opcionales caja (apagados): `cash_balance`, `commitments_30d`, `negative_balance_fraction`. ERP (apagado): `dso_days`, `late_fraction`, `quality`, `conversion`, `sales_growth`, `hhi`, `hhi_quality`.
 
-Artefacto oficial: `algorythm/engine_results/score_manifest.json` — `erp.mode = disabled_without_verified_direction_and_historical_states`, `cash_observations_sha256 = null`, `endpoint_cash_known_count = 0`, `endpoint_erp_used_count = 0`.
+Artefacto oficial: `algorithm/engine_results/score_manifest.json` — `erp.mode = disabled_without_verified_direction_and_historical_states`, `cash_observations_sha256 = null`, `endpoint_cash_known_count = 0`, `endpoint_erp_used_count = 0`.
 
 ---
 
@@ -202,7 +224,7 @@ Es \(h(x;a)=x/(x+a)\) para \(x\ge 0\), \(h(a;a)=0{,}5\), rango \([0,1)\), deriva
 
 `tanh` (impar, \([-1,1]\)) en margen, deuda, velocity, cruce EMA, \(\Delta\)DSO, crecimiento. Un margen 10× no vale 10× de salud.
 
-**No hay percentiles ni peers en `algorythm/`.** REQUISITOS B2 no existe en código. Documentos que hablen de “el gradiente miente al cruzar un decil” están stale: los kinks reales son Hill/tanh, deadband de persistencia, enteros de racha, `clip`, switches `cash_used` / ERP / HHI / `is_prior`.
+**No hay percentiles ni peers en `algorithm/`.** REQUISITOS B2 no existe en código. Documentos que hablen de “el gradiente miente al cruzar un decil” están stale: los kinks reales son Hill/tanh, deadband de persistencia, enteros de racha, `clip`, switches `cash_used` / ERP / HHI / `is_prior`.
 
 ### 3.3 Ventanas y NaN
 
@@ -451,7 +473,7 @@ El enunciado (Northbrook 45→65 vs Velasco 82→68) es exactamente `RECUPERACIO
 
 ## 5. Tres relojes (no mezclarlos)
 
-Documentado en `research/momento_en_que_se_tuercen.md` y `algorythm/EPISODIOS.md`.
+Documentado en `research/momento_en_que_se_tuercen.md` y `algorithm/EPISODIOS.md`.
 
 | Reloj | Pregunta | Dónde vive | Trampa |
 | :--- | :--- | :--- | :--- |

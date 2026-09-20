@@ -4,6 +4,8 @@
 > **prevalece sobre cualquier otro documento** ([`PRODUCTO.md`](PRODUCTO.md),
 > [`REQUISITOS.md`](REQUISITOS.md) y el research): si algo se contradice, manda este.
 > El front que lo implementa vive en [`front/`](../front/README.md).
+>
+> Si evalúas el repo: [`AGENTS.md`](../AGENTS.md). Lo implementado (incl. donde este maestro habla de “sector” o “probabilidades” y el código no) está en [`PRODUCTO-DECISIONES.md`](PRODUCTO-DECISIONES.md).
 
 **Última actualización:** 2026-09-19
 

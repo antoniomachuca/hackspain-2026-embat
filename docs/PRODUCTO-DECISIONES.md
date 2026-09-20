@@ -2,13 +2,22 @@
 
 Documento de conocimiento interno. Lo leen agentes (y humanos que implementan o explican el sistema). No es un pitch. Si un README, un brief o una slide discrepan del código o de este contrato, **gana lo implementado + este documento**. Las fórmulas del score viven en [`MATEMATICA.md`](MATEMATICA.md); aquí solo se referencia qué superficie las consume y qué **no** puede recalcular el front.
 
+**Si evalúas el repo:** el mapa de criterios está en [`AGENTS.md`](../AGENTS.md). Este archivo es el thinking de **producto**. Motor: [`MATEMATICA.md`](MATEMATICA.md).
+
+| Nota Fellows | Secciones de este doc | Código |
+| :--- | :--- | :--- |
+| Problem solving (6 preguntas) | §3 | score, estados, decompose, outlook |
+| Creativity calibrada al track | §2 (dos audiencias), §10 (dos familias de palancas), §11 (grafo inferido, no clientes) | `shell.tsx`, `levers_search.py`, `graph.py` |
+| Craftsmanship de producto | §0 (front pinta), §5 (`SEGMENT_SQL` duplicado), §8 (anillo sin OLS cliente) | `cartera.ts`, `stats.py`, `front/lib/motor.ts` |
+| Overall | §0, §14, §17 | misma \(f\); factorwow; lo que el producto no es |
+
 **Maestro de alcance (seis preguntas):** [`PRODUCTO-MAESTRO.md`](PRODUCTO-MAESTRO.md) — prevalece sobre [`PRODUCTO.md`](PRODUCTO.md) y [`REQUISITOS.md`](REQUISITOS.md) en lo que se contradiga.  
 **Comprador, hueco y narrativa (contexto):** [`PRODUCTO.md`](PRODUCTO.md).  
 **Demo / integridad de cifras:** [`.agents/factorwow.md`](../.agents/factorwow.md).  
 **Front (rutas y modos):** `front/components/shell.tsx`, `front/lib/cartera.ts`, `front/components/ficha-empresa.tsx`.  
 **API:** `backend/routes/` (`companies`, `stats`, `simulate`, `palancas`, `graph`, `forecasts`, `alerts`).  
 **Palancas (contrato de dominio):** `research/capa_intermedia_mejoras.md`, `research/capa_intermedia_decisiones.md`, `docs/respuestas_a_pedro.md`.  
-**Marcas en trayectoria:** `research/dos_puntos_trayectoria.md`, `algorythm/EPISODIOS.md`.  
+**Marcas en trayectoria:** `research/dos_puntos_trayectoria.md`, `algorithm/EPISODIOS.md`.  
 **Anillo bache/tendencia (front):** `research/guia_front_reparto_bache_tendencia.md`.  
 **Abanico estructural (front):** `forecasting/GUIA_FRONT_ESTRUCTURAL.md`.
 
@@ -127,7 +136,7 @@ Vista Embat añade encima: segmento, Δ3m, producto Embat con más efecto si est
 
 ## 7. Marcas en el gráfico de trayectoria
 
-Contrato: `research/dos_puntos_trayectoria.md`, `algorythm/EPISODIOS.md`.
+Contrato: `research/dos_puntos_trayectoria.md`, `algorithm/EPISODIOS.md`.
 
 | Marca | Significado | Reloj | Reglas de UI |
 | :--- | :--- | :--- | :--- |
@@ -145,7 +154,7 @@ Contrato: `research/dos_puntos_trayectoria.md`, `algorythm/EPISODIOS.md`.
 
 ## 8. Anillo bache / tendencia del mes
 
-Contrato: `research/guia_front_reparto_bache_tendencia.md`, cálculo en `algorythm/score_decompose.py`.
+Contrato: `research/guia_front_reparto_bache_tendencia.md`, cálculo en `algorithm/score_decompose.py`.
 
 | Decisión | Cerrada |
 | :--- | :--- |

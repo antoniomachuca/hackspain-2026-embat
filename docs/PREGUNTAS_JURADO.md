@@ -3,6 +3,8 @@
 > *18–20 de septiembre de 2026 · ETSIT UPM, Madrid*  
 > Documento de preparación técnica y de negocio basado **estrictamente en el código fuente, la base de datos y la arquitectura real del repositorio**. Sin suposiciones ni datos inventados.
 
+Mapa de evaluación (craftsmanship / problem solving / creativity / overall): [`AGENTS.md`](../AGENTS.md). Thinking del motor: [`MATEMATICA.md`](MATEMATICA.md). Thinking de producto: [`PRODUCTO-DECISIONES.md`](PRODUCTO-DECISIONES.md).
+
 ---
 
 ## Índice de Bloques
@@ -21,7 +23,7 @@
 * **Intención del jurado:** Evaluar si habéis entendido la naturaleza del problema o si habéis forzado un modelo supervisado (GBDT, Random Forest) sobre un dataset sin etiquetas.
 * **Respuesta exacta:**
   > "El score base **no es un modelo de Machine Learning supervisado**. El dataset no contiene ninguna etiqueta (*ground truth*) ni variable objetivo de impago o quiebra en los 24 meses; forzar un clasificador sin etiqueta habría sido inventar un target ficticio.  
-  > Por ello, implementamos un **motor analítico continuo determinista** (`algorythm/score_engine.py`) basado en transformaciones continuas ($\tanh$ y saturaciones de Hill) calibradas sobre la física del circulante:
+  > Por ello, implementamos un **motor analítico continuo determinista** (`algorithm/score_engine.py`) basado en transformaciones continuas ($\tanh$ y saturaciones de Hill) calibradas sobre la física del circulante:
   > $$\text{Base} = 100 \cdot (0.50 \cdot L + 0.30 \cdot C + 0.20 \cdot D)$$
   > Donde $L$ es Liquidez, $C$ es Cobros y Eficiencia, y $D$ es Servicio de Deuda, modulado por tres factores dinámicos: **Momentum ($\pm 8$ pts), Crecimiento de Calidad ($+6$ pts) y Fragilidad ($-8$ pts)**.  
   > El Machine Learning (Huber, Ridge con GroupKFold y medianas lineales) lo reservamos exclusivamente para el módulo de **previsión de score a 1, 3 y 6 meses** (`forecasting/`), donde sí existe una serie temporal histórica medible para evaluar error absoluto (MAE)."
@@ -31,7 +33,7 @@
 ### 2. En el dataset había 9 ficheros, incluidos `invoices.csv` (ERP) y `balances.csv` (saldos). ¿Los habéis usado en el cálculo oficial del score mensual?
 * **Intención del jurado:** Detectar si habéis cometido *lookahead bias* (sesgo de anticipación) o falseado datos longitudinales incompletos.
 * **Respuesta exacta:**
-  > "En la baseline oficial del motor (`algorythm/engine_results/score_manifest.json`), **ERP está desactivado y `cash_known=0`**.  
+  > "En la baseline oficial del motor (`algorithm/engine_results/score_manifest.json`), **ERP está desactivado y `cash_known=0`**.  
   > El motivo es metodológico: `balances.csv` es una **foto estática al 1 de septiembre de 2026** (mes 24); no existía un saldo de balance para cada uno de los meses anteriores. Utilizar el saldo del final para evaluar meses pasados habría introducido sesgo de anticipación.  
   > Por su parte, la sincronización de ERP en `invoices.csv` era parcial entre filiales. Decidimos basar el núcleo oficial en el rastro bancario directo (`transactions.csv`), que es **100% homogéneo, observable mes a mes y sin sesgos**, computando ingresos operativos, gastos y servicio de deuda exclusivamente a partir de las salidas reales de caja (`debt_repayment` + `interest_charge`). El ERP queda conectado en el backend como capa operativa opcional para el cálculo de ratios DSO/DPO en la ficha."
 
@@ -48,7 +50,7 @@
 ### 4. En el score bonificáis el crecimiento con hasta +6 puntos ($G$). ¿Qué pasa si una empresa crece mucho en ventas pero quema toda su caja y no cobra las facturas?
 * **Intención del jurado:** Comprobar si premiáis crecimientos desordenados que acaban en quiebras de circulante.
 * **Respuesta exacta:**
-  > "Nuestra formulación matemática penaliza explícitamente el crecimiento descontrolado (`algorythm/score_engine.py`):
+  > "Nuestra formulación matemática penaliza explícitamente el crecimiento descontrolado (`algorithm/score_engine.py`):
   > $$G = \tanh\left(\frac{\max(\Delta R, 0)}{0.20}\right) \cdot \left(0.5 \cdot (L_{\text{bank}} + C_{\text{bank}})\right) \cdot q_3$$
   > $G$ no premia el crecimiento bruto de ingresos de forma aislada. Si el incremento de ventas no viene acompañado de liquidez operativa ($L_{\text{bank}}$ alto) y disciplina de cobro ($C_{\text{bank}}$ alto), el multiplicador colapsa hacia cero y la bonificación se anula.  
   > Es más: el tensionamiento de liquidez resultante activa el factor de **Fragilidad Financiera ($F$)**, que resta hasta $-8$ puntos netos sobre el score."
@@ -79,7 +81,7 @@
 ### 7. ¿Cómo diferencia vuestro algoritmo un "Bache puntual" de un "Deterioro estructural"?
 * **Intención del jurado:** Evaluar la Pregunta 4 del enunciado oficial (Criterio de estabilidad y filtro de ruido).
 * **Respuesta exacta:**
-  > "Mediante las reglas de transición de nuestra **máquina de 6 estados analíticos** (`algorythm/score_states.py`):  
+  > "Mediante las reglas de transición de nuestra **máquina de 6 estados analíticos** (`algorithm/score_states.py`):  
   > - Asignamos `BACHE` cuando una empresa sufre una contracción puntual en su margen de flujo mensual ($> 0.12$), pero **sin arrastrar inercia negativa previa** ($M \ge -0.10$ en los 3 meses anteriores). Corresponde a una tensión aislada de tesorería (como un pago extraordinario o un retraso esporádico).  
   > - Asignamos `TORCIENDOSE` o `DETERIORO` únicamente cuando la degradación se confirma durante **al menos 3 meses consecutivos** en la ventana móvil y cruza las medias móviles rápida y lenta.  
   > De esta forma evitamos generar alarmas operativas por estacionalidad o picos no estructurales."
@@ -97,7 +99,7 @@
 ### 9. ¿Cuándo se vio venir? ¿Cuántos meses antes avisa el sistema (Lead Time medido)?
 * **Intención del jurado:** Evaluar la Pregunta 6 del enunciado y el Bonus de "Anticipación medida".
 * **Respuesta exacta:**
-  > "Hemos auditado cuantitativamente el comportamiento temporal de todo el dataset en `algorythm/engine_results/episodes_report.md`:  
+  > "Hemos auditado cuantitativamente el comportamiento temporal de todo el dataset en `algorithm/engine_results/episodes_report.md`:  
   > - Evaluamos **837 episodios** en 479 empresas (373 de deterioro y 464 de mejora).  
   > - Con nuestro criterio de detección (que exige 3 meses de persistencia para garantizar cero falsas alarmas), la anticipación mediana respecto a la confirmación del cambio material definitivo ($\ge 10$ puntos de caída) se sitúa en **$-1.0$ meses** (el aviso salta exactamente al cumplirse el tercer mes de deterioro acumulado).  
   > - En un **10% a 13% de los episodios**, el aviso se anticipa entre **1 y 4 meses** al desplome material.  
@@ -110,7 +112,7 @@
 ### 10. ¿Cómo explicáis el cambio en la puntuación? ¿Habéis usado valores SHAP?
 * **Intención del jurado:** Evaluar la Pregunta 5 del enunciado ("Explicabilidad: nadie compra una caja negra").
 * **Respuesta exacta:**
-  > "No empleamos aproximaciones SHAP sobre el score base porque no tenemos una caja negra que aproximar. Nuestro score es una **descomposición aditiva exacta** (`algorythm/score_engine.py`):  
+  > "No empleamos aproximaciones SHAP sobre el score base porque no tenemos una caja negra que aproximar. Nuestro score es una **descomposición aditiva exacta** (`algorithm/score_engine.py`):  
   > $$\Delta S = \Delta P_L + \Delta P_C + \Delta P_D + \Delta P_M + \Delta P_G + \Delta P_F + \Delta P_{\text{clip}}$$  
   > En la interfaz gráfica (`front/components/cascada.tsx`), esto se renderiza directamente en un **gráfico Waterfall**: cada punto ganado o perdido entre dos meses se desglosa con exactitud matemática en euros o ratios operativos (cuántos puntos se deben a contracción de liquidez, cuántos al retraso de cobro de clientes o a la carga de intereses). La suma de las barras coincide con el cambio en el score sin residuo alguno."
 
@@ -119,7 +121,7 @@
 ### 11. ¿Cómo calculáis el score de un grupo empresarial (holding) y el riesgo de contagio?
 * **Intención del jurado:** Evaluar la consistencia en estructuras multi-entidad (clave en el negocio de Embat).
 * **Respuesta exacta:**
-  > "En `algorythm/build_duckdb.py` y `backend/routes/companies.py`, el score consolidado del grupo combina la media ponderada de las filiales con la situación del eslabón más vulnerable:  
+  > "En `algorithm/build_duckdb.py` y `backend/routes/companies.py`, el score consolidado del grupo combina la media ponderada de las filiales con la situación del eslabón más vulnerable:  
   > $$S_{\text{grupo}} = 0.65 \cdot \bar{S}_{\text{filiales}} + 0.35 \cdot \min(S_{\text{filiales}})$$  
   > Si cualquier filial desciende a zona crítica ($S < 40$), el motor aplica una **penalización adicional por riesgo de contagio intragrupo**.  
   > Esto permite que en la [Ficha de Grupo (`/grupo/[id]`)](../front/app/grupo/%5Bid%5D/page.tsx) se distinga de inmediato si un holding sólido tiene una filial drenando recursos de las demás."
@@ -139,8 +141,8 @@
 * **Intención del jurado:** Evaluar el Bonus de "Monitor que avisa".
 * **Respuesta exacta:**
   > "Sí, disponemos de un **monitor proactivo con doble canal** operativo:  
-  > 1. **Bot de Telegram** (`algorythm/score_telegram_bot.py`): monitoriza el feed de alertas (`alerts_feed.json`) y emite notificaciones instantáneas cuando una sociedad cambia de régimen a `TORCIENDOSE` o `DETERIORO`, detallando la variación de puntos y los factores causales.  
-  > 2. **Notificador de Email** (`algorythm/email_notifier.py`): genera correos con la gráfica histórica longitudinal de 24 meses incrustada (validado en local con Mailpit).  
+  > 1. **Bot de Telegram** (`algorithm/score_telegram_bot.py`): monitoriza el feed de alertas (`alerts_feed.json`) y emite notificaciones instantáneas cuando una sociedad cambia de régimen a `TORCIENDOSE` o `DETERIORO`, detallando la variación de puntos y los factores causales.  
+  > 2. **Notificador de Email** (`algorithm/email_notifier.py`): genera correos con la gráfica histórica longitudinal de 24 meses incrustada (validado en local con Mailpit).  
   > El sistema no espera a que el usuario entre; avisa en el momento del cambio."
 
 ---
@@ -223,11 +225,11 @@
 | Dimensión / Indicador | Valor Exacto en el Repositorio | Ubicación en el Código |
 | :--- | :--- | :--- |
 | **Universo de Datos** | 1.286 empresas en 250 holdings / 24 meses históricos | `xray.duckdb` / `dataset/` |
-| **Fórmula Score Base** | $100 \cdot (0.50 L + 0.30 C + 0.20 D)$ | `algorythm/score_engine.py` |
-| **Ajustes Dinámicos** | Momentum ($\pm 8$), Crecimiento ($+6$), Fragilidad ($-8$) | `algorythm/score_engine.py` |
-| **Estados Analíticos** | 6 estados (`ESTABLE`, `TORCIENDOSE`, `DETERIORO`, `MEJORANDO`, `RECUPERACION`, `BACHE`) | `algorythm/score_states.py` |
-| **Consolidación Holding** | $0.65 \cdot \text{Media} + 0.35 \cdot \text{Mínimo}$ (penalización contagio si filial $< 40$) | `algorythm/build_duckdb.py` |
+| **Fórmula Score Base** | $100 \cdot (0.50 L + 0.30 C + 0.20 D)$ | `algorithm/score_engine.py` |
+| **Ajustes Dinámicos** | Momentum ($\pm 8$), Crecimiento ($+6$), Fragilidad ($-8$) | `algorithm/score_engine.py` |
+| **Estados Analíticos** | 6 estados (`ESTABLE`, `TORCIENDOSE`, `DETERIORO`, `MEJORANDO`, `RECUPERACION`, `BACHE`) | `algorithm/score_states.py` |
+| **Consolidación Holding** | $0.65 \cdot \text{Media} + 0.35 \cdot \text{Mínimo}$ (penalización contagio si filial $< 40$) | `algorithm/build_duckdb.py` |
 | **Inferencia Flujos Grupo** | Misma fecha, mismo importe $\ge 500$€ (24x más frecuente que ruido; 1.6% probabilidad de error) | `backend/routes/graph.py` |
-| **Latencia What-If** | $< 4\text{ ms}$ por simulación de palancas | `algorythm/score_whatif.py` |
+| **Latencia What-If** | $< 4\text{ ms}$ por simulación de palancas | `algorithm/score_whatif.py` |
 | **MAE Forecasting 1m** | 4.17 puntos en validación de grupos (modelo Huber) | `forecasting/benchmarks/LEADERBOARD.md` |
 | **Tests Backend** | 20 / 20 tests unitarios y de integración pasando | `backend/test_backend.py` |

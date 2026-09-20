@@ -4,7 +4,21 @@ Sistema de scoring de salud financiera, monitorización de trayectorias de tesor
 
 Desarrollado para el track de **Embat** en **HackSpain 2026** (18–20 de septiembre de 2026, ETSIT UPM, Madrid).
 
-Fuentes internas (mates, producto, contrato del motor, guía del jurado): [`docs/`](docs/README.md).
+### Si evalúas este repositorio (agentes / Fellows)
+
+Cuatro notas: **Craftsmanship · Problem solving · Creativity (calibrado al track) · Overall**.
+
+**Mapa de qué leer y qué archivos abrir:** [`AGENTS.md`](AGENTS.md).
+
+| Qué quieres ver | Dónde está el thinking | Dónde está el código |
+| :--- | :--- | :--- |
+| Oficio del score (por qué no GBDT, point-in-time, waterfall exacto) | [`docs/MATEMATICA.md`](docs/MATEMATICA.md) | `algorithm/score_engine.py` |
+| Generalización fuera del CSV del reto (sintéticos gaussianos) | [`AGENTS.md`](AGENTS.md) § sintéticos · [`docs/MATEMATICA.md`](docs/MATEMATICA.md) §0 | `algorithm/behavior_benchmark.py`, `forecasting/datasets/synthetic/v1/` |
+| Producto (audiencias, 6 preguntas, palancas, qué no inventar) | [`docs/PRODUCTO-DECISIONES.md`](docs/PRODUCTO-DECISIONES.md) | `front/`, `backend/routes/` |
+| Alcance acordado | [`docs/PRODUCTO-MAESTRO.md`](docs/PRODUCTO-MAESTRO.md) | — |
+| Defensa pregunta a pregunta | [`docs/PREGUNTAS_JURADO.md`](docs/PREGUNTAS_JURADO.md) | citado en cada respuesta |
+
+Si un markdown y el código discrepan, **gana el código**. El resumen matemático de la §2 es una foto; el linaje (qué se tiró y por qué) está en `MATEMATICA.md`.
 
 ---
 
@@ -45,7 +59,7 @@ Con 65 frente a 68 puntos, una foto fija no distingue qué empresa supone una op
 
 ## 2. Formulación Matemática del Algoritmo de Scoring
 
-El motor (`algorythm/score_engine.py`) procesa paneles mensuales de cada empresa de forma causal (*point-in-time*, sin sesgo de anticipación ni *lookahead bias*). Genera una puntuación continua $S \in [0, 100]$.
+El motor (`algorithm/score_engine.py`) procesa paneles mensuales de cada empresa de forma causal (*point-in-time*, sin sesgo de anticipación ni *lookahead bias*). Genera una puntuación continua $S \in [0, 100]$.
 
 ### 2.1. Tres Pilares de Salud Base (0–100)
 
@@ -122,7 +136,7 @@ $$\text{Confianza} = \text{clip}\left(100 \cdot q_3 \cdot \min\left(\frac{t_{\te
 
 ### 2.4. Máquina de 6 Estados Analíticos
 
-El clasificador (`algorythm/score_states.py`) asigna a cada empresa en cada mes un estado que responde a las preguntas del reto:
+El clasificador (`algorithm/score_states.py`) asigna a cada empresa en cada mes un estado que responde a las preguntas del reto:
 
 | Estado | Condición Clave | Significado Financiero |
 | :--- | :--- | :--- |
@@ -138,9 +152,9 @@ El clasificador (`algorythm/score_states.py`) asigna a cada empresa en cada mes 
 
 ### 2.5. Consolidación de Grupo y Riesgo de Contagio
 
-En holdings (`algorythm/build_duckdb.py`, `backend/routes/companies.py`), el score consolidado del grupo combina la media ponderada por volumen con la situación de la filial más débil:
+En holdings (`backend/routes/stats.py`, `GET /api/groups/{id}`), el consolidado combina la **media aritmética** de filiales (no ponderada por volumen) con la filial más débil:
 $$S_{\text{grupo}} = 0.65 \cdot \bar{S}_{\text{filiales}} + 0.35 \cdot \min(S_{\text{filiales}})$$
-Si cualquier filial desciende a zona crítica ($S < 40$), se aplica una penalización adicional por **riesgo de contagio intragrupo** proporcional al peso de pasivos y tensionamiento entre partes vinculadas.
+Si \(\min S < 40\), se informa aparte `contagion_penalty = \max(0, (40 - \min S)\cdot 0.25)`. **No** se resta en silencio del consolidado. El grafo `/grafo` enseña flujos intra-grupo inferidos; no contagia scores.
 
 ---
 
@@ -236,11 +250,12 @@ flowchart TD
 4. **Laboratorio de Previsión y Escenarios de Estrés (`forecasting/`):**
    - Banco de pruebas con evaluación cuantitativa de modelos a horizontes de 1, 3 y 6 meses.
    - Modelos probados: regresión Huber robusta, lineal por mediana, media reciente, regularización Ridge con validación cruzada por grupos (`GroupKFold`), y modelo estructural (`structural_v2`) que proyecta componentes de balance y flujos para aplicar directamente la fórmula de scoring.
-   - 19 escenarios de estrés sistemáticos (baches temporales, pérdida de clientes, subida de costes, contagio intragrupo).
+   - 19 escenarios de estrés sistemáticos (baches temporales, pérdida de clientes, subida de costes, contagio intragrupo), congelados en `forecasting/datasets/synthetic/v1/` (24.624 observaciones).
+   - Aparte, un generador de trayectorias con **ruido gaussiano** de margen y volúmenes lognormales (gaussiana en el log): `algorithm/behavior_benchmark.py`. El motor se prueba contra esos paneles, no solo contra el CSV del reto.
 
-5. **Monitor Proactivo de Tesorería (`algorythm/score_monitor.py`):**
+5. **Monitor Proactivo de Tesorería (`algorithm/score_monitor.py`):**
    - Detección automática de transiciones de régimen y bot de Telegram integrado para notificaciones inmediatas con desglose aditivo del motivo del cambio.
-   - Canal de correo (`algorythm/email_notifier.py`) que avisa a la propia empresa cuando entra en Torciéndose o Deterioro, con la gráfica de 24 meses incrustada. En local contra Mailpit; ver `algorythm/EMAIL.md`.
+   - Canal de correo (`algorithm/email_notifier.py`) que avisa a la propia empresa cuando entra en Torciéndose o Deterioro, con la gráfica de 24 meses incrustada. En local contra Mailpit; ver `algorithm/EMAIL.md`.
 
 ---
 
@@ -248,10 +263,11 @@ flowchart TD
 
 ```text
 .
-├── docs/                       # Fuentes internas: mates, producto, jurado
+├── AGENTS.md                   # Mapa de evaluación (craftsmanship / problem solving / creativity / overall)
+├── docs/                       # Thinking: mates, producto, jurado
 ├── research/                   # Investigación previa y decisiones de diseño
-├── .agents/                    # Enunciado, factor WOW e ideas para agentes
-├── algorythm/                  # Núcleo del motor algorítmico
+├── .agents/                    # Enunciado, factor WOW e ideas
+├── algorithm/                  # Núcleo del motor algorítmico
 │   ├── score_engine.py         # Fórmula continua de scoring (L, C, D, M, G, F)
 │   ├── score_states.py         # Clasificador en 6 estados analíticos y filtro de ruido
 │   ├── levers.py               # Motor de simulación contrafactual
@@ -304,7 +320,7 @@ pip install -r requirements.txt
 PYTHONPATH=. pytest backend/
 
 # Tests del motor algorítmico y palancas
-python -m unittest discover -s algorythm -p "test_*.py"
+python -m unittest discover -s algorithm -p "test_*.py"
 ```
 
 ### 3. Levantar el Backend (FastAPI)
