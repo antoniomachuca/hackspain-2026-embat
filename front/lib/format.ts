@@ -1,10 +1,18 @@
 import { mesCerradoDeAsOf } from "./calendar";
 
+/**
+ * El ICU de Node y el del navegador no colocan igual el espacio del euro: uno
+ * da "9 M€" y el otro "9 M €". React compara el texto renderizado y eso rompe
+ * la hidratación, así que la separación se fija aquí y deja de depender de
+ * qué versión de CLDR tenga cada lado.
+ */
+const espacioFijo = (s: string) => s.replace(/\s+/g, " ").replace(/\s*€/, " €").trim();
+
 export const eur = (n: number, compacto = false) =>
-  new Intl.NumberFormat("es-ES", {
+  espacioFijo(new Intl.NumberFormat("es-ES", {
     style: "currency", currency: "EUR", maximumFractionDigits: 0,
     notation: compacto ? "compact" : "standard",
-  }).format(n);
+  }).format(n));
 
 export const num = (n: number, d = 1) =>
   new Intl.NumberFormat("es-ES", { minimumFractionDigits: d, maximumFractionDigits: d }).format(n);

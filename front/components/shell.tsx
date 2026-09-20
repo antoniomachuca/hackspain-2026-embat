@@ -62,7 +62,6 @@ const seccionesDe = (modo: Modo, empresa: string): Seccion[] => [
             hijos: [
               { href: "/", label: "Cartera", icono: I.panel },
               { href: "/grupos", label: "Grupos", icono: I.grupo },
-              { href: "/grafo", label: "Flujos intragrupo", icono: I.nodos },
             ],
           }
         : {
