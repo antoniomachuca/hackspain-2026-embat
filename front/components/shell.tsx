@@ -3,6 +3,7 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
 import { Isotipo } from "@/components/isotipo";
+import { Cuenta } from "@/components/cuenta";
 
 const Icono = ({ trazo, ...r }: { trazo: React.ReactNode } & React.SVGProps<SVGSVGElement>) => (
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7"
@@ -205,9 +206,7 @@ export function Shell({ children }: { children: React.ReactNode }) {
         </nav>
 
         <div className="pl-pie">
-          <span className="h-[7px] w-[7px] flex-none rounded-full"
-            style={{ background: "var(--color-purple)", boxShadow: "0 0 8px rgba(176,131,232,.7)" }} />
-          <span className="pl-etiqueta truncate whitespace-nowrap text-[11px] text-[var(--color-ink-4)]">Motor v1.0 · datos de demostración</span>
+          <Cuenta abierto={abierto} />
         </div>
       </aside>
 
@@ -226,17 +225,7 @@ export function Cabecera({ titulo, sub, extra }: { titulo: string; sub?: React.R
         <h1 className="text-[26px] font-semibold tracking-tight">{titulo}</h1>
         {sub && <div className="mt-1 text-[12.5px] text-[var(--color-ink-3)]">{sub}</div>}
       </div>
-      <div className="flex items-center gap-2.5">
-        {extra}
-        <span className="flex h-10 w-10 items-center justify-center rounded-full text-[13px] font-semibold"
-          style={{ background: "linear-gradient(145deg,var(--color-purple-mid),var(--color-purple-deep))", color: "#0d0416" }}
-          role="img"
-          aria-label="Perfil"
-          title="Perfil"
-        >
-          <Icono width="18" height="18" trazo={<><circle cx="12" cy="8" r="3.2" /><path d="M5 20c.8-3.2 3.1-5 7-5s6.2 1.8 7 5" /></>} />
-        </span>
-      </div>
+      <div className="flex items-center gap-2.5">{extra}</div>
     </header>
   );
 }

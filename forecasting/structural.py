@@ -23,6 +23,8 @@ SEASONAL_CLIP = (0.5, 2.0)
 M_MIN, M_MAX = 0.05, 0.25
 BAND_WIDTH_CAP = 0.80
 SLOPE_WINDOW = 6
+LUMPY_MAX_ACTIVE = 2
+LUMPY_TOP_SHARE = 0.50
 
 
 def default_dataset():
@@ -70,25 +72,53 @@ def volatility_m(series, origin, lookback=SLOPE_WINDOW, window=RUN_WINDOW):
     return float(np.clip(np.std(mom), M_MIN, M_MAX))
 
 
+def receipts_are_lumpy(series, origin, window=LONG_WINDOW):
+    """Few paying months, or one month is most of the year's cobros."""
+    start = max(0, origin - window + 1)
+    block = np.nan_to_num(np.asarray(series[start:origin + 1], dtype=float), nan=0.0)
+    total = float(block.sum())
+    if total <= 0:
+        return False
+    active = int(np.sum(block > 0))
+    return active <= LUMPY_MAX_ACTIVE or float(block.max() / total) >= LUMPY_TOP_SHARE
+
+
+def robust_long_rate(series, origin, window=LONG_WINDOW):
+    start = max(0, origin - window + 1)
+    block = np.nan_to_num(np.asarray(series[start:origin + 1], dtype=float), nan=0.0)
+    return float(np.median(block)) if len(block) else 0.0
+
+
 def scenario_paths(receipts, expenses, debt, refunds, origin, horizon):
     """Return pessimistic, central and optimistic monthly paths for the three flows plus refunds."""
     specs = []
-    for series, help_when_up in (
+    lumpy = receipts_are_lumpy(receipts, origin)
+    for index, (series, help_when_up) in enumerate((
         (receipts, True),
         (expenses, False),
         (debt, False),
-    ):
+    )):
         short = run_rate(series, origin)
         long = long_rate(series, origin)
         width = volatility_m(series, origin)
-        factors = seasonal_factors(series, origin, horizon, long)
-        central = mean_reverting_path(short, long, horizon) * factors
         steps = np.arange(1, horizon + 1, dtype=float)
         scale = np.array([band_width(width, step) for step in steps])
-        if help_when_up:
-            optimistic, pessimistic = central * (1 + scale), central * (1 - scale)
+        if index == 0 and lumpy:
+            long_central = robust_long_rate(series, origin)
+            factors = seasonal_factors(series, origin, horizon, long_central)
+            central = mean_reverting_path(short, long_central, horizon) * factors
+            dream = mean_reverting_path(short, long, horizon) * seasonal_factors(
+                series, origin, horizon, long)
+            pessimistic = central * (1 - scale)
+            optimistic = np.maximum(dream, central * (1 + scale))
+            long = long_central
         else:
-            optimistic, pessimistic = central * (1 - scale), central * (1 + scale)
+            factors = seasonal_factors(series, origin, horizon, long)
+            central = mean_reverting_path(short, long, horizon) * factors
+            if help_when_up:
+                optimistic, pessimistic = central * (1 + scale), central * (1 - scale)
+            else:
+                optimistic, pessimistic = central * (1 - scale), central * (1 + scale)
         specs.append((
             np.maximum(pessimistic, 0), np.maximum(central, 0), np.maximum(optimistic, 0),
             width, short, long, factors,
@@ -102,7 +132,8 @@ def scenario_paths(receipts, expenses, debt, refunds, origin, horizon):
         'central': {'receipts': rec_c, 'expenses': exp_c, 'debt_service': deb_c, 'refunds': rec_c * rate},
         'optimistic': {'receipts': rec_o, 'expenses': exp_o, 'debt_service': deb_o, 'refunds': rec_o * rate},
         'diagnostics': {
-            'receipts': {'level': l_r, 'long_mean': mu_r, 'm': m_r, 'seasonal': f_r.tolist()},
+            'receipts': {'level': l_r, 'long_mean': mu_r, 'm': m_r, 'seasonal': f_r.tolist(),
+                         'lumpy': lumpy},
             'expenses': {'level': l_e, 'long_mean': mu_e, 'm': m_e, 'seasonal': f_e.tolist()},
             'debt_service': {'level': l_d, 'long_mean': mu_d, 'm': m_d, 'seasonal': f_d.tolist()},
             'refund_rate': rate,
@@ -153,6 +184,23 @@ def _rounded(values):
     return [round(float(value), 2) for value in values]
 
 
+def _ordered_scenarios(alto, medio, bajo):
+    """Per month, max is alto, mid is medio, min is bajo.
+
+    Optimistic/central/pessimistic are defined on flows, then scored. The
+    formula is nonlinear, so a 'helpful' path can land a tenth below the
+    central one. Sorting the three scores keeps the fan readable without
+    changing the set of numbers.
+    """
+    ordered_alto, ordered_medio, ordered_bajo = [], [], []
+    for triple in zip(alto, medio, bajo):
+        lo, mid, hi = sorted(triple)
+        ordered_bajo.append(lo)
+        ordered_medio.append(mid)
+        ordered_alto.append(hi)
+    return ordered_alto, ordered_medio, ordered_bajo
+
+
 def _named_flows(paths):
     return {name: {k: paths[name][k] for k in ('receipts', 'expenses', 'debt_service', 'refunds')}
             for name in ('pessimistic', 'central', 'optimistic')}
@@ -191,6 +239,11 @@ def structural_prevision(company_id, meses=12, banks=None, dataset=None, origin=
         receipts[row], bank['expenses'][row], bank['debt_service'][row],
         refunds, origin, meses)
     current, series = score_named_path_series(bank, row, origin, meses, _named_flows(paths))
+    alto, medio, bajo = _ordered_scenarios(
+        _rounded(series['optimistic']),
+        _rounded(series['central']),
+        _rounded(series['pessimistic']),
+    )
     payload = {
         'company_id': company_id,
         'model': 'structural_v2',
@@ -198,9 +251,9 @@ def structural_prevision(company_id, meses=12, banks=None, dataset=None, origin=
         'as_of': as_of_from_origin(origin),
         'meses': meses,
         'current_score': round(current, 2),
-        'alto': _rounded(series['optimistic']),
-        'medio': _rounded(series['central']),
-        'bajo': _rounded(series['pessimistic']),
+        'alto': alto,
+        'medio': medio,
+        'bajo': bajo,
     }
     _PREVISION_CACHE[cache_key] = payload
     return payload
