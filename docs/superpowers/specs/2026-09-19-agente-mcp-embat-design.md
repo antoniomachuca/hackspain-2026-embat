@@ -97,6 +97,28 @@ Herramienta sin widget: JSON plegado en un `details`.
 - `components/shell.tsx`: entrada "Asistente" en el modo Embat; `/agente` cuenta
   como modo Embat.
 
+## Modo empresa (añadido el 20-sep-2026)
+
+La misma conversación, vista desde la empresa que compra X Ray: `/[id]/asistente`,
+con la entrada "Asistente" en el sidebar del modo empresa. Reglas:
+
+- **El límite lo impone el servidor, no el prompt.** El cuerpo lleva
+  `modo: "empresa"` y `empresa`; el route handler resuelve el grupo con la ficha
+  y pasa las herramientas por `lib/agente-alcance.ts` (`acotar`): las de cartera
+  (`resumen_cartera`, `buscar_empresas`) desaparecen y en el resto el parámetro
+  `empresa` o `grupo` lo sobreescribe el servidor. Aunque el modelo pida otra
+  empresa, la herramienta devuelve la del alcance.
+- **Prompt propio**: segunda persona, tono de "tu salud financiera", sin
+  "clientes", "cartera" ni segmentos Apostar/Vigilar/Acompañar, que son lectura
+  interna de Embat. Sugerencias de arranque propias.
+- **Widgets**: los mismos. Un contexto (`AlcanceContext`) decide a dónde enlazan
+  las filas (`/[id]` en vez de `/embat/[id]`, `/[id]/grupo` en vez de
+  `/grupo/[gid]`) y oculta el chip de segmento.
+- El grupo sí se ve (score de las sociedades hermanas), porque así se pidió. Si
+  algún día una filial no debe ver a sus hermanas, se filtra en `acotar`.
+- En la demo no hay login, así que `empresa` viene del cuerpo de la petición. En
+  un producto real saldría de la sesión.
+
 ## Variables de entorno
 
 | Servicio | Variable | Uso |
@@ -120,4 +142,4 @@ En local: `front/.env.local` con `OPENAI_API_KEY=...` (está en `.gitignore`).
 ## Fuera de alcance
 
 Persistencia de conversaciones, login, exposición pública del MCP, botón
-"Preguntar al asistente" en la ficha, asistente en el modo empresa.
+"Preguntar al asistente" en la ficha.

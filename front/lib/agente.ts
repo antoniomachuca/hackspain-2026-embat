@@ -61,8 +61,24 @@ export function datosDe<T = Record<string, unknown>>(output: unknown): { datos: 
   return { datos: (datos as T) ?? null, error: datos == null ? "Sin datos" : null };
 }
 
+/** Quién pregunta: Embat mirando su cartera, o una empresa mirándose a sí misma. */
+export type ModoAgente = "embat" | "empresa";
+
+/** A dónde lleva una empresa según quién mira: Embat abre la ficha de cliente; la empresa, la suya. */
+export const hrefEmpresa = (id: string, modo: ModoAgente) => (modo === "embat" ? `/embat/${id}` : `/${id}`);
+export const hrefGrupo = (gid: string, modo: ModoAgente, empresa?: string | null) =>
+  modo === "embat" || !empresa ? `/grupo/${gid}` : `/${empresa}/grupo`;
+
 /** Preguntas de arranque. Con una empresa en foco, la primera es sobre ella. */
-export function sugerencias(empresa?: string | null): string[] {
+export function sugerencias(empresa?: string | null, modo: ModoAgente = "embat"): string[] {
+  if (modo === "empresa") {
+    return [
+      "¿Cómo estoy hoy y de dónde sale mi score?",
+      "¿Estoy en un bache o en una caída? ¿Cuándo se vio venir?",
+      "¿Qué palancas tengo para subir el score y cuánto aporta cada una?",
+      "¿Cómo me iría en doce meses en los tres escenarios? ¿Y mi grupo?",
+    ];
+  }
   const base = [
     "¿Quién se está torciendo este mes y qué debería hacer Embat con cada uno?",
     "Compara la empresa que más cae con la que más crece en los últimos tres meses.",

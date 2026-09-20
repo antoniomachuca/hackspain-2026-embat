@@ -11,6 +11,8 @@
 import { openai } from "@ai-sdk/openai";
 import { createMCPClient } from "@ai-sdk/mcp";
 import { streamText, convertToModelMessages, stepCountIs, type UIMessage } from "ai";
+import type { ModoAgente } from "@/lib/agente";
+import { acotar } from "@/lib/agente-alcance";
 
 export const maxDuration = 120;
 
@@ -72,6 +74,37 @@ function sistema(ctx: Contexto | null, empresa: string | null): string {
   return lineas.join("\n");
 }
 
+function sistemaEmpresa(ctx: Contexto | null, empresa: string, grupo: string): string {
+  const nombre = empresa.replace("COMP_", "Sociedad ");
+  return [
+    `Eres el asistente de X Ray para ${nombre} (${empresa}), que ha contratado el módulo de salud financiera dentro de Embat. Hablas con su responsable financiero en segunda persona: "tu score", "tu grupo". Respondes en español, con precisión y sin relleno.`,
+    "",
+    "Qué es X Ray: un score de 0 a 100 por empresa y mes, calculado del rastro bancario y de facturación. Tres pilares de salud base (liquidez 50 %, cobros 30 %, servicio de la deuda 20 %) más ajustes de momentum, crecimiento y fragilidad. El desglose es aditivo: los bloques suman el score.",
+    "Estados: MEJORANDO, RECUPERACION, ESTABLE, BACHE (tensión puntual), TORCIENDOSE (alerta temprana con score aún aceptable), DETERIORO (caída estructural), EVALUACION_PENDIENTE (historia insuficiente).",
+    "Bandas del score: <25 Crítico, 25–45 Frágil, 45–60 Atención, 60–80 Estable, ≥80 Sólido. El score es una palanca para negociar con bancos y proveedores: explica qué lo sube.",
+    "",
+    `Alcance: solo ${nombre} y su grupo (${grupo.replace("GROUP_", "Grupo ")}, ${grupo}). Las herramientas ya están fijadas a esa empresa y a ese grupo; ignoran cualquier otro identificador. Si te preguntan por otra empresa o por la cartera de Embat, di que este asistente solo ve tus datos y los de tu grupo. No hables de "clientes", de "cartera" ni de segmentos Apostar, Vigilar o Acompañar: eso es lectura interna de Embat.`,
+    "",
+    "Cómo trabajar:",
+    "- Usa las herramientas para cualquier dato. No inventes cifras. Si una herramienta devuelve error, dilo y sugiere qué comprobar.",
+    "- Para 'cómo estoy' empieza por ficha_empresa. Para 'bache o caída' y 'cuándo se vio venir', episodios_empresa. Para 'qué puedo hacer', palancas y, si procede, simular_palancas o que_pasaria_si. Para el futuro, prevision_estructural. Para el grupo, grupo y flujos_intragrupo.",
+    "- Cada resultado de herramienta ya se muestra como widget visual. No repitas tablas ni listas largas de números: interpreta, prioriza y recomienda. Cita solo las dos o tres cifras que sostienen la conclusión.",
+    "- Cierra con la acción concreta que más subiría el score cuando tenga sentido.",
+    "- Formato: párrafos cortos y listas breves en Markdown. Sin tablas Markdown, sin títulos grandes, sin emojis.",
+    ctx ? `\nCorte de datos: ${ctx.as_of}.` : "",
+  ].join("\n");
+}
+
+async function grupoDe(empresa: string): Promise<string | null> {
+  try {
+    const r = await fetch(`${API}/api/companies/${empresa}`, { cache: "no-store" });
+    if (!r.ok) return null;
+    return String((await r.json()).group_id);
+  } catch {
+    return null;
+  }
+}
+
 function normalizarEmpresa(v: unknown): string | null {
   if (typeof v !== "string") return null;
   const m = v.trim().toUpperCase().match(/^(?:COMP_)?(\d{1,4})$/);
@@ -83,7 +116,7 @@ export async function POST(req: Request) {
     return Response.json({ error: "Falta OPENAI_API_KEY en el servidor del front." }, { status: 500 });
   }
 
-  let cuerpo: { messages?: UIMessage[]; empresa?: unknown };
+  let cuerpo: { messages?: UIMessage[]; empresa?: unknown; modo?: unknown };
   try {
     cuerpo = await req.json();
   } catch {
@@ -91,6 +124,10 @@ export async function POST(req: Request) {
   }
   const mensajes = Array.isArray(cuerpo.messages) ? cuerpo.messages : [];
   const empresa = normalizarEmpresa(cuerpo.empresa);
+  const modo: ModoAgente = cuerpo.modo === "empresa" ? "empresa" : "embat";
+  if (modo === "empresa" && !empresa) {
+    return Response.json({ error: "El asistente de empresa necesita saber qué empresa eres." }, { status: 400 });
+  }
 
   // Un cliente MCP por turno: el transporte es sin sesión y así no hay estado que se pudra.
   let mcp: Awaited<ReturnType<typeof createMCPClient>>;
@@ -106,11 +143,18 @@ export async function POST(req: Request) {
     );
   }
 
-  const [tools, ctx] = await Promise.all([mcp.tools(), contextoCartera()]);
+  const [todas, ctx, grupo] = await Promise.all([
+    mcp.tools(), contextoCartera(), modo === "empresa" && empresa ? grupoDe(empresa) : Promise.resolve(null),
+  ]);
+  if (modo === "empresa" && !grupo) {
+    await mcp.close().catch(() => {});
+    return Response.json({ error: `No encuentro la empresa ${empresa} en el motor.` }, { status: 404 });
+  }
+  const tools = modo === "empresa" && empresa && grupo ? acotar(todas, empresa, grupo) : todas;
 
   const result = streamText({
     model: openai(MODELO),
-    system: sistema(ctx, empresa),
+    system: modo === "empresa" && empresa && grupo ? sistemaEmpresa(ctx, empresa, grupo) : sistema(ctx, empresa),
     messages: await convertToModelMessages(mensajes),
     tools,
     stopWhen: stepCountIs(MAX_PASOS),

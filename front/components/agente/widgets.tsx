@@ -8,12 +8,13 @@
  * ficha. Si una herramienta no tiene widget, se muestra su JSON plegado.
  */
 import Link from "next/link";
+import { createContext, useContext } from "react";
 import type { Driver, Punto, Episodio } from "@/lib/data";
 import { eur, num, mesCorto } from "@/lib/format";
 import { nombreDe, driversDe } from "@/lib/motor";
 import type { ApiEmpresa } from "@/lib/api";
 import { SEGMENTOS, segmentoDe } from "@/lib/cartera";
-import { datosDe, etiquetaHerramienta } from "@/lib/agente";
+import { datosDe, etiquetaHerramienta, hrefEmpresa, hrefGrupo, type ModoAgente } from "@/lib/agente";
 import { Card, KPI, ScoreBadge, EstadoChip, Delta } from "@/components/ui";
 import { Histograma, Trayectoria } from "@/components/charts";
 import { Anillo } from "@/components/anillo";
@@ -27,6 +28,10 @@ type Fila = {
   delta_3m: number; momentum: number; state_eligible: boolean; segment?: string | null;
 };
 type PuntoMcp = { mes: string; score: number; base_health: number; state: string; momentum: number };
+
+/** Quién mira el chat: decide a dónde enlazan las filas. Lo fija el Chat. */
+export const AlcanceContext = createContext<{ modo: ModoAgente; empresa: string | null }>({ modo: "embat", empresa: null });
+const useAlcance = () => useContext(AlcanceContext);
 
 const puntos = (h: PuntoMcp[] | undefined): Punto[] => (h ?? []).map((p) => ({ mes: p.mes, score: p.score, nivel: p.base_health }));
 const grupoCorto = (g: string) => g.replace("GROUP_", "Grupo ");
@@ -42,6 +47,8 @@ function Titulo({ children, sub }: { children: React.ReactNode; sub?: React.Reac
 }
 
 function SegmentoChip({ f }: { f: Fila }) {
+  const { modo } = useAlcance();
+  if (modo !== "embat") return null;
   const s = f.segment ?? segmentoDe({ score: f.score, estado: f.state, delta3m: f.delta_3m, elegible: f.state_eligible });
   if (!s || !(s in SEGMENTOS)) return null;
   const seg = SEGMENTOS[s as keyof typeof SEGMENTOS];
@@ -49,8 +56,9 @@ function SegmentoChip({ f }: { f: Fila }) {
 }
 
 function FilaEmpresa({ f, puesto }: { f: Fila; puesto?: number }) {
+  const { modo } = useAlcance();
   return (
-    <Link href={`/embat/${f.company_id}`} className="fila grid grid-cols-[auto_1fr_auto_auto] items-center gap-3 px-3 py-2 hover:bg-[rgba(255,255,255,.08)]">
+    <Link href={hrefEmpresa(f.company_id, modo)} className="fila grid grid-cols-[auto_1fr_auto_auto] items-center gap-3 px-3 py-2 hover:bg-[rgba(255,255,255,.08)]">
       {puesto !== undefined ? <span className="tnum w-4 text-[11px] text-[var(--color-ink-4)]">{puesto}</span> : <span className="w-0" />}
       <div className="min-w-0">
         <p className="truncate text-[13px] font-medium">{nombreDe(f.company_id)}</p>
@@ -138,13 +146,14 @@ function WBusqueda({ d }: { d: { total: number; items: Fila[] } }) {
 type Alerta = { alert_id: string; company_id: string; group_id: string; as_of: string; state: string; severity: string; direction: string; score: number; delta_score: number; drivers: Array<{ field: string; delta_points: number }> };
 function WAlertas({ d }: { d: { total?: number; items: Alerta[] } }) {
   const color = (s: string) => (s === "ALTA" ? "#e5775b" : s === "MEDIA" ? "#e59f5e" : "var(--color-ink-3)");
+  const { modo } = useAlcance();
   return (
     <div>
       <Titulo sub={d.total != null ? `${num(d.total, 0)} alertas · se muestran ${d.items.length}` : undefined}>Alertas del monitor</Titulo>
       {!d.items.length && <p className="py-3 text-center text-[12px] text-[var(--color-ink-4)]">Sin alertas con ese filtro.</p>}
       <div className="flex flex-col gap-1.5">
         {d.items.map((a) => (
-          <Link key={a.alert_id} href={`/embat/${a.company_id}`} className="fila grid grid-cols-[1fr_auto_auto] items-center gap-3 px-3 py-2 hover:bg-[rgba(255,255,255,.08)]">
+          <Link key={a.alert_id} href={hrefEmpresa(a.company_id, modo)} className="fila grid grid-cols-[1fr_auto_auto] items-center gap-3 px-3 py-2 hover:bg-[rgba(255,255,255,.08)]">
             <div className="min-w-0">
               <p className="flex flex-wrap items-center gap-1.5 text-[13px] font-medium">
                 {nombreDe(a.company_id)}
@@ -172,13 +181,15 @@ type Ficha = ApiEmpresa & {
 };
 function WFicha({ d }: { d: Ficha }) {
   const drivers: Driver[] = driversDe(d.waterfall, d);
-  const seg = segmentoDe({ score: d.score, estado: d.state, delta3m: d.delta_3m, elegible: d.state_eligible });
+  const { modo } = useAlcance();
+  // El segmento Apostar/Vigilar/Acompañar es lectura de Embat sobre sus clientes; a la empresa no se le enseña.
+  const seg = modo === "embat" ? segmentoDe({ score: d.score, estado: d.state, delta3m: d.delta_3m, elegible: d.state_eligible }) : null;
   return (
     <div>
       <div className="flex flex-wrap items-center gap-5">
         <Anillo score={d.score} tam={136} grosor={8} estado={d.state} />
         <div className="min-w-0 flex-1">
-          <Link href={`/embat/${d.company_id}`} className="text-[16px] font-semibold tracking-tight hover:underline">{nombreDe(d.company_id)}</Link>
+          <Link href={hrefEmpresa(d.company_id, modo)} className="text-[16px] font-semibold tracking-tight hover:underline">{nombreDe(d.company_id)}</Link>
           <p className="mt-0.5 text-[11.5px] text-[var(--color-ink-4)]">{d.company_id} · {grupoCorto(d.group_id)}{d.erp ? ` · ERP ${d.erp}` : " · sin ERP"} · corte {mesCorto(d.as_of.slice(0, 7))}</p>
           <div className="mt-2 flex flex-wrap items-center gap-2">
             <EstadoChip estado={d.state} />
@@ -261,11 +272,12 @@ function WFacturas({ d }: { d: { company_id: string; total: number; overdue_coun
 
 type Grupo = { group_id: string; erp: string | null; company_count: number; average_score: number; consolidated_score: number; contagion_penalty: number; worst_company_id: string; best_company_id: string; risk_companies_count: number; companies: Fila[] };
 function WGrupo({ d }: { d: Grupo }) {
+  const { modo, empresa } = useAlcance();
   return (
     <div>
       <div className="flex flex-wrap items-center justify-between gap-3">
         <Titulo sub={`${num(d.company_count, 0)} sociedades · ${num(d.risk_companies_count, 0)} en riesgo${d.erp ? ` · ERP ${d.erp}` : ""}`}>
-          <Link href={`/grupo/${d.group_id}`} className="hover:underline">{grupoCorto(d.group_id)}</Link>
+          <Link href={hrefGrupo(d.group_id, modo, empresa)} className="hover:underline">{grupoCorto(d.group_id)}</Link>
         </Titulo>
         <div className="flex items-center gap-4">
           <div className="text-right"><p className="text-[10.5px] uppercase tracking-wider text-[var(--color-ink-4)]">Consolidado</p><ScoreBadge score={d.consolidated_score} /></div>
@@ -279,10 +291,11 @@ function WGrupo({ d }: { d: Grupo }) {
 
 type Flujos = { group_id: string; nodes: Array<{ company_id: string; score: number; state: string; delta_3m: number; eur_out: number; eur_in: number }>; edges: Array<{ source: string; target: string; matches: number; eur: number; last_date: string }>; edges_total: number };
 function WFlujos({ d }: { d: Flujos }) {
+  const { modo, empresa } = useAlcance();
   return (
     <div>
       <Titulo sub={`${d.nodes.length} sociedades · ${num(d.edges_total, 0)} flujos detectados · mismo día, mismo importe`}>
-        Flujos dentro de <Link href={`/grafo`} className="hover:underline">{grupoCorto(d.group_id)}</Link>
+        Flujos dentro de <Link href={modo === "embat" ? "/grafo" : hrefGrupo(d.group_id, modo, empresa)} className="hover:underline">{grupoCorto(d.group_id)}</Link>
       </Titulo>
       <div className="grid gap-3 lg:grid-cols-2">
         <Tabla cab={["Sociedad", "Score", "Sale", "Entra"]}

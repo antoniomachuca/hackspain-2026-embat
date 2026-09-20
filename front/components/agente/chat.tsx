@@ -10,16 +10,17 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { useChat } from "@ai-sdk/react";
 import { DefaultChatTransport, isToolUIPart, getToolName, type UIMessage } from "ai";
 import ReactMarkdown from "react-markdown";
-import { sugerencias } from "@/lib/agente";
-import { Widget, WidgetCargando } from "./widgets";
+import { sugerencias, type ModoAgente } from "@/lib/agente";
+import { Widget, WidgetCargando, AlcanceContext } from "./widgets";
 
 const Icono = ({ trazo, ...r }: { trazo: React.ReactNode } & React.SVGProps<SVGSVGElement>) => (
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden {...r}>{trazo}</svg>
 );
 const CHISPA = <><path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8z" /><path d="M19 16l.7 1.8 1.8.7-1.8.7L19 21l-.7-1.8-1.8-.7 1.8-.7z" /></>;
 
-export function Chat({ empresa }: { empresa: string | null }) {
-  const transport = useMemo(() => new DefaultChatTransport({ api: "/api/agente", body: { empresa } }), [empresa]);
+export function Chat({ empresa, modo = "embat" }: { empresa: string | null; modo?: ModoAgente }) {
+  const transport = useMemo(() => new DefaultChatTransport({ api: "/api/agente", body: { empresa, modo } }), [empresa, modo]);
+  const alcance = useMemo(() => ({ modo, empresa }), [modo, empresa]);
   const { messages, sendMessage, status, error, stop, setMessages, regenerate, clearError } = useChat({ transport });
   const [texto, setTexto] = useState("");
   const fin = useRef<HTMLDivElement>(null);
@@ -38,11 +39,12 @@ export function Chat({ empresa }: { empresa: string | null }) {
   const vacio = messages.length === 0;
 
   return (
+    <AlcanceContext.Provider value={alcance}>
     <div className="flex min-h-0 flex-1 flex-col">
       {/* ── Conversación ─────────────────────────────────────────────── */}
       <div className="min-h-0 flex-1 overflow-y-auto pr-1">
         {vacio ? (
-          <Bienvenida empresa={empresa} onElegir={enviar} />
+          <Bienvenida empresa={empresa} modo={modo} onElegir={enviar} />
         ) : (
           <div className="mx-auto flex max-w-[980px] flex-col gap-6 pb-4">
             {messages.map((m) => <Mensaje key={m.id} m={m} />)}
@@ -77,7 +79,7 @@ export function Chat({ empresa }: { empresa: string | null }) {
             onChange={(e) => setTexto(e.target.value)}
             onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); enviar(texto); } }}
             rows={1}
-            placeholder={empresa ? `Pregunta sobre ${empresa.replace("COMP_", "Sociedad ")} o sobre la cartera…` : "Pregunta sobre la cartera o sobre cualquier empresa…"}
+            placeholder={modo === "empresa" ? "Pregunta sobre tu empresa o tu grupo…" : empresa ? `Pregunta sobre ${empresa.replace("COMP_", "Sociedad ")} o sobre la cartera…` : "Pregunta sobre la cartera o sobre cualquier empresa…"}
             aria-label="Mensaje para el asistente"
             className="max-h-40 min-h-[40px] flex-1 resize-none bg-transparent px-2 py-2 text-[13.5px] leading-snug outline-none placeholder:text-[var(--color-ink-4)]"
             onInput={(e) => { const t = e.currentTarget; t.style.height = "auto"; t.style.height = `${Math.min(t.scrollHeight, 160)}px`; }}
@@ -101,19 +103,23 @@ export function Chat({ empresa }: { empresa: string | null }) {
         </div>
       </form>
     </div>
+    </AlcanceContext.Provider>
   );
 }
 
-function Bienvenida({ empresa, onElegir }: { empresa: string | null; onElegir: (t: string) => void }) {
-  const lista = sugerencias(empresa);
+function Bienvenida({ empresa, modo, onElegir }: { empresa: string | null; modo: ModoAgente; onElegir: (t: string) => void }) {
+  const lista = sugerencias(empresa, modo);
+  const propia = modo === "empresa";
   return (
     <div className="mx-auto flex h-full max-w-[760px] flex-col items-center justify-center px-2 py-10 text-center">
       <span className="mb-4 flex h-12 w-12 items-center justify-center rounded-2xl text-[var(--color-purple)]" style={{ background: "rgba(176,131,232,.14)" }}>
         <Icono width="24" height="24" trazo={CHISPA} />
       </span>
-      <h2 className="text-[20px] font-semibold tracking-tight">Pregunta a la cartera</h2>
+      <h2 className="text-[20px] font-semibold tracking-tight">{propia ? "Pregunta por tu empresa" : "Pregunta a la cartera"}</h2>
       <p className="mt-1.5 max-w-md text-[12.5px] leading-relaxed text-[var(--color-ink-3)]">
-        El asistente consulta el motor X Ray, la cartera y cada empresa, y te enseña lo que encuentra con los mismos gráficos que el resto de la aplicación.
+        {propia
+          ? "El asistente consulta el motor X Ray sobre tu empresa y tu grupo, solo eso, y te enseña lo que encuentra con los mismos gráficos que tu ficha."
+          : "El asistente consulta el motor X Ray, la cartera y cada empresa, y te enseña lo que encuentra con los mismos gráficos que el resto de la aplicación."}
       </p>
       <div className="mt-6 grid w-full gap-2 sm:grid-cols-2">
         {lista.map((s) => (
