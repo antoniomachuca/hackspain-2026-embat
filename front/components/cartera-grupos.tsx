@@ -179,9 +179,17 @@ export function AnilloReparto({ grupos, tam = 140, grosor = 17 }: {
   const r = (tam - grosor) / 2 - 3;
   const c = tam / 2;
   const HUECO = 2.2;                       // grados de aire entre bandas
+  /**
+   * Redondeado a tres decimales a propósito. `Math.cos` y `Math.sin` pueden
+   * diferir en el último bit entre el Node que renderiza en el servidor y el
+   * V8 del navegador, y React compara los atributos como texto: un
+   * `88.94634171114498` contra un `88.94634171114497` rompe la hidratación.
+   * A esta escala, la milésima de píxel no se ve.
+   */
   const punto = (a: number) => {
     const rad = ((a - 90) * Math.PI) / 180;
-    return [c + r * Math.cos(rad), c + r * Math.sin(rad)] as const;
+    const red = (v: number) => Math.round(v * 1000) / 1000;
+    return [red(c + r * Math.cos(rad)), red(c + r * Math.sin(rad))] as const;
   };
 
   const arcos = tramos.map((t, i) => {
