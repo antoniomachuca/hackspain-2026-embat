@@ -225,14 +225,6 @@ export function Cabecera({ titulo, sub, extra }: { titulo: string; sub?: React.R
       </div>
       <div className="flex items-center gap-2.5">
         {extra}
-        <Link
-          href="/#cartera"
-          className="flex h-10 w-10 items-center justify-center rounded-full bg-[rgba(255,255,255,.08)] text-[var(--color-ink-2)] transition-colors hover:bg-[rgba(255,255,255,.14)]"
-          aria-label="Buscar en la cartera"
-          title="Buscar en la cartera"
-        >
-          <Icono width="17" height="17" trazo={<><circle cx="11" cy="11" r="7" /><path d="m20 20-3.2-3.2" /></>} />
-        </Link>
         <span className="flex h-10 w-10 items-center justify-center rounded-full text-[13px] font-semibold"
           style={{ background: "linear-gradient(145deg,var(--color-purple-mid),var(--color-purple-deep))", color: "#0d0416" }}
           role="img"
