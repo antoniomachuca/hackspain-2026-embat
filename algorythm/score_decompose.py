@@ -25,6 +25,9 @@ YOY_DEADBAND = 0.06
 OLS_WINDOW = 6
 RUN_WINDOW = 3
 LONG_WINDOW = 12
+LUMP_YEAR_SHARE = 0.40
+LUMP_VS_MEDIAN = 4.0
+LUMP_WINDOW_SHARE = 0.50
 
 # Order is a declared sequential Shapley path, not a causal graph.
 # Known level-setters first; mixed cobros after; timing stocks last.
@@ -183,6 +186,41 @@ def _is_live_pulse(series, t, expected):
     return abs(irregular) > PULSE_RATIO * max(abs(expected), 1.0)
 
 
+def _is_one_off_cobro(series, t):
+    """A single month is most of the year's cobros, not a new run-rate."""
+    if series is None or t < 0:
+        return False
+    now = float(np.nan_to_num(series[t], nan=0.0))
+    if now <= 0:
+        return False
+    start = max(0, t - LONG_WINDOW + 1)
+    block = np.nan_to_num(np.asarray(series[start:t + 1], dtype=float), nan=0.0)
+    total = float(block.sum())
+    if total <= 0:
+        return False
+    others = block[:-1]
+    baseline = float(np.median(others)) if len(others) else 0.0
+    return (now / total) >= LUMP_YEAR_SHARE and now > LUMP_VS_MEDIAN * max(baseline, 1.0)
+
+
+def _window_forgot_cobro(series, t, window=RUN_WINDOW):
+    """The month that just left the 3m score window was most of that window.
+
+    That is a cobro puntual caducando, not a new receipts regime.
+    """
+    left = t - window
+    if series is None or left < 0:
+        return False
+    block = np.nan_to_num(np.asarray(series[left:t], dtype=float), nan=0.0)
+    if len(block) < window:
+        return False
+    total = float(np.maximum(block, 0).sum())
+    leaving = float(max(block[0], 0.0))
+    if total <= 0 or leaving <= 0:
+        return False
+    return leaving / total >= LUMP_WINDOW_SHARE
+
+
 def stack_banks(panels):
     keys = list(panels[0])
     return {key: np.concatenate([np.asarray(panel[key], dtype=float) for panel in panels], axis=0)
@@ -228,6 +266,8 @@ def classify_driver(field, bank, t, erp=None, row=0):
             return 'coyuntural', 'estacion'
         if _is_timing_shift(series, t):
             return 'coyuntural', 'pulso_cobros'
+        if _is_one_off_cobro(series, t):
+            return 'coyuntural', 'cobro_puntual'
         if _is_live_pulse(series, t, expected):
             return 'coyuntural', 'cobros_sin_confirmar'
         return 'estructural', 'volumen'
@@ -295,9 +335,11 @@ def attribute_month(bank, t, erp=None, row=0, scored=None):
     path = calculate_scores(stacked, _repeat_erp(erp, len(panels), row=row))['score'][:, t]
     s_frozen = float(path[0])
     arrastre = s_frozen - prev
-
-    drivers = [DriverMove('arrastre', arrastre, 'estructural', FAMILY['arrastre'],
-                          'arrastre')]
+    arrastre_kind, arrastre_reason = 'estructural', 'arrastre'
+    if _window_forgot_cobro(_series(bank, 'receipts', row), t):
+        arrastre_kind, arrastre_reason = 'coyuntural', 'cobro_puntual'
+    drivers = [DriverMove('arrastre', arrastre, arrastre_kind, FAMILY['arrastre'],
+                          arrastre_reason)]
     last = s_frozen
     for index, field in enumerate(fields, start=1):
         s_now = float(path[index])
@@ -408,6 +450,7 @@ REASON_ETIQUETA = {
     'prior': 'nivel',
     'stock_timing': 'timing de caja',
     'ola_puntual': 'ola puntual',
+    'cobro_puntual': 'cobro puntual',
     'cobertura_dato': 'cobertura del dato',
     'arrastre': 'ventana 3 meses',
     'residual': 'resto',

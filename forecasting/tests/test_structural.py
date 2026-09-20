@@ -5,8 +5,9 @@ import pytest
 
 from forecasting.experiments.structural_v1 import MODEL_INFO, make_model
 from forecasting.structural import (
-    PHI, StructuralForecaster, as_of_from_origin, band_width, build_projected_bank, long_rate,
-    mean_reverting_path, refund_rate, run_rate, scenario_paths, score_named_path_series,
+    PHI, StructuralForecaster, _PREVISION_CACHE, _ordered_scenarios, as_of_from_origin,
+    band_width, build_projected_bank, long_rate, mean_reverting_path, receipts_are_lumpy,
+    refund_rate, robust_long_rate, run_rate, scenario_paths, score_named_path_series,
     score_named_paths, seasonal_factors, structural_prevision, volatility_m,
 )
 
@@ -166,6 +167,7 @@ def test_structural_prevision_product_payload():
     for key in ('alto', 'medio', 'bajo'):
         assert len(payload[key]) == 12
         assert all(0 <= v <= 100 for v in payload[key])
+    assert all(b <= m <= a for a, m, b in zip(payload['alto'], payload['medio'], payload['bajo']))
     assert 0 <= payload['current_score'] <= 100
     assert structural_prevision('missing', banks=banks) is None
     short = structural_prevision(CID, meses=12, banks=banks, origin=0)
@@ -175,6 +177,54 @@ def test_structural_prevision_product_payload():
     assert via_model['medio'] == payload['medio']
 
 
+def test_ordered_scenarios_assigns_rank_not_label():
+    alto, medio, bajo = _ordered_scenarios([85.43, 92.47], [85.54, 89.56], [78.84, 92.57])
+    assert alto == [85.54, 92.57]
+    assert medio == [85.43, 92.47]
+    assert bajo == [78.84, 89.56]
+
+
+def test_structural_prevision_sorts_crossed_scores(monkeypatch):
+    banks = {CID: (_long_bank(), 0)}
+    inverted = {
+        'optimistic': np.array([70., 80.] + [85.] * 10),
+        'central': np.array([72., 81.] + [86.] * 10),
+        'pessimistic': np.array([71., 82.] + [84.] * 10),
+    }
+
+    def fake_series(*_args, **_kwargs):
+        return 50.0, inverted
+
+    monkeypatch.setattr('forecasting.structural.score_named_path_series', fake_series)
+    _PREVISION_CACHE.clear()
+    payload = structural_prevision(CID, meses=12, banks=banks)
+    assert payload['alto'] == [72.0, 82.0] + [86.0] * 10
+    assert payload['medio'] == [71.0, 81.0] + [85.0] * 10
+    assert payload['bajo'] == [70.0, 80.0] + [84.0] * 10
+    assert all(b <= m <= a for a, m, b in zip(payload['alto'], payload['medio'], payload['bajo']))
+
+
 def test_as_of_from_origin_calendar():
     assert as_of_from_origin(0) == '2024-09-01'
     assert as_of_from_origin(23) == '2026-08-01'
+
+
+def test_lumpy_receipts_central_ignores_spike_optimistic_keeps_it():
+    receipts = np.zeros(24)
+    receipts[18] = 150_000.
+    expenses, debt, refunds = np.full(24, 100.), np.full(24, 10.), np.zeros(24)
+    origin = 23
+    assert receipts_are_lumpy(receipts, origin)
+    assert robust_long_rate(receipts, origin) == 0
+    assert long_rate(receipts, origin) > 10_000
+    paths = scenario_paths(receipts, expenses, debt, refunds, origin, 12)
+    assert paths['diagnostics']['receipts']['lumpy'] is True
+    assert paths['central']['receipts'][-1] < 1_000
+    assert paths['pessimistic']['receipts'][-1] <= paths['central']['receipts'][-1] + 1e-9
+    assert paths['optimistic']['receipts'][-1] > 5_000
+    assert paths['optimistic']['receipts'][-1] > paths['central']['receipts'][-1]
+
+
+def test_even_receipts_are_not_lumpy():
+    receipts = 100. + np.arange(24)
+    assert not receipts_are_lumpy(receipts, 23)
