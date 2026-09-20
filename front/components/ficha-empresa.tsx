@@ -14,6 +14,7 @@ import { Cabecera } from "@/components/shell";
 import { Anillo } from "@/components/anillo";
 import { Prevision } from "@/components/prevision";
 import { Card, ScoreBadge, EstadoChip, Confianza, Delta, Boton, KPI } from "@/components/ui";
+import { QrDossier } from "@/components/qr-dossier";
 import { Palancas } from "@/components/palancas";
 import { Desglose } from "@/components/desglose";
 import { ListaGrupo } from "@/components/grupo";
@@ -109,7 +110,8 @@ export async function FichaEmpresa({ id, vista }: { id: string; vista: Vista }) 
           </>
         }
         extra={
-          <div className="flex items-center gap-2">
+          <div className="flex flex-wrap items-center gap-2">
+            <QrDossier ruta={embat ? `/embat/${e.id}` : `/${e.id}`} nombre={e.nombre} />
             {embat && (
               <Boton tono="plano" href="/">
                 ← Cartera
@@ -124,12 +126,12 @@ export async function FichaEmpresa({ id, vista }: { id: string; vista: Vista }) 
 
       {/* ── Lectura para Embat: qué hacer con este cliente ────────── */}
       {embat && (
-        <Card className="mb-5 px-6 py-4">
+        <Card className="mb-5 px-4 sm:px-6 py-4">
           {/* Dos columnas, no dos filas: el texto a la izquierda y las cifras
               centradas contra su alto. En vertical la card se comía media
               pantalla para decir tres números. */}
-          <div className="flex flex-wrap items-center justify-between gap-x-8 gap-y-3">
-            <div className="min-w-0 flex-1">
+          <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between sm:gap-x-8">
+            <div className="min-w-0 sm:flex-1">
               <div className="flex flex-wrap items-center gap-2">
                 <p className="text-[14px] font-semibold tracking-tight">Lectura para Embat</p>
                 {seg ? (
@@ -150,7 +152,7 @@ export async function FichaEmpresa({ id, vista }: { id: string; vista: Vista }) 
               </p>
             </div>
 
-            <div className="flex flex-none items-center gap-5">
+            <div className="flex flex-wrap items-center gap-x-5 gap-y-2 sm:flex-none">
               <span className="flex items-baseline gap-1.5">
                 <ScoreBadge score={e.score} />
                 <span className="text-[10.5px] uppercase tracking-wider text-[var(--color-ink-4)]">score</span>
@@ -205,7 +207,7 @@ export async function FichaEmpresa({ id, vista }: { id: string; vista: Vista }) 
 
       {/* ── Score de la Empresa y Trayectoria ─────────────────────── */}
       <div className="grid gap-5 xl:grid-cols-[296px_1fr]">
-        <Card className="relative min-w-0 flex flex-col items-center overflow-hidden px-6 py-6">
+        <Card className="relative min-w-0 flex flex-col items-center overflow-hidden px-4 sm:px-6 py-6">
           <div
             className="pointer-events-none absolute -top-24 left-1/2 h-56 w-56 -translate-x-1/2 rounded-full opacity-35 blur-3xl"
             style={{ background: "radial-gradient(circle, rgba(176,131,232,.55), transparent 70%)" }}
@@ -240,7 +242,7 @@ export async function FichaEmpresa({ id, vista }: { id: string; vista: Vista }) 
           </div>
         </Card>
 
-        <Card className="min-w-0 px-6 py-5">
+        <Card className="min-w-0 px-4 sm:px-6 py-5">
           <div className="mb-3 flex min-w-0 items-start justify-between gap-3">
             <h2 className="min-w-0 flex-1 text-[15px] font-semibold tracking-tight">Histórico y proyección (24 meses)</h2>
             <span
@@ -265,7 +267,7 @@ export async function FichaEmpresa({ id, vista }: { id: string; vista: Vista }) 
 
       {/* ── Episodio destacado: detección, explicación e histórico ── */}
       {e.episodios?.length ? (
-        <Card className="mt-5 px-6 py-5">
+        <Card className="mt-5 px-4 sm:px-6 py-5">
           <EpisodiosPanel
             episodios={e.episodios}
             destacado={e.episodioDestacado ?? null}
@@ -276,7 +278,7 @@ export async function FichaEmpresa({ id, vista }: { id: string; vista: Vista }) 
 
       {/* ── Por qué y qué hacer ────────────────────────────────────── */}
       <div className="mt-5 grid gap-5 lg:grid-cols-2">
-        <Card className="px-6 py-6">
+        <Card className="px-4 sm:px-6 py-6">
           <div className="flex flex-wrap items-baseline justify-between gap-2">
             <div>
               <h2 className="text-[15px] font-semibold tracking-tight">Por qué este número</h2>
@@ -291,7 +293,7 @@ export async function FichaEmpresa({ id, vista }: { id: string; vista: Vista }) 
           <div className="mt-3"><Desglose drivers={e.drivers} score={e.score} /></div>
         </Card>
 
-        <Card className="seccion-embat px-6 py-6">
+        <Card className="seccion-embat px-4 sm:px-6 py-6">
           <h2 className="text-[15px] font-semibold tracking-tight">
             {embat ? "Qué podría hacer el cliente" : "Qué puedes hacer"}
           </h2>
@@ -311,7 +313,7 @@ export async function FichaEmpresa({ id, vista }: { id: string; vista: Vista }) 
       </div>
 
       {/* ── Grupo Corporativo ─────────────────────────────────────── */}
-      <Card className="mt-5 px-6 py-5">
+      <Card className="mt-5 px-4 sm:px-6 py-5">
         <div className="flex flex-wrap items-baseline justify-between gap-x-6 gap-y-2">
           <div>
             <h2 className="text-[15px] font-semibold tracking-tight">{e.grupoNombre}</h2>

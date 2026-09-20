@@ -173,7 +173,7 @@ export default async function Cartera({ searchParams }: { searchParams: Promise<
             <input type="hidden" name="orden" value={f.orden} />
             <input type="hidden" name="dir" value={f.dir} />
             <input name="q" defaultValue={f.q} placeholder="Buscar COMP_ o GROUP_" maxLength={20}
-              className="h-9 w-48 rounded-full border border-[rgba(255,255,255,.1)] bg-[rgba(255,255,255,.06)] px-3.5 text-[12.5px] outline-none placeholder:text-[var(--color-ink-4)] focus:border-[var(--color-purple)]" />
+              className="h-9 w-full min-w-0 rounded-full border border-[rgba(255,255,255,.1)] bg-[rgba(255,255,255,.06)] px-3.5 text-[12.5px] outline-none placeholder:text-[var(--color-ink-4)] focus:border-[var(--color-purple)] sm:w-48" />
             <select name="estado" defaultValue={f.estado}
               className="h-9 rounded-full border border-[rgba(255,255,255,.1)] bg-[rgba(255,255,255,.06)] px-3 text-[12.5px] outline-none">
               <option value="">Todos los estados</option>

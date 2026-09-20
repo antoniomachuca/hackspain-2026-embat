@@ -11,8 +11,8 @@ import { createPortal } from "react-dom";
  * confinado dentro de la tarjeta que lo abría. Las tarjetas son de cristal y
  * `main` lleva `contain`, así que aquí pasaban las dos cosas a la vez.
  */
-export function Modal({ abierto, onCerrar, titulo, sub, children }:
-  { abierto: boolean; onCerrar: () => void; titulo: string; sub?: string; children: React.ReactNode }) {
+export function Modal({ abierto, onCerrar, titulo, sub, children, compacto }:
+  { abierto: boolean; onCerrar: () => void; titulo: string; sub?: string; children: React.ReactNode; compacto?: boolean }) {
   const caja = useRef<HTMLDivElement>(null);
   const desdeElFondo = useRef(false);
   const focoAnterior = useRef<HTMLElement | null>(null);
@@ -50,8 +50,8 @@ export function Modal({ abierto, onCerrar, titulo, sub, children }:
       onClick={(e) => { if (desdeElFondo.current && e.target === e.currentTarget) onCerrar(); }}
     >
       <div ref={caja} tabIndex={-1} role="dialog" aria-modal="true" aria-label={titulo}
-        className="modal-caja panel">
-        <div className="flex items-start justify-between gap-4 px-7 pt-5">
+        className={`modal-caja panel ${compacto ? "modal-compacto" : ""}`}>
+        <div className="flex items-start justify-between gap-4 px-4 pt-4 sm:px-7 sm:pt-5">
           <div>
             <h2 className="text-[17px] font-semibold tracking-tight">{titulo}</h2>
             {sub && <p className="mt-1 text-[12.5px] text-[var(--color-ink-3)]">{sub}</p>}

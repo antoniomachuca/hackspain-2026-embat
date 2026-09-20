@@ -28,12 +28,12 @@ export function ListaGrupo({ filiales, base = "", visibles = VISIBLES }: { filia
 
             {m.evaluable ? (
               <>
-                <span className="w-[86px] flex-none"><Sparkline datos={m.trayectoria} /></span>
+                <span className="hidden w-[86px] flex-none sm:block"><Sparkline datos={m.trayectoria} /></span>
                 <span className="w-[44px] flex-none text-right"><Delta v={m.momentum} /></span>
                 <span className="w-[38px] flex-none text-right"><ScoreBadge score={m.score} size="sm" /></span>
               </>
             ) : (
-              <span className="w-[168px] flex-none text-right text-[11.5px] text-[var(--color-ink-4)]">
+              <span className="w-[88px] flex-none text-right text-[11.5px] text-[var(--color-ink-4)] sm:w-[168px]">
                 sin score
               </span>
             )}

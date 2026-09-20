@@ -223,10 +223,10 @@ export function Cabecera({ titulo, sub, extra }: { titulo: string; sub?: React.R
   return (
     <header className="mb-5 flex flex-wrap items-center justify-between gap-4">
       <div>
-        <h1 className="text-[26px] font-semibold tracking-tight">{titulo}</h1>
+        <h1 className="text-[22px] font-semibold tracking-tight sm:text-[26px]">{titulo}</h1>
         {sub && <div className="mt-1 text-[12.5px] text-[var(--color-ink-3)]">{sub}</div>}
       </div>
-      <div className="flex items-center gap-2.5">{extra}</div>
+      <div className="flex flex-wrap items-center justify-end gap-2.5">{extra}</div>
     </header>
   );
 }

@@ -28,7 +28,7 @@ export function DialogoSimulador({ empresa, aplicables, palancas, inicial, produ
         sub={producto
           ? `Parte de la solución de Embat —${producto.toLowerCase()}— y combina lo que quieras`
           : "Combina varias decisiones y mira qué pasa con tu trayectoria"}>
-        <div className="flex h-full flex-col px-7 py-5">
+        <div className="flex h-full min-h-0 flex-col px-4 py-4 sm:px-7 sm:py-5">
           <Combinado empresa={empresa} aplicables={aplicables} palancas={palancas} inicial={inicial} producto={producto} />
         </div>
       </Modal>

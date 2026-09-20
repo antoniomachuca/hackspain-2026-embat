@@ -461,6 +461,61 @@ input[type="range"] { accent-color: var(--color-purple); }
   animation: modal-caja .26s cubic-bezier(.22,.61,.24,1) both;
 }
 
+/* QR: el diálogo del simulador es ancho; este no. */
+.modal-caja.modal-compacto {
+  max-width: 400px;
+  height: auto;
+  max-height: min(664px, calc(100dvh - 48px));
+}
+
+/* Móvil: el escritorio no se toca. Se sueltan las alturas fijas del
+   simulador y del diálogo para que quepan en un teléfono. */
+@media (max-width: 639px) {
+  html, body { overflow-x: hidden; }
+
+  .caja-decisiones {
+    height: auto;
+    min-height: 0;
+    max-height: none;
+    overflow: hidden;
+  }
+  .caja-decisiones .columna-scroll {
+    max-height: 240px;
+    overflow-y: auto;
+    flex: none;
+    -webkit-mask-image: none;
+    mask-image: none;
+  }
+  .columna-derecha {
+    height: auto;
+    max-height: none;
+    display: flex;
+    flex-direction: column;
+    overflow: visible;
+    -webkit-mask-image: none;
+    mask-image: none;
+  }
+  .lista-desglose {
+    overflow: visible;
+    -webkit-mask-image: none;
+    mask-image: none;
+  }
+
+  .modal-fondo {
+    align-items: center;
+    padding: 10px;
+  }
+  .modal-caja {
+    height: auto;
+    max-height: calc(100dvh - 20px);
+    overflow-y: auto;
+    border-radius: 18px;
+  }
+  .modal-caja.modal-compacto {
+    max-width: min(400px, calc(100vw - 20px));
+  }
+}
+
 /* El gráfico cede altura cuando la ventana es baja, en vez de empujar el
    resto del diálogo fuera de la vista. */
 .modal-grafico {
