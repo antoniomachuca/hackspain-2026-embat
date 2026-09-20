@@ -2,7 +2,6 @@
 import type { Empresa } from "@/lib/data";
 import type { ApiPalanca, ApiSugerencia, ApiWhatIfResponse } from "@/lib/api";
 import { eur, num } from "@/lib/format";
-import { Delta } from "@/components/ui";
 import { DialogoSimulador } from "@/components/dialogo-simulador";
 
 function nombreDe(s: ApiSugerencia) {
@@ -33,11 +32,6 @@ export function Palancas({ empresa, sugerencias, circulante, palancas, recomenda
   }) {
   const aplicablesIds = (palancas ?? []).filter((p) => p.es_aplicable).map((p) => p.id);
   const destacada = recomendado ?? sugerencias?.[0] ?? circulante?.[0] ?? null;
-  const resto = [
-    ...(sugerencias ?? []).filter((s) => s.id !== destacada?.id),
-    ...(circulante ?? []).filter((s) => s.id !== destacada?.id),
-  ].slice(0, 4);
-
   return (
     <>
       {destacada && (
@@ -89,35 +83,12 @@ export function Palancas({ empresa, sugerencias, circulante, palancas, recomenda
         </>
       )}
 
-      {resto.length > 0 && (
-        <div className="mt-5 space-y-2">
-          {resto.map((s) => (
-            <div key={`${s.familia}-${s.id}-${s.days ?? s.pct ?? ""}`} className="flex flex-wrap items-center justify-between gap-3 rounded-md bg-[rgba(255,255,255,.04)] px-3 py-2.5">
-              <div className="min-w-0">
-                <p className="truncate text-[13px] font-medium">{nombreDe(s)}</p>
-                <p className="text-[11px] text-[var(--color-ink-4)]">{detalleDe(s)}</p>
-              </div>
-              <div className="tnum flex items-center gap-4 text-[12px] text-[var(--color-ink-2)]">
-                {s.caja_liberada_eur != null && s.caja_liberada_eur > 0 && (
-                  <span>{eur(s.caja_liberada_eur)}</span>
-                )}
-                {s.delta_score != null ? (
-                  <Delta v={s.delta_score} sufijo=" pts" />
-                ) : (
-                  <span className="text-[11px] text-[var(--color-ink-4)]">circulante</span>
-                )}
-              </div>
-            </div>
-          ))}
-        </div>
-      )}
-
       {(aplicablesIds.length > 0 || destacada) && (
         <DialogoSimulador
           empresa={empresa} aplicables={aplicablesIds} palancas={palancas}
           inicial={recomendado ?? sugerencias?.[0] ?? circulante?.[0] ?? null}
           producto={destacada ? nombreDe(destacada) : null}
-          etiqueta={`Abrir el simulador · ${aplicablesIds.length || resto.length + (destacada ? 1 : 0)} palancas`}
+          etiqueta={`Abrir el simulador · ${aplicablesIds.length || (destacada ? 1 : 0)} palancas`}
         />
       )}
     </>
