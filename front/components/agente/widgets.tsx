@@ -176,7 +176,7 @@ function WFicha({ d }: { d: Ficha }) {
   return (
     <div>
       <div className="flex flex-wrap items-center gap-5">
-        <Anillo score={d.score} tam={128} grosor={8} estado={d.state} delta={d.delta_3m} />
+        <Anillo score={d.score} tam={136} grosor={8} estado={d.state} />
         <div className="min-w-0 flex-1">
           <Link href={`/embat/${d.company_id}`} className="text-[16px] font-semibold tracking-tight hover:underline">{nombreDe(d.company_id)}</Link>
           <p className="mt-0.5 text-[11.5px] text-[var(--color-ink-4)]">{d.company_id} · {grupoCorto(d.group_id)}{d.erp ? ` · ERP ${d.erp}` : " · sin ERP"} · corte {mesCorto(d.as_of.slice(0, 7))}</p>
@@ -329,10 +329,10 @@ function WPalancas({ d }: { d: { company_id: string; sugerencias: Sugerencia[]; 
       <Titulo sub={`${d.sugerencias.length} palancas aplicables, por puntos de score que aportan`}>Palancas para {nombreDe(d.company_id)}</Titulo>
       {!d.sugerencias.length && <p className="text-[12px] text-[var(--color-ink-4)]">El motor no encuentra palancas aplicables con los datos de esta empresa.</p>}
       <div className="flex flex-col gap-1.5">
-        {d.sugerencias.map((s) => {
+        {d.sugerencias.map((s, i) => {
           const reco = d.recomendado?.id === s.id;
           return (
-            <div key={s.id + detalle(s)} className={`rounded-xl px-3 py-2 ${reco ? "bg-[rgba(176,131,232,.10)] ring-1 ring-[rgba(176,131,232,.22)]" : "bg-[rgba(255,255,255,.04)]"}`}>
+            <div key={`${s.id}-${i}`} className={`rounded-xl px-3 py-2 ${reco ? "bg-[rgba(176,131,232,.10)] ring-1 ring-[rgba(176,131,232,.22)]" : "bg-[rgba(255,255,255,.04)]"}`}>
               <div className="flex items-center justify-between gap-3">
                 <p className="min-w-0 truncate text-[12.5px] font-medium">{s.label ?? s.id.replace(/_/g, " ")}{reco && <span className="ml-2 text-[10.5px] font-semibold text-[var(--color-purple)]">recomendada</span>}</p>
                 <div className="flex items-center gap-3">
@@ -363,7 +363,7 @@ function WSimulacion({ d }: { d: Simulacion }) {
         <div><p className="text-[10.5px] uppercase tracking-wider text-[var(--color-ink-4)]">Con las palancas</p><ScoreBadge score={d.projected.score} size="lg" /><div className="mt-1 flex items-center gap-2">{d.projected.state && <EstadoChip estado={String(d.projected.state)} />}<Delta v={d.delta_score ?? d.projected.score - d.baseline.score} sufijo=" pts" /></div></div>
         <Dato k="Caja liberada" v={eur(d.caja_liberada_eur)} />
       </div>
-      {d.warnings?.length > 0 && <ul className="mt-3 list-disc pl-5 text-[11.5px] text-[var(--color-ink-3)]">{d.warnings.map((w) => <li key={w}>{w}</li>)}</ul>}
+      {d.warnings?.length > 0 && <ul className="mt-3 list-disc pl-5 text-[11.5px] text-[var(--color-ink-3)]">{d.warnings.map((w, i) => <li key={i}>{w}</li>)}</ul>}
     </div>
   );
 }
