@@ -54,6 +54,7 @@ def test_prevision_estructural_available_unknown_and_short(monkeypatch):
     assert data['as_of'] == '2026-08-01'
     assert len(data['alto']) == len(data['medio']) == len(data['bajo']) == 12
     assert all(0 <= v <= 100 for v in data['alto'] + data['medio'] + data['bajo'])
+    assert all(b <= m <= a for a, m, b in zip(data['alto'], data['medio'], data['bajo']))
 
     six = client.get('/api/companies/COMP_0010/prevision-estructural?meses=6').json()
     assert six['meses'] == 6

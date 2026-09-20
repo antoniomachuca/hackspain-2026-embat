@@ -297,6 +297,22 @@ class FactorDecompositionTests(unittest.TestCase):
         cobros = next(d for d in shock['drivers'] if d['field'] == 'receipts')
         self.assertEqual(cobros['reason'], 'pulso_cobros')
 
+    def test_one_off_cobro_is_a_dip_when_it_lands_and_when_the_window_forgets_it(self):
+        bank = steady_bank(receipts=0.0, expenses=40.0, debt=0.0)
+        bank['receipts'][0, :] = 0.0
+        bank['receipts'][0, SHOCK] = 800.0
+        bank['refunds'][0, :] = 0.0
+        bank['gross_receipts'] = bank['receipts'] + bank['refunds']
+        landing = attribute_month(bank, SHOCK)
+        receipts = next(d for d in landing['drivers'] if d.field == 'receipts')
+        self.assertEqual((receipts.kind, receipts.reason), ('coyuntural', 'cobro_puntual'))
+        self.assertGreater(landing['pct_bache'], 60, landing)
+        fade = attribute_month(bank, SHOCK + 3)
+        arrastre = next(d for d in fade['drivers'] if d.field == 'arrastre')
+        self.assertEqual((arrastre.kind, arrastre.reason), ('coyuntural', 'cobro_puntual'))
+        self.assertGreater(fade['pct_bache'], 60, fade)
+        self.assertLess(fade['delta'], -1)
+
 
 if __name__ == '__main__':
     unittest.main()
