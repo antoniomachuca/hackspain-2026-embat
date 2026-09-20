@@ -1,6 +1,8 @@
-# Craftsmanship matemático · fuente para agentes
+# Matemáticas del score · fuente para agentes
 
 Documento de conocimiento interno. Lo leen agentes (y humanos que implementan o explican el sistema). No es un pitch. Si un README, un brief o un whitepaper discrepan del código, **gana el código**.
+
+**Decisiones de producto (rutas, audiencias, palancas, UI):** [`PRODUCTO-DECISIONES.md`](PRODUCTO-DECISIONES.md).
 
 **Código canónico del score:** `algorythm/score_engine.py` (`calculate_scores`, `ScoreConfig`).  
 **Ingesta del panel:** `algorythm/score_data.py`.  
