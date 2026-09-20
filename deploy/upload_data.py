@@ -32,7 +32,7 @@ def main() -> int:
     faltan = [n for n in OBJETOS if not (RAIZ / n).exists()]
     if faltan:
         print("No encuentro estos ficheros en local:", ", ".join(faltan), file=sys.stderr)
-        print("Genera el DuckDB con: python algorythm/build_duckdb.py", file=sys.stderr)
+        print("Genera el DuckDB con: python algorithm/build_duckdb.py", file=sys.stderr)
         return 1
 
     for nombre in OBJETOS:

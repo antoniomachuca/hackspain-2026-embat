@@ -1,7 +1,7 @@
 """Attach factor reparto to DuckDB history without rewriting scores."""
 from datetime import date
 
-from algorythm.test_score_decompose import SHOCK, case_collect_early
+from algorithm.test_score_decompose import SHOCK, case_collect_early
 from backend.routes.companies import _as_of_key, _reparto_lookup
 
 

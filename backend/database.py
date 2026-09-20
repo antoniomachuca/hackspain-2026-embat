@@ -22,7 +22,7 @@ def get_db_connection() -> duckdb.DuckDBPyConnection:
     global _shared_connection
     if _shared_connection is None:
         if not DB_PATH.exists():
-            from algorythm.build_duckdb import build_database
+            from algorithm.build_duckdb import build_database
             build_database(db_path=DB_PATH, verbose=False)
 
         _shared_connection = duckdb.connect(str(DB_PATH), read_only=True)

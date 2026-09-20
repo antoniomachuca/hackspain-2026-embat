@@ -10,8 +10,8 @@ from pathlib import Path
 
 import numpy as np
 
-from algorythm.score_data import load_bank_panel, month_edges
-from algorythm.score_project import (
+from algorithm.score_data import load_bank_panel, month_edges
+from algorithm.score_project import (
     HOLD_FIELDS, LONG_WINDOW, RUN_WINDOW, build_projected_bank, long_rate, refund_rate,
     run_rate, score_at_horizon, score_named_path_series, score_named_paths,
 )

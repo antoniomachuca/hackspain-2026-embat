@@ -63,15 +63,15 @@ dataset/
 # Se reparte aparte (ZIP de los organizadores); copiarlo a mano en data/.
 data/
 
-/algorythm/texput.log
-/algorythm/formula/*.aux
-/algorythm/formula/*.log
-/algorythm/formula/*.fls
-/algorythm/formula/*.fdb_latexmk
-/algorythm/formula/*.synctex.gz
-/algorythm/formula/*.out
+/algorithm/texput.log
+/algorithm/formula/*.aux
+/algorithm/formula/*.log
+/algorithm/formula/*.fls
+/algorithm/formula/*.fdb_latexmk
+/algorithm/formula/*.synctex.gz
+/algorithm/formula/*.out
 
-# DuckDB Database files (generadas localmente mediante algorythm/build_duckdb.py)
+# DuckDB Database files (generadas localmente mediante algorithm/build_duckdb.py)
 *.duckdb
 *.duckdb.wal
 *.log
@@ -86,4 +86,4 @@ data/
 /runtime/
 
 # Direcciones de correo fijadas para la demo (pueden ser personales)
-algorythm/email_recipients.json
+algorithm/email_recipients.json

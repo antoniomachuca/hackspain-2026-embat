@@ -7,8 +7,8 @@
 
 | Archivo | Para qué |
 | :--- | :--- |
-| `algorythm/score_decompose.py` | Cálculo + serializador JSON (`history_with_reparto`) |
-| `algorythm/test_score_decompose.py` | Tests del algoritmo (17). No los dupliques en TS |
+| `algorithm/score_decompose.py` | Cálculo + serializador JSON (`history_with_reparto`) |
+| `algorithm/test_score_decompose.py` | Tests del algoritmo (17). No los dupliques en TS |
 | `research/fixtures/reparto_demo.json` | History de dos empresas sintéticas, **mismo shape que el API** |
 | `research/descomposicion_factores.md` | Por qué se cambia el método |
 
@@ -480,13 +480,13 @@ Sin reimplementar el algoritmo. Carga el fixture o espera al API.
 6. **Ventana 12 M.** Hover del mes i: `reparto[i].mes === datos[i].mes`.
 7. **Estado TORCIENDOSE.** El anillo de estado de la ficha no se pone ámbar «bache» solo porque el mes tenga `pctBache` alto.
 
-Tests automáticos: `python -m unittest algorythm.test_score_decompose` (no es tu job). Un test de adaptador, si tenéis, que `mapReparto` no importe `repartir` basta.
+Tests automáticos: `python -m unittest algorithm.test_score_decompose` (no es tu job). Un test de adaptador, si tenéis, que `mapReparto` no importe `repartir` basta.
 
 ---
 
 ## 7. Qué hace el algoritmo (para no implementarlo, para no romperlo)
 
-Referencia: `attribute_month` en `algorythm/score_decompose.py`.
+Referencia: `attribute_month` en `algorithm/score_decompose.py`.
 
 1. Δ = score(t) − score(t−1) con `calculate_scores` (la `f` de producción).
 2. Congela el mes t a los flujos de t−1. La diferencia con t−1 es **arrastre** de ventanas.

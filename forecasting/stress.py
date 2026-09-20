@@ -5,10 +5,10 @@ Generated shocks and oracle labels stay separate from model inputs.
 """
 import numpy as np
 
-from algorythm.behavior_benchmark import eligible_history, metric_summary
-from algorythm.score_engine import calculate_scores
-from algorythm.score_monitor import directional_event_matrix
-from algorythm.score_states import classify_states
+from algorithm.behavior_benchmark import eligible_history, metric_summary
+from algorithm.score_engine import calculate_scores
+from algorithm.score_monitor import directional_event_matrix
+from algorithm.score_states import classify_states
 
 PROFILES = (
     {'id': 'delivery_expansion', 'sector': 'hospitality', 'country': 'ES', 'inspiration': 'VICIO',

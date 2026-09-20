@@ -2,13 +2,13 @@
 
 **Fecha:** 2026-09-19 · **Rama:** `feat/capa-intermedia-mejoras` · **Investigación + implementación en curso.**
 **Dueño:** Pedro (catálogo, `/simulate`, orquestación, monitor). El núcleo es de Carlos/Antonio; este documento no lo retoca.
-**Contrato motor:** ver `respuestas_a_pedro.md` y `research/capa_intermedia_decisiones.md` §11.
+**Contrato motor:** ver `docs/respuestas_a_pedro.md` y `research/capa_intermedia_decisiones.md` §11.
 
 **Criterio de cada veredicto:** ¿mejora la tesorería de forma defendible ante Embat? Subir el score no basta.
 
 **Dataset usado:** ZIP de organizadores, copiado a `dataset/` (gitignored). 1.286 empresas, 250 grupos, 2.556.437 movimientos, 897.894 documentos ERP. Corte de extracción **2026-09-01**. Panel del motor: 24 meses de transacciones en `[2024-09-01, 2026-09-01)`.
 
-**Motor usado:** `algorythm/score_engine.py` + `score_data.py` + paneles `algorythm/engine_results/` (ERP off, `cash_known=0`) y `engine_results_erp/` (snapshot opt-in, solo el último mes).
+**Motor usado:** `algorithm/score_engine.py` + `score_data.py` + paneles `algorithm/engine_results/` (ERP off, `cash_known=0`) y `engine_results_erp/` (snapshot opt-in, solo el último mes).
 
 ---
 

@@ -794,7 +794,7 @@ Orden de construcción sugerido (todo acaba en el producto):
 
 ## 11. Contrato con el motor · respuestas verificadas Carlos/Antonio (2026-09-19)
 
-Fuente canónica en repo: [`respuestas_a_pedro.md`](../respuestas_a_pedro.md). Congelado aquí lo que afecta a implementación.
+Fuente canónica en repo: [`respuestas_a_pedro.md`](../docs/respuestas_a_pedro.md). Congelado aquí lo que afecta a implementación.
 
 ### 11.0 Tabla rápida
 
@@ -820,7 +820,7 @@ Fuente canónica en repo: [`respuestas_a_pedro.md`](../respuestas_a_pedro.md). C
 
 ### 11.1 Gap técnico (importante)
 
-En `main` el endpoint actual `POST /api/whatif` (`algorythm/score_whatif.py`) **no** llama a `calculate_scores`: proyecta ΔS con una heurística de inyección sobre puntos ya guardados.
+En `main` el endpoint actual `POST /api/whatif` (`algorithm/score_whatif.py`) **no** llama a `calculate_scores`: proyecta ΔS con una heurística de inyección sobre puntos ya guardados.
 
 Nuestra capa **sí** debe fotocopiar el panel bancario, mutar mes 23 y llamar a `calculate_scores` (+ `classify_states`). Eso exige `engine_results/bank_inputs.npz` + `get_company_bank_slice` (prometidos; se construyen en esta rama).
 

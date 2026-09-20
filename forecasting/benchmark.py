@@ -20,8 +20,8 @@ from forecasting.country import known_country
 from forecasting.models import CANDIDATES, Forecaster
 from forecasting.stress import PROFILES, generate_stress, stress_score_report, synthetic_erp
 from forecasting.registry import comparison_spec
-from algorythm.score_data import load_bank_panel, month_edges, sha256
-from algorythm.score_monitor import atomic_json
+from algorithm.score_data import load_bank_panel, month_edges, sha256
+from algorithm.score_monitor import atomic_json
 
 HERE = Path(__file__).resolve().parent
 
@@ -163,7 +163,7 @@ def run(dataset, output, context_path=None, allow_assumed=False, stress_n=None):
     groups = split_groups(companies, protocol['seed'])
     features, scores, eligible = feature_panel(bank, companies, as_of, context, allow_assumed)
     sources = {str(p.relative_to(HERE.parent)): sha256(p) for p in HERE.glob('*.py')}
-    sources.update({f'algorythm/{k}': sha256(HERE.parent/'algorythm'/k) for k in ('score_engine.py', 'score_data.py', 'score_states.py', 'score_monitor.py', 'behavior_benchmark.py')})
+    sources.update({f'algorithm/{k}': sha256(HERE.parent/'algorithm'/k) for k in ('score_engine.py', 'score_data.py', 'score_states.py', 'score_monitor.py', 'behavior_benchmark.py')})
     sources.update({f'forecasting/{k}': sha256(HERE/k) for k in ('protocol.json', 'policy_rates.json')})
     inputs = {name: sha256(dataset/name) for name in ('companies.csv', 'transactions.csv', 'banking_products.csv', 'debt_products.csv')}
     if context_path:

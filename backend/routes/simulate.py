@@ -6,8 +6,8 @@ GET  /api/simulate/rankings?company_id=
 
 from fastapi import APIRouter, HTTPException, Query
 
-from algorythm.levers import LEVER_CATALOG, simulate_levers
-from algorythm.levers_search import recommend_levers
+from algorithm.levers import LEVER_CATALOG, simulate_levers
+from algorithm.levers_search import recommend_levers
 from backend.database import normalize_company_id
 from backend.schemas import RankingsResponse, SimulateRequest, SimulateResponse
 

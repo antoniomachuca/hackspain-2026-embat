@@ -104,7 +104,7 @@ Cada caso exporta banco `.npz`, control emparejado, ERP simulado, metadatos y or
 
 ```python
 import numpy as np
-from algorythm.score_engine import calculate_scores
+from algorithm.score_engine import calculate_scores
 
 bank = dict(np.load('forecasting/datasets/synthetic/v1/compound_crisis.npz'))
 erp = dict(np.load('forecasting/datasets/synthetic/v1/compound_crisis_erp.npz'))
@@ -285,7 +285,7 @@ ciclo de desarrollo con un nuevo test reservado.
 
 ## Verificación de esta entrega
 
-- Suite completa tras integrar `main`: **172 tests aprobados** (`pytest forecasting/tests algorythm backend`).
+- Suite completa tras integrar `main`: **172 tests aprobados** (`pytest forecasting/tests algorithm backend`).
 - Segunda tanda (v2): **37 tests** (`pytest forecasting/tests backend/test_forecasts.py -q`), incluidos
   los del bootstrap emparejado, la columna Δ del leaderboard, las siete factorías nuevas
   (fit → calibrate → predict, probabilidades y reconstrucción de explicaciones), la agregación OOF

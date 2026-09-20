@@ -26,7 +26,7 @@ pip install duckdb fastapi uvicorn pydantic httpx requests
 ### 2.2. Construir / Refrescar la Base de Datos DuckDB
 El script ingesta los 3,5 millones de registros (transacciones, facturas, scores y alertas) en ~7 segundos:
 ```bash
-python3 algorythm/build_duckdb.py
+python3 algorithm/build_duckdb.py
 ```
 
 ### 2.3. Arrancar el Servidor FastAPI

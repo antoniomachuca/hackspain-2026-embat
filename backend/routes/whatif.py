@@ -4,7 +4,7 @@ Endpoint para el Simulador Contrafactual What-If de X-Ray.
 
 from fastapi import APIRouter, HTTPException
 
-from algorythm.score_whatif import simulate_whatif
+from algorithm.score_whatif import simulate_whatif
 from backend.database import normalize_company_id
 from backend.schemas import WhatIfRequest, WhatIfResponse
 

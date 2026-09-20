@@ -13,7 +13,7 @@ import numpy as np
 import sklearn
 from threadpoolctl import threadpool_limits
 
-from algorythm.score_data import load_bank_panel, sha256
+from algorithm.score_data import load_bank_panel, sha256
 from forecasting.benchmark import load_protocol, metrics
 from forecasting.context import load_context
 from forecasting.data import Samples, feature_panel, make_samples, partition_samples, split_groups

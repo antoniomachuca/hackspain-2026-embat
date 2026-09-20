@@ -6,7 +6,7 @@ import numpy as np
 
 from forecasting.context import INDICATORS, context_features
 from forecasting.country import known_country
-from algorythm.score_engine import calculate_scores
+from algorithm.score_engine import calculate_scores
 
 FEATURE_NAMES = (
     'score_actual', 'score_media_3m', 'score_media_6m', 'pendiente_6m', 'volatilidad_6m',
